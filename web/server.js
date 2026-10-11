@@ -6,6 +6,15 @@ const path = require('path');
 const os = require('os');
 require('dotenv').config({ path: path.join(__dirname, '../.env') });
 
+// Global error resilience - Never let the process exit on unhandled errors
+process.on('uncaughtException', (err) => {
+    console.error('[UNCAUGHT EXCEPTION PREVENTED]:', err && err.message ? err.message : err);
+});
+process.on('unhandledRejection', (reason) => {
+    console.error('[UNHANDLED REJECTION PREVENTED]:', reason && reason.message ? reason.message : reason);
+});
+
+
 
 const app = express();
 const PORT = process.env.PORT || 3000;

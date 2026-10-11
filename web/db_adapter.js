@@ -164,6 +164,9 @@ class PostgresAdapter {
       idleTimeoutMillis: 30000,
       connectionTimeoutMillis: 10000
     });
+    this.pool.on('error', (err) => {
+      console.error('Unexpected error on idle PG client:', err.message);
+    });
     console.log('✅ Connected to Neon Cloud PostgreSQL Database via Pool');
   }
 
