@@ -9700,6 +9700,12 @@ def register_discord_command_tree():
 
 register_discord_command_tree()
 
+try:
+    from module_commands import setup_module_commands
+    setup_module_commands(bot)
+except Exception as e:
+    print("Module commands setup notice:", e)
+
 # Run bot using environment configurations
 if __name__ == "__main__":
     # Manually load the root .env configuration file if it exists
