@@ -96,6 +96,16 @@ def transform_sql_for_pg(sql):
     if s.upper().startswith("PRAGMA "):
         return "SELECT 1;", True
 
+    # Handle SQLite CREATE TABLE - If table is already known, it's a no-op in Postgres
+    create_match = re.search(r'CREATE\s+TABLE\s+(?:IF\s+NOT\s+EXISTS\s+)?([a-zA-Z0-9_"]+)', s, re.IGNORECASE)
+    if create_match:
+        table_name = create_match.group(1).replace('"', '').replace('`', '').lower()
+        if table_name in PK_MAP:
+            return "SELECT 1;", True
+
+    s = re.sub(r'INTEGER\s+PRIMARY\s+KEY\s+AUTOINCREMENT', 'SERIAL PRIMARY KEY', s, flags=re.IGNORECASE)
+    s = re.sub(r'\bAUTOINCREMENT\b', '', s, flags=re.IGNORECASE)
+
     # Handle INSERT OR IGNORE INTO <table>
     if re.search(r'INSERT\s+OR\s+IGNORE\s+INTO', s, re.IGNORECASE):
         s = re.sub(r'INSERT\s+OR\s+IGNORE\s+INTO', 'INSERT INTO', s, flags=re.IGNORECASE)
@@ -145,8 +155,9 @@ def get_pg_pool():
     return _pg_pool
 
 class PostgresCursorWrapper:
-    def __init__(self, raw_cursor):
+    def __init__(self, raw_cursor, conn=None):
         self._cur = raw_cursor
+        self._conn = conn
         self.lastrowid = 0
 
     def execute(self, sql, params=None):
@@ -161,7 +172,15 @@ class PostgresCursorWrapper:
             else:
                 self._cur.execute(pg_sql)
         except Exception as e:
-            # Re-raise with clean context
+            err_msg = str(e).lower()
+            if "already exists" in err_msg or "duplicate" in err_msg:
+                # Column or table already exists — ignore harmless DDL error
+                return self
+            if self._conn:
+                try:
+                    self._conn.rollback()
+                except Exception:
+                    pass
             raise e
         return self
 
@@ -169,7 +188,15 @@ class PostgresCursorWrapper:
         pg_sql, is_noop = transform_sql_for_pg(sql)
         if is_noop:
             return self
-        self._cur.executemany(pg_sql, seq_of_params)
+        try:
+            self._cur.executemany(pg_sql, seq_of_params)
+        except Exception as e:
+            if self._conn:
+                try:
+                    self._conn.rollback()
+                except Exception:
+                    pass
+            raise e
         return self
 
     def fetchone(self):
@@ -204,13 +231,19 @@ class PostgresConnectionWrapper:
         self.row_factory = None
 
     def cursor(self):
-        return PostgresCursorWrapper(self._conn.cursor())
+        return PostgresCursorWrapper(self._conn.cursor(), self._conn)
 
     def commit(self):
-        self._conn.commit()
+        try:
+            self._conn.commit()
+        except Exception:
+            pass
 
     def rollback(self):
-        self._conn.rollback()
+        try:
+            self._conn.rollback()
+        except Exception:
+            pass
 
     def close(self):
         if self._pool:
@@ -241,12 +274,13 @@ def get_db():
         try:
             pool = get_pg_pool()
             raw_conn = pool.getconn()
-            raw_conn.autocommit = False
+            raw_conn.autocommit = True
             return PostgresConnectionWrapper(raw_conn, pool)
         except Exception as e:
             # Fallback to direct connection if pool exhausted
             try:
                 raw_conn = psycopg2.connect(DATABASE_URL, cursor_factory=psycopg2.extras.DictCursor)
+                raw_conn.autocommit = True
                 return PostgresConnectionWrapper(raw_conn)
             except Exception as direct_err:
                 pass
