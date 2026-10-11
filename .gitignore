@@ -11,3 +11,13 @@ standardize_colors.py
 upgrade_all_responses.py
 database/*.db
 
+.vercel
+
+*.log
+eagle-ultimate/
+
+
+database/*.db
+database/**/*.db
+database/backups/
+

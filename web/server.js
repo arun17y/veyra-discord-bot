@@ -3787,6 +3787,32 @@ app.get('/health', (req, res) => {
     res.status(200).send('OK - VEYRA 24/7 Alive');
 });
 
+// 24/7 Remote Bot Monitor & Log buffer
+const botLogBuffer = [];
+function logBotMessage(prefix, data) {
+    if (!data) return;
+    const text = data.toString();
+    const lines = text.split(/\r?\n/);
+    for (const l of lines) {
+        const trimmed = l.trim();
+        if (!trimmed) continue;
+        const line = `[${new Date().toISOString()}] [${prefix}] ${trimmed}`;
+        console.log(line);
+        botLogBuffer.push(line);
+        if (botLogBuffer.length > 500) botLogBuffer.shift();
+    }
+}
+
+app.get('/api/bot-status', (req, res) => {
+    res.json({
+        botRunning: !!activeBotProcessInstance && !activeBotProcessInstance.killed && activeBotProcessInstance.exitCode === null,
+        pid: activeBotProcessInstance ? activeBotProcessInstance.pid : null,
+        exitCode: activeBotProcessInstance ? activeBotProcessInstance.exitCode : null,
+        recentLogs: botLogBuffer
+    });
+});
+
+
 // Catch-all route for single page app navigation
 app.get('*', (req, res) => {
     if (req.path.startsWith('/api/')) {
@@ -3823,44 +3849,46 @@ if (!process.env.VERCEL) {
         const { spawn } = require('child_process');
         function startDiscordBot() {
             const botPath = path.join(__dirname, '../bot/bot.py');
-            console.log(`[BOT-LAUNCHER] Spawning Discord Bot process: ${botPath}`);
+            logBotMessage('LAUNCHER', `Spawning Discord Bot process: ${botPath}`);
             const spawnEnv = { ...process.env, PYTHONIOENCODING: 'utf-8', PYTHONUNBUFFERED: '1' };
 
-            
-            let cmd = 'python3';
-            let botProc = spawn(cmd, ['-u', botPath], { stdio: 'inherit', cwd: path.join(__dirname, '..'), env: spawnEnv });
-            activeBotProcessInstance = botProc;
-            
-            botProc.on('error', (err) => {
-                console.log(`[BOT-LAUNCHER] Failed with python3, trying 'python'...`);
-                cmd = 'python';
-                botProc = spawn(cmd, ['-u', botPath], { stdio: 'inherit', cwd: path.join(__dirname, '..'), env: spawnEnv });
-                activeBotProcessInstance = botProc;
-                
-                botProc.on('error', (errPy) => {
-                    console.log(`[BOT-LAUNCHER] Failed with python, trying 'py'...`);
-                    cmd = 'py';
-                    botProc = spawn(cmd, ['-u', botPath], { stdio: 'inherit', cwd: path.join(__dirname, '..'), env: spawnEnv });
-                    activeBotProcessInstance = botProc;
-                    
-                    botProc.on('error', (errFinal) => {
-                        console.error(`[BOT-LAUNCHER] CRITICAL: Could not find 'python3', 'python', or 'py'.`);
-                    });
-                    bindExitHandler(botProc);
+            function launch(cmd) {
+                logBotMessage('LAUNCHER', `Trying command: ${cmd}`);
+                const proc = spawn(cmd, ['-u', botPath], {
+                    stdio: ['ignore', 'pipe', 'pipe'],
+                    cwd: path.join(__dirname, '..'),
+                    env: spawnEnv
                 });
-                bindExitHandler(botProc);
-            });
-            
-            bindExitHandler(botProc);
-        }
+                activeBotProcessInstance = proc;
 
-        function bindExitHandler(proc) {
-            proc.on('close', (code) => {
-                if (code !== null) {
-                    console.log(`[BOT-LAUNCHER] Discord Bot exited with code ${code}. Auto-restarting in 5 seconds...`);
-                    setTimeout(startDiscordBot, 5000);
+                if (proc.stdout) {
+                    proc.stdout.on('data', (chunk) => logBotMessage('BOT-OUT', chunk));
                 }
-            });
+                if (proc.stderr) {
+                    proc.stderr.on('data', (chunk) => logBotMessage('BOT-ERR', chunk));
+                }
+
+                proc.on('error', (err) => {
+                    logBotMessage('LAUNCHER-ERR', `${cmd} failed: ${err.message}`);
+                    if (cmd === 'python3') {
+                        launch('python');
+                    } else if (cmd === 'python') {
+                        launch('py');
+                    } else {
+                        logBotMessage('LAUNCHER-FATAL', `Could not find any working python binary.`);
+                    }
+                });
+
+                proc.on('close', (code, signal) => {
+                    logBotMessage('LAUNCHER', `Discord Bot exited with code ${code}, signal ${signal}. Restarting in 5s...`);
+                    activeBotProcessInstance = null;
+                    setTimeout(startDiscordBot, 5000);
+                });
+
+                return proc;
+            }
+
+            launch('python3');
         }
 
         // Delay start slightly to let web server set up
