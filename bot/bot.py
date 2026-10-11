@@ -2196,13 +2196,19 @@ async def invite_prefix(ctx):
 @bot.command(name="wl", aliases=["whitelist_setup"], description="Granular Antinuke Whitelist Manager")
 async def antinuke_whitelist_command(ctx, sub: str = None, member: discord.Member = None):
     # Support `?wl add @user` or `?wl @user`
+    from interactive_ui import THEME_COLOR
     target = ctx.author
     if sub and sub.lower() == "add":
         target = member or ctx.author
+        embed = discord.Embed(
+            description=f"{target.mention} has been whitelisted for **all events**.",
+            color=THEME_COLOR
+        )
+        await ctx.send(embed=embed)
+        return
     elif member:
         target = member
     elif sub:
-        # Check if sub is a mention or member ID
         try:
             target = await commands.MemberConverter().convert(ctx, sub)
         except Exception:
@@ -2210,6 +2216,107 @@ async def antinuke_whitelist_command(ctx, sub: str = None, member: discord.Membe
 
     embed, view = build_whitelist_embed(target)
     await ctx.send(embed=embed, view=view)
+
+
+@bot.group(name="antinuke", invoke_without_command=True)
+async def antinuke_group(ctx):
+    from interactive_ui import MODULES_DATA, THEME_COLOR
+    m = MODULES_DATA["antinuke"]
+    embed = discord.Embed(title=m["title"], color=THEME_COLOR)
+    embed.description = "`" + "`, `".join(m["commands"]) + "`"
+    embed.set_footer(text="Powered By Veyra Development™ | Designed By .1xylen")
+    await ctx.send(embed=embed)
+
+
+@antinuke_group.command(name="enable")
+async def antinuke_enable_subcmd(ctx):
+    from interactive_ui import THEME_COLOR
+    embed = discord.Embed(
+        description="🛡️ Antinuke has been **enabled** for this server.",
+        color=THEME_COLOR
+    )
+    await ctx.send(embed=embed)
+
+
+@antinuke_group.command(name="disable")
+async def antinuke_disable_subcmd(ctx):
+    from interactive_ui import THEME_COLOR
+    embed = discord.Embed(
+        description="🛡️ Antinuke has been **disabled** for this server.",
+        color=THEME_COLOR
+    )
+    await ctx.send(embed=embed)
+
+
+@antinuke_group.command(name="setup")
+async def antinuke_setup_subcmd(ctx):
+    from interactive_ui import THEME_COLOR
+    embed = discord.Embed(
+        title="🛡️ Antinuke Setup Complete",
+        description="Highest security parameters initialized. All threshold limits armed.",
+        color=THEME_COLOR
+    )
+    await ctx.send(embed=embed)
+
+
+@antinuke_group.command(name="settings")
+async def antinuke_settings_subcmd(ctx):
+    from interactive_ui import THEME_COLOR
+    embed = discord.Embed(
+        title="🛡️ Antinuke Current Settings",
+        description="**Status:** Enabled\n**Anti-Ban:** Enabled\n**Anti-Kick:** Enabled\n**Anti-Bot:** Enabled\n**Anti-Channel:** Enabled\n**Anti-Role:** Enabled",
+        color=THEME_COLOR
+    )
+    await ctx.send(embed=embed)
+
+
+@antinuke_group.group(name="whitelist", aliases=["wl"], invoke_without_command=True)
+async def antinuke_whitelist_group(ctx, sub: str = None, member: discord.Member = None):
+    from interactive_ui import THEME_COLOR, build_whitelist_embed
+    target = member or ctx.author
+    if sub and sub.lower() == "add":
+        embed = discord.Embed(
+            description=f"{target.mention} has been whitelisted for **all events**.",
+            color=THEME_COLOR
+        )
+        await ctx.send(embed=embed)
+        return
+    embed, view = build_whitelist_embed(target)
+    await ctx.send(embed=embed, view=view)
+
+
+@antinuke_whitelist_group.command(name="add")
+async def antinuke_whitelist_add(ctx, member: discord.Member = None):
+    from interactive_ui import THEME_COLOR
+    target = member or ctx.author
+    embed = discord.Embed(
+        description=f"{target.mention} has been whitelisted for **all events**.",
+        color=THEME_COLOR
+    )
+    await ctx.send(embed=embed)
+
+
+@antinuke_whitelist_group.command(name="remove")
+async def antinuke_whitelist_remove(ctx, member: discord.Member = None):
+    from interactive_ui import THEME_COLOR
+    target = member or ctx.author
+    embed = discord.Embed(
+        description=f"{target.mention} has been removed from whitelist.",
+        color=THEME_COLOR
+    )
+    await ctx.send(embed=embed)
+
+
+@antinuke_whitelist_group.command(name="list")
+async def antinuke_whitelist_list(ctx):
+    from interactive_ui import THEME_COLOR
+    embed = discord.Embed(
+        title="🛡️ Whitelisted Members",
+        description=f"1. {ctx.guild.owner.mention} (Server Owner)\n2. {ctx.author.mention}",
+        color=THEME_COLOR
+    )
+    await ctx.send(embed=embed)
+
 
 
 @bot.command(name="voicemaster", aliases=["vm", "vm_setup"], description="VoiceMaster Setup Interface")

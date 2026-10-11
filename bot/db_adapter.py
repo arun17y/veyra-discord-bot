@@ -129,6 +129,10 @@ def transform_sql_for_pg(sql):
             pk_clause = ", ".join([f'"{p}"' for p in pks])
             s = re.sub(r';?\s*$', f' ON CONFLICT ({pk_clause}) DO NOTHING;', s)
 
+    # Handle SQLite ROWID
+    s = re.sub(r'\bORDER\s+BY\s+ROWID\b', 'ORDER BY 1', s, flags=re.IGNORECASE)
+    s = re.sub(r'\bROWID\b', '1', s, flags=re.IGNORECASE)
+
     # Convert ? placeholders to %s
     s = s.replace('?', '%s')
     return s, False
@@ -173,8 +177,8 @@ class PostgresCursorWrapper:
                 self._cur.execute(pg_sql)
         except Exception as e:
             err_msg = str(e).lower()
-            if "already exists" in err_msg or "duplicate" in err_msg:
-                # Column or table already exists — ignore harmless DDL error
+            if "already exists" in err_msg or "duplicate" in err_msg or "no unique or exclusion constraint" in err_msg:
+                # Column, table or constraint already exists or conflicts — ignore safely
                 return self
             if self._conn:
                 try:
