@@ -3812,10 +3812,11 @@ if (keepAliveUrl && !process.env.VERCEL) {
 
 
 if (!process.env.VERCEL) {
-    app.listen(PORT, '0.0.0.0', () => {
+    const listenPort = parseInt(process.env.PORT, 10) || 3000;
+    const server = app.listen(listenPort, '0.0.0.0', () => {
         console.log(`\n=============================================`);
-        console.log(`🚀 VEYRA Dashboard Server listening on 0.0.0.0:${PORT}`);
-        console.log(`🌐 Open Local Preview at: http://localhost:${PORT}`);
+        console.log(`🚀 VEYRA Dashboard Server listening on 0.0.0.0:${listenPort}`);
+        console.log(`🌐 Open Local Preview at: http://localhost:${listenPort}`);
         console.log(`=============================================\n`);
 
         // Auto-launch the Python Discord Bot alongside the website when not in Vercel!
@@ -3824,6 +3825,7 @@ if (!process.env.VERCEL) {
             const botPath = path.join(__dirname, '../bot/bot.py');
             console.log(`[BOT-LAUNCHER] Spawning Discord Bot process: ${botPath}`);
             const spawnEnv = { ...process.env, PYTHONIOENCODING: 'utf-8', PYTHONUNBUFFERED: '1' };
+
             
             let cmd = 'python3';
             let botProc = spawn(cmd, ['-u', botPath], { stdio: 'inherit', cwd: path.join(__dirname, '..'), env: spawnEnv });
@@ -3864,7 +3866,14 @@ if (!process.env.VERCEL) {
         // Delay start slightly to let web server set up
         setTimeout(startDiscordBot, 1000);
     });
+
+    server.on('error', (err) => {
+        console.error('HTTP Server listen error:', err && err.message ? err.message : err);
+    });
+    // Keep event loop active 24/7 forever
+    setInterval(() => {}, 60000);
 }
+
 
 module.exports = app;
 
