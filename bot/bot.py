@@ -9668,8 +9668,102 @@ async def on_interaction(interaction: discord.Interaction):
         print(f"Error handling ticket interaction event: {e}")
 
 
+class Voice247Group(app_commands.Group):
+    def __init__(self):
+        super().__init__(name="247", description="24/7 Voice Channel System")
+
+    @app_commands.command(name="set", description="Connects and locks 24/7 voice channel in this server")
+    @app_commands.describe(channel="Select a voice channel to lock 24/7 (optional)")
+    async def set_channel(self, interaction: discord.Interaction, channel: discord.VoiceChannel = None):
+        await interaction.response.defer()
+        target_vc = channel or resolve_member_voice_channel(interaction.guild, interaction.user.id)
+        if not target_vc:
+            from interactive_ui import THEME_COLOR
+            embed = discord.Embed(
+                title="⚠️ Voice Channel Required",
+                description="Please select a voice channel or join a voice channel first!",
+                color=THEME_COLOR
+            )
+            embed.set_footer(text="Powered by Veyra Development™")
+            return await interaction.followup.send(embed=embed)
+
+        try:
+            vc = interaction.guild.voice_client
+            if vc:
+                if vc.channel.id != target_vc.id and vc.is_connected():
+                    await vc.move_to(target_vc)
+            else:
+                await target_vc.connect(reconnect=True, timeout=30.0)
+        except Exception:
+            pass
+
+        try:
+            conn = get_db()
+            cursor = conn.cursor()
+            cursor.execute("""
+                INSERT OR REPLACE INTO voice_247_settings (guild_id, channel_id, enabled, last_reconnect, updated_at)
+                VALUES (?, ?, 1, ?, CURRENT_TIMESTAMP)
+            """, (str(interaction.guild.id), str(target_vc.id), datetime.now(timezone.utc).isoformat()))
+            conn.commit()
+            conn.close()
+        except Exception:
+            pass
+
+        from interactive_ui import THEME_COLOR
+        embed = discord.Embed(
+            title="🔊 24/7 Voice System Locked",
+            description=f"Bot successfully locked to {target_vc.mention}.\n24/7 persistence is **Active**.",
+            color=THEME_COLOR
+        )
+        embed.set_footer(text="Powered by Veyra Development™")
+        await interaction.followup.send(embed=embed)
+
+    @app_commands.command(name="leave", description="Disconnects bot and disables 24/7 voice mode")
+    async def leave_channel(self, interaction: discord.Interaction):
+        await interaction.response.defer()
+        try:
+            conn = get_db()
+            cursor = conn.cursor()
+            cursor.execute("UPDATE voice_247_settings SET enabled = 0 WHERE guild_id = ?", (str(interaction.guild.id),))
+            conn.commit()
+            conn.close()
+        except Exception:
+            pass
+
+        vc = interaction.guild.voice_client
+        if vc and vc.is_connected():
+            try:
+                await vc.disconnect(force=True)
+            except Exception:
+                pass
+
+        from interactive_ui import THEME_COLOR
+        embed = discord.Embed(
+            title="🔴 24/7 Voice System Disabled",
+            description="Bot disconnected from voice and 24/7 mode is turned off.",
+            color=THEME_COLOR
+        )
+        embed.set_footer(text="Powered by Veyra Development™")
+        await interaction.followup.send(embed=embed)
+
+    @app_commands.command(name="status", description="Check current 24/7 voice channel status")
+    async def status_channel(self, interaction: discord.Interaction):
+        await interaction.response.defer()
+        vc = interaction.guild.voice_client
+        ch_text = vc.channel.mention if vc and vc.is_connected() else "Not connected"
+        from interactive_ui import THEME_COLOR
+        embed = discord.Embed(
+            title="🔊 24/7 Voice Status",
+            description=f"**Current Channel:** {ch_text}\n**Active:** {'Yes' if vc and vc.is_connected() else 'No'}",
+            color=THEME_COLOR
+        )
+        embed.set_footer(text="Powered by Veyra Development™")
+        await interaction.followup.send(embed=embed)
+
+
 def register_discord_command_tree():
     try:
+        bot.tree.add_command(Voice247Group())
         bot.tree.add_command(WhitelistGroup())
         bot.tree.add_command(PermissionGroup())
         bot.tree.add_command(LogsGroup())
