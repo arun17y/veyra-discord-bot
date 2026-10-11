@@ -8,6 +8,11 @@ RUN apt-get update && apt-get install -y curl ca-certificates build-essential &&
 
 WORKDIR /app
 
+ENV PYTHONIOENCODING=utf-8
+ENV PYTHONUNBUFFERED=1
+ENV NODE_ENV=production
+ENV PORT=3000
+
 # Install Python requirements (discord.py, psycopg2-binary, etc.)
 COPY requirements.txt ./
 RUN pip install --no-cache-dir -r requirements.txt
@@ -18,7 +23,6 @@ RUN npm install --omit=dev --ignore-scripts
 
 COPY . .
 
-ENV PORT=3000
 EXPOSE 3000
 
 CMD ["node", "web/server.js"]

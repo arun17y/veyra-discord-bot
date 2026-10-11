@@ -3803,9 +3803,9 @@ if (keepAliveUrl && !process.env.VERCEL) {
 
 
 if (!process.env.VERCEL) {
-    app.listen(PORT, () => {
+    app.listen(PORT, '0.0.0.0', () => {
         console.log(`\n=============================================`);
-        console.log(`🚀 VEYRA Dashboard Server listening on port ${PORT}`);
+        console.log(`🚀 VEYRA Dashboard Server listening on 0.0.0.0:${PORT}`);
         console.log(`🌐 Open Local Preview at: http://localhost:${PORT}`);
         console.log(`=============================================\n`);
 
@@ -3814,28 +3814,30 @@ if (!process.env.VERCEL) {
         function startDiscordBot() {
             const botPath = path.join(__dirname, '../bot/bot.py');
             console.log(`[BOT-LAUNCHER] Spawning Discord Bot process: ${botPath}`);
+            const spawnEnv = { ...process.env, PYTHONIOENCODING: 'utf-8', PYTHONUNBUFFERED: '1' };
             
-            let cmd = 'python';
-            let botProc = spawn(cmd, ['-u', botPath], { stdio: 'inherit', cwd: path.join(__dirname, '..') });
+            let cmd = 'python3';
+            let botProc = spawn(cmd, ['-u', botPath], { stdio: 'inherit', cwd: path.join(__dirname, '..'), env: spawnEnv });
             activeBotProcessInstance = botProc;
             
             botProc.on('error', (err) => {
-                console.log(`[BOT-LAUNCHER] Failed to spawn bot with 'python', trying 'python3'...`);
-                cmd = 'python3';
-                botProc = spawn(cmd, ['-u', botPath], { stdio: 'inherit', cwd: path.join(__dirname, '..') });
+                console.log(`[BOT-LAUNCHER] Failed with python3, trying 'python'...`);
+                cmd = 'python';
+                botProc = spawn(cmd, ['-u', botPath], { stdio: 'inherit', cwd: path.join(__dirname, '..'), env: spawnEnv });
                 activeBotProcessInstance = botProc;
                 
-                botProc.on('error', (err3) => {
-                    console.log(`[BOT-LAUNCHER] Failed to spawn bot with 'python3', trying 'py'...`);
+                botProc.on('error', (errPy) => {
+                    console.log(`[BOT-LAUNCHER] Failed with python, trying 'py'...`);
                     cmd = 'py';
-                    botProc = spawn(cmd, ['-u', botPath], { stdio: 'inherit', cwd: path.join(__dirname, '..') });
+                    botProc = spawn(cmd, ['-u', botPath], { stdio: 'inherit', cwd: path.join(__dirname, '..'), env: spawnEnv });
                     activeBotProcessInstance = botProc;
                     
-                    botProc.on('error', (errPy) => {
-                        console.error(`[BOT-LAUNCHER] CRITICAL: Could not find 'python', 'python3', or 'py' execution commands. Discord bot cannot start.`);
+                    botProc.on('error', (errFinal) => {
+                        console.error(`[BOT-LAUNCHER] CRITICAL: Could not find 'python3', 'python', or 'py'.`);
                     });
                     bindExitHandler(botProc);
                 });
+                bindExitHandler(botProc);
             });
             
             bindExitHandler(botProc);
