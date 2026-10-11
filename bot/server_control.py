@@ -231,9 +231,9 @@ class Voice247Group(app_commands.Group):
     @app_commands.command(name="join", description="Connect bot 24/7 to your current voice channel")
     @app_commands.describe(channel="Voice channel to join (optional, defaults to your current voice channel)")
     async def join_cmd(self, interaction: discord.Interaction, channel: typing.Optional[discord.VoiceChannel] = None):
+        await interaction.response.defer()
         if not await is_authorized_manager(interaction, "247"):
             return
-        await interaction.response.defer()
         guild = interaction.guild
 
         target_vc = channel or resolve_member_voice_channel(guild, interaction.user.id)
@@ -280,9 +280,9 @@ class Voice247Group(app_commands.Group):
 
     @app_commands.command(name="leave", description="Disconnect bot and disable 24/7 voice mode")
     async def leave_cmd(self, interaction: discord.Interaction):
+        await interaction.response.defer()
         if not await is_authorized_manager(interaction, "247"):
             return
-        await interaction.response.defer()
         guild = interaction.guild
 
         conn = get_db()
@@ -307,9 +307,9 @@ class Voice247Group(app_commands.Group):
     @app_commands.command(name="set", description="Set default 24/7 voice channel for this server")
     @app_commands.describe(channel="Voice channel to set (optional, defaults to your current voice channel)")
     async def set_cmd(self, interaction: discord.Interaction, channel: typing.Optional[discord.VoiceChannel] = None):
+        await interaction.response.defer()
         if not await is_authorized_manager(interaction, "247"):
             return
-        await interaction.response.defer()
         guild = interaction.guild
 
         target_vc = channel or resolve_member_voice_channel(guild, interaction.user.id)
