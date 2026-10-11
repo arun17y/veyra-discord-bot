@@ -1,0 +1,21 @@
+{
+  "version": 2,
+  "name": "veyra",
+  "builds": [
+    {
+      "src": "web/server.js",
+      "use": "@vercel/node",
+      "config": {
+        "includeFiles": [
+          "web/public/**"
+        ]
+      }
+    }
+  ],
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "web/server.js"
+    }
+  ]
+}

@@ -1,0 +1,13 @@
+node_modules/
+.env
+.bot.pid
+*.pyc
+__pycache__/
+audit_*.py
+check_simple_sends.py
+convert_embeds.py
+find_*.py
+standardize_colors.py
+upgrade_all_responses.py
+database/*.db
+
