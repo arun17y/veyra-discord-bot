@@ -19,7 +19,9 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 # Install Node dependencies (pg, express, cors, etc.)
 COPY package*.json ./
-RUN npm install --omit=dev --ignore-scripts
+RUN npm install --omit=dev --omit=optional
+
+
 
 COPY . .
 

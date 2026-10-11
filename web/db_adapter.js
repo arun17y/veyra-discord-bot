@@ -1,8 +1,16 @@
 // web/db_adapter.js - Unified Database Adapter for SQLite and Neon PostgreSQL
 const path = require('path');
 require('dotenv').config({ path: path.join(__dirname, '../.env') });
-const sqlite3 = require('sqlite3').verbose();
+
+let sqlite3 = null;
+try {
+  sqlite3 = require('sqlite3').verbose();
+} catch (e) {
+  // Cloud runtime uses PostgreSQL; sqlite3 is not required
+}
+
 const { Pool } = require('pg');
+
 
 
 const PK_MAP = {
