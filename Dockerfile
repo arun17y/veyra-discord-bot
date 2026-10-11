@@ -11,7 +11,7 @@ WORKDIR /app
 ENV PYTHONIOENCODING=utf-8
 ENV PYTHONUNBUFFERED=1
 ENV NODE_ENV=production
-ENV PORT=3000
+
 
 # Install Python requirements (discord.py, psycopg2-binary, etc.)
 COPY requirements.txt ./
