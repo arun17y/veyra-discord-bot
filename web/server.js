@@ -3847,10 +3847,14 @@ if (!process.env.VERCEL) {
 
         // Auto-launch the Python Discord Bot alongside the website when not in Vercel!
         const { spawn } = require('child_process');
+        let botRestartDelay = 5000;
+        let lastBotStartTime = 0;
+
         function startDiscordBot() {
             const botPath = path.join(__dirname, '../bot/bot.py');
             logBotMessage('LAUNCHER', `Spawning Discord Bot process: ${botPath}`);
             const spawnEnv = { ...process.env, PYTHONIOENCODING: 'utf-8', PYTHONUNBUFFERED: '1' };
+            lastBotStartTime = Date.now();
 
             function launch(cmd) {
                 logBotMessage('LAUNCHER', `Trying command: ${cmd}`);
@@ -3880,9 +3884,15 @@ if (!process.env.VERCEL) {
                 });
 
                 proc.on('close', (code, signal) => {
-                    logBotMessage('LAUNCHER', `Discord Bot exited with code ${code}, signal ${signal}. Restarting in 5s...`);
+                    const uptime = Date.now() - lastBotStartTime;
+                    if (uptime < 30000) {
+                        botRestartDelay = Math.min(botRestartDelay * 2, 120000);
+                    } else {
+                        botRestartDelay = 5000;
+                    }
+                    logBotMessage('LAUNCHER', `Discord Bot exited with code ${code}, signal ${signal}. Restarting in ${Math.round(botRestartDelay / 1000)}s...`);
                     activeBotProcessInstance = null;
-                    setTimeout(startDiscordBot, 5000);
+                    setTimeout(startDiscordBot, botRestartDelay);
                 });
 
                 return proc;
