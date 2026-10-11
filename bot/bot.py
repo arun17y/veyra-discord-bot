@@ -1413,7 +1413,7 @@ async def on_message(message):
 
     # Check bot mention welcome card
     if bot.user in message.mentions and len(message.content.strip().split()) == 1:
-        prefix = "&"
+        prefix = ","
         try:
             conn = get_db()
             cursor = conn.cursor()
@@ -1424,14 +1424,8 @@ async def on_message(message):
                 prefix = row[0].strip()
         except Exception:
             pass
-        embed = discord.Embed(
-            title="Welcome to VEYRA",
-            description=f"Hey {message.author.mention},\nI'm **VEYRA**, your sovereign Discord guardian.\nPrefix for this server: `{prefix}`\nType `{prefix}help` or `/help` for more information.",
-            color=discord.Color.from_rgb(24, 24, 27)
-        )
-        if bot.user.avatar:
-            embed.set_thumbnail(url=bot.user.avatar.url)
-        embed.set_footer(text="Powered by VEYRA • 24/7 Protection Active")
+        from interactive_ui import build_mention_embed, BotMentionView
+        embed = build_mention_embed(message.author, prefix)
         await message.channel.send(embed=embed, view=BotMentionView())
         return
 
@@ -1886,55 +1880,48 @@ async def help_command(ctx, category: str = None):
     await ctx.send(embed=embed, view=HelpView(bot_icon_url))
 
 
-@bot.command(name="stats", aliases=["team"], description="Displays VEYRA Team and system stats.")
+@bot.command(name="stats", aliases=["team"], description="Displays Veyra Team and system stats.")
 async def stats_command(ctx):
-    ws_latency = round(bot.latency * 1000)
-    guild_count = len(bot.guilds)
-    user_count = sum(g.member_count or 0 for g in bot.guilds)
     embed = discord.Embed(
-        title="VEYRA Core Stats",
-        color=discord.Color.from_rgb(24, 24, 27)
+        title=":avownzz: Veyra Team",
+        color=discord.Color.from_rgb(43, 45, 49)
     )
     embed.description = (
-        "──────────────────────────────\n\n"
-        "• **Uptime:** `23h 15m 29s`\n"
-        "• **Started:** 5 hours ago\n"
-        f"• **Websocket:** `{ws_latency}ms`\n"
-        f"• **Guilds:** `{guild_count}`\n"
-        f"• **Users:** `{user_count}`\n"
-        "• **Commands:** `99`\n"
+        "1. **Owner**\n"
+        "ABHINANDAN X CHEAT\n\n"
+        "2. **Developer**\n"
+        "!   ALONE VERSE\n"
+        "!   SHADOW"
     )
-    embed.set_footer(text="Powered by VEYRA")
-    await ctx.send(embed=embed, view=StatsTeamView(bot_client=bot, uptime_str="23h 15m 29s"))
+    embed.set_footer(text="Powered By Abhinandan")
+    await ctx.send(embed=embed, view=StatsTeamView(bot_client=bot, uptime_str="0d 2h 30m 23s"))
 
 
 @bot.command(name="ping", description="Measures bot latency and database performance.")
 async def ping_command(ctx):
     ws_latency = round(bot.latency * 1000)
-    bot_icon_url = bot.user.avatar.url if bot.user and bot.user.avatar else None
-    embed, view = build_ping_health_embed(ws_latency, uptime_str="23h 15m 29s", bot_icon_url=bot_icon_url)
-    await ctx.send(embed=embed, view=view)
+    embed = build_ping_code_embed(ws_latency)
+    await ctx.send(embed=embed)
 
 
 @bot.tree.command(name="ping", description="Measures bot latency and database performance.")
 async def ping_slash(interaction: discord.Interaction):
     ws_latency = round(bot.latency * 1000)
-    bot_icon_url = bot.user.avatar.url if bot.user and bot.user.avatar else None
-    embed, view = build_ping_health_embed(ws_latency, uptime_str="23h 15m 29s", bot_icon_url=bot_icon_url)
-    await interaction.response.send_message(embed=embed, view=view)
+    embed = build_ping_code_embed(ws_latency)
+    await interaction.response.send_message(embed=embed)
 
 
 @bot.command(name="uptime", description="Checks how long the bot has been online.")
 async def uptime_command(ctx):
     ws_latency = round(bot.latency * 1000)
-    embed = build_uptime_embed("23h 15m 29s", started_str="5 hours ago", ws_latency=ws_latency)
+    embed = build_uptime_embed("0d 2h 30m 23s", started_str="5 hours ago", ws_latency=ws_latency)
     await ctx.send(embed=embed)
 
 
 @bot.tree.command(name="uptime", description="Checks how long the bot has been online.")
 async def uptime_slash(interaction: discord.Interaction):
     ws_latency = round(bot.latency * 1000)
-    embed = build_uptime_embed("23h 15m 29s", started_str="5 hours ago", ws_latency=ws_latency)
+    embed = build_uptime_embed("0d 2h 30m 23s", started_str="5 hours ago", ws_latency=ws_latency)
     await interaction.response.send_message(embed=embed)
 
 
@@ -2206,15 +2193,27 @@ async def invite_prefix(ctx):
     await ctx.send(embed=embed, view=view)
 
 
-@bot.command(name="wl", aliases=["antinuke_whitelist", "whitelist_setup"], description="Granular Antinuke Whitelist Manager")
-async def antinuke_whitelist_command(ctx, member: discord.Member = None):
-    target = member or ctx.author
+@bot.command(name="wl", aliases=["whitelist_setup"], description="Granular Antinuke Whitelist Manager")
+async def antinuke_whitelist_command(ctx, sub: str = None, member: discord.Member = None):
+    # Support `?wl add @user` or `?wl @user`
+    target = ctx.author
+    if sub and sub.lower() == "add":
+        target = member or ctx.author
+    elif member:
+        target = member
+    elif sub:
+        # Check if sub is a mention or member ID
+        try:
+            target = await commands.MemberConverter().convert(ctx, sub)
+        except Exception:
+            target = ctx.author
+
     embed, view = build_whitelist_embed(target)
     await ctx.send(embed=embed, view=view)
 
 
 @bot.command(name="voicemaster", aliases=["vm", "vm_setup"], description="VoiceMaster Setup Interface")
-async def voicemaster_setup_command(ctx):
+async def voicemaster_setup_command(ctx, action: str = None):
     embed, view = build_voicemaster_setup_embed()
     await ctx.send(embed=embed, view=view)
 
@@ -2222,26 +2221,28 @@ async def voicemaster_setup_command(ctx):
 @bot.command(name="kiss", description="Kiss a server member")
 async def kiss_command(ctx, member: discord.Member = None):
     target = member or ctx.author
-    gif_url = "https://media.giphy.com/media/G3va39rn8E4A8/giphy.gif"
+    from interactive_ui import ROLEPLAY_GIFS, RoleplayView, THEME_COLOR
+    gif_url = random.choice(ROLEPLAY_GIFS["kiss"])
     embed = discord.Embed(
         title="Kiss",
-        color=discord.Color.from_rgb(88, 101, 242)
+        color=THEME_COLOR
     )
     embed.set_image(url=gif_url)
-    embed.description = f"**{ctx.author.display_name}** kisses **{target.display_name}**"
+    embed.description = f"{ctx.author.name} kisses {target.name}"
     await ctx.send(embed=embed, view=RoleplayView("kiss", ctx.author, target))
 
 
 @bot.command(name="hug", description="Give a warm hug to a member")
 async def hug_command(ctx, member: discord.Member = None):
     target = member or ctx.author
-    gif_url = "https://media.giphy.com/media/lrr93yOKg2fUQ/giphy.gif"
+    from interactive_ui import ROLEPLAY_GIFS, RoleplayView, THEME_COLOR
+    gif_url = random.choice(ROLEPLAY_GIFS["hug"])
     embed = discord.Embed(
         title="Hug Time",
-        color=discord.Color.from_rgb(88, 101, 242)
+        color=THEME_COLOR
     )
     embed.set_image(url=gif_url)
-    embed.description = f"**{ctx.author.display_name}** gives **{target.display_name}** a warm hug"
+    embed.description = f"{ctx.author.name} gives {target.name} a warm hug"
     await ctx.send(embed=embed, view=RoleplayView("hug", ctx.author, target))
 
 
@@ -2249,10 +2250,11 @@ async def hug_command(ctx, member: discord.Member = None):
 async def token_command(ctx, member: discord.Member = None):
     target = member or ctx.author
     fake_tok = f"MTU{random.randint(100000, 999999)}.G{random.choice('abcdefghijklmnopqrstuvwxyz')}{random.randint(10, 99)}.fake_token_{random.randint(1000, 9999)}"
+    from interactive_ui import THEME_COLOR
     embed = discord.Embed(
         title="Fake Token Generator",
         description=f"Token for {target.mention}:\n`{fake_tok}`",
-        color=discord.Color.from_rgb(47, 49, 54)
+        color=THEME_COLOR
     )
     await ctx.send(embed=embed)
 
@@ -2293,19 +2295,12 @@ async def nick_command(ctx, member: discord.Member, *, new_nick: str):
 @bot.command(name="whitelist")
 async def add_whitelist(ctx, member: discord.Member):
     """Adds a member to the trusted whitelist bypass."""
-    plan = check_guild_plan(ctx.guild.id)
-    if plan != 'Premium' and ctx.author.id != 1256986886631854080:
-        return await ctx.send("❌ You need to purchase a **Premium** plan to use this command.")
-        
-    if ctx.author.id != ctx.guild.owner_id:
-        return await ctx.send("❌ Only the Server Owner can execute whitelist overrides.")
-        
     conn = get_db()
     try:
         conn.execute("INSERT OR IGNORE INTO whitelists (guild_id, user_id, reason) VALUES (?, ?, ?)",
                      (str(ctx.guild.id), str(member.id), "Whitelisted via client commands"))
         conn.commit()
-        await ctx.send(f"✅ Successfully added {member.mention} to trusted bypass whitelist.")
+        await ctx.send(f"{member.mention} has been whitelisted for **all events**.")
         await log_system_event_async(ctx.guild, ctx.author.name, 'Whitelist command', f"Added user {member.name} to whitelist overrides")
     except Exception as e:
         await ctx.send(f"❌ Transaction failed: {e}")
@@ -2315,19 +2310,12 @@ async def add_whitelist(ctx, member: discord.Member):
 @bot.command(name="unwhitelist")
 async def remove_whitelist(ctx, member: discord.Member):
     """Removes a member from the trusted whitelist bypass."""
-    plan = check_guild_plan(ctx.guild.id)
-    if plan != 'Premium' and ctx.author.id != 1256986886631854080:
-        return await ctx.send("❌ You need to purchase a **Premium** plan to use this command.")
-        
-    if ctx.author.id != ctx.guild.owner_id:
-        return await ctx.send("❌ Only the Server Owner can execute whitelist overrides.")
-        
     conn = get_db()
     try:
         conn.execute("DELETE FROM whitelists WHERE guild_id = ? AND user_id = ?",
                      (str(ctx.guild.id), str(member.id)))
         conn.commit()
-        await ctx.send(f"✅ Successfully removed {member.mention} from trusted bypass whitelist.")
+        await ctx.send(f"{member.mention} has been removed from the whitelist.")
         await log_system_event_async(ctx.guild, ctx.author.name, 'Unwhitelist command', f"Removed user {member.name} from whitelist overrides")
     except Exception as e:
         await ctx.send(f"❌ Transaction failed: {e}")
