@@ -3763,14 +3763,6 @@ app.get('/api/guild/:guild_id/diagnostics', (req, res) => {
     });
 });
 
-// Catch-all route for single page app navigation
-app.get('*', (req, res) => {
-    if (req.path.startsWith('/api/')) {
-        return res.status(404).json({ error: 'API endpoint not found', path: req.path });
-    }
-    res.sendFile(path.join(__dirname, 'public/index.html'));
-});
-
 // 24/7 Keepalive & Health check endpoint for free hosting pingers
 app.get('/api/health', (req, res) => {
     res.status(200).json({
@@ -3785,6 +3777,15 @@ app.get('/api/health', (req, res) => {
 app.get('/health', (req, res) => {
     res.status(200).send('OK - VEYRA 24/7 Alive');
 });
+
+// Catch-all route for single page app navigation
+app.get('*', (req, res) => {
+    if (req.path.startsWith('/api/')) {
+        return res.status(404).json({ error: 'API endpoint not found', path: req.path });
+    }
+    res.sendFile(path.join(__dirname, 'public/index.html'));
+});
+
 
 // Built-in 24/7 Keep-Alive self-pinger (prevents free cloud containers from sleeping)
 const keepAliveUrl = process.env.KEEP_ALIVE_URL || process.env.RENDER_EXTERNAL_URL || process.env.WEBSITE_URL;
