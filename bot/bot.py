@@ -8497,7 +8497,7 @@ class TicketSetupGroup(app_commands.Group):
             return await interaction.followup.send("ℹ️ No ticket panels configured for this server.")
         desc = ""
         for p in panels:
-            desc += f"• **{p[2]}** (ID: \`{p[0]}\`)\n"
+            desc += f"• **{p[2]}** (ID: `{p[0]}`)\n"
         embed = discord.Embed(title="📨 Ticket Panels List", description=desc, color=discord.Color.from_rgb(24, 24, 27))
         await interaction.followup.send(embed=embed)
 
@@ -9234,10 +9234,10 @@ class TicketGroup(app_commands.Group):
         embed = discord.Embed(
             title="🎫 VEYRA Support Tickets Help",
             description="Here is a list of all ticket categories available on VEYRA:\n"
-                        "💡 **Category structure:** \`/ticket <category> <command>\`\n\n"
-                        "• **\`/ticket setup\`** - Commands like wizard, quicksetup, panel, staff, config, logs, close_setting, automation, limits.\n"
-                        "• **\`/ticket security\`** - Commands like blacklist, unblacklist, cooldown, lockdown, unlockdown.\n"
-                        "• **\`/ticket stats\`** - Commands like search, leaderboard, feedback, history, list, stats.\n\n"
+                        "💡 **Category structure:** `/ticket <category> <command>`\n\n"
+                        "• **`/ticket setup`** - Commands like wizard, quicksetup, panel, staff, config, logs, close_setting, automation, limits.\n"
+                        "• **`/ticket security`** - Commands like blacklist, unblacklist, cooldown, lockdown, unlockdown.\n"
+                        "• **`/ticket stats`** - Commands like search, leaderboard, feedback, history, list, stats.\n\n"
                         "Use the buttons below to browse the command reference menus!",
             color=discord.Color.from_rgb(124, 58, 237)
         )
