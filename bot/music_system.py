@@ -195,72 +195,113 @@ async def send_response(
 
 class MusicDB:
     @staticmethod
+    def init_schema():
+        try:
+            conn = get_db()
+            cursor = conn.cursor()
+            for col, ctype in [
+                ("volume", "INTEGER DEFAULT 100"),
+                ("stay_247", "INTEGER DEFAULT 0"),
+                ("stay_voice_id", "TEXT"),
+                ("stay_text_id", "TEXT"),
+            ]:
+                try:
+                    cursor.execute(f"ALTER TABLE guild_settings ADD COLUMN IF NOT EXISTS {col} {ctype}")
+                except Exception:
+                    pass
+            conn.commit()
+            conn.close()
+        except Exception:
+            pass
+
+    @staticmethod
     def init_guild(guild_id: int):
-        conn = get_db()
-        cursor = conn.cursor()
-        cursor.execute("INSERT OR IGNORE INTO guild_settings (guild_id) VALUES (?)", (str(guild_id),))
-        conn.commit()
-        conn.close()
+        try:
+            conn = get_db()
+            cursor = conn.cursor()
+            cursor.execute("INSERT OR IGNORE INTO guild_settings (guild_id) VALUES (?)", (str(guild_id),))
+            conn.commit()
+            conn.close()
+        except Exception:
+            pass
 
     @staticmethod
     def increment_stat(stat_name: str, by: int = 1):
-        conn = get_db()
-        cursor = conn.cursor()
-        cursor.execute(
-            "INSERT INTO global_stats (stat_name, stat_value) VALUES (?, ?) ON CONFLICT(stat_name) DO UPDATE SET stat_value = global_stats.stat_value + ?",
-            (stat_name, by, by)
-        )
-        conn.commit()
-        conn.close()
+        try:
+            conn = get_db()
+            cursor = conn.cursor()
+            cursor.execute(
+                "INSERT INTO global_stats (stat_name, stat_value) VALUES (?, ?) ON CONFLICT(stat_name) DO UPDATE SET stat_value = global_stats.stat_value + ?",
+                (stat_name, by, by)
+            )
+            conn.commit()
+            conn.close()
+        except Exception:
+            pass
 
     @staticmethod
     def get_stat(stat_name: str) -> int:
-        conn = get_db()
-        cursor = conn.cursor()
-        cursor.execute("SELECT stat_value FROM global_stats WHERE stat_name = ?", (stat_name,))
-        row = cursor.fetchone()
-        conn.close()
-        return row[0] if row else 0
+        try:
+            conn = get_db()
+            cursor = conn.cursor()
+            cursor.execute("SELECT stat_value FROM global_stats WHERE stat_name = ?", (stat_name,))
+            row = cursor.fetchone()
+            conn.close()
+            return row[0] if row else 0
+        except Exception:
+            return 0
 
     @staticmethod
     def get_volume(guild_id: int) -> int:
-        conn = get_db()
-        cursor = conn.cursor()
-        cursor.execute("SELECT volume FROM guild_settings WHERE guild_id = ?", (str(guild_id),))
-        row = cursor.fetchone()
-        conn.close()
-        return row[0] if (row and row[0] is not None) else 100
+        try:
+            conn = get_db()
+            cursor = conn.cursor()
+            cursor.execute("SELECT volume FROM guild_settings WHERE guild_id = ?", (str(guild_id),))
+            row = cursor.fetchone()
+            conn.close()
+            return row[0] if (row and row[0] is not None) else 100
+        except Exception:
+            return 100
 
     @staticmethod
     def set_volume(guild_id: int, volume: int):
-        conn = get_db()
-        cursor = conn.cursor()
-        cursor.execute(
-            "INSERT INTO guild_settings (guild_id, volume) VALUES (?, ?) ON CONFLICT(guild_id) DO UPDATE SET volume = ?",
-            (str(guild_id), volume, volume)
-        )
-        conn.commit()
-        conn.close()
+        try:
+            conn = get_db()
+            cursor = conn.cursor()
+            cursor.execute(
+                "INSERT INTO guild_settings (guild_id, volume) VALUES (?, ?) ON CONFLICT(guild_id) DO UPDATE SET volume = ?",
+                (str(guild_id), volume, volume)
+            )
+            conn.commit()
+            conn.close()
+        except Exception:
+            pass
 
     @staticmethod
     def get_247(guild_id: int) -> tuple:
-        conn = get_db()
-        cursor = conn.cursor()
-        cursor.execute("SELECT stay_247, stay_voice_id, stay_text_id FROM guild_settings WHERE guild_id = ?", (str(guild_id),))
-        row = cursor.fetchone()
-        conn.close()
-        return row if row else (0, None, None)
+        try:
+            conn = get_db()
+            cursor = conn.cursor()
+            cursor.execute("SELECT stay_247, stay_voice_id, stay_text_id FROM guild_settings WHERE guild_id = ?", (str(guild_id),))
+            row = cursor.fetchone()
+            conn.close()
+            return row if row else (0, None, None)
+        except Exception:
+            return (0, None, None)
 
     @staticmethod
     def set_247(guild_id: int, enabled: int, voice_id: Optional[int] = None, text_id: Optional[int] = None):
-        conn = get_db()
-        cursor = conn.cursor()
-        cursor.execute(
-            "INSERT INTO guild_settings (guild_id, stay_247, stay_voice_id, stay_text_id) VALUES (?, ?, ?, ?) ON CONFLICT(guild_id) DO UPDATE SET stay_247 = ?, stay_voice_id = ?, stay_text_id = ?",
-            (str(guild_id), enabled, str(voice_id) if voice_id else None, str(text_id) if text_id else None, enabled, str(voice_id) if voice_id else None, str(text_id) if text_id else None)
-        )
-        conn.commit()
-        conn.close()
+        try:
+            conn = get_db()
+            cursor = conn.cursor()
+            cursor.execute(
+                "INSERT INTO guild_settings (guild_id, stay_247, stay_voice_id, stay_text_id) VALUES (?, ?, ?, ?) ON CONFLICT(guild_id) DO UPDATE SET stay_247 = ?, stay_voice_id = ?, stay_text_id = ?",
+                (str(guild_id), enabled, str(voice_id) if voice_id else None, str(text_id) if text_id else None, enabled, str(voice_id) if voice_id else None, str(text_id) if text_id else None)
+            )
+            conn.commit()
+            conn.close()
+        except Exception:
+            pass
 
     @staticmethod
     def like_track(user_id: int, url: str, title: str, author: str, thumbnail: str, duration: int):
@@ -1511,6 +1552,7 @@ RADIO_STATIONS = {
 
 def setup_music_system(bot: commands.Bot):
     """Registers all music commands, audio filters, queue managers, and panels into Veyra."""
+    MusicDB.init_schema()
 
     async def _check_dj(ctx: commands.Context) -> bool:
         if ctx.author.guild_permissions.administrator:
