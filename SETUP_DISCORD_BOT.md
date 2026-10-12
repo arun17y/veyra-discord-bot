@@ -21,7 +21,7 @@ DISCORD_CLIENT_ID=your_client_id_here
 # 2. Enter your Discord Application Secret here (Used for Web OAuth authentication handshake)
 DISCORD_CLIENT_SECRET=your_client_secret_here
 
-DISCORD_REDIRECT_URI=http://localhost:3000/api/auth/callback
+DISCORD_REDIRECT_URI=https://veyra.vercel.app/api/auth/callback
 
 # 3. Enter your Discord Bot Gateway Token here (Used by the python bot to connect to Discord)
 DISCORD_BOT_TOKEN=your_bot_token_here

@@ -323,7 +323,7 @@ def build_main_help_embed(guild=None, bot_icon_url=None):
             "💬 » **General**\n\n"
             "──────────────────────────\n"
             "↗️ **Links**\n"
-            "[Invite Me](https://discord.com/oauth2/authorize?client_id=1527243189860175933&permissions=8&scope=bot%20applications.commands) | [Support Server](https://discord.gg/veyra)"
+            "[Main Website](https://veyra.vercel.app)"
         ),
         color=THEME_COLOR
     )
@@ -339,8 +339,7 @@ def build_main_help_embed(guild=None, bot_icon_url=None):
 class BotMentionView(View):
     def __init__(self):
         super().__init__(timeout=None)
-        self.add_item(Button(label="Invite ↗", url="https://discord.com/oauth2/authorize?client_id=1527243189860175933&permissions=8&scope=bot%20applications.commands", style=discord.ButtonStyle.link))
-        self.add_item(Button(label="Support ↗", url="https://discord.gg/veyra", style=discord.ButtonStyle.link))
+        self.add_item(Button(label="Main Website ↗", url="https://veyra.vercel.app", style=discord.ButtonStyle.link))
 
 
 def build_mention_embed(user: discord.Member or discord.User, prefix: str = "?") -> discord.Embed:

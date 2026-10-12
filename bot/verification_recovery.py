@@ -36,7 +36,7 @@ class VerificationActionView(discord.ui.View):
         self.guild_id = guild_id
         
         # Link button to real OAuth verification URL
-        verify_url = f"http://localhost:3000/api/auth/discord/verify?guild_id={guild_id}"
+        verify_url = f"https://veyra.vercel.app/api/auth/discord/verify?guild_id={guild_id}"
         self.add_item(discord.ui.Button(
             label="Verify with Discord",
             style=discord.ButtonStyle.link,
@@ -58,7 +58,7 @@ class VerificationActionView(discord.ui.View):
 
     @discord.ui.button(label="Privacy", style=discord.ButtonStyle.secondary, custom_id="verif_privacy", emoji="📜")
     async def privacy_btn(self, interaction: discord.Interaction, button: discord.ui.Button):
-        privacy_url = "http://localhost:3000/privacy"
+        privacy_url = "https://veyra.vercel.app/privacy"
         embed = discord.Embed(
             title="🔒 Transparent Privacy Policy",
             description=f"Read our transparent privacy policy and data collection disclosures:\n🔗 [Click here to view VEYRA Privacy Policy]({privacy_url})",

@@ -2154,7 +2154,8 @@ function encryptToken(text) {
 app.get('/api/auth/discord/verify', (req, res) => {
     const guildId = req.query.guild_id || 'global';
     const clientId = process.env.DISCORD_CLIENT_ID || '1527243189860175933';
-    const redirectUri = encodeURIComponent(`http://localhost:3000/api/auth/discord/callback`);
+    const appBaseUrl = process.env.APP_URL || 'https://veyra.vercel.app';
+    const redirectUri = encodeURIComponent(`${appBaseUrl}/api/auth/discord/callback`);
     const state = Buffer.from(JSON.stringify({ guild_id: guildId, nonce: crypto.randomBytes(8).toString('hex') })).toString('base64');
     
     res.cookie('oauth_verif_state', state, { maxAge: 15 * 60 * 1000, httpOnly: true });
@@ -2180,7 +2181,8 @@ app.get('/api/auth/discord/callback', async (req, res) => {
     try {
         const clientId = process.env.DISCORD_CLIENT_ID || '1527243189860175933';
         const clientSecret = process.env.DISCORD_CLIENT_SECRET || process.env.CLIENT_SECRET || '';
-        const redirectUri = `http://localhost:3000/api/auth/discord/callback`;
+        const appBaseUrl = process.env.APP_URL || 'https://veyra.vercel.app';
+        const redirectUri = `${appBaseUrl}/api/auth/discord/callback`;
 
         const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args)).catch(() => global.fetch(...args));
 
