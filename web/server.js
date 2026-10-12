@@ -3812,6 +3812,15 @@ app.get('/api/bot-status', (req, res) => {
     });
 });
 
+app.all('/api/bot/restart', (req, res) => {
+    if (activeBotProcessInstance) {
+        logBotMessage('LAUNCHER', 'Manual bot restart triggered via /api/bot/restart');
+        activeBotProcessInstance.kill();
+        return res.json({ status: 'restarting', previousPid: activeBotProcessInstance.pid });
+    }
+    res.json({ status: 'not_running' });
+});
+
 
 // Catch-all route for single page app navigation
 app.get('*', (req, res) => {

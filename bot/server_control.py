@@ -157,20 +157,22 @@ class DestructiveActionConfirmView(discord.ui.View):
 def resolve_member_voice_channel(guild: discord.Guild, user_id: int):
     if not guild:
         return None
-    # 1. Guild voice states cache (direct and canonical in discord.py)
-    vs = guild.voice_states.get(user_id)
-    if vs and vs.channel:
-        return vs.channel
+    # 1. Guild voice states cache if available
+    voice_states = getattr(guild, 'voice_states', getattr(guild, '_voice_states', None))
+    if voice_states and isinstance(voice_states, dict):
+        vs = voice_states.get(user_id)
+        if vs and getattr(vs, 'channel', None):
+            return vs.channel
     # 2. Guild get_member voice attribute
     member = guild.get_member(user_id)
     if member and member.voice and member.voice.channel:
         return member.voice.channel
     # 3. Direct inspection across all voice channels
-    for vc in guild.voice_channels:
+    for vc in getattr(guild, 'voice_channels', []):
         if any(m.id == user_id for m in vc.members):
             return vc
     # 4. Direct inspection across all stage channels
-    for sc in guild.stage_channels:
+    for sc in getattr(guild, 'stage_channels', []):
         if any(m.id == user_id for m in sc.members):
             return sc
     return None
