@@ -1338,7 +1338,16 @@ def get_player(bot: commands.Bot, guild_id: int) -> GuildPlayer:
         p.volume = vol / 100
         stay_247, _, _ = MusicDB.get_247(guild_id)
         p.stay_247 = bool(stay_247)
+        guild = bot.get_guild(guild_id)
+        if guild and guild.voice_client and guild.voice_client.is_connected():
+            p.voice = guild.voice_client
         PLAYERS[guild_id] = p
+    else:
+        p = PLAYERS[guild_id]
+        if not p.voice or not p.voice.is_connected():
+            guild = bot.get_guild(guild_id)
+            if guild and guild.voice_client and guild.voice_client.is_connected():
+                p.voice = guild.voice_client
     return PLAYERS[guild_id]
 
 async def ensure_vc(ctx: commands.Context, bot: commands.Bot) -> Optional[discord.VoiceClient]:
@@ -1348,16 +1357,31 @@ async def ensure_vc(ctx: commands.Context, bot: commands.Bot) -> Optional[discor
         await ctx.send(embed=err("You must join a voice channel first!"))
         return None
     ch = ctx.author.voice.channel
-    if p.voice and p.voice.is_connected():
-        if p.voice.channel.id != ch.id:
+
+    # Check guild voice client or player voice client
+    guild_vc = ctx.guild.voice_client or p.voice
+
+    if guild_vc and guild_vc.is_connected():
+        p.voice = guild_vc
+        if guild_vc.channel.id != ch.id:
             p.is_connecting = True
             try:
-                await p.voice.move_to(ch)
+                await guild_vc.move_to(ch)
+            except Exception:
+                pass
             finally:
                 p.is_connecting = False
         return p.voice
+
     try:
         p.is_connecting = True
+        # If lingering unconnected voice client exists, clear it
+        if ctx.guild.voice_client and not ctx.guild.voice_client.is_connected():
+            try:
+                await ctx.guild.voice_client.disconnect(force=True)
+            except Exception:
+                pass
+
         p.voice = await ch.connect(timeout=15, reconnect=True)
         if isinstance(ch, discord.StageChannel):
             try:
@@ -1370,7 +1394,23 @@ async def ensure_vc(ctx: commands.Context, bot: commands.Bot) -> Optional[discor
         p.stay_247 = True
         MusicDB.set_247(ctx.guild.id, 1, ch.id, ctx.channel.id)
         return p.voice
+    except discord.ClientException as ce:
+        # If already connected, hook to the live voice client seamlessly
+        if "Already connected" in str(ce) and ctx.guild.voice_client:
+            p.voice = ctx.guild.voice_client
+            if p.voice.channel.id != ch.id:
+                try:
+                    await p.voice.move_to(ch)
+                except Exception:
+                    pass
+            return p.voice
+        await ctx.send(embed=err(f"Voice Notice: {ce}"))
+        return None
     except Exception as ex:
+        # Fallback check if bot actually is connected
+        if ctx.guild.voice_client and ctx.guild.voice_client.is_connected():
+            p.voice = ctx.guild.voice_client
+            return p.voice
         await ctx.send(embed=err(f"Could not connect to voice channel: {ex}"))
         return None
     finally:
@@ -2378,13 +2418,20 @@ def setup_music_system(bot: commands.Bot):
                         "requester_id": select_interaction.user.id,
                         "queued_msg": None
                     }
-                    if not p.voice or not p.voice.is_connected():
+                    guild_vc = select_interaction.guild.voice_client or p.voice
+                    if guild_vc and guild_vc.is_connected():
+                        p.voice = guild_vc
+                    else:
                         ch = select_interaction.user.voice.channel if select_interaction.user.voice else None
                         if not ch:
                             return await select_interaction.followup.send(embed=err("Join a voice channel first!"), ephemeral=True)
-                        p.voice = await ch.connect(timeout=10, reconnect=True)
-                        p.stay_247 = True
-                        MusicDB.set_247(select_interaction.guild_id, 1, ch.id, select_interaction.channel.id)
+                        try:
+                            p.voice = await ch.connect(timeout=10, reconnect=True)
+                            p.stay_247 = True
+                            MusicDB.set_247(select_interaction.guild_id, 1, ch.id, select_interaction.channel.id)
+                        except Exception:
+                            if select_interaction.guild.voice_client:
+                                p.voice = select_interaction.guild.voice_client
 
                     first_play = not p.is_playing() and not p.is_paused()
                     p.queue.append(track)
