@@ -213,7 +213,7 @@ class HelpPrimarySelect(Select):
                 color=THEME_COLOR
             )
             embed.description = "`" + "`, `".join(m['commands']) + "`"
-            embed.set_footer(text="Powered By Veyra Development™ | Designed By .1xylen")
+            embed.set_footer(text="Powered By Veyra Development™ | Designed By Arun")
             if self.bot_icon_url:
                 embed.set_thumbnail(url=self.bot_icon_url)
 
@@ -250,7 +250,7 @@ class HelpAuxiliarySelect(Select):
                 color=THEME_COLOR
             )
             embed.description = "`" + "`, `".join(m['commands']) + "`"
-            embed.set_footer(text="Powered By Veyra Development™ | Designed By .1xylen")
+            embed.set_footer(text="Powered By Veyra Development™ | Designed By Arun")
             if self.bot_icon_url:
                 embed.set_thumbnail(url=self.bot_icon_url)
             new_view = HelpView(bot_icon_url=self.bot_icon_url, current_selection=val)
@@ -269,10 +269,11 @@ class HelpView(View):
             self.add_item(HelpAuxiliarySelect(bot_icon_url))
         else:
             self.add_item(HelpPrimarySelect(bot_icon_url, current_selection))
+            self.add_item(HelpAuxiliarySelect(bot_icon_url))
 
 
 def build_main_help_embed(guild=None, bot_icon_url=None):
-    prefix = "?"
+    prefix = ","
     if guild:
         try:
             from bot.db_adapter import get_db
@@ -287,41 +288,50 @@ def build_main_help_embed(guild=None, bot_icon_url=None):
             pass
 
     embed = discord.Embed(
-        title="Hey , I'm Veyra™",
+        title="Veyra Guide",
         description=(
-            "A powerful multipurpose bot with Fastest Antinuke\n\n"
-            f"• **My Prefix is** `{prefix}`\n"
-            f"• **Total Commands:** `525`\n"
-            "• **Choose a Specific Module of your Desire**\n\n"
-            "🛡 » **Antinuke**\n"
-            "🔤 » **AutoMod**\n"
-            "🔗 » **Automations**\n"
-            "🤍 » **Autoresponder**\n"
-            "✨ » **CustomRole**\n"
-            "⚛ » **Fun**\n"
-            "👻 » **General**\n"
-            "🎁 » **Giveaway**\n"
-            "🏆 » **Leaderboard**\n"
-            "🦇 » **Logging**\n"
-            "🛠 » **Moderation**\n"
+            "Hey, I am Veyra - Your Server Guardian\n\n"
+            f"• **Prefix for this server:** `{prefix}`\n"
+            "• **Total Commands:** `297`\n"
+            f"• **Use** `{prefix}antinuke enable` **to get started!**\n\n"
+            "• **All Modules:**\n"
+            "⚔️ » **Antinuke**\n"
+            "🛠️ » **AutoMod**\n"
+            "📶 » **Automation**\n"
+            "🔨 » **Moderation**\n"
+            "🔧 » **Utility**\n"
+            "🔔 » **Welcome**\n"
+            "ℹ️ » **Information**\n"
+            "🎟️ » **Tickets**\n"
+            "📌 » **Logging**\n"
+            "🌐 » **Social**\n"
+            "🎮 » **Fun**\n"
+            "🤍 » **Roleplay**\n"
             "🎵 » **Music**\n"
-            "👑 » **Permit**\n"
-            "🔥 » **ReactionRoles**\n"
-            "♒ » **Ticket**\n"
-            "⚙ » **Utility**\n"
-            "⭐ » **Vanityroles**\n"
-            "🔊 » **Voice**\n"
-            "🌄 » **VoiceMaster**\n"
-            "🚪 » **Welcomer**\n\n"
-            "☑ **Links**\n"
-            "[Invite Me](https://discord.com/oauth2/authorize?client_id=1527243189860175933&permissions=8&scope=bot%20applications.commands) | [Support Server](https://discord.gg/veyra) | [Website](https://veyra-arunyadav.vercel.app)"
+            "🎧 » **Join2Create**\n"
+            "🎁 » **Giveaway**\n"
+            "💎 » **Vanity Roles**\n"
+            "📢 » **Feedback**\n"
+            "👤 » **Profiles**\n"
+            "📺 » **Media**\n"
+            "🧭 » **Misc**\n"
+            "⬆️ » **Tracking**\n"
+            "🎙️ » **Voice**\n"
+            "⚛️ » **Artificial Intelligence**\n"
+            "📧 » **Reaction Roles**\n"
+            "🐾 » **Animals**\n"
+            "💬 » **General**\n\n"
+            "──────────────────────────\n"
+            "↗️ **Links**\n"
+            "[Invite Me](https://discord.com/oauth2/authorize?client_id=1527243189860175933&permissions=8&scope=bot%20applications.commands) | [Support Server](https://discord.gg/veyra)"
         ),
         color=THEME_COLOR
     )
-    embed.set_footer(text="Powered By Veyra Development™ | Designed By .1xylen")
+    embed.set_footer(text="Powered By Veyra Development™ | Designed By Arun")
     if bot_icon_url:
         embed.set_thumbnail(url=bot_icon_url)
     return embed
+
 
 
 # --- 2. BOT MENTION WELCOME VIEW ---
@@ -421,7 +431,7 @@ class StatsTeamView(View):
             f"**Guilds:** `{guild_count}`\n"
             f"**Users:** `{user_count}`"
         )
-        embed.set_footer(text="Powered By Abhinandan")
+        embed.set_footer(text="Powered By Veyra Development™ | Designed By Arun")
         await interaction.edit_original_response(embed=embed, view=self)
 
     @discord.ui.button(label="Team", style=discord.ButtonStyle.primary)
@@ -433,12 +443,11 @@ class StatsTeamView(View):
         )
         embed.description = (
             "1. **Owner**\n"
-            "ABHINANDAN X CHEAT\n\n"
+            "ARUN\n\n"
             "2. **Developer**\n"
-            "!   ALONE VERSE\n"
-            "!   SHADOW"
+            "VEYRA CORE TEAM"
         )
-        embed.set_footer(text="Powered By Abhinandan")
+        embed.set_footer(text="Powered By Veyra Development™ | Designed By Arun")
         await interaction.edit_original_response(embed=embed, view=self)
 
 

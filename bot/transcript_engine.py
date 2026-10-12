@@ -232,7 +232,7 @@ def render_embed_item(embed):
 
 async def generate_full_html_transcript(channel, ticket_info, closer_user=None, close_reason="No reason provided", transcript_uuid=None):
     guild = channel.guild
-    server_name = html.escape(guild.name) if guild else "Shadow Cheats"
+    server_name = html.escape(guild.name) if guild else "Veyra"
     server_icon = html.escape(guild.icon.url) if (guild and guild.icon) else "https://cdn.discordapp.com/embed/avatars/0.png"
     channel_name = html.escape(channel.name)
     

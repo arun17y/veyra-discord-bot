@@ -88,7 +88,16 @@ PK_MAP = {
     'custom_forms': ['id'],
     'form_submissions': ['id'],
     'suggestions': ['id'],
-    'emergency_lockdowns': ['guild_id']
+    'emergency_lockdowns': ['guild_id'],
+    'liked_tracks': ['user_id', 'track_url'],
+    'playlists': ['id'],
+    'playlist_tracks': ['id'],
+    'global_playlists': ['id'],
+    'global_playlist_tracks': ['id'],
+    'dj_roles': ['guild_id'],
+    'announcements': ['guild_id'],
+    'dj_modes': ['guild_id'],
+    'global_stats': ['stat_name']
 }
 
 def transform_sql_for_pg(sql):

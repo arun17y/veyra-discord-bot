@@ -328,73 +328,7 @@ def setup_module_commands(bot: commands.Bot):
         except Exception as e:
             await ctx.send(f"❌ Could not remove timeout: `{e}`")
 
-    # ==================== MUSIC PREFIX COMMANDS ====================
-
-    @bot.command(name="play", aliases=["p"], description="Play music track in voice channel")
-    async def play_cmd(ctx, *, query: str = None):
-        target_vc = ctx.author.voice.channel if ctx.author.voice else None
-        if not target_vc:
-            return await ctx.send("⚠️ You must be connected to a voice channel first!")
-        
-        vc = ctx.guild.voice_client
-        if not vc:
-            try:
-                vc = await target_vc.connect(reconnect=True, timeout=20.0)
-            except Exception as e:
-                return await ctx.send(f"❌ Could not connect to voice: `{e}`")
-        
-        track = query or "Lo-Fi Beats 24/7 Live Stream"
-        embed = discord.Embed(
-            title="🎵 Now Playing",
-            description=f"**Track:** `{track}`\n**Requested By:** {ctx.author.mention}\n**Channel:** {target_vc.mention}",
-            color=THEME_COLOR
-        )
-        embed.set_footer(text="Powered by Veyra Development™")
-        await ctx.send(embed=embed)
-
-    @bot.command(name="skip", aliases=["s"], description="Skip the current playing music track")
-    async def skip_cmd(ctx):
-        vc = ctx.guild.voice_client
-        if vc and vc.is_playing():
-            vc.stop()
-        embed = discord.Embed(description="⏭️ Skipped current track.", color=THEME_COLOR)
-        embed.set_footer(text="Powered by Veyra Development™")
-        await ctx.send(embed=embed)
-
-    @bot.command(name="stop", description="Stop music and clear queue")
-    async def stop_cmd(ctx):
-        vc = ctx.guild.voice_client
-        if vc and vc.is_connected():
-            await vc.disconnect(force=True)
-        embed = discord.Embed(description="⏹️ Music stopped and voice client disconnected.", color=THEME_COLOR)
-        embed.set_footer(text="Powered by Veyra Development™")
-        await ctx.send(embed=embed)
-
-    @bot.command(name="pause", description="Pause audio stream")
-    async def pause_cmd(ctx):
-        vc = ctx.guild.voice_client
-        if vc and vc.is_playing():
-            vc.pause()
-        embed = discord.Embed(description="⏸️ Playback paused.", color=THEME_COLOR)
-        await ctx.send(embed=embed)
-
-    @bot.command(name="resume", description="Resume audio stream")
-    async def resume_cmd(ctx):
-        vc = ctx.guild.voice_client
-        if vc and vc.is_paused():
-            vc.resume()
-        embed = discord.Embed(description="▶️ Playback resumed.", color=THEME_COLOR)
-        await ctx.send(embed=embed)
-
-    @bot.command(name="queue", aliases=["q"], description="Show music queue")
-    async def queue_cmd(ctx):
-        embed = discord.Embed(
-            title="🎶 Current Queue",
-            description="1. `Lo-Fi Beats 24/7 Stream` (Active)\n*Queue is currently empty.*",
-            color=THEME_COLOR
-        )
-        embed.set_footer(text="Powered by Veyra Development™")
-        await ctx.send(embed=embed)
+    # Note: Full production music engine is loaded via music_system.py
 
     # ==================== MODULE GROUPS ====================
 

@@ -1888,12 +1888,11 @@ async def stats_command(ctx):
     )
     embed.description = (
         "1. **Owner**\n"
-        "ABHINANDAN X CHEAT\n\n"
+        "ARUN\n\n"
         "2. **Developer**\n"
-        "!   ALONE VERSE\n"
-        "!   SHADOW"
+        "VEYRA CORE TEAM"
     )
-    embed.set_footer(text="Powered By Abhinandan")
+    embed.set_footer(text="Powered By Veyra Development™ | Designed By Arun")
     await ctx.send(embed=embed, view=StatsTeamView(bot_client=bot, uptime_str="0d 2h 30m 23s"))
 
 
@@ -2218,7 +2217,7 @@ async def antinuke_group(ctx):
     m = MODULES_DATA["antinuke"]
     embed = discord.Embed(title=m["title"], color=THEME_COLOR)
     embed.description = "`" + "`, `".join(m["commands"]) + "`"
-    embed.set_footer(text="Powered By Veyra Development™ | Designed By .1xylen")
+    embed.set_footer(text="Powered By Veyra Development™ | Designed By Arun")
     await ctx.send(embed=embed)
 
 
@@ -9740,6 +9739,13 @@ try:
     setup_module_commands(bot)
 except Exception as e:
     print("Module commands setup notice:", e)
+
+try:
+    from music_system import setup_music_system
+    setup_music_system(bot)
+    print("✅ Registered VEYRA Production Music System & Audio Suite.")
+except Exception as e:
+    print("Music system setup notice:", e)
 
 # Run bot using environment configurations
 if __name__ == "__main__":
