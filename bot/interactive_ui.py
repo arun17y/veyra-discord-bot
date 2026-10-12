@@ -217,7 +217,7 @@ class HelpPrimarySelect(Select):
             if self.bot_icon_url:
                 embed.set_thumbnail(url=self.bot_icon_url)
 
-            # Rebuild view with current selection in placeholder
+            # Rebuild view with current selection button and auxiliary menu (1:1 screenshot match)
             new_view = HelpView(bot_icon_url=self.bot_icon_url, current_selection=val)
             await interaction.response.edit_message(embed=embed, view=new_view)
 
@@ -226,18 +226,23 @@ class HelpAuxiliarySelect(Select):
     def __init__(self, bot_icon_url=None):
         self.bot_icon_url = bot_icon_url
         options = [
+            discord.SelectOption(label="Home", emoji="🏠", description="Return to the main help page", value="home"),
             discord.SelectOption(label="Social", emoji="🌐", description="Social media, web search & crypto", value="general"),
-            discord.SelectOption(label="Fun", emoji="⚛️", description="Games, memes & fun commands", value="fun"),
-            discord.SelectOption(label="Roleplay", emoji="🤍", description="Hug, kiss, slap & expressive actions", value="general"),
+            discord.SelectOption(label="Fun", emoji="🎮", description="Games, memes & fun commands", value="fun"),
+            discord.SelectOption(label="Roleplay", emoji="🤍", description="Hug, kiss, slap & expressive actions", value="roleplay"),
             discord.SelectOption(label="Music", emoji="🎵", description="Playback controls & audio queues", value="music"),
-            discord.SelectOption(label="Join2Create", emoji="🎧", description="Dynamic temporary voice rooms", value="voicemaster"),
             discord.SelectOption(label="Giveaway", emoji="🎁", description="Host interactive server giveaways", value="giveaway"),
-            discord.SelectOption(label="Vanity Roles", emoji="💎", description="Vanity status tracker and roles", value="vanityroles")
+            discord.SelectOption(label="Ticket", emoji="🌊", description="Support ticket system management", value="ticket"),
+            discord.SelectOption(label="Vanity Roles", emoji="⭐", description="Vanity status tracker and roles", value="vanityroles")
         ]
         super().__init__(placeholder="↘ Select Auxiliary Module From Here", min_values=1, max_values=1, options=options)
 
     async def callback(self, interaction: discord.Interaction):
         val = self.values[0]
+        if val == "home":
+            main_embed = build_main_help_embed(guild=interaction.guild, bot_icon_url=self.bot_icon_url)
+            await interaction.response.edit_message(embed=main_embed, view=HelpView(bot_icon_url=self.bot_icon_url))
+            return
         if val in MODULES_DATA:
             m = MODULES_DATA[val]
             embed = discord.Embed(
@@ -248,13 +253,22 @@ class HelpAuxiliarySelect(Select):
             embed.set_footer(text="Powered By Veyra Development™ | Designed By .1xylen")
             if self.bot_icon_url:
                 embed.set_thumbnail(url=self.bot_icon_url)
-            await interaction.response.edit_message(embed=embed, view=self.view)
+            new_view = HelpView(bot_icon_url=self.bot_icon_url, current_selection=val)
+            await interaction.response.edit_message(embed=embed, view=new_view)
 
 
 class HelpView(View):
     def __init__(self, bot_icon_url=None, current_selection=None):
         super().__init__(timeout=300)
-        self.add_item(HelpPrimarySelect(bot_icon_url, current_selection))
+        self.bot_icon_url = bot_icon_url
+        self.current_selection = current_selection
+        if current_selection and current_selection in MODULES_DATA:
+            m = MODULES_DATA[current_selection]
+            btn = Button(label=f"{m['title']}", emoji=m.get('emoji', '⚔️'), style=discord.ButtonStyle.secondary, disabled=True)
+            self.add_item(btn)
+            self.add_item(HelpAuxiliarySelect(bot_icon_url))
+        else:
+            self.add_item(HelpPrimarySelect(bot_icon_url, current_selection))
 
 
 def build_main_help_embed(guild=None, bot_icon_url=None):
@@ -595,8 +609,8 @@ class WhitelistConfigView(View):
             "Profanity Filter", "Links / Invites", "Anti-Spam", "Mass Mentions",
             "Emoji Spam", "Caps Lock Filter", "Duplicate Messages", "Bot Bypass"
         ]
-        desc = "\n".join([f"✔ : {item}" for item in full_list])
-        desc += f"\n\nExecutor: {interaction.user.mention}\nTarget: {self.target_user.mention}\n\n✔ This user is fully whitelisted across all modules."
+        desc = "\n".join([f"✅ : {item}" for item in full_list])
+        desc += f"\n\nExecutor: {interaction.user.mention}\nTarget: {self.target_user.mention}\n\n✅ This user is fully whitelisted across all modules."
         embed = discord.Embed(
             description=desc,
             color=THEME_COLOR
@@ -607,7 +621,7 @@ class WhitelistConfigView(View):
 
 
 def build_whitelist_embed(target_user: discord.Member) -> tuple[discord.Embed, View]:
-    desc = "\n".join([f"[ ❌ | ✔ ] : {p}" for p in WHITELIST_PERM_LIST])
+    desc = "\n".join([f"🟥🟩 : {p}" for p in WHITELIST_PERM_LIST])
     desc += f"\n\nTarget: {target_user.mention}"
     embed = discord.Embed(
         title="Whitelist Configuration for Current Server",

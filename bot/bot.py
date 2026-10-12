@@ -1464,7 +1464,7 @@ async def on_message(message):
             cursor.execute("""
                 INSERT INTO messages_stats (guild_id, user_id, count)
                 VALUES (?, ?, 1)
-                ON CONFLICT(guild_id, user_id) DO UPDATE SET count = count + 1
+                ON CONFLICT(guild_id, user_id) DO UPDATE SET count = messages_stats.count + 1
             """, (str(message.guild.id), str(message.author.id)))
             conn.commit()
             
@@ -2195,17 +2195,11 @@ async def invite_prefix(ctx):
 
 @bot.command(name="wl", aliases=["whitelist_setup"], description="Granular Antinuke Whitelist Manager")
 async def antinuke_whitelist_command(ctx, sub: str = None, member: discord.Member = None):
-    # Support `?wl add @user` or `?wl @user`
-    from interactive_ui import THEME_COLOR
+    # Support `?wl add @user`, `?wl @user`, or `?wl` (matches screenshot 1:1)
+    from interactive_ui import THEME_COLOR, build_whitelist_embed
     target = ctx.author
     if sub and sub.lower() == "add":
         target = member or ctx.author
-        embed = discord.Embed(
-            description=f"{target.mention} has been whitelisted for **all events**.",
-            color=THEME_COLOR
-        )
-        await ctx.send(embed=embed)
-        return
     elif member:
         target = member
     elif sub:
@@ -2353,6 +2347,34 @@ async def hug_command(ctx, member: discord.Member = None):
     await ctx.send(embed=embed, view=RoleplayView("hug", ctx.author, target))
 
 
+@bot.command(name="slap", description="Slap a server member")
+async def slap_command(ctx, member: discord.Member = None):
+    target = member or ctx.author
+    from interactive_ui import ROLEPLAY_GIFS, RoleplayView, THEME_COLOR
+    gif_url = random.choice(ROLEPLAY_GIFS.get("slap", ROLEPLAY_GIFS["hug"]))
+    embed = discord.Embed(
+        title="Slap",
+        color=THEME_COLOR
+    )
+    embed.set_image(url=gif_url)
+    embed.description = f"{ctx.author.name} slaps {target.name}"
+    await ctx.send(embed=embed, view=RoleplayView("slap", ctx.author, target))
+
+
+@bot.command(name="pat", description="Pat a server member")
+async def pat_command(ctx, member: discord.Member = None):
+    target = member or ctx.author
+    from interactive_ui import ROLEPLAY_GIFS, RoleplayView, THEME_COLOR
+    gif_url = random.choice(ROLEPLAY_GIFS.get("pat", ROLEPLAY_GIFS["hug"]))
+    embed = discord.Embed(
+        title="Pat",
+        color=THEME_COLOR
+    )
+    embed.set_image(url=gif_url)
+    embed.description = f"{ctx.author.name} pats {target.name}"
+    await ctx.send(embed=embed, view=RoleplayView("pat", ctx.author, target))
+
+
 @bot.command(name="token", description="Fake token generator")
 async def token_command(ctx, member: discord.Member = None):
     target = member or ctx.author
@@ -2395,6 +2417,19 @@ async def nick_command(ctx, member: discord.Member, *, new_nick: str):
         await ctx.send(embed=embed)
     except Exception as e:
         await ctx.send(f"❌ Failed to change nickname: {e}")
+
+
+@bot.tree.command(name="nick", description="Change a server member's nickname")
+@app_commands.describe(member="Member to change nickname for", new_nick="New nickname")
+@app_commands.checks.has_permissions(manage_nicknames=True)
+async def slash_nick(interaction: discord.Interaction, member: discord.Member, new_nick: str):
+    await interaction.response.defer()
+    try:
+        await member.edit(nick=new_nick)
+        embed = build_nick_embed(member, interaction.user, new_nick)
+        await interaction.followup.send(embed=embed)
+    except Exception as e:
+        await interaction.followup.send(f"❌ Failed to change nickname: {e}", ephemeral=True)
 
 
 # --- 6. COMMAND DIRECTIVES ---
@@ -7338,7 +7373,7 @@ async def addmessages(interaction: discord.Interaction, member: discord.Member, 
     cursor.execute("""
         INSERT INTO messages_stats (guild_id, user_id, count)
         VALUES (?, ?, ?)
-        ON CONFLICT(guild_id, user_id) DO UPDATE SET count = count + ?
+        ON CONFLICT(guild_id, user_id) DO UPDATE SET count = messages_stats.count + ?
     """, (str(interaction.guild.id), str(member.id), amount, amount))
     conn.commit()
     conn.close()
@@ -7352,7 +7387,7 @@ async def removemessages(interaction: discord.Interaction, member: discord.Membe
     cursor.execute("""
         INSERT INTO messages_stats (guild_id, user_id, count)
         VALUES (?, ?, ?)
-        ON CONFLICT(guild_id, user_id) DO UPDATE SET count = count - ?
+        ON CONFLICT(guild_id, user_id) DO UPDATE SET count = messages_stats.count - ?
     """, (str(interaction.guild.id), str(member.id), -amount, amount))
     conn.commit()
     conn.close()
