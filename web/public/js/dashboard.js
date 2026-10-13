@@ -2702,11 +2702,22 @@ window.clickManageServers = function() {
 
 // Check for active Discord OAuth2 session
 function checkSession() {
-    fetch('/api/auth/session?t=' + Date.now(), { cache: 'no-store' })
+    const localSess = localStorage.getItem('VEYRA_session') || localStorage.getItem('SENTRIX_session');
+    const fetchHeaders = {};
+    if (localSess && localSess !== 'undefined') {
+        try {
+            fetchHeaders['Authorization'] = 'Bearer ' + encodeURIComponent(localSess);
+        } catch (e) {}
+    }
+    fetch('/api/auth/session?t=' + Date.now(), { cache: 'no-store', headers: fetchHeaders })
         .then(res => res.json())
         .then(data => {
             if (data.loggedIn && data.user) {
                 window.isUserLoggedIn = true;
+                try {
+                    localStorage.setItem('VEYRA_session', JSON.stringify({ user: data.user, guilds: data.guilds }));
+                    localStorage.setItem('SENTRIX_session', JSON.stringify({ user: data.user, guilds: data.guilds }));
+                } catch(e) {}
                 const tag = (data.user.global_name || data.user.username) ? (data.user.global_name || data.user.username) : '!! DADDY';
                 let avatarUrl = 'https://cdn.discordapp.com/avatars/1256986886631854080/e5f2679c33de4dfea4d337d6ea14d4c3.png?size=256';
                 if (data.user.id && data.user.avatar && data.user.avatar !== 'user_avatar') {

@@ -1895,7 +1895,7 @@ app.get('/api/auth/login', (req, res) => {
         return handleOAuthFallback(res);
     }
 
-    const redirectUri = `${protocol}://${host}/auth/callback`;
+    const redirectUri = process.env.DISCORD_REDIRECT_URI || `${protocol}://${host}/auth/callback`;
     console.log(`[AUTH] Redirect URI derived: ${redirectUri}`);
     
     // Standard Discord OAuth2 implicit grant - direct, instant, client-driven
@@ -2025,7 +2025,7 @@ async function handleDiscordCallback(req, res) {
             const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args)).catch(() => global.fetch(...args));
             const host = req.get('host');
             const protocol = req.protocol === 'https' || req.headers['x-forwarded-proto'] === 'https' ? 'https' : 'http';
-            const redirectUri = `${protocol}://${host}/auth/callback`;
+            const redirectUri = process.env.DISCORD_REDIRECT_URI || `${protocol}://${host}/auth/callback`;
 
             const tokenParams = new URLSearchParams({
                 client_id: CLIENT_ID,
@@ -2075,9 +2075,13 @@ async function handleDiscordCallback(req, res) {
                     });
                     
                     const sessionData = { user, guilds: mappedGuilds };
-                    const sessStr = JSON.stringify(sessionData);
-                    res.cookie('VEYRA_session', sessStr, { maxAge: 7 * 24 * 60 * 60 * 1000, path: '/', sameSite: 'lax' });
-                    res.cookie('SENTRIX_session', sessStr, { maxAge: 7 * 24 * 60 * 60 * 1000, path: '/', sameSite: 'lax' });
+                    let sessCookie = JSON.stringify(sessionData);
+                    if (Buffer.byteLength(sessCookie, 'utf8') > 3500) {
+                        sessCookie = JSON.stringify({ user, guilds: mappedGuilds.slice(0, 15) });
+                    }
+                    const isSecure = req.protocol === 'https' || req.headers['x-forwarded-proto'] === 'https';
+                    res.cookie('VEYRA_session', sessCookie, { maxAge: 7 * 24 * 60 * 60 * 1000, path: '/', sameSite: 'lax', secure: isSecure });
+                    res.cookie('SENTRIX_session', sessCookie, { maxAge: 7 * 24 * 60 * 60 * 1000, path: '/', sameSite: 'lax', secure: isSecure });
                     return res.redirect('/manage?login=success');
                 }
             } else {
@@ -2393,9 +2397,13 @@ app.post('/api/auth/real-login', async (req, res) => {
         });
 
         console.log(`[AUTH] /api/auth/real-login success. Setting cookie for user ${user.id} (${user.username}). Guilds count: ${mappedGuilds.length}`);
-        const sessionPayload = JSON.stringify({ user, guilds: mappedGuilds });
-        res.cookie('VEYRA_session', sessionPayload, { maxAge: 7 * 24 * 60 * 60 * 1000, path: '/', sameSite: 'lax' });
-        res.cookie('SENTRIX_session', sessionPayload, { maxAge: 7 * 24 * 60 * 60 * 1000, path: '/', sameSite: 'lax' });
+        let cookiePayload = JSON.stringify({ user, guilds: mappedGuilds });
+        if (Buffer.byteLength(cookiePayload, 'utf8') > 3500) {
+            cookiePayload = JSON.stringify({ user, guilds: mappedGuilds.slice(0, 15) });
+        }
+        const isSecure = req.protocol === 'https' || req.headers['x-forwarded-proto'] === 'https';
+        res.cookie('VEYRA_session', cookiePayload, { maxAge: 7 * 24 * 60 * 60 * 1000, path: '/', sameSite: 'lax', secure: isSecure });
+        res.cookie('SENTRIX_session', cookiePayload, { maxAge: 7 * 24 * 60 * 60 * 1000, path: '/', sameSite: 'lax', secure: isSecure });
         res.json({ success: true, user, sessionData: { user, guilds: mappedGuilds } });
     } catch (err) {
         console.error('[AUTH] Real OAuth Login Exception:', err);
