@@ -3814,6 +3814,13 @@ async def on_ready():
     print(f"🌐 Guild Count: {len(bot.guilds)}")
     print(f"=============================================\n")
 
+    # Set Bot Presence to Do Not Disturb (DND)
+    try:
+        await bot.change_presence(status=discord.Status.dnd, activity=discord.Activity(type=discord.ActivityType.watching, name="over servers"))
+        print("🔴 Discord bot presence updated to: Do Not Disturb (DND)")
+    except Exception as ex:
+        print(f"⚠️ Could not set bot presence: {ex}")
+
     # 1. Sync Default Bot Username to VEYRA
     if bot.user.name != "VEYRA":
         try:
