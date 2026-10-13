@@ -323,7 +323,7 @@ def build_main_help_embed(guild=None, bot_icon_url=None):
             "💬 » **General**\n\n"
             "──────────────────────────\n"
             "↗️ **Links**\n"
-            "[Main Website](https://veyra.vercel.app)"
+            "[Main Website](https://veyra-bot.vercel.app)"
         ),
         color=THEME_COLOR
     )
@@ -339,7 +339,7 @@ def build_main_help_embed(guild=None, bot_icon_url=None):
 class BotMentionView(View):
     def __init__(self):
         super().__init__(timeout=None)
-        self.add_item(Button(label="Main Website ↗", url="https://veyra.vercel.app", style=discord.ButtonStyle.link))
+        self.add_item(Button(label="Main Website ↗", url="https://veyra-bot.vercel.app", style=discord.ButtonStyle.link))
 
 
 def build_mention_embed(user: discord.Member or discord.User, prefix: str = "?") -> discord.Embed:

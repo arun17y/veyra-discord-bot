@@ -1347,7 +1347,7 @@ function simulateLogin() {
 
 function simulateAddBot(serverName, serverId) {
     const clientId = '1527243189860175933';
-    let url = `https://discord.com/oauth2/authorize?client_id=${clientId}&permissions=8&redirect_uri=https%3A%2F%2Fveyra.vercel.app%2Fauth%2Fcallback&integration_type=0&scope=bot+applications.commands`;
+    let url = `https://discord.com/oauth2/authorize?client_id=${clientId}&permissions=8&redirect_uri=https%3A%2F%2Fveyra-bot.vercel.app%2Fauth%2Fcallback&integration_type=0&scope=bot+applications.commands`;
     if (serverId && !serverId.startsWith('mock-')) {
         url += '&guild_id=' + encodeURIComponent(serverId);
     }

@@ -5233,7 +5233,7 @@ async def auto_setup_verification_gate(guild, force_recreate=False, allow_create
                     ),
                     color=discord.Color.from_rgb(0, 162, 106)
                 )
-                oauth_url = f"https://discord.com/oauth2/authorize?client_id={bot.user.id}&redirect_uri=https://veyra.vercel.app/auth/callback&response_type=code&scope=identify&state={guild.id}"
+                oauth_url = f"https://discord.com/oauth2/authorize?client_id={bot.user.id}&redirect_uri=https://veyra-bot.vercel.app/auth/callback&response_type=code&scope=identify&state={guild.id}"
                 view = discord.ui.View(timeout=None)
                 view.add_item(discord.ui.Button(label="Authorize with Discord", style=discord.ButtonStyle.link, url=oauth_url))
             else:
@@ -6573,14 +6573,14 @@ async def invite_root(interaction: discord.Interaction):
     url = f"https://discord.com/oauth2/authorize?client_id={client_id}&permissions=8&integration_type=0&scope=bot+applications.commands"
     embed = discord.Embed(
         title="🔗 Invite VEYRA to Your Server",
-        description=f"Click the button below or [Authorize VEYRA]({url}) to invite the bot with full Administrator permissions.\n\n🌐 **Web Dashboard:** [https://veyra.vercel.app](https://veyra.vercel.app)",
+        description=f"Click the button below or [Authorize VEYRA]({url}) to invite the bot with full Administrator permissions.\n\n🌐 **Web Dashboard:** [https://veyra-bot.vercel.app](https://veyra-bot.vercel.app)",
         color=discord.Color.from_rgb(168, 85, 247)
     )
     embed.set_footer(text="Powered By Veyra Development™ | Designed By Arun")
     
     view = discord.ui.View()
     view.add_item(discord.ui.Button(label="Authorize VEYRA", style=discord.ButtonStyle.link, url=url, emoji="🤖"))
-    view.add_item(discord.ui.Button(label="Dashboard", style=discord.ButtonStyle.link, url="https://veyra.vercel.app", emoji="🌐"))
+    view.add_item(discord.ui.Button(label="Dashboard", style=discord.ButtonStyle.link, url="https://veyra-bot.vercel.app", emoji="🌐"))
     await interaction.response.send_message(embed=embed, view=view)
 
 
@@ -6819,7 +6819,7 @@ async def setup_root(interaction: discord.Interaction):
                         "• **Anti-Ban** (Limit: 5 actions per 5m, Punishment: Ban)\n"
                         "• **Anti-Kick** (Limit: 5 actions per 5m, Punishment: Ban)\n\n"
                         "💡 *Note: Other advanced rules (channel protection, bot joins, prune limits) require a Pro or Premium plan.*\n"
-                        "🔗 **Dashboard**: https://veyra.vercel.app",
+                        "🔗 **Dashboard**: https://veyra-bot.vercel.app",
             color=discord.Color.green()
         )
     else:
@@ -6829,7 +6829,7 @@ async def setup_root(interaction: discord.Interaction):
                         "🔒 **Enabled Paid features (16 constraints active)**:\n"
                         "• **Limits**: Anti-Ban (5), Anti-Kick (5), Anti-Role Create (8), Anti-Role Delete (3), Anti-Channel Create (8), Anti-Channel Delete (3), Anti-Mention (0)\n"
                         "• **Instant Punish**: Anti-Bot Add, Anti-Prune, Dangerous Role Update/Add, Vanity, Server Rename/Icon, Role Rename, Channel Rename.\n\n"
-                        "🔗 **Dashboard**: https://veyra.vercel.app",
+                        "🔗 **Dashboard**: https://veyra-bot.vercel.app",
             color=discord.Color.from_rgb(24, 24, 27)
         )
     embed.set_footer(text="VEYRA • Guard Core Active")
@@ -8171,7 +8171,7 @@ def has_ticket_plan():
             
         embed = discord.Embed(
             title="🔒 Ticket Plan Required",
-            description="Support Ticketing is **Locked** by default on this server.\n\nTo use ticket commands (`/setupticket`, `/ticket setup`, etc.), please visit the VEYRA Web Dashboard:\n🔗 **https://veyra.vercel.app**",
+            description="Support Ticketing is **Locked** by default on this server.\n\nTo use ticket commands (`/setupticket`, `/ticket setup`, etc.), please visit the VEYRA Web Dashboard:\n🔗 **https://veyra-bot.vercel.app**",
             color=discord.Color.from_rgb(239, 68, 68)
         )
         embed.set_footer(text="VEYRA Tier Control Matrix • Plan Subscription Required")
@@ -8465,7 +8465,7 @@ async def handle_close_ticket_interaction(interaction: discord.Interaction):
     log_embed.add_field(name="Ticket Close Reason", value="No reason provided", inline=False)
     log_embed.add_field(name="Staff Message Count", value=f"`[ {staff_msg_count} ]` - {staff_mentions_str}", inline=False)
     
-    view_transcript_url = f"https://veyra.vercel.app/transcripts/v2/{channel.id}"
+    view_transcript_url = f"https://veyra-bot.vercel.app/transcripts/v2/{channel.id}"
     transcript_view = discord.ui.View()
     transcript_view.add_item(discord.ui.Button(
         label="View Transcript",
@@ -9916,7 +9916,7 @@ async def vote_command(interaction: discord.Interaction):
         color=discord.Color.from_rgb(124, 58, 237)
     )
     embed.add_field(name="Vote Rewards", value="🎁 Every vote grants you **10 VEYRA Coins**.\nCollect **50 coins** to redeem 1 Month of Server Premium via `/redeem`!", inline=False)
-    embed.add_field(name="Voting Link", value="🔗 [Click here to Vote](https://veyra.vercel.app)\n*(You can vote once every 12 hours)*", inline=False)
+    embed.add_field(name="Voting Link", value="🔗 [Click here to Vote](https://veyra-bot.vercel.app)\n*(You can vote once every 12 hours)*", inline=False)
     await interaction.response.send_message(embed=embed)
 
 
