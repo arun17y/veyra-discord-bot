@@ -518,7 +518,7 @@ async def on_app_command_error(interaction: discord.Interaction, error: app_comm
             description="You don't have administrator/required permissions to execute this command.",
             color=discord.Color.from_rgb(24, 24, 27)
         )
-        embed.set_footer(text="Powered by VEYRA")
+        embed.set_footer(text="Powered By Veyra Development™ | Designed By Arun")
         if not interaction.response.is_done():
             return await interaction.response.send_message(embed=embed, ephemeral=True)
         else:
@@ -530,7 +530,7 @@ async def on_app_command_error(interaction: discord.Interaction, error: app_comm
         description=f"`{err_str}`",
         color=discord.Color.from_rgb(24, 24, 27)
     )
-    embed.set_footer(text="Powered by VEYRA")
+    embed.set_footer(text="Powered By Veyra Development™ | Designed By Arun")
     print(f"App command error: {error}")
     
     try:
@@ -565,7 +565,7 @@ async def on_command_error(ctx: commands.Context, error: Exception):
     else:
         embed.description = f"❌ Error executing command `{ctx.command}`: `{error}`"
     
-    embed.set_footer(text="VEYRA Operational Control • IST")
+    embed.set_footer(text="Powered By Veyra Development™ | Designed By Arun")
     try:
         await ctx.send(embed=embed)
     except Exception:
@@ -2648,9 +2648,8 @@ async def run_auto_setup(guild):
         
         conn.execute("""
             INSERT INTO autoroles (guild_id, roles) 
-            VALUES (?, '["Verified Member"]')
-            ON CONFLICT(guild_id) DO UPDATE SET
-                roles = excluded.roles
+            VALUES (?, '[]')
+            ON CONFLICT(guild_id) DO NOTHING
         """, (str(guild.id),))
         
         conn.execute("""
@@ -2746,7 +2745,7 @@ def create_veyra_embed(
     fields: list = None,
     thumbnail: str = None,
     color: discord.Color = discord.Color.from_rgb(147, 51, 234),
-    footer: str = "VEYRA V2 • System Diagnostics"
+    footer: str = "Powered By Veyra Development™ | Designed By Arun"
 ):
     import datetime
     desc_content = ""
@@ -5711,18 +5710,27 @@ class AutoroleGroup(app_commands.Group):
         cursor = conn.cursor()
         cursor.execute("SELECT roles FROM autoroles WHERE guild_id = ?", (str(interaction.guild.id),))
         row = cursor.fetchone()
-        roles = json.loads(row[0]) if (row and row[0]) else []
-        if str(role.id) not in roles:
-            roles.append(str(role.id))
-            cursor.execute("INSERT OR REPLACE INTO autoroles (guild_id, roles) VALUES (?, ?)", (str(interaction.guild.id), json.dumps(roles)))
-            conn.commit()
+        roles = []
+        if row and row[0]:
+            try:
+                parsed = json.loads(row[0])
+                if isinstance(parsed, list):
+                    roles = [str(x) for x in parsed]
+            except Exception:
+                roles = []
+
+        # If any invalid/legacy role names like "Verified Member" match this role, clean them up
+        roles = [r for r in roles if r != role.name and r != str(role.id)]
+        roles.append(str(role.id))
+        cursor.execute("INSERT OR REPLACE INTO autoroles (guild_id, roles) VALUES (?, ?)", (str(interaction.guild.id), json.dumps(roles)))
+        conn.commit()
         conn.close()
         embed = create_veyra_embed(
             title="📋 Autorole Configured",
             status="QUEUED",
             description=f"Added role {role.mention} to autoroles queue.",
             color=discord.Color.from_rgb(24, 24, 27),
-            footer="VEYRA V2 • Autorole System"
+            footer="Powered By Veyra Development™ | Designed By Arun"
         )
         await interaction.response.send_message(embed=embed)
         
@@ -5733,17 +5741,28 @@ class AutoroleGroup(app_commands.Group):
         cursor = conn.cursor()
         cursor.execute("SELECT roles FROM autoroles WHERE guild_id = ?", (str(interaction.guild.id),))
         row = cursor.fetchone()
-        roles = json.loads(row[0]) if (row and row[0]) else []
-        if str(role.id) in roles:
-            roles.remove(str(role.id))
-            cursor.execute("INSERT OR REPLACE INTO autoroles (guild_id, roles) VALUES (?, ?)", (str(interaction.guild.id), json.dumps(roles)))
+        roles = []
+        if row and row[0]:
+            try:
+                parsed = json.loads(row[0])
+                if isinstance(parsed, list):
+                    roles = [str(x) for x in parsed]
+            except Exception:
+                roles = []
+
+        target_id = str(role.id)
+        target_name = role.name
+        new_roles = [r for r in roles if r != target_id and r.lower() != target_name.lower()]
+
+        if len(new_roles) < len(roles):
+            cursor.execute("INSERT OR REPLACE INTO autoroles (guild_id, roles) VALUES (?, ?)", (str(interaction.guild.id), json.dumps(new_roles)))
             conn.commit()
             embed = create_veyra_embed(
                 title="📋 Autorole Deconfigured",
                 status="DEQUEUED",
                 description=f"Removed role **{role.name}** from autoroles queue.",
                 color=discord.Color.from_rgb(24, 24, 27),
-                footer="VEYRA V2 • Autorole System"
+                footer="Powered By Veyra Development™ | Designed By Arun"
             )
             await interaction.response.send_message(embed=embed)
         else:
@@ -5757,15 +5776,52 @@ class AutoroleGroup(app_commands.Group):
         cursor.execute("SELECT roles FROM autoroles WHERE guild_id = ?", (str(interaction.guild.id),))
         row = cursor.fetchone()
         conn.close()
-        role_ids = json.loads(row[0]) if (row and row[0]) else []
+        role_ids = []
+        if row and row[0]:
+            try:
+                parsed = json.loads(row[0])
+                if isinstance(parsed, list):
+                    role_ids = parsed
+            except Exception:
+                role_ids = []
+
         if not role_ids:
             return await interaction.response.send_message("ℹ️ No autoroles configured.")
+
         mentions = []
+        valid_ids = []
         for r_id in role_ids:
-            role = interaction.guild.get_role(int(r_id))
+            role = None
+            r_str = str(r_id).strip()
+            if r_str.isdigit():
+                role = interaction.guild.get_role(int(r_str))
+            if not role:
+                role = discord.utils.get(interaction.guild.roles, name=r_str)
+                if not role:
+                    role = discord.utils.find(lambda r: r.name.lower() == r_str.lower(), interaction.guild.roles)
+
             if role:
                 mentions.append(role.mention)
-        
+                valid_ids.append(str(role.id))
+            else:
+                if not r_str.isdigit():
+                    continue
+                mentions.append(f"`Role ID: {r_str}`")
+                valid_ids.append(r_str)
+
+        if not mentions:
+            return await interaction.response.send_message("ℹ️ No active autoroles configured.")
+
+        # Auto-heal DB if non-integer names or outdated formats existed
+        try:
+            conn_u = get_db()
+            cur_u = conn_u.cursor()
+            cur_u.execute("UPDATE autoroles SET roles = ? WHERE guild_id = ?", (json.dumps(valid_ids), str(interaction.guild.id)))
+            conn_u.commit()
+            conn_u.close()
+        except Exception:
+            pass
+
         embed = create_veyra_embed(
             title="📋 Configured Autoroles",
             description="The following roles are assigned to members immediately upon joining.",
@@ -5773,9 +5829,176 @@ class AutoroleGroup(app_commands.Group):
                 ("👥 Active Queue", ", ".join(mentions) if mentions else "None", False)
             ],
             color=discord.Color.from_rgb(24, 24, 27),
-            footer="VEYRA V2 • Autorole Registry"
+            footer="Powered By Veyra Development™ | Designed By Arun"
         )
         await interaction.response.send_message(embed=embed)
+
+    @app_commands.command(name="clear", description="Clear all configured autoroles")
+    @app_commands.checks.has_permissions(administrator=True)
+    async def clear(self, interaction: discord.Interaction):
+        conn = get_db()
+        cursor = conn.cursor()
+        cursor.execute("UPDATE autoroles SET roles = '[]' WHERE guild_id = ?", (str(interaction.guild.id),))
+        conn.commit()
+        conn.close()
+        embed = create_veyra_embed(
+            title="📋 Autoroles Cleared",
+            status="CLEARED",
+            description="All configured autoroles have been removed from the server queue.",
+            color=discord.Color.from_rgb(24, 24, 27),
+            footer="Powered By Veyra Development™ | Designed By Arun"
+        )
+        await interaction.response.send_message(embed=embed)
+
+
+# --- Prefix Commands for Autorole ---
+@bot.group(name="autorole", aliases=["autoroles"], invoke_without_command=True)
+async def autorole_prefix_group(ctx):
+    embed = discord.Embed(
+        title="📋 Autorole Commands",
+        description="`autorole add <@role>`, `autorole remove <@role>`, `autorole list`, `autorole clear`",
+        color=discord.Color.from_rgb(43, 45, 49)
+    )
+    embed.set_footer(text="Powered By Veyra Development™ | Designed By Arun")
+    await ctx.send(embed=embed)
+
+@autorole_prefix_group.command(name="add")
+@commands.has_permissions(administrator=True)
+async def autorole_prefix_add(ctx, role: discord.Role):
+    if role >= ctx.guild.me.top_role:
+        return await ctx.send("❌ Cannot add this role: it is above the bot's permissions role.")
+    conn = get_db()
+    cursor = conn.cursor()
+    cursor.execute("SELECT roles FROM autoroles WHERE guild_id = ?", (str(ctx.guild.id),))
+    row = cursor.fetchone()
+    roles = []
+    if row and row[0]:
+        try:
+            parsed = json.loads(row[0])
+            if isinstance(parsed, list):
+                roles = [str(x) for x in parsed]
+        except Exception:
+            roles = []
+    roles = [r for r in roles if r != role.name and r != str(role.id)]
+    roles.append(str(role.id))
+    cursor.execute("INSERT OR REPLACE INTO autoroles (guild_id, roles) VALUES (?, ?)", (str(ctx.guild.id), json.dumps(roles)))
+    conn.commit()
+    conn.close()
+    embed = create_veyra_embed(
+        title="📋 Autorole Configured",
+        status="QUEUED",
+        description=f"Added role {role.mention} to autoroles queue.",
+        color=discord.Color.from_rgb(24, 24, 27),
+        footer="Powered By Veyra Development™ | Designed By Arun"
+    )
+    await ctx.send(embed=embed)
+
+@autorole_prefix_group.command(name="remove")
+@commands.has_permissions(administrator=True)
+async def autorole_prefix_remove(ctx, role: discord.Role):
+    conn = get_db()
+    cursor = conn.cursor()
+    cursor.execute("SELECT roles FROM autoroles WHERE guild_id = ?", (str(ctx.guild.id),))
+    row = cursor.fetchone()
+    roles = []
+    if row and row[0]:
+        try:
+            parsed = json.loads(row[0])
+            if isinstance(parsed, list):
+                roles = [str(x) for x in parsed]
+        except Exception:
+            roles = []
+    target_id = str(role.id)
+    target_name = role.name
+    new_roles = [r for r in roles if r != target_id and r.lower() != target_name.lower()]
+    if len(new_roles) < len(roles):
+        cursor.execute("INSERT OR REPLACE INTO autoroles (guild_id, roles) VALUES (?, ?)", (str(ctx.guild.id), json.dumps(new_roles)))
+        conn.commit()
+        embed = create_veyra_embed(
+            title="📋 Autorole Deconfigured",
+            status="DEQUEUED",
+            description=f"Removed role **{role.name}** from autoroles queue.",
+            color=discord.Color.from_rgb(24, 24, 27),
+            footer="Powered By Veyra Development™ | Designed By Arun"
+        )
+        await ctx.send(embed=embed)
+    else:
+        await ctx.send("❌ This role is not in the autoroles queue.")
+    conn.close()
+
+@autorole_prefix_group.command(name="list")
+async def autorole_prefix_list(ctx):
+    conn = get_db()
+    cursor = conn.cursor()
+    cursor.execute("SELECT roles FROM autoroles WHERE guild_id = ?", (str(ctx.guild.id),))
+    row = cursor.fetchone()
+    conn.close()
+    role_ids = []
+    if row and row[0]:
+        try:
+            parsed = json.loads(row[0])
+            if isinstance(parsed, list):
+                role_ids = parsed
+        except Exception:
+            role_ids = []
+    if not role_ids:
+        return await ctx.send("ℹ️ No autoroles configured.")
+    mentions = []
+    valid_ids = []
+    for r_id in role_ids:
+        role = None
+        r_str = str(r_id).strip()
+        if r_str.isdigit():
+            role = ctx.guild.get_role(int(r_str))
+        if not role:
+            role = discord.utils.get(ctx.guild.roles, name=r_str)
+            if not role:
+                role = discord.utils.find(lambda r: r.name.lower() == r_str.lower(), ctx.guild.roles)
+        if role:
+            mentions.append(role.mention)
+            valid_ids.append(str(role.id))
+        else:
+            if not r_str.isdigit():
+                continue
+            mentions.append(f"`Role ID: {r_str}`")
+            valid_ids.append(r_str)
+    if not mentions:
+        return await ctx.send("ℹ️ No active autoroles configured.")
+    try:
+        conn_u = get_db()
+        cur_u = conn_u.cursor()
+        cur_u.execute("UPDATE autoroles SET roles = ? WHERE guild_id = ?", (json.dumps(valid_ids), str(ctx.guild.id)))
+        conn_u.commit()
+        conn_u.close()
+    except Exception:
+        pass
+    embed = create_veyra_embed(
+        title="📋 Configured Autoroles",
+        description="The following roles are assigned to members immediately upon joining.",
+        fields=[
+            ("👥 Active Queue", ", ".join(mentions) if mentions else "None", False)
+        ],
+        color=discord.Color.from_rgb(24, 24, 27),
+        footer="Powered By Veyra Development™ | Designed By Arun"
+    )
+    await ctx.send(embed=embed)
+
+@autorole_prefix_group.command(name="clear")
+@commands.has_permissions(administrator=True)
+async def autorole_prefix_clear(ctx):
+    conn = get_db()
+    cursor = conn.cursor()
+    cursor.execute("UPDATE autoroles SET roles = '[]' WHERE guild_id = ?", (str(ctx.guild.id),))
+    conn.commit()
+    conn.close()
+    embed = create_veyra_embed(
+        title="📋 Autoroles Cleared",
+        status="CLEARED",
+        description="All configured autoroles have been removed from the server queue.",
+        color=discord.Color.from_rgb(24, 24, 27),
+        footer="Powered By Veyra Development™ | Designed By Arun"
+    )
+    await ctx.send(embed=embed)
 
 
 class StickyroleGroup(app_commands.Group):
