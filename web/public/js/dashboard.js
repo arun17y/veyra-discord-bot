@@ -270,7 +270,7 @@ window.fetch = function(url, options) {
     options = options || {};
     options.headers = options.headers || {};
     
-    const sessionData = localStorage.getItem('SENTRIX_session');
+    const sessionData = localStorage.getItem('VEYRA_session') || localStorage.getItem('SENTRIX_session');
     if (sessionData && sessionData !== 'undefined') {
         options.headers['Authorization'] = 'Bearer ' + encodeURIComponent(sessionData);
     }
@@ -280,7 +280,9 @@ window.fetch = function(url, options) {
             const clone = response.clone();
             const data = await clone.clone().json().catch(() => null);
             if (data && data.sessionData) {
-                localStorage.setItem('SENTRIX_session', JSON.stringify(data.sessionData));
+                const sStr = JSON.stringify(data.sessionData);
+                localStorage.setItem('VEYRA_session', sStr);
+                localStorage.setItem('SENTRIX_session', sStr);
             }
         } catch (e) {}
         return response;
@@ -1330,14 +1332,17 @@ function toggleFaq(el) {
     }
 }
 
-function simulateLogin() {
+function loginWithDiscord() {
     const loginBtn = document.getElementById('login-btn');
     if (loginBtn) {
-        loginBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Authenticating...';
+        loginBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Connecting to Discord...';
     }
-    
-    // Redirect directly to authentication handler with demo fallback mode
-    window.location.href = '/api/auth/login?mode=demo';
+    // Redirect directly to real Discord OAuth login
+    window.location.href = '/api/auth/login';
+}
+
+function simulateLogin() {
+    loginWithDiscord();
 }
 
 function simulateAddBot(serverName, serverId) {
@@ -1520,6 +1525,7 @@ function logout() {
     document.cookie = "SENTRIX_session=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
     document.cookie = "VEYRA_session=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
     localStorage.removeItem('SENTRIX_session');
+    localStorage.removeItem('VEYRA_session');
     
     try {
         fetch('/api/auth/logout', { method: 'POST' }).catch(() => {});

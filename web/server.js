@@ -583,6 +583,10 @@ function getSessionData(req) {
     }
     if (rawSession && rawSession !== 'undefined') {
         try {
+            if (typeof rawSession === 'string' && (rawSession.startsWith('%7B') || rawSession.includes('%22'))) {
+                rawSession = decodeURIComponent(rawSession);
+            }
+            if (typeof rawSession === 'object') return rawSession;
             return JSON.parse(rawSession);
         } catch (e) {
             console.error("[AUTH] getSessionData parse error:", e);
@@ -1882,28 +1886,34 @@ app.get('/api/auth/config', (req, res) => {
 });
 
 app.get('/api/auth/login', (req, res) => {
-    console.log(`[AUTH] /api/auth/login hit. Host: ${req.get('host')}`);
-    if (!CLIENT_SECRET || req.query.mode === 'demo' || req.query.mode === 'fallback') {
+    const host = req.get('host');
+    const protocol = req.protocol === 'https' || req.headers['x-forwarded-proto'] === 'https' ? 'https' : 'http';
+    console.log(`[AUTH] /api/auth/login hit. Host: ${host}, Protocol: ${protocol}`);
+
+    if (req.query.mode === 'demo' || req.query.mode === 'fallback') {
         console.log(`[AUTH] Auto-authenticating active session via fallback route.`);
         return handleOAuthFallback(res);
     }
-    const host = req.get('host');
-    const protocol = req.protocol === 'https' || req.headers['x-forwarded-proto'] === 'https' ? 'https' : 'http';
+
     const redirectUri = `${protocol}://${host}/auth/callback`;
     console.log(`[AUTH] Redirect URI derived: ${redirectUri}`);
     
+    // Standard Discord OAuth2 implicit grant - direct, instant, client-driven
     const scopes = 'identify guilds';
     const url = `https://discord.com/oauth2/authorize?client_id=${CLIENT_ID}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=token&scope=${encodeURIComponent(scopes)}`;
     res.redirect(url);
 });
 
 async function handleDiscordCallback(req, res) {
-    const { code, error } = req.query;
+    const { code, error, error_description } = req.query;
     console.log(`[AUTH] handleDiscordCallback. Code present: ${!!code}, Error query: ${error || 'none'}`);
     
     if (error) {
-        console.error(`[AUTH] handleDiscordCallback query error: ${error}`);
-        return serveAuthCallbackResponse(res, { success: false, error });
+        console.error(`[AUTH] Discord OAuth error: ${error} - ${error_description}`);
+        if (error === 'access_denied') {
+            return res.redirect('/?login=cancelled');
+        }
+        return res.redirect(`/?login=error&message=${encodeURIComponent(error_description || error)}`);
     }
     
     if (!code) {
@@ -1912,26 +1922,38 @@ async function handleDiscordCallback(req, res) {
             <!DOCTYPE html>
             <html>
             <head>
-                <title>Discord Authentication</title>
+                <title>Discord Authentication • VEYRA</title>
                 <style>
                     body {
                         background-color: #0c0a19;
                         margin: 0;
                         display: flex;
+                        flex-direction: column;
                         justify-content: center;
                         align-items: center;
                         height: 100vh;
+                        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+                        color: #ffffff;
+                    }
+                    .spinner {
+                        width: 48px;
+                        height: 48px;
+                        border: 3px solid rgba(168, 85, 247, 0.2);
+                        border-top-color: #a855f7;
+                        border-radius: 50%;
+                        animation: spin 0.8s linear infinite;
+                        margin-bottom: 16px;
+                    }
+                    @keyframes spin { 100% { transform: rotate(360deg); } }
+                    .status-text {
+                        font-size: 0.95rem;
+                        color: rgba(255, 255, 255, 0.7);
                     }
                 </style>
             </head>
             <body>
-                <!-- Silent redirecting spinner -->
-                <div style="display: flex; justify-content: center; align-items: center;">
-                    <svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style="animation: spin 0.8s linear infinite; fill: #a855f7;">
-                        <style>@keyframes spin { 100% { transform: rotate(360deg); } }</style>
-                        <path d="M12,4V2A10,10 0 0,0 2,12H4A8,8 0 0,1 12,4Z"/>
-                    </svg>
-                </div>
+                <div class="spinner"></div>
+                <div class="status-text">Authenticating with Discord...</div>
                 <script>
                     const params = new URLSearchParams(window.location.hash.substring(1));
                     const accessToken = params.get('access_token');
@@ -1946,8 +1968,11 @@ async function handleDiscordCallback(req, res) {
                         .then(data => {
                             if (data.success) {
                                 try {
-                                    document.cookie = "SENTRIX_session=" + encodeURIComponent(JSON.stringify(data.sessionData)) + "; max-age=" + (24 * 60 * 60) + "; path=/; SameSite=Lax;";
-                                    localStorage.setItem('SENTRIX_session', JSON.stringify(data.sessionData));
+                                    const sessStr = JSON.stringify(data.sessionData);
+                                    document.cookie = "VEYRA_session=" + encodeURIComponent(sessStr) + "; max-age=" + (7 * 24 * 60 * 60) + "; path=/; SameSite=Lax;";
+                                    document.cookie = "SENTRIX_session=" + encodeURIComponent(sessStr) + "; max-age=" + (7 * 24 * 60 * 60) + "; path=/; SameSite=Lax;";
+                                    localStorage.setItem('VEYRA_session', sessStr);
+                                    localStorage.setItem('SENTRIX_session', sessStr);
                                 } catch (e) {
                                     console.error("Client cookie/localStorage set error:", e);
                                 }
@@ -1960,8 +1985,8 @@ async function handleDiscordCallback(req, res) {
                                     window.close();
                                 } else {
                                     setTimeout(() => {
-                                        window.location.href = '/?login=success';
-                                    }, 150);
+                                        window.location.href = '/manage?login=success';
+                                    }, 100);
                                 }
                             } else {
                                 fail('verification_failed');
@@ -1971,12 +1996,18 @@ async function handleDiscordCallback(req, res) {
                             fail('network_error');
                         });
                     } else {
-                        fail('no_token');
+                        // If no token in hash, check if there's any error in hash
+                        const hashError = params.get('error');
+                        if (hashError) {
+                            fail(hashError);
+                        } else {
+                            fail('no_token');
+                        }
                     }
                     
                     function fail(reason) {
                         if (window.opener) {
-                            window.opener.postMessage({ type: 'DISCORD_AUTH_CANCEL' }, '*');
+                            window.opener.postMessage({ type: 'DISCORD_AUTH_CANCEL', reason }, '*');
                             window.close();
                         } else {
                             window.location.href = '/?login=error&error=' + encodeURIComponent(reason);
@@ -1988,69 +2019,76 @@ async function handleDiscordCallback(req, res) {
         `);
     }
     
+    // If authorization code was returned, attempt code exchange
     if (CLIENT_SECRET) {
         try {
             const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args)).catch(() => global.fetch(...args));
-            
-            // Exchange Authorization Code for Access Token using v10 endpoint & Basic Auth
+            const host = req.get('host');
+            const protocol = req.protocol === 'https' || req.headers['x-forwarded-proto'] === 'https' ? 'https' : 'http';
+            const redirectUri = `${protocol}://${host}/auth/callback`;
+
+            const tokenParams = new URLSearchParams({
+                client_id: CLIENT_ID,
+                client_secret: CLIENT_SECRET,
+                grant_type: 'authorization_code',
+                code,
+                redirect_uri: redirectUri
+            });
+
             const tokenResponse = await fetch('https://discord.com/api/v10/oauth2/token', {
                 method: 'POST',
-                body: new URLSearchParams({
-                    grant_type: 'authorization_code',
-                    code,
-                    redirect_uri: REDIRECT_URI || `${req.protocol === 'https' || req.headers['x-forwarded-proto'] === 'https' ? 'https' : 'http'}://${req.get('host')}/auth/callback`,
-                }),
+                body: tokenParams,
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded',
-                    'Authorization': 'Basic ' + Buffer.from(CLIENT_ID + ':' + CLIENT_SECRET).toString('base64'),
                 },
             });
             
             const tokens = await tokenResponse.json();
-            if (tokens.error) {
-                console.error('Discord Code Token Exchange Error:', tokens);
-                // Fall back gracefully to mock fallback login if credentials exchange fails
-                return handleOAuthFallback(res);
-            }
-            
-            // Fetch User Profile
-            const userResponse = await fetch('https://discord.com/api/v10/users/@me', {
-                headers: { Authorization: `Bearer ${tokens.access_token}` },
-            });
-            const user = await userResponse.json();
-            
-            // Fetch User Guilds
-            const guildsResponse = await fetch('https://discord.com/api/v10/users/@me/guilds', {
-                headers: { Authorization: `Bearer ${tokens.access_token}` },
-            });
-            const guilds = await guildsResponse.json();
-            
-            if (Array.isArray(guilds)) {
-                const MANAGE_GUILD = 0x20n;
-                const ADMINISTRATOR = 0x8n;
-                const mappedGuilds = guilds.map(g => {
-                    const perms = BigInt(g.permissions || 0);
-                    const canManage = g.owner || (perms & MANAGE_GUILD) === MANAGE_GUILD || (perms & ADMINISTRATOR) === ADMINISTRATOR;
-                    return {
-                        id: g.id,
-                        name: g.name,
-                        icon: g.icon,
-                        can_invite: canManage,
-                        active: false
-                    };
-                }).filter((g, index, self) => {
-                    return self.findIndex(t => t.id === g.id) === index;
+            if (tokens.access_token) {
+                // Fetch User Profile
+                const userResponse = await fetch('https://discord.com/api/v10/users/@me', {
+                    headers: { Authorization: `Bearer ${tokens.access_token}` },
                 });
+                const user = await userResponse.json();
                 
-                res.cookie('SENTRIX_session', JSON.stringify({ user, guilds: mappedGuilds }), { maxAge: 24 * 60 * 60 * 1000, path: '/' });
-                return serveAuthCallbackResponse(res, { success: true, user });
+                // Fetch User Guilds
+                const guildsResponse = await fetch('https://discord.com/api/v10/users/@me/guilds', {
+                    headers: { Authorization: `Bearer ${tokens.access_token}` },
+                });
+                const guilds = await guildsResponse.json();
+                
+                if (Array.isArray(guilds)) {
+                    const MANAGE_GUILD = 0x20n;
+                    const ADMINISTRATOR = 0x8n;
+                    const mappedGuilds = guilds.map(g => {
+                        const perms = BigInt(g.permissions || 0);
+                        const canManage = g.owner || (perms & MANAGE_GUILD) === MANAGE_GUILD || (perms & ADMINISTRATOR) === ADMINISTRATOR;
+                        return {
+                            id: g.id,
+                            name: g.name,
+                            icon: g.icon,
+                            can_invite: canManage,
+                            active: false
+                        };
+                    }).filter((g, index, self) => {
+                        return self.findIndex(t => t.id === g.id) === index;
+                    });
+                    
+                    const sessionData = { user, guilds: mappedGuilds };
+                    const sessStr = JSON.stringify(sessionData);
+                    res.cookie('VEYRA_session', sessStr, { maxAge: 7 * 24 * 60 * 60 * 1000, path: '/', sameSite: 'lax' });
+                    res.cookie('SENTRIX_session', sessStr, { maxAge: 7 * 24 * 60 * 60 * 1000, path: '/', sameSite: 'lax' });
+                    return res.redirect('/manage?login=success');
+                }
+            } else {
+                console.error('[AUTH] Discord Code Token Exchange Error:', tokens);
             }
         } catch (err) {
-            console.error('Real OAuth Code Exchange Exception:', err);
+            console.error('[AUTH] Real OAuth Code Exchange Exception:', err);
         }
     }
     
-    // Default fallback to mock simulation session if secret is empty or exchange fails
+    // Graceful fallback to demo simulation session if code exchange is unsupported
     return handleOAuthFallback(res);
 }
 
@@ -2355,12 +2393,20 @@ app.post('/api/auth/real-login', async (req, res) => {
         });
 
         console.log(`[AUTH] /api/auth/real-login success. Setting cookie for user ${user.id} (${user.username}). Guilds count: ${mappedGuilds.length}`);
-        res.cookie('SENTRIX_session', JSON.stringify({ user, guilds: mappedGuilds }), { maxAge: 24 * 60 * 60 * 1000, path: '/' });
+        const sessionPayload = JSON.stringify({ user, guilds: mappedGuilds });
+        res.cookie('VEYRA_session', sessionPayload, { maxAge: 7 * 24 * 60 * 60 * 1000, path: '/', sameSite: 'lax' });
+        res.cookie('SENTRIX_session', sessionPayload, { maxAge: 7 * 24 * 60 * 60 * 1000, path: '/', sameSite: 'lax' });
         res.json({ success: true, user, sessionData: { user, guilds: mappedGuilds } });
     } catch (err) {
         console.error('[AUTH] Real OAuth Login Exception:', err);
         res.status(500).json({ success: false, error: 'internal_error' });
     }
+});
+
+app.all('/api/auth/logout', (req, res) => {
+    res.clearCookie('VEYRA_session', { path: '/' });
+    res.clearCookie('SENTRIX_session', { path: '/' });
+    res.json({ success: true, loggedOut: true });
 });
 
 // Helper to fetch list of guilds the bot is currently in using local SQLite database cache
