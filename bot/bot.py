@@ -9694,6 +9694,164 @@ async def setupticket_prefix_command(ctx, channel: discord.TextChannel = None):
     except Exception as e:
         await ctx.send(f"❌ Failed to post ticket panel: {e}")
 
+@bot.command(name="close", aliases=["ticketclose", "close-ticket", "ticket-close"], description="Closes the active support ticket.")
+async def close_prefix_command(ctx):
+    conn = get_db()
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM tickets WHERE channel_id = ? AND guild_id = ?", (str(ctx.channel.id), str(ctx.guild.id)))
+    ticket = cursor.fetchone()
+    conn.close()
+    if not ticket:
+        return await ctx.send("❌ This command can only be used inside an active ticket channel.")
+    
+    class FakeInteraction:
+        def __init__(self, ctx):
+            self.user = ctx.author
+            self.guild = ctx.guild
+            self.channel = ctx.channel
+            self.id = ctx.message.id
+            self.response = FakeResponse(ctx)
+            self.followup = FakeFollowup(ctx)
+
+    class FakeResponse:
+        def __init__(self, ctx):
+            self.ctx = ctx
+            self._done = False
+        def is_done(self):
+            return self._done
+        async def defer(self, ephemeral=False):
+            self._done = True
+
+    class FakeFollowup:
+        def __init__(self, ctx):
+            self.ctx = ctx
+        async def send(self, content=None, embed=None, view=None, file=None, ephemeral=False):
+            if file and embed:
+                return await self.ctx.send(content=content, embed=embed, view=view, file=file)
+            elif embed:
+                return await self.ctx.send(content=content, embed=embed, view=view)
+            elif view:
+                return await self.ctx.send(content=content, view=view)
+            return await self.ctx.send(content)
+
+    fake_interaction = FakeInteraction(ctx)
+    await handle_close_ticket_interaction(fake_interaction)
+
+@bot.command(name="claim", aliases=["ticketclaim", "claim-ticket"], description="Claims the active support ticket.")
+async def claim_prefix_command(ctx):
+    conn = get_db()
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM tickets WHERE channel_id = ? AND guild_id = ?", (str(ctx.channel.id), str(ctx.guild.id)))
+    ticket = cursor.fetchone()
+    conn.close()
+    if not ticket:
+        return await ctx.send("❌ This command can only be used inside an active ticket channel.")
+    
+    class FakeInteraction:
+        def __init__(self, ctx):
+            self.user = ctx.author
+            self.guild = ctx.guild
+            self.channel = ctx.channel
+            self.id = ctx.message.id
+            self.response = FakeResponse(ctx)
+            self.followup = FakeFollowup(ctx)
+            self.message = None
+
+    class FakeResponse:
+        def __init__(self, ctx):
+            self.ctx = ctx
+            self._done = False
+        def is_done(self):
+            return self._done
+        async def defer(self, ephemeral=False):
+            self._done = True
+
+    class FakeFollowup:
+        def __init__(self, ctx):
+            self.ctx = ctx
+        async def send(self, content=None, embed=None, view=None, ephemeral=False):
+            if embed:
+                return await self.ctx.send(content=content, embed=embed, view=view)
+            return await self.ctx.send(content)
+
+    fake_interaction = FakeInteraction(ctx)
+    await handle_claim_ticket_interaction(fake_interaction)
+
+@bot.command(name="reopen", aliases=["ticketreopen"], description="Reopens a closed support ticket.")
+async def reopen_prefix_command(ctx):
+    conn = get_db()
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM tickets WHERE channel_id = ? AND guild_id = ?", (str(ctx.channel.id), str(ctx.guild.id)))
+    ticket = cursor.fetchone()
+    conn.close()
+    if not ticket:
+        return await ctx.send("❌ This command can only be used inside a ticket channel.")
+    
+    class FakeInteraction:
+        def __init__(self, ctx):
+            self.user = ctx.author
+            self.guild = ctx.guild
+            self.channel = ctx.channel
+            self.id = ctx.message.id
+            self.response = FakeResponse(ctx)
+            self.followup = FakeFollowup(ctx)
+
+    class FakeResponse:
+        def __init__(self, ctx):
+            self.ctx = ctx
+            self._done = False
+        def is_done(self):
+            return self._done
+        async def defer(self, ephemeral=False):
+            self._done = True
+
+    class FakeFollowup:
+        def __init__(self, ctx):
+            self.ctx = ctx
+        async def send(self, content=None, embed=None, view=None, ephemeral=False):
+            if embed:
+                return await self.ctx.send(content=content, embed=embed, view=view)
+            return await self.ctx.send(content)
+
+    fake_interaction = FakeInteraction(ctx)
+    await reopen_ticket_handler(fake_interaction, ticket)
+
+@bot.group(name="ticket", invoke_without_command=True)
+async def ticket_prefix_group(ctx):
+    embed = discord.Embed(
+        title="🎫 VEYRA Ticket Commands",
+        description=(
+            "**Available Ticket Commands:**\n"
+            "• `,close` or `,ticket close` — Close current ticket channel\n"
+            "• `,claim` or `,ticket claim` — Claim ticket to assist user\n"
+            "• `,reopen` or `,ticket reopen` — Reopen closed ticket\n"
+            "• `,setupticket` or `,ticket setup` — Deploy support panel in a channel\n"
+            "• `/ticket create` — Create ticket manually\n"
+            "• `/ticket panels` — View configured ticket panels"
+        ),
+        color=discord.Color.from_rgb(168, 85, 247)
+    )
+    embed.set_footer(text="Powered By Veyra Development™ | Designed By Arun")
+    await ctx.send(embed=embed)
+
+@ticket_prefix_group.command(name="close")
+async def ticket_prefix_sub_close(ctx):
+    await close_prefix_command(ctx)
+
+@ticket_prefix_group.command(name="claim")
+async def ticket_prefix_sub_claim(ctx):
+    await claim_prefix_command(ctx)
+
+@ticket_prefix_group.command(name="reopen")
+async def ticket_prefix_sub_reopen(ctx):
+    await reopen_prefix_command(ctx)
+
+@ticket_prefix_group.command(name="setup")
+@commands.has_permissions(administrator=True)
+async def ticket_prefix_sub_setup(ctx, channel: discord.TextChannel = None):
+    await setupticket_prefix_command(ctx, channel)
+
+
 @bot.tree.command(name="redeem", description="Redeems votes for server premium.")
 async def redeem_command(interaction: discord.Interaction):
     await interaction.response.defer()
@@ -9857,12 +10015,19 @@ async def handle_create_ticket_interaction(interaction: discord.Interaction, pan
 
     # 6. Save ticket to DB
     now_ts = int(datetime.utcnow().timestamp())
-    cursor.execute("""
-        INSERT INTO tickets (guild_id, panel_id, channel_id, user_id, username, ticket_number, status, open_time, topic)
-        VALUES (?, ?, ?, ?, ?, ?, 'open', ?, ?)
-    """, (str(guild.id), str(panel['id']), str(new_channel.id), str(interaction.user.id), interaction.user.name, new_ticket_num, now_ts, topic or 'General Support'))
-    conn.commit()
-    conn.close()
+    try:
+        cursor.execute("""
+            INSERT INTO tickets (guild_id, panel_id, channel_id, user_id, username, ticket_number, status, open_time, topic)
+            VALUES (?, ?, ?, ?, ?, ?, 'open', ?, ?)
+        """, (str(guild.id), str(panel['id']), str(new_channel.id), str(interaction.user.id), interaction.user.name, new_ticket_num, now_ts, topic or 'General Support'))
+        conn.commit()
+    except Exception as dberr:
+        print(f"Error saving ticket to DB: {dberr}")
+    finally:
+        try:
+            conn.close()
+        except Exception:
+            pass
 
     # 7. Post welcome embed inside ticket channel
     welcome_title = f"🎫 {panel['ticket_title'] or 'Support Ticket'}"
@@ -9879,11 +10044,22 @@ async def handle_create_ticket_interaction(interaction: discord.Interaction, pan
         description=welcome_desc,
         color=discord.Color.from_rgb(34, 197, 94)
     )
-    welcome_embed.set_footer(text=f"Powered by {guild.me.display_name if guild.me else 'VEYRA'}", icon_url=guild.me.display_avatar.url if guild.me else None)
+    welcome_embed.set_footer(text="Powered By Veyra Development™ | Designed By Arun", icon_url=guild.me.display_avatar.url if guild.me else None)
     welcome_embed.timestamp = datetime.utcnow()
 
-    await new_channel.send(embed=welcome_embed, view=TicketWelcomeView())
-    await interaction.followup.send(f"✅ Your ticket has been opened in {new_channel.mention}!", ephemeral=True)
+    try:
+        await new_channel.send(content=f"{interaction.user.mention}", embed=welcome_embed, view=TicketWelcomeView())
+    except Exception as send_err:
+        print(f"Error sending ticket welcome embed: {send_err}")
+        try:
+            await new_channel.send(f"Welcome to your support ticket {interaction.user.mention}! Support staff will assist you shortly.", view=TicketWelcomeView())
+        except Exception:
+            pass
+
+    try:
+        await interaction.followup.send(f"✅ Your ticket has been opened in {new_channel.mention}!", ephemeral=True)
+    except Exception:
+        pass
 
     # Dispatch "Ticket Opened" log embed to moderation/logs channel
     try:
