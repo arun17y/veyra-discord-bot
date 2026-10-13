@@ -6567,17 +6567,21 @@ async def help_root(interaction: discord.Interaction):
     await interaction.response.send_message(embed=embed, view=view)
 
 
-@bot.tree.command(name="invite", description="Displays the invite links of the bot from which you can invite me in your server")
+@bot.tree.command(name="invite", description="Displays the official invite link for VEYRA")
 async def invite_root(interaction: discord.Interaction):
     client_id = os.getenv("DISCORD_CLIENT_ID", "1527243189860175933")
     url = f"https://discord.com/oauth2/authorize?client_id={client_id}&permissions=8&integration_type=0&scope=bot+applications.commands"
     embed = discord.Embed(
         title="🔗 Invite VEYRA to Your Server",
-        description=f"Click the link below to authorize VEYRA in your server:\n\n**[Authorize VEYRA]({url})**",
-        color=discord.Color.from_rgb(24, 24, 27)
+        description=f"Click the button below or [Authorize VEYRA]({url}) to invite the bot with full Administrator permissions.\n\n🌐 **Web Dashboard:** [https://veyra.vercel.app](https://veyra.vercel.app)",
+        color=discord.Color.from_rgb(168, 85, 247)
     )
-    embed.set_footer(text="Powered by VEYRA")
-    await interaction.response.send_message(embed=embed, view=BotMentionView())
+    embed.set_footer(text="Powered By Veyra Development™ | Designed By Arun")
+    
+    view = discord.ui.View()
+    view.add_item(discord.ui.Button(label="Authorize VEYRA", style=discord.ButtonStyle.link, url=url, emoji="🤖"))
+    view.add_item(discord.ui.Button(label="Dashboard", style=discord.ButtonStyle.link, url="https://veyra.vercel.app", emoji="🌐"))
+    await interaction.response.send_message(embed=embed, view=view)
 
 
 @bot.tree.command(name="kick", description="Kicks a user from a guild")
@@ -10108,6 +10112,550 @@ async def on_interaction(interaction: discord.Interaction):
         print(f"Error handling ticket interaction event: {e}")
 
 
+# --- VEYRA WELCOME & EXIT SETUP GROUPS ---
+
+class SetupWelcomeGroup(app_commands.Group):
+    def __init__(self):
+        super().__init__(name="welcome", description="Configure server welcome greeting messages & channel")
+
+    @app_commands.command(name="channel", description="Set the welcome announcement channel")
+    @app_commands.checks.has_permissions(administrator=True)
+    async def channel_cmd(self, interaction: discord.Interaction, channel: discord.TextChannel = None):
+        target_ch = channel or interaction.channel
+        conn = get_db()
+        cursor = conn.cursor()
+        cursor.execute("SELECT 1 FROM welcome_settings WHERE guild_id = ?", (str(interaction.guild.id),))
+        if cursor.fetchone():
+            cursor.execute("UPDATE welcome_settings SET channel = ?, enabled = 1 WHERE guild_id = ?", (str(target_ch.id), str(interaction.guild.id)))
+        else:
+            cursor.execute("""
+                INSERT INTO welcome_settings (guild_id, enabled, channel, color, title, description, footer)
+                VALUES (?, 1, ?, '#a855f7', '👋 Welcome to {server}!', 'Hey **{user}**, welcome to **{server}**! 🎉\n\nMember Count: **#{member_count}**', 'Powered By Veyra Development™ | Designed By Arun')
+            """, (str(interaction.guild.id), str(target_ch.id)))
+        conn.commit()
+        conn.close()
+
+        embed = discord.Embed(
+            title="✅ Welcome Channel Configured",
+            description=(
+                f"Welcome messages will now be posted in {target_ch.mention}.\n\n"
+                f"• **Status:** `Active / Enabled`\n"
+                f"• **Channel:** {target_ch.mention} (`{target_ch.id}`)\n"
+                f"• **Test:** Run `/setup welcome test` or `,setup welcome test` to test live!"
+            ),
+            color=discord.Color.from_rgb(34, 197, 94)
+        )
+        embed.set_footer(text="Powered By Veyra Development™ | Designed By Arun")
+        await interaction.response.send_message(embed=embed)
+
+    @app_commands.command(name="message", description="Set the welcome message content or embed description")
+    @app_commands.checks.has_permissions(administrator=True)
+    async def message_cmd(self, interaction: discord.Interaction, message: str):
+        conn = get_db()
+        cursor = conn.cursor()
+        cursor.execute("SELECT 1 FROM welcome_settings WHERE guild_id = ?", (str(interaction.guild.id),))
+        if cursor.fetchone():
+            cursor.execute("UPDATE welcome_settings SET description = ?, enabled = 1 WHERE guild_id = ?", (message, str(interaction.guild.id)))
+        else:
+            cursor.execute("""
+                INSERT INTO welcome_settings (guild_id, enabled, channel, color, title, description, footer)
+                VALUES (?, 1, 'general', '#a855f7', '👋 Welcome to {server}!', ?, 'Powered By Veyra Development™ | Designed By Arun')
+            """, (str(interaction.guild.id), message))
+        conn.commit()
+        conn.close()
+
+        embed = discord.Embed(
+            title="✅ Welcome Message Updated",
+            description=f"**New Template:**\n>>> {message}\n\n*Supported Placeholders: `{user}`, `{username}`, `{server}`, `{member_count}`, `{avatar}`*",
+            color=discord.Color.from_rgb(34, 197, 94)
+        )
+        embed.set_footer(text="Powered By Veyra Development™ | Designed By Arun")
+        await interaction.response.send_message(embed=embed)
+
+    @app_commands.command(name="toggle", description="Enable or disable welcome greetings")
+    @app_commands.checks.has_permissions(administrator=True)
+    @app_commands.choices(status=[
+        app_commands.Choice(name="Enable Welcome System", value=1),
+        app_commands.Choice(name="Disable Welcome System", value=0)
+    ])
+    async def toggle_cmd(self, interaction: discord.Interaction, status: app_commands.Choice[int]):
+        conn = get_db()
+        cursor = conn.cursor()
+        cursor.execute("SELECT 1 FROM welcome_settings WHERE guild_id = ?", (str(interaction.guild.id),))
+        if cursor.fetchone():
+            cursor.execute("UPDATE welcome_settings SET enabled = ? WHERE guild_id = ?", (status.value, str(interaction.guild.id)))
+        else:
+            cursor.execute("""
+                INSERT INTO welcome_settings (guild_id, enabled, channel, color, title, description, footer)
+                VALUES (?, ?, 'general', '#a855f7', '👋 Welcome to {server}!', 'Hey {user}, welcome to {server}!', 'Powered By Veyra Development™ | Designed By Arun')
+            """, (str(interaction.guild.id), status.value))
+        conn.commit()
+        conn.close()
+
+        state_str = "Enabled ✅" if status.value == 1 else "Disabled ❌"
+        embed = discord.Embed(
+            title="⚙️ Welcome System Toggled",
+            description=f"Welcome greeting state is now: **{state_str}**",
+            color=discord.Color.from_rgb(34, 197, 94) if status.value == 1 else discord.Color.from_rgb(239, 68, 68)
+        )
+        embed.set_footer(text="Powered By Veyra Development™ | Designed By Arun")
+        await interaction.response.send_message(embed=embed)
+
+    @app_commands.command(name="test", description="Send a test welcome message to verify channel & layout")
+    @app_commands.checks.has_permissions(administrator=True)
+    async def test_cmd(self, interaction: discord.Interaction):
+        await interaction.response.defer(ephemeral=True)
+        w_settings = fetch_welcome_settings(interaction.guild.id)
+        channel_name = str(w_settings.get('channel') or '').replace('#', '').strip()
+        target_channel = get_fallback_channel(interaction.guild, channel_name) or interaction.channel
+
+        try:
+            raw_title = w_settings.get('title') or '👋 Welcome to {server}!'
+            raw_desc = w_settings.get('description') or 'Hey **{user}**, welcome to **{server}**! 🎉\n\nWe are glad to have you here!'
+            raw_footer = w_settings.get('footer') or 'Powered By Veyra Development™ | Designed By Arun'
+            
+            fmt_title = format_discord_message_placeholders(raw_title, interaction.user, interaction.guild, "Direct Join")
+            fmt_desc = format_discord_message_placeholders(raw_desc, interaction.user, interaction.guild, "Direct Join")
+            fmt_footer = format_discord_message_placeholders(raw_footer, interaction.user, interaction.guild, "Direct Join")
+            
+            hex_color = str(w_settings.get('color') or '#a855f7').replace('#', '')
+            try:
+                embed_color = discord.Color(int(hex_color, 16))
+            except Exception:
+                embed_color = discord.Color.from_rgb(168, 85, 247)
+                
+            embed = discord.Embed(
+                title=fmt_title,
+                description=fmt_desc,
+                color=embed_color
+            )
+            embed.set_thumbnail(url=interaction.user.display_avatar.url)
+            if w_settings.get('image') and str(w_settings.get('image')).startswith('http'):
+                embed.set_image(url=str(w_settings['image']))
+            embed.set_footer(text="Powered By Veyra Development™ | Designed By Arun", icon_url=interaction.guild.me.display_avatar.url if interaction.guild.me else None)
+            embed.timestamp = datetime.now(timezone.utc)
+
+            await target_channel.send(content=f"🔔 **[LIVE PREVIEW]** {interaction.user.mention}", embed=embed)
+            await interaction.followup.send(f"✅ Live test welcome message posted in {target_channel.mention}!", ephemeral=True)
+        except Exception as e:
+            await interaction.followup.send(f"❌ Failed to send test welcome message: {e}", ephemeral=True)
+
+
+class SetupExitGroup(app_commands.Group):
+    def __init__(self):
+        super().__init__(name="exit", description="Configure server member exit & leave greetings")
+
+    @app_commands.command(name="channel", description="Set the exit/leave announcement channel")
+    @app_commands.checks.has_permissions(administrator=True)
+    async def channel_cmd(self, interaction: discord.Interaction, channel: discord.TextChannel = None):
+        target_ch = channel or interaction.channel
+        conn = get_db()
+        cursor = conn.cursor()
+        cursor.execute("SELECT 1 FROM leave_settings WHERE guild_id = ?", (str(interaction.guild.id),))
+        if cursor.fetchone():
+            cursor.execute("UPDATE leave_settings SET channel = ?, enabled = 1 WHERE guild_id = ?", (str(target_ch.id), str(interaction.guild.id)))
+        else:
+            cursor.execute("""
+                INSERT INTO leave_settings (guild_id, enabled, channel, color, title, description, footer)
+                VALUES (?, 1, ?, '#ef4444', '👋 Goodbye, {username}!', '**{username}** has left **{server}**.\n\nMembers remaining: **{member_count}**', 'Powered By Veyra Development™ | Designed By Arun')
+            """, (str(interaction.guild.id), str(target_ch.id)))
+        conn.commit()
+        conn.close()
+
+        embed = discord.Embed(
+            title="✅ Exit Channel Configured",
+            description=(
+                f"Member exit/leave messages will now be posted in {target_ch.mention}.\n\n"
+                f"• **Status:** `Active / Enabled`\n"
+                f"• **Channel:** {target_ch.mention} (`{target_ch.id}`)\n"
+                f"• **Test:** Run `/setup exit test` or `,setup exit test` to test live!"
+            ),
+            color=discord.Color.from_rgb(239, 68, 68)
+        )
+        embed.set_footer(text="Powered By Veyra Development™ | Designed By Arun")
+        await interaction.response.send_message(embed=embed)
+
+    @app_commands.command(name="message", description="Set the exit/leave message content or embed description")
+    @app_commands.checks.has_permissions(administrator=True)
+    async def message_cmd(self, interaction: discord.Interaction, message: str):
+        conn = get_db()
+        cursor = conn.cursor()
+        cursor.execute("SELECT 1 FROM leave_settings WHERE guild_id = ?", (str(interaction.guild.id),))
+        if cursor.fetchone():
+            cursor.execute("UPDATE leave_settings SET description = ?, enabled = 1 WHERE guild_id = ?", (message, str(interaction.guild.id)))
+        else:
+            cursor.execute("""
+                INSERT INTO leave_settings (guild_id, enabled, channel, color, title, description, footer)
+                VALUES (?, 1, 'general', '#ef4444', '👋 Goodbye, {username}!', ?, 'Powered By Veyra Development™ | Designed By Arun')
+            """, (str(interaction.guild.id), message))
+        conn.commit()
+        conn.close()
+
+        embed = discord.Embed(
+            title="✅ Exit Message Updated",
+            description=f"**New Template:**\n>>> {message}\n\n*Supported Placeholders: `{user}`, `{username}`, `{server}`, `{member_count}`, `{avatar}`*",
+            color=discord.Color.from_rgb(239, 68, 68)
+        )
+        embed.set_footer(text="Powered By Veyra Development™ | Designed By Arun")
+        await interaction.response.send_message(embed=embed)
+
+    @app_commands.command(name="toggle", description="Enable or disable exit/leave greetings")
+    @app_commands.checks.has_permissions(administrator=True)
+    @app_commands.choices(status=[
+        app_commands.Choice(name="Enable Exit System", value=1),
+        app_commands.Choice(name="Disable Exit System", value=0)
+    ])
+    async def toggle_cmd(self, interaction: discord.Interaction, status: app_commands.Choice[int]):
+        conn = get_db()
+        cursor = conn.cursor()
+        cursor.execute("SELECT 1 FROM leave_settings WHERE guild_id = ?", (str(interaction.guild.id),))
+        if cursor.fetchone():
+            cursor.execute("UPDATE leave_settings SET enabled = ? WHERE guild_id = ?", (status.value, str(interaction.guild.id)))
+        else:
+            cursor.execute("""
+                INSERT INTO leave_settings (guild_id, enabled, channel, color, title, description, footer)
+                VALUES (?, ?, 'general', '#ef4444', '👋 Goodbye!', '{user} has left the server.', 'Powered By Veyra Development™ | Designed By Arun')
+            """, (str(interaction.guild.id), status.value))
+        conn.commit()
+        conn.close()
+
+        state_str = "Enabled ✅" if status.value == 1 else "Disabled ❌"
+        embed = discord.Embed(
+            title="⚙️ Exit System Toggled",
+            description=f"Exit greeting state is now: **{state_str}**",
+            color=discord.Color.from_rgb(34, 197, 94) if status.value == 1 else discord.Color.from_rgb(239, 68, 68)
+        )
+        embed.set_footer(text="Powered By Veyra Development™ | Designed By Arun")
+        await interaction.response.send_message(embed=embed)
+
+    @app_commands.command(name="test", description="Send a test exit message to verify channel & layout")
+    @app_commands.checks.has_permissions(administrator=True)
+    async def test_cmd(self, interaction: discord.Interaction):
+        await interaction.response.defer(ephemeral=True)
+        l_settings = fetch_leave_settings(interaction.guild.id)
+        channel_name = str(l_settings.get('channel') or '').replace('#', '').strip()
+        target_channel = get_fallback_channel(interaction.guild, channel_name) or interaction.channel
+
+        try:
+            raw_title = l_settings.get('title') or '👋 Goodbye, {username}!'
+            raw_desc = l_settings.get('description') or '**{username}** has left **{server}**.\n\nMembers remaining: **{member_count}**'
+            raw_footer = l_settings.get('footer') or 'Powered By Veyra Development™ | Designed By Arun'
+            
+            fmt_title = format_discord_message_placeholders(raw_title, interaction.user, interaction.guild)
+            fmt_desc = format_discord_message_placeholders(raw_desc, interaction.user, interaction.guild)
+            fmt_footer = format_discord_message_placeholders(raw_footer, interaction.user, interaction.guild)
+            
+            hex_color = str(l_settings.get('color') or '#ef4444').replace('#', '')
+            try:
+                embed_color = discord.Color(int(hex_color, 16))
+            except Exception:
+                embed_color = discord.Color.from_rgb(239, 68, 68)
+                
+            embed = discord.Embed(
+                title=fmt_title,
+                description=fmt_desc,
+                color=embed_color
+            )
+            embed.set_thumbnail(url=interaction.user.display_avatar.url)
+            if l_settings.get('image') and str(l_settings.get('image')).startswith('http'):
+                embed.set_image(url=str(l_settings['image']))
+            embed.set_footer(text="Powered By Veyra Development™ | Designed By Arun", icon_url=interaction.guild.me.display_avatar.url if interaction.guild.me else None)
+            embed.timestamp = datetime.now(timezone.utc)
+
+            await target_channel.send(content=f"🔔 **[LIVE PREVIEW]** {interaction.user.name}", embed=embed)
+            await interaction.followup.send(f"✅ Live test exit message posted in {target_channel.mention}!", ephemeral=True)
+        except Exception as e:
+            await interaction.followup.send(f"❌ Failed to send test exit message: {e}", ephemeral=True)
+
+
+class SetupLeaveGroup(SetupExitGroup):
+    def __init__(self):
+        super(SetupExitGroup, self).__init__(name="leave", description="Configure server member leave greetings (alias for /setup exit)")
+
+
+class RootSetupGroup(app_commands.Group):
+    def __init__(self):
+        super().__init__(name="setup", description="Configure VEYRA server modules (Welcome, Exit, etc.)")
+        self.add_command(SetupWelcomeGroup())
+        self.add_command(SetupExitGroup())
+        self.add_command(SetupLeaveGroup())
+
+    @app_commands.command(name="view", description="View current Welcome, Exit, and server configuration overview")
+    @app_commands.checks.has_permissions(administrator=True)
+    async def view_cmd(self, interaction: discord.Interaction):
+        guild = interaction.guild
+        w_settings = fetch_welcome_settings(guild.id)
+        l_settings = fetch_leave_settings(guild.id)
+
+        w_ch_str = str(w_settings.get('channel') or 'Not configured')
+        if w_ch_str.isdigit():
+            ch = guild.get_channel(int(w_ch_str))
+            w_ch_str = ch.mention if ch else f"`{w_ch_str}`"
+        else:
+            w_ch_str = f"#{w_ch_str}"
+
+        l_ch_str = str(l_settings.get('channel') or 'Not configured')
+        if l_ch_str.isdigit():
+            ch = guild.get_channel(int(l_ch_str))
+            l_ch_str = ch.mention if ch else f"`{l_ch_str}`"
+        else:
+            l_ch_str = f"#{l_ch_str}"
+
+        w_status = "🟢 Enabled" if w_settings.get('enabled') == 1 else "🔴 Disabled"
+        l_status = "🟢 Enabled" if l_settings.get('enabled') == 1 else "🔴 Disabled"
+
+        embed = discord.Embed(
+            title="⚙️ VEYRA Server Modules Setup",
+            description=f"Overview of configured modules for **{guild.name}**:",
+            color=discord.Color.from_rgb(168, 85, 247)
+        )
+        embed.add_field(name="👋 Welcome System", value=f"• **Status:** {w_status}\n• **Channel:** {w_ch_str}\n• **Command:** `/setup welcome channel`", inline=False)
+        embed.add_field(name="🚪 Exit / Leave System", value=f"• **Status:** {l_status}\n• **Channel:** {l_ch_str}\n• **Command:** `/setup exit channel`", inline=False)
+        embed.set_footer(text="Powered By Veyra Development™ | Designed By Arun")
+        await interaction.response.send_message(embed=embed)
+
+
+class WelcomeStandaloneGroup(app_commands.Group):
+    def __init__(self):
+        super().__init__(name="welcome", description="Configure or test welcome greeting messages")
+
+    @app_commands.command(name="channel", description="Set the welcome announcement channel")
+    @app_commands.checks.has_permissions(administrator=True)
+    async def channel_cmd(self, interaction: discord.Interaction, channel: discord.TextChannel = None):
+        group = SetupWelcomeGroup()
+        await group.channel_cmd.callback(group, interaction, channel)
+
+    @app_commands.command(name="test", description="Send a test welcome message")
+    @app_commands.checks.has_permissions(administrator=True)
+    async def test_cmd(self, interaction: discord.Interaction):
+        group = SetupWelcomeGroup()
+        await group.test_cmd.callback(group, interaction)
+
+    @app_commands.command(name="toggle", description="Enable or disable welcome greetings")
+    @app_commands.checks.has_permissions(administrator=True)
+    async def toggle_cmd(self, interaction: discord.Interaction, status: app_commands.Choice[int]):
+        group = SetupWelcomeGroup()
+        await group.toggle_cmd.callback(group, interaction, status)
+
+
+class ExitStandaloneGroup(app_commands.Group):
+    def __init__(self):
+        super().__init__(name="exit", description="Configure or test exit/leave greeting messages")
+
+    @app_commands.command(name="channel", description="Set the exit/leave announcement channel")
+    @app_commands.checks.has_permissions(administrator=True)
+    async def channel_cmd(self, interaction: discord.Interaction, channel: discord.TextChannel = None):
+        group = SetupExitGroup()
+        await group.channel_cmd.callback(group, interaction, channel)
+
+    @app_commands.command(name="test", description="Send a test exit message")
+    @app_commands.checks.has_permissions(administrator=True)
+    async def test_cmd(self, interaction: discord.Interaction):
+        group = SetupExitGroup()
+        await group.test_cmd.callback(group, interaction)
+
+    @app_commands.command(name="toggle", description="Enable or disable exit greetings")
+    @app_commands.checks.has_permissions(administrator=True)
+    async def toggle_cmd(self, interaction: discord.Interaction, status: app_commands.Choice[int]):
+        group = SetupExitGroup()
+        await group.toggle_cmd.callback(group, interaction, status)
+
+
+# --- PREFIX COMMAND HANDLERS FOR SETUP, WELCOME, EXIT ---
+
+@bot.group(name="setup", invoke_without_command=True)
+@commands.has_permissions(administrator=True)
+async def setup_prefix_group(ctx):
+    embed = discord.Embed(
+        title="⚙️ VEYRA Setup Commands",
+        description=(
+            "**Available Setup Commands:**\n"
+            "• `,setup welcome channel <#channel>` — Set welcome announcements channel\n"
+            "• `,setup welcome test` — Post live test welcome card\n"
+            "• `,setup exit channel <#channel>` — Set member exit/leave channel\n"
+            "• `,setup exit test` — Post live test exit card\n"
+            "• `,setup view` — View current server module setup\n"
+            "• `,setupticket` — Deploy support ticket panel"
+        ),
+        color=discord.Color.from_rgb(168, 85, 247)
+    )
+    embed.set_footer(text="Powered By Veyra Development™ | Designed By Arun")
+    await ctx.send(embed=embed)
+
+@setup_prefix_group.group(name="welcome", invoke_without_command=True)
+@commands.has_permissions(administrator=True)
+async def setup_welcome_prefix_group(ctx):
+    await ctx.send("Usage: `,setup welcome channel <#channel>` or `,setup welcome test`")
+
+@setup_welcome_prefix_group.command(name="channel")
+@commands.has_permissions(administrator=True)
+async def setup_welcome_prefix_channel(ctx, channel: discord.TextChannel = None):
+    target_ch = channel or ctx.channel
+    conn = get_db()
+    cursor = conn.cursor()
+    cursor.execute("SELECT 1 FROM welcome_settings WHERE guild_id = ?", (str(ctx.guild.id),))
+    if cursor.fetchone():
+        cursor.execute("UPDATE welcome_settings SET channel = ?, enabled = 1 WHERE guild_id = ?", (str(target_ch.id), str(ctx.guild.id)))
+    else:
+        cursor.execute("""
+            INSERT INTO welcome_settings (guild_id, enabled, channel, color, title, description, footer)
+            VALUES (?, 1, ?, '#a855f7', '👋 Welcome to {server}!', 'Hey **{user}**, welcome to **{server}**! 🎉', 'Powered By Veyra Development™ | Designed By Arun')
+        """, (str(ctx.guild.id), str(target_ch.id)))
+    conn.commit()
+    conn.close()
+    embed = discord.Embed(
+        title="✅ Welcome Channel Configured",
+        description=f"Welcome messages will now be posted in {target_ch.mention}.\nUse `,setup welcome test` to test live!",
+        color=discord.Color.from_rgb(34, 197, 94)
+    )
+    embed.set_footer(text="Powered By Veyra Development™ | Designed By Arun")
+    await ctx.send(embed=embed)
+
+@setup_welcome_prefix_group.command(name="test")
+@commands.has_permissions(administrator=True)
+async def setup_welcome_prefix_test(ctx):
+    w_settings = fetch_welcome_settings(ctx.guild.id)
+    channel_name = str(w_settings.get('channel') or '').replace('#', '').strip()
+    target_channel = get_fallback_channel(ctx.guild, channel_name) or ctx.channel
+
+    raw_title = w_settings.get('title') or '👋 Welcome to {server}!'
+    raw_desc = w_settings.get('description') or 'Hey **{user}**, welcome to **{server}**! 🎉'
+    raw_footer = w_settings.get('footer') or 'Powered By Veyra Development™ | Designed By Arun'
+    
+    fmt_title = format_discord_message_placeholders(raw_title, ctx.author, ctx.guild, "Direct Join")
+    fmt_desc = format_discord_message_placeholders(raw_desc, ctx.author, ctx.guild, "Direct Join")
+    fmt_footer = format_discord_message_placeholders(raw_footer, ctx.author, ctx.guild, "Direct Join")
+    
+    hex_color = str(w_settings.get('color') or '#a855f7').replace('#', '')
+    try:
+        embed_color = discord.Color(int(hex_color, 16))
+    except Exception:
+        embed_color = discord.Color.from_rgb(168, 85, 247)
+        
+    embed = discord.Embed(title=fmt_title, description=fmt_desc, color=embed_color)
+    embed.set_thumbnail(url=ctx.author.display_avatar.url)
+    embed.set_footer(text="Powered By Veyra Development™ | Designed By Arun", icon_url=ctx.guild.me.display_avatar.url if ctx.guild.me else None)
+    embed.timestamp = datetime.now(timezone.utc)
+    await target_channel.send(content=f"🔔 **[LIVE PREVIEW]** {ctx.author.mention}", embed=embed)
+    await ctx.send(f"✅ Test welcome message sent to {target_channel.mention}!")
+
+@setup_prefix_group.group(name="exit", aliases=["leave"], invoke_without_command=True)
+@commands.has_permissions(administrator=True)
+async def setup_exit_prefix_group(ctx):
+    await ctx.send("Usage: `,setup exit channel <#channel>` or `,setup exit test`")
+
+@setup_exit_prefix_group.command(name="channel")
+@commands.has_permissions(administrator=True)
+async def setup_exit_prefix_channel(ctx, channel: discord.TextChannel = None):
+    target_ch = channel or ctx.channel
+    conn = get_db()
+    cursor = conn.cursor()
+    cursor.execute("SELECT 1 FROM leave_settings WHERE guild_id = ?", (str(ctx.guild.id),))
+    if cursor.fetchone():
+        cursor.execute("UPDATE leave_settings SET channel = ?, enabled = 1 WHERE guild_id = ?", (str(target_ch.id), str(ctx.guild.id)))
+    else:
+        cursor.execute("""
+            INSERT INTO leave_settings (guild_id, enabled, channel, color, title, description, footer)
+            VALUES (?, 1, ?, '#ef4444', '👋 Goodbye, {username}!', '**{username}** has left **{server}**.', 'Powered By Veyra Development™ | Designed By Arun')
+        """, (str(ctx.guild.id), str(target_ch.id)))
+    conn.commit()
+    conn.close()
+    embed = discord.Embed(
+        title="✅ Exit Channel Configured",
+        description=f"Member exit/leave messages will now be posted in {target_ch.mention}.\nUse `,setup exit test` to test live!",
+        color=discord.Color.from_rgb(239, 68, 68)
+    )
+    embed.set_footer(text="Powered By Veyra Development™ | Designed By Arun")
+    await ctx.send(embed=embed)
+
+@setup_exit_prefix_group.command(name="test")
+@commands.has_permissions(administrator=True)
+async def setup_exit_prefix_test(ctx):
+    l_settings = fetch_leave_settings(ctx.guild.id)
+    channel_name = str(l_settings.get('channel') or '').replace('#', '').strip()
+    target_channel = get_fallback_channel(ctx.guild, channel_name) or ctx.channel
+
+    raw_title = l_settings.get('title') or '👋 Goodbye, {username}!'
+    raw_desc = l_settings.get('description') or '**{username}** has left **{server}**.'
+    raw_footer = l_settings.get('footer') or 'Powered By Veyra Development™ | Designed By Arun'
+    
+    fmt_title = format_discord_message_placeholders(raw_title, ctx.author, ctx.guild)
+    fmt_desc = format_discord_message_placeholders(raw_desc, ctx.author, ctx.guild)
+    fmt_footer = format_discord_message_placeholders(raw_footer, ctx.author, ctx.guild)
+    
+    hex_color = str(l_settings.get('color') or '#ef4444').replace('#', '')
+    try:
+        embed_color = discord.Color(int(hex_color, 16))
+    except Exception:
+        embed_color = discord.Color.from_rgb(239, 68, 68)
+        
+    embed = discord.Embed(title=fmt_title, description=fmt_desc, color=embed_color)
+    embed.set_thumbnail(url=ctx.author.display_avatar.url)
+    embed.set_footer(text="Powered By Veyra Development™ | Designed By Arun", icon_url=ctx.guild.me.display_avatar.url if ctx.guild.me else None)
+    embed.timestamp = datetime.now(timezone.utc)
+    await target_channel.send(content=f"🔔 **[LIVE PREVIEW]** {ctx.author.name}", embed=embed)
+    await ctx.send(f"✅ Test exit message sent to {target_channel.mention}!")
+
+@setup_prefix_group.command(name="view")
+@commands.has_permissions(administrator=True)
+async def setup_prefix_view(ctx):
+    w_settings = fetch_welcome_settings(ctx.guild.id)
+    l_settings = fetch_leave_settings(ctx.guild.id)
+    w_ch_str = str(w_settings.get('channel') or 'Not configured')
+    if w_ch_str.isdigit():
+        ch = ctx.guild.get_channel(int(w_ch_str))
+        w_ch_str = ch.mention if ch else f"`{w_ch_str}`"
+    else:
+        w_ch_str = f"#{w_ch_str}"
+
+    l_ch_str = str(l_settings.get('channel') or 'Not configured')
+    if l_ch_str.isdigit():
+        ch = ctx.guild.get_channel(int(l_ch_str))
+        l_ch_str = ch.mention if ch else f"`{l_ch_str}`"
+    else:
+        l_ch_str = f"#{l_ch_str}"
+
+    embed = discord.Embed(
+        title="⚙️ VEYRA Server Modules Setup",
+        description=f"Overview of configured channels for **{ctx.guild.name}**:",
+        color=discord.Color.from_rgb(168, 85, 247)
+    )
+    embed.add_field(name="👋 Welcome System", value=f"• Channel: {w_ch_str}\n• Status: {'🟢 Enabled' if w_settings.get('enabled') == 1 else '🔴 Disabled'}", inline=False)
+    embed.add_field(name="🚪 Exit System", value=f"• Channel: {l_ch_str}\n• Status: {'🟢 Enabled' if l_settings.get('enabled') == 1 else '🔴 Disabled'}", inline=False)
+    embed.set_footer(text="Powered By Veyra Development™ | Designed By Arun")
+    await ctx.send(embed=embed)
+
+@bot.group(name="welcome", invoke_without_command=True)
+@commands.has_permissions(administrator=True)
+async def welcome_prefix_standalone(ctx):
+    await setup_welcome_prefix_group(ctx)
+
+@welcome_prefix_standalone.command(name="channel")
+@commands.has_permissions(administrator=True)
+async def welcome_prefix_standalone_channel(ctx, channel: discord.TextChannel = None):
+    await setup_welcome_prefix_channel(ctx, channel)
+
+@welcome_prefix_standalone.command(name="test")
+@commands.has_permissions(administrator=True)
+async def welcome_prefix_standalone_test(ctx):
+    await setup_welcome_prefix_test(ctx)
+
+@bot.group(name="leave", aliases=["exit"], invoke_without_command=True)
+@commands.has_permissions(administrator=True)
+async def leave_prefix_standalone(ctx):
+    await setup_exit_prefix_group(ctx)
+
+@leave_prefix_standalone.command(name="channel")
+@commands.has_permissions(administrator=True)
+async def leave_prefix_standalone_channel(ctx, channel: discord.TextChannel = None):
+    await setup_exit_prefix_channel(ctx, channel)
+
+@leave_prefix_standalone.command(name="test")
+@commands.has_permissions(administrator=True)
+async def leave_prefix_standalone_test(ctx):
+    await setup_exit_prefix_test(ctx)
+
+
 def register_discord_command_tree():
     groups = [
         WhitelistGroup(),
@@ -10118,7 +10666,10 @@ def register_discord_command_tree():
         AutoroleGroup(),
         StickyroleGroup(),
         SlowmodeGroup(),
-        TicketGroup()
+        TicketGroup(),
+        RootSetupGroup(),
+        WelcomeStandaloneGroup(),
+        ExitStandaloneGroup()
     ]
     for g in groups:
         try:
