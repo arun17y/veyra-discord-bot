@@ -2688,11 +2688,11 @@ async def auto_setup_guild(ctx):
     embed = discord.Embed(
         title="⚡ VEYRA Automatic Channel & Role Setup Complete",
         description=f"All security log channels, system log channels, news update channels, and security roles have been automatically generated for **{guild.name}** under the **VEYRA LOGS** category!",
-        color=discord.Color.from_rgb(24, 24, 27)
+        color=discord.Color.from_rgb(168, 85, 247)
     )
     embed.add_field(name="📢 Created Channels", value="\n".join([f"• `#{c}`" for c in created_channels]), inline=False)
     embed.add_field(name="🛡️ Created Roles", value="\n".join([f"• `@{r}`" for r in created_roles]), inline=False)
-    embed.set_footer(text="VEYRA Automatic Configuration Engine")
+    embed.set_footer(text="Powered By Veyra Development™ | Designed By Arun")
     embed.timestamp = datetime.now(timezone.utc)
     
     await ctx.send(embed=embed)
@@ -3936,12 +3936,7 @@ async def on_guild_join(guild):
     
     plan = check_guild_plan(guild.id)
     setup_default_security_configs(guild.id, plan)
-    
-    try:
-        await run_auto_setup(guild)
-        print(f"✅ Auto-setup channels & roles succeeded for newly joined guild: {guild.name}")
-    except Exception as es:
-        print(f"❌ Auto-setup channels & roles failed for newly joined guild: {guild.name}: {es}")
+    print(f"✅ Guild registered: {guild.name} ({guild.id}) — Standing by. No channels or roles created automatically. Awaiting manual /setup auto or /setup automatic.")
 
 @bot.event
 async def on_guild_remove(guild):
@@ -5016,7 +5011,7 @@ async def auto_setup_verification_gate(guild, force_recreate=False, allow_create
         row = cursor.fetchone()
         
         if not row:
-            cursor.execute("INSERT INTO verification_settings (guild_id, enabled, type, captcha_enabled) VALUES (?, 1, 'button', 1)", (str(guild.id),))
+            cursor.execute("INSERT INTO verification_settings (guild_id, enabled, type, captcha_enabled) VALUES (?, 0, 'button', 1)", (str(guild.id),))
             conn.commit()
             v_type = 'button'
             verified_role_id = None
@@ -10444,6 +10439,29 @@ class RootSetupGroup(app_commands.Group):
         self.add_command(SetupExitGroup())
         self.add_command(SetupLeaveGroup())
 
+    @app_commands.command(name="auto", description="Automatically create server security log channels, roles, and categories")
+    @app_commands.checks.has_permissions(administrator=True)
+    async def auto_cmd(self, interaction: discord.Interaction):
+        await interaction.response.defer()
+        created_channels, created_roles = await run_auto_setup(interaction.guild)
+        embed = discord.Embed(
+            title="⚡ VEYRA Automatic Channel & Role Setup Complete",
+            description=f"Security log channels, system log channels, news update channels, and security roles have been generated for **{interaction.guild.name}** under the **VEYRA LOGS** category!",
+            color=discord.Color.from_rgb(168, 85, 247)
+        )
+        ch_list = "\n".join([f"• `#{c}`" for c in created_channels]) if created_channels else "• *None / Already existing*"
+        r_list = "\n".join([f"• `@{r}`" for r in created_roles]) if created_roles else "• *None / Already existing*"
+        embed.add_field(name="📢 Channels", value=ch_list, inline=False)
+        embed.add_field(name="🛡️ Roles", value=r_list, inline=False)
+        embed.set_footer(text="Powered By Veyra Development™ | Designed By Arun")
+        embed.timestamp = datetime.now(timezone.utc)
+        await interaction.followup.send(embed=embed)
+
+    @app_commands.command(name="automatic", description="Automatically create server security log channels, roles, and categories")
+    @app_commands.checks.has_permissions(administrator=True)
+    async def automatic_cmd(self, interaction: discord.Interaction):
+        await self.auto_cmd.callback(self, interaction)
+
     @app_commands.command(name="view", description="View current Welcome, Exit, and server configuration overview")
     @app_commands.checks.has_permissions(administrator=True)
     async def view_cmd(self, interaction: discord.Interaction):
@@ -10473,6 +10491,7 @@ class RootSetupGroup(app_commands.Group):
             description=f"Overview of configured modules for **{guild.name}**:",
             color=discord.Color.from_rgb(168, 85, 247)
         )
+        embed.add_field(name="⚡ Auto Setup", value="• **Command:** `/setup auto` (or `/setup automatic`)\n• Generates security logs, system logs, news, and admin roles.", inline=False)
         embed.add_field(name="👋 Welcome System", value=f"• **Status:** {w_status}\n• **Channel:** {w_ch_str}\n• **Command:** `/setup welcome channel`", inline=False)
         embed.add_field(name="🚪 Exit / Leave System", value=f"• **Status:** {l_status}\n• **Channel:** {l_ch_str}\n• **Command:** `/setup exit channel`", inline=False)
         embed.set_footer(text="Powered By Veyra Development™ | Designed By Arun")
@@ -10534,6 +10553,7 @@ async def setup_prefix_group(ctx):
         title="⚙️ VEYRA Setup Commands",
         description=(
             "**Available Setup Commands:**\n"
+            "• `,setup auto` (or `,setup automatic`) — Automatically create security log channels, roles, and categories\n"
             "• `,setup welcome channel <#channel>` — Set welcome announcements channel\n"
             "• `,setup welcome test` — Post live test welcome card\n"
             "• `,setup exit channel <#channel>` — Set member exit/leave channel\n"
@@ -10544,6 +10564,28 @@ async def setup_prefix_group(ctx):
         color=discord.Color.from_rgb(168, 85, 247)
     )
     embed.set_footer(text="Powered By Veyra Development™ | Designed By Arun")
+    await ctx.send(embed=embed)
+
+@setup_prefix_group.command(name="auto", aliases=["automatic"])
+@commands.has_permissions(administrator=True)
+async def setup_auto_prefix(ctx):
+    if hasattr(ctx, 'defer'):
+        try:
+            await ctx.defer()
+        except Exception:
+            pass
+    created_channels, created_roles = await run_auto_setup(ctx.guild)
+    embed = discord.Embed(
+        title="⚡ VEYRA Automatic Channel & Role Setup Complete",
+        description=f"Security log channels, system log channels, news update channels, and security roles have been generated for **{ctx.guild.name}** under the **VEYRA LOGS** category!",
+        color=discord.Color.from_rgb(168, 85, 247)
+    )
+    ch_list = "\n".join([f"• `#{c}`" for c in created_channels]) if created_channels else "• *None / Already existing*"
+    r_list = "\n".join([f"• `@{r}`" for r in created_roles]) if created_roles else "• *None / Already existing*"
+    embed.add_field(name="📢 Channels", value=ch_list, inline=False)
+    embed.add_field(name="🛡️ Roles", value=r_list, inline=False)
+    embed.set_footer(text="Powered By Veyra Development™ | Designed By Arun")
+    embed.timestamp = datetime.now(timezone.utc)
     await ctx.send(embed=embed)
 
 @setup_prefix_group.group(name="welcome", invoke_without_command=True)
