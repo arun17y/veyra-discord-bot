@@ -3169,13 +3169,13 @@ async def sync_bot_profile_task():
         conn = get_db()
         cursor = conn.cursor()
         
-        # 1. Sync Nickname per guild cleanly
+        # 1. Sync Nickname and Server Avatar per guild cleanly
         for guild in bot.guilds:
             try:
-                cursor.execute("SELECT nickname FROM guild_bot_profiles WHERE guild_id = ?", (str(guild.id),))
+                cursor.execute("SELECT nickname, avatar, banner FROM guild_bot_profiles WHERE guild_id = ?", (str(guild.id),))
                 row = cursor.fetchone()
-                if row and row["nickname"]:
-                    target_name = str(row["nickname"]).strip()
+                if row:
+                    target_name = (row["nickname"] or "").strip()
                     if target_name and guild.me and guild.me.nick != target_name:
                         can_edit = guild.me.guild_permissions.change_nickname or guild.me.guild_permissions.administrator
                         if can_edit:
@@ -3186,6 +3186,23 @@ async def sync_bot_profile_task():
                                 print(f"✅ Synced Bot Nickname to '{safe_target}' in server: {safe_guild}")
                             except Exception as nick_err:
                                 print(f"⚠️ Failed to edit nickname in guild {guild.id}: {nick_err}")
+                                
+                    # Sync Server Avatar if custom avatar provided
+                    av_data = row["avatar"]
+                    if av_data and av_data.startswith("data:image"):
+                        if not hasattr(bot, "_last_synced_guild_avatars"):
+                            bot._last_synced_guild_avatars = {}
+                        if bot._last_synced_guild_avatars.get(guild.id) != av_data:
+                            try:
+                                _, b64_str = av_data.split(",", 1)
+                                img_bytes = base64.b64decode(b64_str)
+                                await guild.me.edit(avatar=img_bytes)
+                                bot._last_synced_guild_avatars[guild.id] = av_data
+                                safe_gname = guild.name.encode('ascii', 'backslashreplace').decode('ascii')
+                                print(f"✅ Synced Bot Server Avatar in guild: {safe_gname}")
+                            except Exception as av_err:
+                                bot._last_synced_guild_avatars[guild.id] = av_data
+                                print(f"⚠️ Server avatar notice for guild {guild.id}: {av_err}")
             except Exception as ex:
                 pass
                 

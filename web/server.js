@@ -929,78 +929,76 @@ app.post('/api/settings/bot-profile/:guild_id', async (req, res) => {
     const bioVal = typeof bio === 'string' ? bio : "The most powerful Discord security & invite tracking bot.\n\nWebsite: \nSupport: ";
     const webVal = (website || '').trim();
     const suppVal = (support || '').trim();
-    const avVal = avatar || '';
-    const banVal = banner || '';
     
-    db.run(`INSERT OR REPLACE INTO guild_bot_profiles (guild_id, nickname, bio, website, support, avatar, banner)
-            VALUES (?, ?, ?, ?, ?, ?, ?)`,
-        [guildId, nickVal, bioVal, webVal, suppVal, avVal, banVal],
-        async function(err) {
-            if (err) {
-                console.error("DB error saving bot profile:", err);
-                return res.status(500).json({ error: err.message });
-            }
-            db.run("UPDATE guild_settings SET nickname = ? WHERE guild_id = ?", [nickVal, guildId]);
-            
-            // Real-Time Instant Discord Sync via REST API
-            let discordSyncSuccess = false;
-            try {
-                const token = process.env.DISCORD_BOT_TOKEN;
-                if (token && guildId) {
-                    const patchPayload = { nick: nickVal || null };
-                    if (bioVal) patchPayload.bio = bioVal.slice(0, 190);
-                    
-                    if (avVal) {
-                        if (avVal.startsWith('data:image')) {
-                            patchPayload.avatar = avVal;
-                        } else if (avVal.startsWith('assets/')) {
-                            const localPath = path.join(__dirname, 'public', avVal);
-                            if (fs.existsSync(localPath)) {
-                                const ext = path.extname(localPath).replace('.', '') || 'png';
-                                const mime = ext === 'webp' ? 'image/webp' : (ext === 'jpg' || ext === 'jpeg' ? 'image/jpeg' : 'image/png');
-                                patchPayload.avatar = `data:${mime};base64,` + fs.readFileSync(localPath).toString('base64');
-                            }
-                        }
-                    } else if (avVal === '') {
-                        patchPayload.avatar = null;
-                    }
-                    
-                    if (banVal) {
-                        if (banVal.startsWith('data:image')) {
-                            patchPayload.banner = banVal;
-                        } else if (banVal.startsWith('assets/')) {
-                            const localPath = path.join(__dirname, 'public', banVal);
-                            if (fs.existsSync(localPath)) {
-                                const ext = path.extname(localPath).replace('.', '') || 'png';
-                                const mime = ext === 'webp' ? 'image/webp' : (ext === 'jpg' || ext === 'jpeg' ? 'image/jpeg' : 'image/png');
-                                patchPayload.banner = `data:${mime};base64,` + fs.readFileSync(localPath).toString('base64');
-                            }
-                        }
-                    } else if (banVal === '') {
-                        patchPayload.banner = null;
-                    }
-                    
-                    const patched = await syncDiscordGuildMemberProfile(guildId, patchPayload, token);
-                    if (patched) discordSyncSuccess = true;
-                }
-            } catch (syncErr) {
-                console.error("Realtime Discord sync error:", syncErr);
-            }
-
-            // Also forward sync notification to Render internal bridge if on Vercel
-            try {
-                if (process.env.VERCEL) {
-                    fetch(`https://veyra-discord-bot-tl6e.onrender.com/api/internal/sync-bot-profile?guild_id=${guildId}`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ guild_id: guildId })
-                    }).catch(() => {});
-                }
-            } catch (_) {}
-            
-            res.json({ success: true, discord_synced: discordSyncSuccess });
+    db.get("SELECT avatar, banner FROM guild_bot_profiles WHERE guild_id = ?", [guildId], async (err, existing) => {
+        let avVal = avatar;
+        if (avVal === undefined || avVal === null || avVal === '') {
+            avVal = existing && existing.avatar ? existing.avatar : '';
+        } else if (avVal === '__REMOVE__') {
+            avVal = '';
         }
-    );
+        
+        let banVal = banner;
+        if (banVal === undefined || banVal === null || banVal === '') {
+            banVal = existing && existing.banner ? existing.banner : '';
+        } else if (banVal === '__REMOVE__') {
+            banVal = '';
+        }
+
+        db.run(`INSERT OR REPLACE INTO guild_bot_profiles (guild_id, nickname, bio, website, support, avatar, banner)
+                VALUES (?, ?, ?, ?, ?, ?, ?)`,
+            [guildId, nickVal, bioVal, webVal, suppVal, avVal, banVal],
+            async function(dbErr) {
+                if (dbErr) {
+                    console.error("DB error saving bot profile:", dbErr);
+                    return res.status(500).json({ error: dbErr.message });
+                }
+                db.run("UPDATE guild_settings SET nickname = ? WHERE guild_id = ?", [nickVal, guildId]);
+                
+                // Real-Time Discord Sync via REST API
+                let discordSyncSuccess = false;
+                try {
+                    const token = process.env.DISCORD_BOT_TOKEN;
+                    if (token && guildId) {
+                        // 1. Update nickname and bio first (never rate-limited by avatar limits)
+                        const nickPayload = { nick: nickVal || null };
+                        if (bioVal) nickPayload.bio = bioVal.slice(0, 190);
+                        const patchedNick = await syncDiscordGuildMemberProfile(guildId, nickPayload, token);
+                        if (patchedNick) discordSyncSuccess = true;
+                        
+                        // 2. If new avatar provided, send avatar
+                        if (avatar && avatar.startsWith('data:image')) {
+                            await syncDiscordGuildMemberProfile(guildId, { avatar: avatar }, token);
+                        } else if (avatar === '__REMOVE__') {
+                            await syncDiscordGuildMemberProfile(guildId, { avatar: null }, token);
+                        }
+                        
+                        // 3. If new banner provided, send banner
+                        if (banner && banner.startsWith('data:image')) {
+                            await syncDiscordGuildMemberProfile(guildId, { banner: banner }, token);
+                        } else if (banner === '__REMOVE__') {
+                            await syncDiscordGuildMemberProfile(guildId, { banner: null }, token);
+                        }
+                    }
+                } catch (syncErr) {
+                    console.error("Realtime Discord sync error:", syncErr);
+                }
+
+                // Also forward sync notification to Render internal bridge if on Vercel
+                try {
+                    if (process.env.VERCEL) {
+                        fetch(`https://veyra-discord-bot-tl6e.onrender.com/api/internal/sync-bot-profile?guild_id=${guildId}`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ guild_id: guildId })
+                        }).catch(() => {});
+                    }
+                } catch (_) {}
+                
+                res.json({ success: true, discord_synced: discordSyncSuccess });
+            }
+        );
+    });
 });
 
 // Get Real Server Roles

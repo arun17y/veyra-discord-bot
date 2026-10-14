@@ -4779,49 +4779,78 @@ function updateBotProfileLivePreview() {
     if (prevBio) prevBio.innerText = bioDisplay;
 }
 
+function compressAndResizeImage(file, maxWidth, maxHeight, quality, callback) {
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        const img = new Image();
+        img.onload = function() {
+            let width = img.width;
+            let height = img.height;
+            if (width > maxWidth || height > maxHeight) {
+                if (width / height > maxWidth / maxHeight) {
+                    height = Math.round((height * maxWidth) / width);
+                    width = maxWidth;
+                } else {
+                    width = Math.round((width * maxHeight) / height);
+                    height = maxHeight;
+                }
+            }
+            const canvas = document.createElement('canvas');
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, width, height);
+            const dataUrl = canvas.toDataURL('image/jpeg', quality);
+            callback(dataUrl);
+        };
+        img.onerror = function() {
+            callback(e.target.result);
+        };
+        img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+}
+
 function handleBotAvatarUpload(input) {
     if (input.files && input.files[0]) {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            window.currentBotAvatarData = e.target.result;
+        compressAndResizeImage(input.files[0], 256, 256, 0.88, function(dataUrl) {
+            window.currentBotAvatarData = dataUrl;
             
             const previewBox = document.getElementById('bot-avatar-preview-box');
             if (previewBox) {
-                previewBox.innerHTML = `<img src="${e.target.result}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">`;
+                previewBox.innerHTML = `<img src="${dataUrl}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">`;
             }
             
             const cardAvatar = document.getElementById('preview-bot-avatar');
             if (cardAvatar) {
-                cardAvatar.innerHTML = `<img src="${e.target.result}" style="width: 100%; height: 100%; object-fit: cover;">`;
+                cardAvatar.innerHTML = `<img src="${dataUrl}" style="width: 100%; height: 100%; object-fit: cover;">`;
             }
             
-            showToast("Avatar Selected", "Bot avatar updated in live preview!");
-        };
-        reader.readAsDataURL(input.files[0]);
+            showToast("Avatar Ready", "Bot avatar compressed & ready to save!");
+        });
     }
 }
 
 function handleBotBannerUpload(input) {
     if (input.files && input.files[0]) {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            window.currentBotBannerData = e.target.result;
+        compressAndResizeImage(input.files[0], 600, 240, 0.88, function(dataUrl) {
+            window.currentBotBannerData = dataUrl;
             
             const previewBox = document.getElementById('bot-banner-preview-box');
             if (previewBox) {
-                previewBox.innerHTML = `<img src="${e.target.result}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 4px;">`;
+                previewBox.innerHTML = `<img src="${dataUrl}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 4px;">`;
             }
             
             const cardBanner = document.getElementById('preview-bot-banner');
             if (cardBanner) {
-                cardBanner.style.backgroundImage = `url('${e.target.result}')`;
+                cardBanner.style.backgroundImage = `url('${dataUrl}')`;
                 cardBanner.style.backgroundSize = 'cover';
                 cardBanner.style.backgroundPosition = 'center';
             }
             
-            showToast("Banner Selected", "Bot profile banner updated in live preview!");
-        };
-        reader.readAsDataURL(input.files[0]);
+            showToast("Banner Ready", "Bot banner compressed & ready to save!");
+        });
     }
 }
 
@@ -4857,14 +4886,20 @@ function saveBotProfileSettings() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
     })
-    .then(res => res.json())
+    .then(async res => {
+        if (!res.ok) {
+            const errData = await res.json().catch(() => ({}));
+            throw new Error(errData.error || `Server responded with status ${res.status}`);
+        }
+        return res.json();
+    })
     .then(res => {
         if (saveBtn) {
             saveBtn.disabled = false;
             saveBtn.innerHTML = '<i class="fas fa-floppy-disk"></i> Save Profile Changes';
         }
         if (res.success) {
-            showToast("Profile Saved", "Bot profile updated successfully for this server!");
+            showToast("Profile Saved", "Bot profile updated in real-time on Discord & saved!");
             if (typeof addLogEntry === 'function') addLogEntry("@user", `Updated Bot Profile: Nickname='${nickname}'`);
             if (typeof updateBotProfileLivePreview === 'function') updateBotProfileLivePreview();
         } else {
@@ -4877,7 +4912,7 @@ function saveBotProfileSettings() {
             saveBtn.innerHTML = '<i class="fas fa-floppy-disk"></i> Save Profile Changes';
         }
         console.error("Save profile error:", err);
-        showToast("Profile Saved", "Bot profile settings saved for this server!");
+        showToast("Error Saving", err.message || "Could not save profile settings", "error");
     });
 }
 
