@@ -142,6 +142,10 @@ def transform_sql_for_pg(sql):
     s = re.sub(r'\bORDER\s+BY\s+ROWID\b', 'ORDER BY 1', s, flags=re.IGNORECASE)
     s = re.sub(r'\bROWID\b', '1', s, flags=re.IGNORECASE)
 
+    # Quote PostgreSQL reserved column 'user' in audit_logs
+    s = re.sub(r'(\baudit_logs\s*\([^)]*)\buser\b([^)]*\))', r'\1"user"\2', s, flags=re.IGNORECASE)
+    s = re.sub(r'(\bSELECT\s+[^FROM]+)\buser\b([^FROM]*FROM\s+audit_logs)', r'\1"user"\2', s, flags=re.IGNORECASE)
+
     # Convert ? placeholders to %s
     s = s.replace('?', '%s')
     return s, False

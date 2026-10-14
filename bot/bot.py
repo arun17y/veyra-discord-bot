@@ -1037,7 +1037,7 @@ def log_system_event(guild_id, user_tag, action, details):
                 details TEXT
             )
         """)
-        conn.execute("INSERT INTO audit_logs (guild_id, timestamp, user, action, details) VALUES (?, ?, ?, ?, ?)",
+        conn.execute('INSERT INTO audit_logs (guild_id, timestamp, "user", action, details) VALUES (?, ?, ?, ?, ?)',
                      (str(guild_id), now_str, user_tag, action, details))
         conn.commit()
         conn.close()
@@ -3167,21 +3167,18 @@ def update_db_guild_roles_and_channels():
 async def sync_bot_profile_task():
     try:
         conn = get_db()
-        conn.row_factory = sqlite3.Row
         cursor = conn.cursor()
         
-        # 1. Sync Nickname per guild
+        # 1. Sync Nickname per guild cleanly
         for guild in bot.guilds:
             try:
-                # Determine target bot name
-                target_name = bot.user.name
-                
                 cursor.execute("SELECT nickname FROM guild_bot_profiles WHERE guild_id = ?", (str(guild.id),))
                 row = cursor.fetchone()
                 if row and row["nickname"]:
                     target_name = str(row["nickname"]).strip()
                     if target_name and guild.me and guild.me.nick != target_name:
-                        if guild.me.guild_permissions.change_nickname:
+                        can_edit = guild.me.guild_permissions.change_nickname or guild.me.guild_permissions.administrator
+                        if can_edit:
                             try:
                                 await guild.me.edit(nick=target_name)
                                 safe_target = target_name.encode('ascii', 'backslashreplace').decode('ascii')
@@ -3192,121 +3189,18 @@ async def sync_bot_profile_task():
             except Exception as ex:
                 pass
                 
-        # Check global ticket bot profile name
+        # 2. Check ticket bot profile global name if explicitly set
         try:
-            cursor.execute("SELECT name FROM ticket_bot_profile ORDER BY ROWID DESC LIMIT 1")
+            cursor.execute("SELECT name FROM ticket_bot_profile LIMIT 1")
             name_row = cursor.fetchone()
             if name_row and name_row["name"]:
                 global_name = str(name_row["name"]).strip()
                 if global_name and bot.user.name != global_name:
                     await bot.user.edit(username=global_name)
                     print(f"✅ Successfully updated global Discord Bot Username to '{global_name}'!")
-            else:
-                if bot.user.name != "VEYRA":
-                    await bot.user.edit(username="VEYRA")
-                    print("✅ Successfully updated global Discord Bot Username to 'VEYRA' fallback!")
-        except Exception as name_ex:
-            print(f"⚠️ Global username sync notice: {name_ex}")
+        except Exception:
+            pass
 
-        # 2. Sync Avatar, Banner and Bio globally on the Bot User
-        cursor.execute("SELECT avatar, banner, bio FROM guild_bot_profiles ORDER BY ROWID DESC LIMIT 1")
-        row = cursor.fetchone()
-        if row:
-            avatar_data = row["avatar"]
-            banner_data = row["banner"]
-            bio_data = row["bio"]
-            
-            # Sync Bio / Description
-            if bio_data:
-                if not hasattr(bot, "_last_synced_bio") or bot._last_synced_bio != bio_data:
-                    try:
-                        app_info = await bot.application_info()
-                        await app_info.edit(description=str(bio_data))
-                        bot._last_synced_bio = bio_data
-                        print("✅ Successfully updated Discord Bot application description (About Me bio) globally!")
-                    except Exception as ex:
-                        bot._last_synced_bio = bio_data
-                        print(f"⚠️ Bot bio sync notice: {ex}")
-            
-            # Sync Avatar
-            if avatar_data:
-                if not hasattr(bot, "_last_synced_avatar") or bot._last_synced_avatar != avatar_data:
-                    try:
-                        if avatar_data.startswith("data:image"):
-                            header, b64_str = avatar_data.split(",", 1)
-                            img_bytes = base64.b64decode(b64_str)
-                            await bot.user.edit(avatar=img_bytes)
-                            bot._last_synced_avatar = avatar_data
-                            print("✅ Successfully updated Discord Bot Profile Avatar globally!")
-                        elif avatar_data.startswith("http"):
-                            import urllib.request
-                            req = urllib.request.Request(avatar_data, headers={'User-Agent': 'Mozilla/5.0'})
-                            with urllib.request.urlopen(req) as response:
-                                img_bytes = response.read()
-                            await bot.user.edit(avatar=img_bytes)
-                            bot._last_synced_avatar = avatar_data
-                            print("✅ Successfully updated Discord Bot Profile Avatar from URL!")
-                        else:
-                            # Try to load local file
-                            local_paths = [
-                                os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "web", "public", avatar_data)),
-                                os.path.abspath(os.path.join(os.path.dirname(__file__), "..", avatar_data))
-                            ]
-                            img_bytes = None
-                            for lp in local_paths:
-                                if os.path.exists(lp):
-                                    with open(lp, "rb") as f:
-                                        img_bytes = f.read()
-                                    break
-                            if img_bytes:
-                                await bot.user.edit(avatar=img_bytes)
-                                bot._last_synced_avatar = avatar_data
-                                print(f"✅ Successfully updated Discord Bot Profile Avatar from local file: {avatar_data}")
-                            else:
-                                print(f"⚠️ Local avatar file not found: {avatar_data}")
-                    except Exception as ex:
-                        bot._last_synced_avatar = avatar_data
-                        print(f"⚠️ Bot avatar sync notice: {ex}")
-                        
-            # Sync Banner
-            if banner_data:
-                if not hasattr(bot, "_last_synced_banner") or bot._last_synced_banner != banner_data:
-                    try:
-                        if banner_data.startswith("data:image"):
-                            header, b64_str = banner_data.split(",", 1)
-                            img_bytes = base64.b64decode(b64_str)
-                            await bot.user.edit(banner=img_bytes)
-                            bot._last_synced_banner = banner_data
-                            print("✅ Successfully updated Discord Bot Profile Banner globally!")
-                        elif banner_data.startswith("http"):
-                            import urllib.request
-                            req = urllib.request.Request(banner_data, headers={'User-Agent': 'Mozilla/5.0'})
-                            with urllib.request.urlopen(req) as response:
-                                img_bytes = response.read()
-                            await bot.user.edit(banner=img_bytes)
-                            bot._last_synced_banner = banner_data
-                            print("✅ Successfully updated Discord Bot Profile Banner from URL!")
-                        else:
-                            # Try to load local file
-                            local_paths = [
-                                os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "web", "public", banner_data)),
-                                os.path.abspath(os.path.join(os.path.dirname(__file__), "..", banner_data))
-                            ]
-                            img_bytes = None
-                            for lp in local_paths:
-                                if os.path.exists(lp):
-                                    with open(lp, "rb") as f:
-                                        img_bytes = f.read()
-                                    break
-                            if img_bytes:
-                                await bot.user.edit(banner=img_bytes)
-                                bot._last_synced_banner = banner_data
-                                print(f"✅ Successfully updated Discord Bot Profile Banner from local file: {banner_data}")
-                            else:
-                                print(f"⚠️ Local banner file not found: {banner_data}")
-                    except Exception as ex:
-                        bot._last_synced_banner = banner_data
-                        print(f"⚠️ Bot banner sync notice: {ex}")
         conn.close()
     except Exception as e:
         print(f"⚠️ Error in sync_bot_profile_task: {e}")
@@ -3573,30 +3467,11 @@ async def auto_sync_verification_channels_task():
                 if enabled == 1:
                     cached = bot._verif_cache.get(cache_key)
                     if cached != cache_val:
-                        needs_setup = True
-                        if cached is not None:
-                            force_recreate = True
-                    elif not channel_id or channel_id == 'none' or channel_id == 'Select channel':
-                        needs_setup = True
-                        force_recreate = True
-                    else:
-                        try:
-                            chan = None
-                            if str(channel_id).isdigit():
-                                chan = guild.get_channel(int(channel_id))
-                                if not chan:
-                                    try:
-                                        chan = await guild.fetch_channel(int(channel_id))
-                                    except Exception:
-                                        pass
-                            if not chan:
-                                chan = discord.utils.find(lambda c: c.name.lower() in ["verification", "verify"], guild.text_channels)
-                            if not chan:
-                                needs_setup = True
-                                force_recreate = True
-                        except Exception:
+                        bot._verif_cache[cache_key] = cache_val
+                        if channel_id and channel_id not in ['none', 'Select channel']:
                             needs_setup = True
-                            force_recreate = True
+                            if cached is not None:
+                                force_recreate = True
                             
                     if needs_setup:
                         print(f"🔄 Auto Setup Verification Gate started dynamically for {guild.name} (mode: {v_type}, force: {force_recreate})")
@@ -3801,8 +3676,8 @@ async def on_ready():
 
     # Set Bot Presence to Do Not Disturb (DND)
     try:
-        await bot.change_presence(status=discord.Status.dnd, activity=discord.Activity(type=discord.ActivityType.watching, name="over servers"))
-        print("🔴 Discord bot presence updated to: Do Not Disturb (DND)")
+        await bot.change_presence(status=discord.Status.dnd, activity=discord.Activity(type=discord.ActivityType.watching, name="Always Watching, Always Protecting | .help"))
+        print("🔴 Discord bot presence updated to: Watching Always Watching, Always Protecting | .help (DND)")
     except Exception as ex:
         print(f"⚠️ Could not set bot presence: {ex}")
 
@@ -9942,7 +9817,7 @@ async def redeem_command(interaction: discord.Interaction):
     else:
         cursor.execute("INSERT INTO guild_subscriptions (guild_id, plan_type, expires_at, granted_by, created_at) VALUES (?, 'Premium', ?, ?, ?)", (guild_id, new_expiry_str, user_id, datetime.utcnow().isoformat() + "+00:00"))
     
-    cursor.execute("INSERT INTO audit_logs (guild_id, action, details, timestamp, user) VALUES (?, 'Grant Subscription', ?, ?, ?)",
+    cursor.execute('INSERT INTO audit_logs (guild_id, action, details, timestamp, "user") VALUES (?, \'Grant Subscription\', ?, ?, ?)',
                    (guild_id, f"Redeemed 50 coins for Premium Subscription (Expires: {new_expiry_str})", new_expiry_str, datetime.utcnow().isoformat() + "+00:00", f"@{interaction.user.name}"))
     conn.commit()
     conn.close()

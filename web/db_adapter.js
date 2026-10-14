@@ -148,11 +148,15 @@ function transformSql(sql) {
     }
   }
 
-  // Convert ? placeholders to $1, $2, ...
-  let paramIndex = 1;
-  s = s.replace(/\?/g, () => `$${paramIndex++}`);
+    // Quote PostgreSQL reserved column 'user' in audit_logs
+    s = s.replace(/(\baudit_logs\s*\([^)]*)\buser\b([^)]*\))/gi, '$1"user"$2');
+    s = s.replace(/(\bSELECT\s+[^FROM]+)\buser\b([^FROM]*FROM\s+audit_logs)/gi, '$1"user"$2');
 
-  return { sql: s, isNoop: false };
+    // Convert ? placeholders to $1, $2, ...
+    let paramIndex = 1;
+    s = s.replace(/\?/g, () => `$${paramIndex++}`);
+
+    return { sql: s, isNoop: false };
 }
 
 class PostgresAdapter {

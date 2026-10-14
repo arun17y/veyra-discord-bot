@@ -4900,6 +4900,12 @@ function loadBotProfileSettings(guildId) {
                 if (previewBox) previewBox.innerHTML = `<img src="${data.avatar}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">`;
                 const cardAvatar = document.getElementById('preview-bot-avatar');
                 if (cardAvatar) cardAvatar.innerHTML = `<img src="${data.avatar}" style="width: 100%; height: 100%; object-fit: cover;">`;
+            } else {
+                window.currentBotAvatarData = '';
+                const previewBox = document.getElementById('bot-avatar-preview-box');
+                if (previewBox) previewBox.innerHTML = `<i class="fas fa-plus" style="font-size: 1.1rem;" id="bot-avatar-plus-icon"></i>`;
+                const cardAvatar = document.getElementById('preview-bot-avatar');
+                if (cardAvatar) cardAvatar.innerHTML = `<img src="assets/bypass_logs_avatar.webp" alt="Bot Avatar" style="width: 100%; height: 100%; object-fit: cover;">`;
             }
 
             if (data.banner) {
@@ -4911,6 +4917,14 @@ function loadBotProfileSettings(guildId) {
                     cardBanner.style.backgroundImage = `url('${data.banner}')`;
                     cardBanner.style.backgroundSize = 'cover';
                     cardBanner.style.backgroundPosition = 'center';
+                }
+            } else {
+                window.currentBotBannerData = '';
+                const previewBox = document.getElementById('bot-banner-preview-box');
+                if (previewBox) previewBox.innerHTML = `<i class="fas fa-image" style="font-size: 1.1rem;" id="bot-banner-plus-icon"></i>`;
+                const cardBanner = document.getElementById('preview-bot-banner');
+                if (cardBanner) {
+                    cardBanner.style.backgroundImage = "linear-gradient(135deg, #0284c7, #0d9488)";
                 }
             }
 

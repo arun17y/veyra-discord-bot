@@ -851,41 +851,154 @@ app.get('/api/guild/plan/:guild_id', (req, res) => {
     });
 });
 
-// Bot Profile Settings (GET & POST)
+async function syncDiscordGuildMemberProfile(guildId, payload, token) {
+    if (!token || !guildId) return null;
+    try {
+        const response = await fetch(`https://discord.com/api/v10/guilds/${guildId}/members/@me`, {
+            method: 'PATCH',
+            headers: {
+                'Authorization': `Bot ${token}`,
+                'Content-Type': 'application/json',
+                'User-Agent': 'DiscordBot (https://veyrabot.vercel.app, 2.0.0)'
+            },
+            body: JSON.stringify(payload)
+        });
+        const data = await response.json().catch(() => ({}));
+        if (!response.ok) {
+            console.error(`[DISCORD PROFILE PATCH ERR] Guild: ${guildId}, Status ${response.status}:`, data);
+            return null;
+        }
+        return data;
+    } catch (err) {
+        console.error('[DISCORD PROFILE PATCH NET ERR]:', err.message);
+        return null;
+    }
+}
+
+// Internal endpoint to trigger instant bot profile sync on Render
+app.post('/api/internal/sync-bot-profile', async (req, res) => {
+    const guildId = req.query.guild_id || (req.body && req.body.guild_id);
+    if (!guildId) return res.status(400).json({ error: "Missing guild_id" });
+    
+    db.get("SELECT * FROM guild_bot_profiles WHERE guild_id = ?", [guildId], async (err, row) => {
+        if (!err && row) {
+            const token = process.env.DISCORD_BOT_TOKEN;
+            const patchPayload = { nick: row.nickname ? row.nickname.trim() : null };
+            if (row.bio) patchPayload.bio = row.bio.slice(0, 190);
+            if (row.avatar && row.avatar.startsWith('data:image')) patchPayload.avatar = row.avatar;
+            if (row.banner && row.banner.startsWith('data:image')) patchPayload.banner = row.banner;
+            await syncDiscordGuildMemberProfile(guildId, patchPayload, token);
+        }
+        res.json({ success: true });
+    });
+});
+
+// Bot Profile Settings (GET & POST) - 100% Server-Specific Real-Time Sync
 app.get('/api/settings/bot-profile/:guild_id', (req, res) => {
     const guildId = req.params.guild_id;
     db.get("SELECT * FROM guild_bot_profiles WHERE guild_id = ?", [guildId], (err, row) => {
         if (err) return res.status(500).json({ error: err.message });
-        res.json(row || {
+        if (row) {
+            return res.json({
+                guild_id: row.guild_id,
+                nickname: row.nickname || 'VEYRA',
+                bio: row.bio || "The most powerful Discord security & invite tracking bot.\n\nWebsite: \nSupport: ",
+                website: row.website || '',
+                support: row.support || '',
+                avatar: row.avatar || '',
+                banner: row.banner || ''
+            });
+        }
+        res.json({
+            guild_id: guildId,
             nickname: 'VEYRA',
             bio: "The most powerful Discord security & invite tracking bot.\n\nWebsite: \nSupport: ",
             website: '',
             support: '',
-            avatar: 'assets/bypass_logs_avatar.webp',
-            banner: 'assets/bypass_logs_banner.webp'
+            avatar: '',
+            banner: ''
         });
     });
 });
 
-app.post('/api/settings/bot-profile/:guild_id', (req, res) => {
+app.post('/api/settings/bot-profile/:guild_id', async (req, res) => {
     const guildId = req.params.guild_id;
-    const { nickname, bio, website, support, avatar, banner } = req.body;
+    const { nickname, bio, website, support, avatar, banner } = req.body || {};
+    
+    const nickVal = (nickname || 'VEYRA').trim();
+    const bioVal = typeof bio === 'string' ? bio : "The most powerful Discord security & invite tracking bot.\n\nWebsite: \nSupport: ";
+    const webVal = (website || '').trim();
+    const suppVal = (support || '').trim();
+    const avVal = avatar || '';
+    const banVal = banner || '';
     
     db.run(`INSERT OR REPLACE INTO guild_bot_profiles (guild_id, nickname, bio, website, support, avatar, banner)
             VALUES (?, ?, ?, ?, ?, ?, ?)`,
-        [
-            guildId,
-            nickname || 'SENTRIX',
-            bio || "The most powerful Discord security & invite tracking bot.\n\nWebsite: \nSupport: ",
-            website || '',
-            support || '',
-            avatar || '',
-            banner || ''
-        ],
-        function(err) {
-            if (err) return res.status(500).json({ error: err.message });
-            db.run("UPDATE guild_settings SET nickname = ? WHERE guild_id = ?", [nickname || 'SENTRIX', guildId]);
-            res.json({ success: true });
+        [guildId, nickVal, bioVal, webVal, suppVal, avVal, banVal],
+        async function(err) {
+            if (err) {
+                console.error("DB error saving bot profile:", err);
+                return res.status(500).json({ error: err.message });
+            }
+            db.run("UPDATE guild_settings SET nickname = ? WHERE guild_id = ?", [nickVal, guildId]);
+            
+            // Real-Time Instant Discord Sync via REST API
+            let discordSyncSuccess = false;
+            try {
+                const token = process.env.DISCORD_BOT_TOKEN;
+                if (token && guildId) {
+                    const patchPayload = { nick: nickVal || null };
+                    if (bioVal) patchPayload.bio = bioVal.slice(0, 190);
+                    
+                    if (avVal) {
+                        if (avVal.startsWith('data:image')) {
+                            patchPayload.avatar = avVal;
+                        } else if (avVal.startsWith('assets/')) {
+                            const localPath = path.join(__dirname, 'public', avVal);
+                            if (fs.existsSync(localPath)) {
+                                const ext = path.extname(localPath).replace('.', '') || 'png';
+                                const mime = ext === 'webp' ? 'image/webp' : (ext === 'jpg' || ext === 'jpeg' ? 'image/jpeg' : 'image/png');
+                                patchPayload.avatar = `data:${mime};base64,` + fs.readFileSync(localPath).toString('base64');
+                            }
+                        }
+                    } else if (avVal === '') {
+                        patchPayload.avatar = null;
+                    }
+                    
+                    if (banVal) {
+                        if (banVal.startsWith('data:image')) {
+                            patchPayload.banner = banVal;
+                        } else if (banVal.startsWith('assets/')) {
+                            const localPath = path.join(__dirname, 'public', banVal);
+                            if (fs.existsSync(localPath)) {
+                                const ext = path.extname(localPath).replace('.', '') || 'png';
+                                const mime = ext === 'webp' ? 'image/webp' : (ext === 'jpg' || ext === 'jpeg' ? 'image/jpeg' : 'image/png');
+                                patchPayload.banner = `data:${mime};base64,` + fs.readFileSync(localPath).toString('base64');
+                            }
+                        }
+                    } else if (banVal === '') {
+                        patchPayload.banner = null;
+                    }
+                    
+                    const patched = await syncDiscordGuildMemberProfile(guildId, patchPayload, token);
+                    if (patched) discordSyncSuccess = true;
+                }
+            } catch (syncErr) {
+                console.error("Realtime Discord sync error:", syncErr);
+            }
+
+            // Also forward sync notification to Render internal bridge if on Vercel
+            try {
+                if (process.env.VERCEL) {
+                    fetch(`https://veyra-discord-bot-tl6e.onrender.com/api/internal/sync-bot-profile?guild_id=${guildId}`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ guild_id: guildId })
+                    }).catch(() => {});
+                }
+            } catch (_) {}
+            
+            res.json({ success: true, discord_synced: discordSyncSuccess });
         }
     );
 });
