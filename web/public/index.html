@@ -3946,16 +3946,20 @@ Support: </pre>
                                 
                                 <div class="form-group" style="margin-bottom: 0;">
                                     <label class="form-label">Channel</label>
-                                    <select class="form-control" id="welcome-msg-channel-select" style="background: rgba(0,0,0,0.25);" onchange="updateWelcomeLivePreview()">
-                                        <option value="welcome">#welcome</option>
-                                        <option value="general">#general</option>
+                                    <select class="form-control guild-channels-dropdown" id="welcome-msg-channel-select" style="background: rgba(0,0,0,0.25);" onchange="updateWelcomeLivePreview()">
+                                        <option value="">Select Channel</option>
                                     </select>
                                 </div>
                             </div>
 
                             <!-- Text Message Card -->
                             <div class="glass-card" style="background: rgba(255,255,255,0.015); border: 1px solid rgba(255,255,255,0.03); border-radius: 12px; padding: 20px;">
-                                <h3 style="font-size: 1rem; font-weight: 700; color: #fff; margin: 0 0 15px 0; border-bottom: 1px solid rgba(255,255,255,0.03); padding-bottom: 10px;">Outer Text Message</h3>
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 1px solid rgba(255,255,255,0.03); padding-bottom: 8px;">
+                                    <h3 style="font-size: 1rem; font-weight: 700; color: #fff; margin: 0;">Outer Text Message</h3>
+                                    <button type="button" onclick="openServerEmojiPicker('welcome-msg-outer-input')" title="Insert Server Emoji" style="background: rgba(255,255,255,0.08); border: none; border-radius: 4px; padding: 2px 8px; font-size: 0.82rem; cursor: pointer; color: #fff;">
+                                        😊 Emojis
+                                    </button>
+                                </div>
                                 <div class="form-group" style="margin-bottom: 0;">
                                     <textarea class="form-control" id="welcome-msg-outer-input" style="height: 60px; background: rgba(0,0,0,0.25); font-size: 0.88rem;" oninput="updateWelcomeLivePreview()">%member_mention% has been invited by %inviter% and has now %inviter_invites% invites.</textarea>
                                     
@@ -4023,17 +4027,19 @@ Support: </pre>
                                         <input type="text" placeholder="Name url" class="form-control" id="welcome-author-url" style="background: rgba(0,0,0,0.2); font-size:0.82rem;" oninput="updateWelcomeLivePreview()">
                                     </div>
 
-                                    <!-- Row 2: Title, Title URL -->
-                                    <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 8px;">
+                                    <!-- Row 2: Title, Emoji, Title URL -->
+                                    <div style="display: grid; grid-template-columns: 2fr auto 1fr; gap: 8px;">
                                         <input type="text" placeholder="Title" class="form-control" id="welcome-embed-title" value="♡ WELCOME TO VEYRA ALL-IN-ONE SECURITY BOT ♡" style="background: rgba(0,0,0,0.2); font-size:0.82rem;" oninput="updateWelcomeLivePreview()">
+                                        <button type="button" onclick="openServerEmojiPicker('welcome-embed-title')" title="Insert Server Emoji" style="background: rgba(255,255,255,0.08); border: none; border-radius: 4px; padding: 0 10px; cursor: pointer; color: #fff; font-size: 0.95rem;">😊</button>
                                         <input type="text" placeholder="Title url" class="form-control" id="welcome-title-url" style="background: rgba(0,0,0,0.2); font-size:0.82rem;" oninput="updateWelcomeLivePreview()">
                                     </div>
 
                                     <!-- Row 3: Description -->
-                                    <div class="form-group" style="margin:0;">
-                                        <textarea placeholder="Description" class="form-control" id="welcome-embed-desc" style="height: 85px; background: rgba(0,0,0,0.2); font-family: var(--font-mono); font-size: 0.8rem;" oninput="updateWelcomeLivePreview()">⚡ CHAT ZONE ➔ #rules-info
+                                    <div class="form-group" style="margin:0; position: relative;">
+                                        <textarea placeholder="Description" class="form-control" id="welcome-embed-desc" style="height: 85px; background: rgba(0,0,0,0.2); font-family: var(--font-mono); font-size: 0.8rem; padding-right: 45px;" oninput="updateWelcomeLivePreview()">⚡ CHAT ZONE ➔ #rules-info
 ⚡ VIEW REVIEWS ➔ #reviews
 ⚡ PURCHASE PANEL ➔ #buy-here</textarea>
+                                        <button type="button" onclick="openServerEmojiPicker('welcome-embed-desc')" title="Insert Server Emoji" style="position: absolute; right: 10px; top: 10px; background: rgba(255,255,255,0.1); border: none; border-radius: 6px; padding: 4px 8px; cursor: pointer; color: #fff; font-size: 0.95rem;">😊</button>
                                     </div>
 
                                     <!-- Add Field Button -->
@@ -4050,9 +4056,10 @@ Support: </pre>
                                         <input type="text" placeholder="Thumbnail url (small top right)" class="form-control" id="welcome-thumbnail-url" style="background: rgba(0,0,0,0.2); font-size:0.82rem;" oninput="updateWelcomeLivePreview()">
                                     </div>
 
-                                    <!-- Row 5: Footer, Footer Icon, Date, Clear -->
-                                    <div style="display: grid; grid-template-columns: 1fr 1fr 1.2fr 0.6fr; gap: 8px; align-items: center;">
+                                    <!-- Row 5: Footer, Emoji, Footer Icon, Date, Clear -->
+                                    <div style="display: grid; grid-template-columns: 1.5fr auto 1fr 1.2fr 0.6fr; gap: 8px; align-items: center;">
                                         <input type="text" placeholder="Footer" class="form-control" id="welcome-embed-footer" value="✦ THANKS FOR JOINING ✦" style="background: rgba(0,0,0,0.2); font-size:0.82rem;" oninput="updateWelcomeLivePreview()">
+                                        <button type="button" onclick="openServerEmojiPicker('welcome-embed-footer')" title="Insert Server Emoji" style="background: rgba(255,255,255,0.08); border: none; border-radius: 4px; padding: 0 10px; height: 36px; cursor: pointer; color: #fff; font-size: 0.95rem;">😊</button>
                                         <input type="text" placeholder="Footer icon" class="form-control" id="welcome-footer-icon" style="background: rgba(0,0,0,0.2); font-size:0.82rem;" oninput="updateWelcomeLivePreview()">
                                         <div style="display: flex; align-items: center; background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.06); border-radius: 6px; padding: 4px 8px;">
                                             <i class="fa-regular fa-calendar" style="color: var(--text-secondary); margin-right: 6px; font-size:0.8rem;"></i>
@@ -4184,16 +4191,20 @@ Support: </pre>
                                 
                                 <div class="form-group" style="margin-bottom: 0;">
                                     <label class="form-label">Channel</label>
-                                    <select class="form-control" id="leave-msg-channel-select" style="background: rgba(0,0,0,0.25);" onchange="updateLeaveLivePreview()">
-                                        <option value="exits"># exits</option>
-                                        <option value="leave-logs">#leave-logs</option>
+                                    <select class="form-control guild-channels-dropdown" id="leave-msg-channel-select" style="background: rgba(0,0,0,0.25);" onchange="updateLeaveLivePreview()">
+                                        <option value="">Select Channel</option>
                                     </select>
                                 </div>
                             </div>
 
                             <!-- Text Message Card -->
                             <div class="glass-card" style="background: rgba(255,255,255,0.015); border: 1px solid rgba(255,255,255,0.03); border-radius: 12px; padding: 20px;">
-                                <h3 style="font-size: 1rem; font-weight: 700; color: #fff; margin: 0 0 15px 0; border-bottom: 1px solid rgba(255,255,255,0.03); padding-bottom: 10px;">Outer Text Message</h3>
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 1px solid rgba(255,255,255,0.03); padding-bottom: 8px;">
+                                    <h3 style="font-size: 1rem; font-weight: 700; color: #fff; margin: 0;">Outer Text Message</h3>
+                                    <button type="button" onclick="openServerEmojiPicker('leave-msg-outer-input')" title="Insert Server Emoji" style="background: rgba(255,255,255,0.08); border: none; border-radius: 4px; padding: 2px 8px; font-size: 0.82rem; cursor: pointer; color: #fff;">
+                                        😊 Emojis
+                                    </button>
+                                </div>
                                 <div class="form-group" style="margin-bottom: 0;">
                                     <textarea class="form-control" id="leave-msg-outer-input" style="height: 60px; background: rgba(0,0,0,0.25); font-size: 0.88rem;" oninput="updateLeaveLivePreview()">%member% left the server, they were invited by %inviter_mention%.</textarea>
                                     
@@ -4260,15 +4271,17 @@ Support: </pre>
                                         <input type="text" placeholder="Name url" class="form-control" id="leave-author-url" style="background: rgba(0,0,0,0.2); font-size:0.82rem;" oninput="updateLeaveLivePreview()">
                                     </div>
 
-                                    <!-- Row 2: Title, Title URL -->
-                                    <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 8px;">
+                                    <!-- Row 2: Title, Emoji, Title URL -->
+                                    <div style="display: grid; grid-template-columns: 2fr auto 1fr; gap: 8px;">
                                         <input type="text" placeholder="Title" class="form-control" id="leave-embed-title" value="♡ GOODBYE FROM VEYRA SECURITY ♡" style="background: rgba(0,0,0,0.2); font-size:0.82rem;" oninput="updateLeaveLivePreview()">
+                                        <button type="button" onclick="openServerEmojiPicker('leave-embed-title')" title="Insert Server Emoji" style="background: rgba(255,255,255,0.08); border: none; border-radius: 4px; padding: 0 10px; cursor: pointer; color: #fff; font-size: 0.95rem;">😊</button>
                                         <input type="text" placeholder="Title url" class="form-control" id="leave-title-url" style="background: rgba(0,0,0,0.2); font-size:0.82rem;" oninput="updateLeaveLivePreview()">
                                     </div>
 
                                     <!-- Row 3: Description -->
-                                    <div class="form-group" style="margin:0;">
-                                        <textarea placeholder="Description" class="form-control" id="leave-embed-desc" style="height: 85px; background: rgba(0,0,0,0.2); font-family: var(--font-mono); font-size: 0.8rem;" oninput="updateLeaveLivePreview()">We hope to see you back soon. Stay safe!</textarea>
+                                    <div class="form-group" style="margin:0; position: relative;">
+                                        <textarea placeholder="Description" class="form-control" id="leave-embed-desc" style="height: 85px; background: rgba(0,0,0,0.2); font-family: var(--font-mono); font-size: 0.8rem; padding-right: 45px;" oninput="updateLeaveLivePreview()">We hope to see you back soon. Stay safe!</textarea>
+                                        <button type="button" onclick="openServerEmojiPicker('leave-embed-desc')" title="Insert Server Emoji" style="position: absolute; right: 10px; top: 10px; background: rgba(255,255,255,0.1); border: none; border-radius: 6px; padding: 4px 8px; cursor: pointer; color: #fff; font-size: 0.95rem;">😊</button>
                                     </div>
 
                                     <!-- Add Field Button -->
@@ -4285,9 +4298,10 @@ Support: </pre>
                                         <input type="text" placeholder="Thumbnail url (small top right)" class="form-control" id="leave-thumbnail-url" style="background: rgba(0,0,0,0.2); font-size:0.82rem;" oninput="updateLeaveLivePreview()">
                                     </div>
 
-                                    <!-- Row 5: Footer, Footer Icon, Date, Clear -->
-                                    <div style="display: grid; grid-template-columns: 1fr 1fr 1.2fr 0.6fr; gap: 8px; align-items: center;">
+                                    <!-- Row 5: Footer, Emoji, Footer Icon, Date, Clear -->
+                                    <div style="display: grid; grid-template-columns: 1.5fr auto 1fr 1.2fr 0.6fr; gap: 8px; align-items: center;">
                                         <input type="text" placeholder="Footer" class="form-control" id="leave-embed-footer" value="✦ SEE YOU SOON ✦" style="background: rgba(0,0,0,0.2); font-size:0.82rem;" oninput="updateLeaveLivePreview()">
+                                        <button type="button" onclick="openServerEmojiPicker('leave-embed-footer')" title="Insert Server Emoji" style="background: rgba(255,255,255,0.08); border: none; border-radius: 4px; padding: 0 10px; height: 36px; cursor: pointer; color: #fff; font-size: 0.95rem;">😊</button>
                                         <input type="text" placeholder="Footer icon" class="form-control" id="leave-footer-icon" style="background: rgba(0,0,0,0.2); font-size:0.82rem;" oninput="updateLeaveLivePreview()">
                                         <div style="display: flex; align-items: center; background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.06); border-radius: 6px; padding: 4px 8px;">
                                             <i class="fa-regular fa-calendar" style="color: var(--text-secondary); margin-right: 6px; font-size:0.8rem;"></i>
@@ -4414,16 +4428,20 @@ We hope to see you back soon!
                                 
                                 <div class="form-group" style="margin-bottom: 0;">
                                     <label class="form-label">Invite Log Channel</label>
-                                    <select class="form-control" id="invitetracker-msg-channel-select" style="background: rgba(0,0,0,0.25);" onchange="updateInviteTrackerLivePreview()">
-                                        <option value="invite-logs">#invite-logs</option>
-                                        <option value="welcome">#welcome</option>
+                                    <select class="form-control guild-channels-dropdown" id="invitetracker-msg-channel-select" style="background: rgba(0,0,0,0.25);" onchange="updateInviteTrackerLivePreview()">
+                                        <option value="">Select Channel</option>
                                     </select>
                                 </div>
                             </div>
 
                             <!-- Outer Text Message Card -->
                             <div class="glass-card" style="background: rgba(255,255,255,0.015); border: 1px solid rgba(255,255,255,0.03); border-radius: 12px; padding: 20px;">
-                                <h3 style="font-size: 1rem; font-weight: 700; color: #fff; margin: 0 0 15px 0; border-bottom: 1px solid rgba(255,255,255,0.03); padding-bottom: 10px;">Invite Message Template</h3>
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 1px solid rgba(255,255,255,0.03); padding-bottom: 8px;">
+                                    <h3 style="font-size: 1rem; font-weight: 700; color: #fff; margin: 0;">Invite Message Template</h3>
+                                    <button type="button" onclick="openServerEmojiPicker('invitetracker-msg-outer-input')" title="Insert Server Emoji" style="background: rgba(255,255,255,0.08); border: none; border-radius: 4px; padding: 2px 8px; font-size: 0.82rem; cursor: pointer; color: #fff;">
+                                        😊 Emojis
+                                    </button>
+                                </div>
                                 <div class="form-group" style="margin-bottom: 0;">
                                     <textarea class="form-control" id="invitetracker-msg-outer-input" style="height: 75px; background: rgba(0,0,0,0.25); font-size: 0.88rem;" oninput="updateInviteTrackerLivePreview()">%member_mention% has been invited by %inviter% and has now %inviter_invites% invites.</textarea>
                                     
@@ -4491,15 +4509,17 @@ We hope to see you back soon!
                                         <input type="text" placeholder="Name url" class="form-control" id="invitetracker-author-url" style="background: rgba(0,0,0,0.2); font-size:0.82rem;" oninput="updateInviteTrackerLivePreview()">
                                     </div>
 
-                                    <!-- Row 2: Title, Title URL -->
-                                    <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 8px;">
+                                    <!-- Row 2: Title, Emoji, Title URL -->
+                                    <div style="display: grid; grid-template-columns: 2fr auto 1fr; gap: 8px;">
                                         <input type="text" placeholder="Title" class="form-control" id="invitetracker-embed-title" value="✨ Member Joined via Invite" style="background: rgba(0,0,0,0.2); font-size:0.82rem;" oninput="updateInviteTrackerLivePreview()">
+                                        <button type="button" onclick="openServerEmojiPicker('invitetracker-embed-title')" title="Insert Server Emoji" style="background: rgba(255,255,255,0.08); border: none; border-radius: 4px; padding: 0 10px; cursor: pointer; color: #fff; font-size: 0.95rem;">😊</button>
                                         <input type="text" placeholder="Title url" class="form-control" id="invitetracker-title-url" style="background: rgba(0,0,0,0.2); font-size:0.82rem;" oninput="updateInviteTrackerLivePreview()">
                                     </div>
 
                                     <!-- Row 3: Description -->
-                                    <div class="form-group" style="margin:0;">
-                                        <textarea placeholder="Description" class="form-control" id="invitetracker-embed-desc" style="height: 75px; background: rgba(0,0,0,0.2); font-family: var(--font-mono); font-size: 0.8rem;" oninput="updateInviteTrackerLivePreview()">User %member_mention% joined using invite code veyra-vip.</textarea>
+                                    <div class="form-group" style="margin:0; position: relative;">
+                                        <textarea placeholder="Description" class="form-control" id="invitetracker-embed-desc" style="height: 75px; background: rgba(0,0,0,0.2); font-family: var(--font-mono); font-size: 0.8rem; padding-right: 45px;" oninput="updateInviteTrackerLivePreview()">User %member_mention% joined using invite code veyra-vip.</textarea>
+                                        <button type="button" onclick="openServerEmojiPicker('invitetracker-embed-desc')" title="Insert Server Emoji" style="position: absolute; right: 10px; top: 10px; background: rgba(255,255,255,0.1); border: none; border-radius: 6px; padding: 4px 8px; cursor: pointer; color: #fff; font-size: 0.95rem;">😊</button>
                                     </div>
 
                                     <!-- Add Field Button -->
@@ -4516,9 +4536,10 @@ We hope to see you back soon!
                                         <input type="text" placeholder="Thumbnail url (small top right)" class="form-control" id="invitetracker-thumbnail-url" style="background: rgba(0,0,0,0.2); font-size:0.82rem;" oninput="updateInviteTrackerLivePreview()">
                                     </div>
 
-                                    <!-- Row 5: Footer, Footer Icon, Date, Clear -->
-                                    <div style="display: grid; grid-template-columns: 1fr 1fr 1.2fr 0.6fr; gap: 8px; align-items: center;">
+                                    <!-- Row 5: Footer, Emoji, Footer Icon, Date, Clear -->
+                                    <div style="display: grid; grid-template-columns: 1.5fr auto 1fr 1.2fr 0.6fr; gap: 8px; align-items: center;">
                                         <input type="text" placeholder="Footer" class="form-control" id="invitetracker-embed-footer" value="✦ VEYRA INVITE TRACKER ✦" style="background: rgba(0,0,0,0.2); font-size:0.82rem;" oninput="updateInviteTrackerLivePreview()">
+                                        <button type="button" onclick="openServerEmojiPicker('invitetracker-embed-footer')" title="Insert Server Emoji" style="background: rgba(255,255,255,0.08); border: none; border-radius: 4px; padding: 0 10px; height: 36px; cursor: pointer; color: #fff; font-size: 0.95rem;">😊</button>
                                         <input type="text" placeholder="Footer icon" class="form-control" id="invitetracker-footer-icon" style="background: rgba(0,0,0,0.2); font-size:0.82rem;" oninput="updateInviteTrackerLivePreview()">
                                         <div style="display: flex; align-items: center; background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.06); border-radius: 6px; padding: 4px 8px;">
                                             <i class="fa-regular fa-calendar" style="color: var(--text-secondary); margin-right: 6px; font-size:0.8rem;"></i>
@@ -4572,10 +4593,36 @@ We hope to see you back soon!
                                         </div>
 
                                         <!-- Embed Card -->
-                                        <div id="invitetracker-sim-embed" style="border-left: 4px solid #a855f7; background: #2b2d31; border-radius: 4px; padding: 12px 16px; margin-top: 6px;">
-                                            <div id="invitetracker-sim-title" style="font-size: 0.95rem; font-weight: 700; color: #fff; margin-bottom: 6px;">✨ Member Joined via Invite</div>
-                                            <div style="font-size: 0.85rem; color: #dbdee1; line-height: 1.5;">
-                                                User <span style="color: #5865F2;">@!! DADDY</span> joined using invite code <code>veyra-vip</code>.
+                                        <div id="invitetracker-sim-embed" style="background: #2f3136; border-left: 4px solid #a855f7; border-radius: 4px; padding: 15px; max-width: 520px; display: flex; flex-direction: column; gap: 12px; position: relative;">
+                                            <!-- Author Header -->
+                                            <div id="invitetracker-sim-embed-author" style="display: none; align-items: center; gap: 8px; font-size: 0.82rem; font-weight: 700; color: #fff;">
+                                                <img id="invitetracker-sim-embed-author-icon" src="" style="width: 20px; height: 20px; border-radius: 50%; object-fit: cover; display: none;">
+                                                <span id="invitetracker-sim-embed-author-name"></span>
+                                            </div>
+
+                                            <!-- Top layout: Title/desc and thumbnail side by side -->
+                                            <div style="display: flex; justify-content: space-between; gap: 20px;">
+                                                <div style="width: 100%;">
+                                                    <h3 id="invitetracker-sim-embed-title" style="font-size: 0.95rem; font-weight: 700; color: #fff; margin: 0 0 10px 0;">✨ Member Joined via Invite</h3>
+                                                    <pre id="invitetracker-sim-embed-desc" style="font-family: inherit; font-size: 0.85rem; color: #dbdee1; line-height: 1.5; white-space: pre-wrap; margin: 0;">User %member_mention% joined using invite code veyra-vip.</pre>
+                                                </div>
+                                                <!-- Embed Thumbnail -->
+                                                <div id="invitetracker-sim-embed-thumb" style="width: 64px; height: 64px; border-radius: 50%; overflow: hidden; flex-shrink: 0; background: #9333ea; display: flex; align-items: center; justify-content: center; font-weight: 700; color: #fff; font-size: 1.6rem; border: 1.5px solid rgba(255,255,255,0.08);">
+                                                    D
+                                                </div>
+                                            </div>
+
+                                            <!-- Embed Banner Image -->
+                                            <div id="invitetracker-sim-embed-banner-wrapper" style="width: 100%; border-radius: 4px; overflow: hidden; margin-top: 10px; display: none;">
+                                                <img id="invitetracker-sim-embed-banner" src="assets/bypass_logs_banner.webp" style="width: 100%; height: auto; object-fit: cover; max-height: 200px; display: block;">
+                                            </div>
+
+                                            <!-- Embed Footer -->
+                                            <div style="display: flex; align-items: center; gap: 6px; font-size: 0.72rem; color: #dbdee1; font-family: sans-serif;" id="invitetracker-sim-embed-footer-wrapper">
+                                                <img src="assets/bypass_logs_avatar.webp" style="width: 16px; height: 16px; border-radius: 50%; object-fit: cover;" id="invitetracker-sim-embed-footer-icon">
+                                                <span id="invitetracker-sim-embed-footer-text">✦ VEYRA INVITE TRACKER ✦</span>
+                                                <span style="color: #72767d;">&bull;</span>
+                                                <span style="color: #72767d;">Today at 8:27 PM</span>
                                             </div>
                                         </div>
                                     </div>
@@ -4715,16 +4762,18 @@ We hope to see you back soon!
                             <div style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 18px;">
                                 <div>
                                     <label style="font-size: 0.85rem; font-weight: 700; color: #fff; display: block; margin-bottom: 6px;">Target Channel</label>
-                                    <select class="form-control" id="ebm-destination-channel" style="background: rgba(0,0,0,0.3); font-size: 0.88rem;">
-                                        <option value="general">#general</option>
-                                        <option value="announcements">#announcements</option>
-                                        <option value="rules-info">#rules-info</option>
-                                        <option value="welcome">#welcome</option>
+                                    <select class="form-control guild-channels-dropdown" id="ebm-destination-channel" style="background: rgba(0,0,0,0.3); font-size: 0.88rem;">
+                                        <option value="">Select Channel</option>
                                     </select>
                                 </div>
 
                                 <div>
-                                    <label style="font-size: 0.85rem; font-weight: 700; color: #fff; display: block; margin-bottom: 6px;">Message Outer Content Text (Optional)</label>
+                                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                                        <label style="font-size: 0.85rem; font-weight: 700; color: #fff; margin: 0;">Message Outer Content Text (Optional)</label>
+                                        <button type="button" onclick="openServerEmojiPicker('ebm-normal-text')" title="Insert Server Emoji" style="background: rgba(255,255,255,0.08); border: none; border-radius: 4px; padding: 2px 8px; font-size: 0.85rem; cursor: pointer; color: #fff;">
+                                            😊 Emojis
+                                        </button>
+                                    </div>
                                     <textarea id="ebm-normal-text" placeholder="Regular message text shown above the embeds..." class="form-control" style="height: 65px; background: rgba(0,0,0,0.3); font-size: 0.83rem;" oninput="updateMultiEmbedPreview()"></textarea>
                                 </div>
                             </div>
@@ -4827,15 +4876,17 @@ We hope to see you back soon!
                                 </div>
 
                                 <!-- Row 2: Title, Title URL -->
-                                <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 10px;">
+                                <div style="display: grid; grid-template-columns: 2fr auto 1fr; gap: 8px;">
                                     <input type="text" placeholder="Title" class="form-control" id="eb-title" style="background: rgba(0,0,0,0.2);" oninput="updateEmbedBuilderPreview()">
+                                    <button type="button" onclick="openServerEmojiPicker('eb-title')" title="Insert Server Emoji" style="background: rgba(255,255,255,0.08); border: none; border-radius: 4px; padding: 0 10px; cursor: pointer; color: #fff; font-size: 0.95rem;">😊</button>
                                     <input type="text" placeholder="Title url" class="form-control" id="eb-title-url" style="background: rgba(0,0,0,0.2);" oninput="updateEmbedBuilderPreview()">
                                 </div>
                                 <div style="font-size: 0.72rem; color: var(--text-secondary); margin-top: -10px; font-family: var(--font-mono); text-align: left;" id="eb-title-counter">0/256</div>
 
                                 <!-- Row 3: Description -->
-                                <div class="form-group">
-                                    <textarea placeholder="Description" class="form-control" id="eb-description" style="height: 100px; background: rgba(0,0,0,0.2);" oninput="updateEmbedBuilderPreview()"></textarea>
+                                <div class="form-group" style="position: relative;">
+                                    <textarea placeholder="Description" class="form-control" id="eb-description" style="height: 100px; background: rgba(0,0,0,0.2); padding-right: 45px;" oninput="updateEmbedBuilderPreview()"></textarea>
+                                    <button type="button" onclick="openServerEmojiPicker('eb-description')" title="Insert Server Emoji" style="position: absolute; right: 10px; top: 10px; background: rgba(255,255,255,0.1); border: none; border-radius: 6px; padding: 4px 8px; cursor: pointer; color: #fff; font-size: 0.95rem;">😊</button>
                                     <div style="display: flex; justify-content: space-between; font-size: 0.72rem; color: var(--text-secondary); margin-top: 4px; font-family: var(--font-mono);">
                                         <span id="eb-desc-counter">0/2048</span>
                                     </div>
@@ -4857,8 +4908,9 @@ We hope to see you back soon!
                                 </div>
 
                                 <!-- Row 5: Footer, Footer Icon, Date, Clear -->
-                                <div style="display: grid; grid-template-columns: 1fr 1fr 1.2fr 0.6fr; gap: 10px; align-items: center;">
+                                <div style="display: grid; grid-template-columns: 1.5fr auto 1fr 1.2fr 0.6fr; gap: 8px; align-items: center;">
                                     <input type="text" placeholder="Footer" class="form-control" id="eb-footer-text" style="background: rgba(0,0,0,0.2);" oninput="updateEmbedBuilderPreview()">
+                                    <button type="button" onclick="openServerEmojiPicker('eb-footer-text')" title="Insert Server Emoji" style="background: rgba(255,255,255,0.08); border: none; border-radius: 4px; padding: 0 10px; height: 36px; cursor: pointer; color: #fff; font-size: 0.95rem;">😊</button>
                                     <input type="text" placeholder="Footer icon" class="form-control" id="eb-footer-icon" style="background: rgba(0,0,0,0.2);" oninput="updateEmbedBuilderPreview()">
                                     <div style="display: flex; align-items: center; background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.06); border-radius: 6px; padding: 4px 10px; box-sizing: border-box;">
                                         <i class="fa-regular fa-calendar" style="color: var(--text-secondary); margin-right: 8px;"></i>
@@ -4876,11 +4928,8 @@ We hope to see you back soon!
                             <!-- Destination Section -->
                             <div style="border-top: 1px solid rgba(255,255,255,0.04); padding-top: 15px;">
                                 <h3 style="font-size: 1.1rem; font-weight: 800; color: #fff; margin: 0 0 10px 0;">Destination</h3>
-                                <select class="form-control" id="eb-destination-channel" style="background: rgba(0,0,0,0.25);">
-                                    <option value="">Please select a channel</option>
-                                    <option value="general">#general</option>
-                                    <option value="announcements">#announcements</option>
-                                    <option value="rules-info">#rules-info</option>
+                                <select class="form-control guild-channels-dropdown" id="eb-destination-channel" style="background: rgba(0,0,0,0.25);">
+                                    <option value="">Select Channel</option>
                                 </select>
                             </div>
 
@@ -9147,7 +9196,7 @@ Our support team can assist you with:
     <!-- JS Execution libraries -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
-    <script src="js/dashboard.js?v=5.0.1"></script>
+    <script src="js/dashboard.js?v=7.1.0"></script>
     <script src="js/moderation.js?v=1"></script>
     <!-- smokey fluid cursor removed -->
 

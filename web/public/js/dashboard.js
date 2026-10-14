@@ -951,7 +951,11 @@ function loadServerDashboard(guildId) {
                     if (document.getElementById('invitetracker-embed-title')) document.getElementById('invitetracker-embed-title').value = it.title || '';
                     if (document.getElementById('invitetracker-embed-desc')) document.getElementById('invitetracker-embed-desc').value = it.description || '';
                     if (document.getElementById('invitetracker-embed-image')) document.getElementById('invitetracker-embed-image').value = it.image || '';
+                    if (document.getElementById('invitetracker-thumbnail-url')) document.getElementById('invitetracker-thumbnail-url').value = it.thumbnail || '';
                     if (document.getElementById('invitetracker-embed-footer')) document.getElementById('invitetracker-embed-footer').value = it.footer || '';
+                    if (document.getElementById('invitetracker-author-name')) document.getElementById('invitetracker-author-name').value = it.author_name || '';
+                    if (document.getElementById('invitetracker-author-icon')) document.getElementById('invitetracker-author-icon').value = it.author_icon || '';
+                    if (document.getElementById('invitetracker-footer-icon')) document.getElementById('invitetracker-footer-icon').value = it.footer_icon || '';
                     
                     updateInviteTrackerLivePreview();
                 });
@@ -4449,7 +4453,7 @@ function updateEmbedBuilderPreview() {
     // 2. Render previews
     const previewOuter = document.getElementById('eb-preview-outer');
     if (previewOuter) {
-        previewOuter.innerText = normVal;
+        previewOuter.innerHTML = parseDiscordEmojis(escapeHtml(normVal));
         previewOuter.style.display = normVal ? 'block' : 'none';
     }
 
@@ -4461,13 +4465,18 @@ function updateEmbedBuilderPreview() {
 
     const authNameVal = document.getElementById('eb-author-name')?.value || '';
     const authIconVal = document.getElementById('eb-author-icon')?.value || '';
+    const authUrlVal = document.getElementById('eb-author-url')?.value || '';
     const previewAuth = document.getElementById('eb-preview-author');
     const previewAuthName = document.getElementById('eb-preview-author-name');
     const previewAuthIcon = document.getElementById('eb-preview-author-icon');
 
     if (previewAuth && previewAuthName && previewAuthIcon) {
         if (authNameVal) {
-            previewAuthName.innerText = authNameVal;
+            if (authUrlVal) {
+                previewAuthName.innerHTML = `<a href="${escapeHtml(authUrlVal)}" target="_blank" style="color: #fff; text-decoration: underline;">${escapeHtml(authNameVal)}</a>`;
+            } else {
+                previewAuthName.innerText = authNameVal;
+            }
             if (authIconVal) {
                 previewAuthIcon.src = authIconVal;
                 previewAuthIcon.style.display = 'block';
@@ -4480,15 +4489,20 @@ function updateEmbedBuilderPreview() {
         }
     }
 
+    const titleUrlVal = document.getElementById('eb-title-url')?.value || '';
     const previewTitle = document.getElementById('eb-preview-title');
     if (previewTitle) {
-        previewTitle.innerText = titleVal;
+        if (titleUrlVal) {
+            previewTitle.innerHTML = `<a href="${escapeHtml(titleUrlVal)}" target="_blank" style="color: #00aff4; text-decoration: none;">${parseDiscordEmojis(escapeHtml(titleVal))}</a>`;
+        } else {
+            previewTitle.innerHTML = parseDiscordEmojis(escapeHtml(titleVal));
+        }
         previewTitle.style.display = titleVal ? 'block' : 'none';
     }
 
     const previewDesc = document.getElementById('eb-preview-description');
     if (previewDesc) {
-        previewDesc.innerText = descVal;
+        previewDesc.innerHTML = parseDiscordEmojis(escapeHtml(descVal)).replace(/\n/g, '<br>');
         previewDesc.style.display = descVal ? 'block' : 'none';
     }
 
@@ -5037,55 +5051,120 @@ function loadBotProfileSettings(guildId) {
 }
 
 function populateServerRolesAndChannels(guildId) {
-    // Fetch Roles
-    fetch(`/api/guild/roles/${guildId}`)
+    if (!guildId) return Promise.resolve();
+
+    // 1. Fetch live guild roles
+    const rolesPromise = fetch(`/api/guild/roles/${guildId}`)
         .then(res => res.json())
         .then(roles => {
+            if (!Array.isArray(roles)) return;
+            window.guildRoles = roles;
             const roleSelects = Array.from(document.querySelectorAll('.guild-roles-dropdown, #verif-role, #verification-role-select, #autoroles-select, #sticky-blacklisted-select, #publish-bump-role-select, #am-mute-role, #am-allowed-roles'));
             roleSelects.forEach(select => {
                 if (select) {
                     const currentVal = select.value;
-                    select.innerHTML = '<option value="">Select option</option>';
+                    select.innerHTML = '<option value="">Select Role</option>';
                     roles.forEach(r => {
                         const opt = document.createElement('option');
                         opt.value = r.id;
-                        opt.innerText = r.name;
+                        opt.innerText = `@${r.name}`;
                         select.appendChild(opt);
                     });
                     if (currentVal) select.value = currentVal;
                 }
             });
         })
-        .catch(err => console.error("Error fetching roles:", err));
+        .catch(err => console.error("Error fetching live roles:", err));
 
-    // Fetch Channels
-    fetch(`/api/guild/channels/${guildId}`)
+    // 2. Fetch live guild emojis
+    const emojisPromise = fetch(`/api/guild/emojis/${guildId}`)
+        .then(res => res.json())
+        .then(emojis => {
+            if (Array.isArray(emojis)) {
+                window.guildEmojis = emojis;
+                console.log(`[EMOJIS LOADED] ${emojis.length} live server custom emojis loaded.`);
+            }
+        })
+        .catch(err => console.error("Error fetching live emojis:", err));
+
+    // 3. Fetch live guild channels
+    const channelsPromise = fetch(`/api/guild/channels/${guildId}`)
         .then(res => res.json())
         .then(channels => {
-            const channelSelects = [
+            if (!Array.isArray(channels)) return;
+            window.guildChannels = channels;
+            console.log(`[CHANNELS LOADED] ${channels.length} live server channels loaded.`);
+
+            const channelSelects = Array.from(new Set([
+                document.getElementById('ebm-destination-channel'),
+                document.getElementById('eb-destination-channel'),
                 document.getElementById('welcome-msg-channel-select'),
                 document.getElementById('leave-msg-channel-select'),
                 document.getElementById('invitetracker-msg-channel-select'),
-                document.getElementById('eb-destination-channel'),
+                document.getElementById('publish-channel-select'),
                 document.getElementById('verif-channel'),
                 document.getElementById('log-select-moderation'),
                 document.getElementById('log-select-security'),
-                document.getElementById('reports-channel-select')
-            ];
+                document.getElementById('log-select-joins'),
+                document.getElementById('log-select-messages'),
+                document.getElementById('log-select-voice'),
+                document.getElementById('reports-channel-select'),
+                document.getElementById('levels-channel-select'),
+                document.getElementById('levels-blacklist-channel-select'),
+                ...Array.from(document.querySelectorAll('.guild-channels-dropdown'))
+            ].filter(Boolean)));
+
             channelSelects.forEach(select => {
-                if (select) {
-                    const isLog = select.id.startsWith('log-select-');
-                    select.innerHTML = isLog ? '<option value="none">None</option>' : '<option value="">Select option</option>';
-                    channels.forEach(c => {
-                        const opt = document.createElement('option');
-                        opt.value = c.id;
-                        opt.innerText = `#${c.name}`;
-                        select.appendChild(opt);
-                    });
+                const currentVal = select.value;
+                const isLog = select.id && select.id.startsWith('log-select-');
+                select.innerHTML = isLog ? '<option value="none">None</option>' : '<option value="">Select Channel</option>';
+                
+                channels.forEach(c => {
+                    const opt = document.createElement('option');
+                    opt.value = c.id;
+                    opt.innerText = `# ${c.name}`;
+                    select.appendChild(opt);
+                });
+
+                if (currentVal) {
+                    select.value = currentVal;
+                    if (!select.value) {
+                        const cleanVal = currentVal.toLowerCase().replace('#', '').trim();
+                        const matchOpt = Array.from(select.options).find(o => 
+                            o.value === currentVal || 
+                            o.innerText.toLowerCase().replace('#', '').trim() === cleanVal ||
+                            o.innerText.toLowerCase().includes(cleanVal)
+                        );
+                        if (matchOpt) select.value = matchOpt.value;
+                    }
                 }
             });
+
+            // Auto-select smart defaults if empty
+            const ebmDest = document.getElementById('ebm-destination-channel');
+            if (ebmDest && (!ebmDest.value || ebmDest.value === 'general')) {
+                const chatCh = channels.find(c => c.name.toLowerCase().includes('chat') || c.name.toLowerCase().includes('general') || c.type === 0);
+                if (chatCh) ebmDest.value = chatCh.id;
+            }
+            const welDest = document.getElementById('welcome-msg-channel-select');
+            if (welDest && (!welDest.value || welDest.value === 'welcome' || welDest.value === 'general')) {
+                const welCh = channels.find(c => c.name.toLowerCase().includes('welcome') || c.name.toLowerCase().includes('join'));
+                if (welCh) welDest.value = welCh.id;
+            }
+            const leaveDest = document.getElementById('leave-msg-channel-select');
+            if (leaveDest && (!leaveDest.value || leaveDest.value === 'exits' || leaveDest.value === 'general')) {
+                const exitCh = channels.find(c => c.name.toLowerCase().includes('exit') || c.name.toLowerCase().includes('leave'));
+                if (exitCh) leaveDest.value = exitCh.id;
+            }
+            const invDest = document.getElementById('invitetracker-msg-channel-select');
+            if (invDest && (!invDest.value || invDest.value === 'invite-logs' || invDest.value === 'general')) {
+                const invCh = channels.find(c => c.name.toLowerCase().includes('invite'));
+                if (invCh) invDest.value = invCh.id;
+            }
         })
-        .catch(err => console.error("Error fetching channels:", err));
+        .catch(err => console.error("Error fetching live channels:", err));
+
+    return Promise.all([rolesPromise, emojisPromise, channelsPromise]);
 }
 
 function loadRealAnalytics(guildId, timeframe = '30D') {
@@ -5243,30 +5322,131 @@ function setInviteTrackerPresetColor(colorHex) {
 function updateInviteTrackerLivePreview() {
     const textEl = document.getElementById('invitetracker-msg-outer-input');
     const embedTitleEl = document.getElementById('invitetracker-embed-title');
+    const embedTitleUrlEl = document.getElementById('invitetracker-title-url');
     const embedDescEl = document.getElementById('invitetracker-embed-desc');
     const embedColorEl = document.getElementById('invitetracker-color-hex') || document.getElementById('invitetracker-embed-color-picker');
     const embedCheck = document.getElementById('invitetracker-embed-enable');
+    const authorNameEl = document.getElementById('invitetracker-author-name');
+    const authorIconEl = document.getElementById('invitetracker-author-icon');
+    const authorUrlEl = document.getElementById('invitetracker-author-url');
+    const thumbEl = document.getElementById('invitetracker-thumbnail-url');
+    const imgEl = document.getElementById('invitetracker-embed-image');
+    const footerEl = document.getElementById('invitetracker-embed-footer');
+    const footerIconEl = document.getElementById('invitetracker-footer-icon');
     
+    const userAvatarUrl = window.currentUserAvatar || 'https://cdn.discordapp.com/embed/avatars/0.png';
+
     const text = textEl ? textEl.value : '%member_mention% has been invited by %inviter% and has now %inviter_invites% invites.';
     const title = embedTitleEl ? embedTitleEl.value : '✨ Member Joined via Invite';
+    const titleUrl = embedTitleUrlEl ? embedTitleUrlEl.value.trim() : '';
     const desc = embedDescEl ? embedDescEl.value : 'User %member_mention% joined using invite code veyra-vip.';
     const color = embedColorEl ? embedColorEl.value : '#a855f7';
 
     const simOuter = document.getElementById('invitetracker-sim-outer');
     if (simOuter) {
-        simOuter.innerHTML = text
-            .replace('%member_mention%', '<span style="color: #5865F2; background: rgba(88,101,242,0.15); padding: 1px 4px; border-radius: 3px; font-weight: 600;">@!! DADDY</span>')
-            .replace('%inviter%', '<b>itzarun170</b>')
-            .replace('%inviter_invites%', '<b>14</b>');
+        let formatted = text
+            .replace(/%member_mention%|\{user\}/g, '<span style="color: #5865F2; background: rgba(88,101,242,0.15); padding: 1px 4px; border-radius: 3px; font-weight: 600;">@!! DADDY</span>')
+            .replace(/%inviter%|\{inviter\}/g, '<b>itzarun170</b>')
+            .replace(/%inviter_invites%|\{total_invites\}/g, '<b>14</b>')
+            .replace(/\{useravatar\}|\{user_avatar\}|%user_avatar%|\{avatar\}/g, userAvatarUrl);
+        simOuter.innerHTML = parseDiscordEmojis(formatted);
     }
 
     const simEmbed = document.getElementById('invitetracker-sim-embed');
-    const simTitle = document.getElementById('invitetracker-sim-title');
     if (simEmbed) {
-        simEmbed.style.display = (embedCheck && embedCheck.checked) ? 'block' : 'none';
+        simEmbed.style.display = (embedCheck && !embedCheck.checked) ? 'none' : 'flex';
         simEmbed.style.borderLeftColor = color;
     }
-    if (simTitle) simTitle.innerText = title;
+
+    // Author
+    const authorBox = document.getElementById('invitetracker-sim-embed-author');
+    const authorIcon = document.getElementById('invitetracker-sim-embed-author-icon');
+    const authorName = document.getElementById('invitetracker-sim-embed-author-name');
+    const authVal = authorNameEl ? authorNameEl.value.trim() : '';
+    const authIconVal = authorIconEl ? authorIconEl.value.trim() : '';
+    const authUrlVal = authorUrlEl ? authorUrlEl.value.trim() : '';
+    if (authorBox && authorName) {
+        if (authVal) {
+            authorBox.style.display = 'flex';
+            if (authUrlVal) {
+                authorName.innerHTML = `<a href="${authUrlVal}" target="_blank" style="color: #fff; text-decoration: none;" onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">${parseDiscordEmojis(authVal)}</a>`;
+            } else {
+                authorName.innerHTML = parseDiscordEmojis(authVal);
+            }
+            if (authorIcon && authIconVal) {
+                authorIcon.src = authIconVal;
+                authorIcon.style.display = 'inline-block';
+            } else if (authorIcon) {
+                authorIcon.style.display = 'none';
+            }
+        } else {
+            authorBox.style.display = 'none';
+        }
+    }
+
+    // Title
+    const simTitle = document.getElementById('invitetracker-sim-title');
+    if (simTitle) {
+        let formattedTitle = title.replace(/\{useravatar\}|\{user_avatar\}|%user_avatar%|\{avatar\}/g, userAvatarUrl);
+        if (titleUrl) {
+            simTitle.innerHTML = `<a href="${titleUrl}" target="_blank" style="color: #00aff4; text-decoration: none;" onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">${parseDiscordEmojis(formattedTitle)}</a>`;
+        } else {
+            simTitle.innerHTML = parseDiscordEmojis(formattedTitle);
+        }
+        simTitle.style.display = title ? 'block' : 'none';
+    }
+
+    // Desc
+    const simDesc = document.getElementById('invitetracker-sim-embed-desc');
+    if (simDesc) {
+        let formattedDesc = desc
+            .replace(/%member_mention%|\{user\}/g, '<span style="color: #5865F2;">@!! DADDY</span>')
+            .replace(/%inviter%|\{inviter\}/g, '<b>itzarun170</b>')
+            .replace(/%inviter_invites%|\{total_invites\}/g, '<b>14</b>')
+            .replace(/\{useravatar\}|\{user_avatar\}|%user_avatar%|\{avatar\}/g, userAvatarUrl);
+        simDesc.innerHTML = parseDiscordEmojis(formattedDesc);
+        simDesc.style.display = desc ? 'block' : 'none';
+    }
+
+    // Thumbnail
+    const thumbBox = document.getElementById('invitetracker-sim-embed-thumb');
+    if (thumbBox) {
+        const thumbVal = thumbEl ? thumbEl.value.trim() : '';
+        if (thumbVal) {
+            thumbBox.innerHTML = `<img src="${thumbVal}" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">`;
+            thumbBox.style.display = 'flex';
+        } else {
+            thumbBox.innerHTML = `<img src="${userAvatarUrl}" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">`;
+            thumbBox.style.display = 'flex';
+        }
+    }
+
+    // Banner image
+    const bannerWrapper = document.getElementById('invitetracker-sim-embed-banner-wrapper');
+    const bannerImg = document.getElementById('invitetracker-sim-embed-banner');
+    const imgVal = imgEl ? imgEl.value.trim() : '';
+    if (bannerWrapper && bannerImg) {
+        if (imgVal) {
+            bannerImg.src = imgVal;
+            bannerWrapper.style.display = 'block';
+        } else {
+            bannerWrapper.style.display = 'none';
+        }
+    }
+
+    // Footer
+    const footerWrapper = document.getElementById('invitetracker-sim-embed-footer-wrapper');
+    const footerText = document.getElementById('invitetracker-sim-embed-footer-text');
+    const footerIcon = document.getElementById('invitetracker-sim-embed-footer-icon');
+    const footerVal = footerEl ? footerEl.value.trim() : '';
+    const footerIconVal = footerIconEl ? footerIconEl.value.trim() : '';
+    if (footerWrapper && footerText) {
+        footerText.innerText = footerVal || '✦ VEYRA INVITE TRACKER ✦';
+        if (footerIcon) {
+            footerIcon.src = footerIconVal || 'assets/bypass_logs_avatar.webp';
+        }
+        footerWrapper.style.display = 'flex';
+    }
 }
 
 function triggerSimulatedJoin() {
@@ -5367,12 +5547,16 @@ function saveInviteTrackerConfig() {
     const title = document.getElementById('invitetracker-embed-title')?.value || '';
     const description = document.getElementById('invitetracker-embed-desc')?.value || '';
     const image = document.getElementById('invitetracker-embed-image')?.value || '';
+    const thumbnail = document.getElementById('invitetracker-thumbnail-url')?.value || '';
     const footer = document.getElementById('invitetracker-embed-footer')?.value || '';
+    const author_name = document.getElementById('invitetracker-author-name')?.value || '';
+    const author_icon = document.getElementById('invitetracker-author-icon')?.value || '';
+    const footer_icon = document.getElementById('invitetracker-footer-icon')?.value || '';
 
     fetch(`/api/settings/invitetracker/${guildId}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ enabled, channel, color, title, description, image, footer, message })
+        body: JSON.stringify({ enabled, channel, color, title, description, image, thumbnail, footer, author_name, author_icon, footer_icon, message })
     })
     .then(res => res.json())
     .then(data => {
@@ -5463,6 +5647,25 @@ function postEmbedMessage(prefix) {
     const authorNameEl = document.getElementById(`${prefix}-author-name`) || document.getElementById('eb-author-name');
     const authorIconEl = document.getElementById(`${prefix}-author-icon`) || document.getElementById('eb-author-icon');
 
+    const authorUrlEl = document.getElementById(`${prefix}-author-url`) || document.getElementById('eb-author-url');
+    const titleUrlEl = document.getElementById(`${prefix}-title-url`) || document.getElementById('eb-title-url');
+    const dateEl = document.getElementById(`${prefix}-date-input`) || document.getElementById('eb-date-input');
+
+    // Extract custom fields if any
+    const fields = [];
+    const fieldNames = document.querySelectorAll(`.${prefix}-custom-field-name, .eb-custom-field-name`);
+    const fieldValues = document.querySelectorAll(`.${prefix}-custom-field-value, .eb-custom-field-value`);
+    const fieldInlines = document.querySelectorAll(`.${prefix}-custom-field-inline, .eb-custom-field-inline`);
+    fieldNames.forEach((nEl, idx) => {
+        if (nEl && nEl.value && fieldValues[idx] && fieldValues[idx].value) {
+            fields.push({
+                name: nEl.value,
+                value: fieldValues[idx].value,
+                inline: fieldInlines[idx] ? fieldInlines[idx].checked : false
+            });
+        }
+    });
+
     const targetGuildId = activeGuildId || (typeof window.currentSelectedGuildId !== 'undefined' ? window.currentSelectedGuildId : null);
 
     if (!targetGuildId) {
@@ -5476,6 +5679,7 @@ function postEmbedMessage(prefix) {
         normalText: textEl ? textEl.value : '',
         embedData: {
             title: titleEl ? titleEl.value : '',
+            title_url: titleUrlEl ? titleUrlEl.value : '',
             description: descEl ? descEl.value : '',
             color: colorEl ? colorEl.value : '#a855f7',
             image: imageEl ? imageEl.value : '',
@@ -5483,7 +5687,10 @@ function postEmbedMessage(prefix) {
             footer: footerEl ? footerEl.value : '',
             footer_icon: footerIconEl ? footerIconEl.value : '',
             author_name: authorNameEl ? authorNameEl.value : '',
-            author_icon: authorIconEl ? authorIconEl.value : ''
+            author_icon: authorIconEl ? authorIconEl.value : '',
+            author_url: authorUrlEl ? authorUrlEl.value : '',
+            date: dateEl ? dateEl.value : '',
+            fields: fields
         }
     };
 
@@ -7543,7 +7750,7 @@ window.multiEmbedsState = [
         author_url: '',
         title: '♡ VEYRA EMBED MESSAGE #1 ♡',
         title_url: '',
-        description: 'This is a multi-embed message dispatched live to Discord channels.\nYou can add up to 10 embeds in a single message!',
+        description: 'This is a multi-embed message dispatched live to Discord channels.\nYou can add up to 10 embeds with full customization (author, title links, top-right thumbnails, large banner images, and footer icons)!',
         image: 'assets/bypass_logs_banner.webp',
         thumbnail: '',
         footer: '✦ VEYRA REALTIME EMBED BUILDER ✦',
@@ -7561,73 +7768,257 @@ function escapeHtml(str) {
     return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
 
+// ═══════════════════════════════════════════════════════════════════════════════
+// GLOBAL SERVER CUSTOM EMOJI PICKER
+// ═══════════════════════════════════════════════════════════════════════════════
+window.activeEmojiTarget = null;
+
+function openServerEmojiPicker(targetInputId, embedIdx = null, fieldKey = null, fieldIdx = null) {
+    window.activeEmojiTarget = { targetInputId, embedIdx, fieldKey, fieldIdx };
+    let modal = document.getElementById('server-emoji-picker-modal');
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'server-emoji-picker-modal';
+        modal.style.cssText = `
+            position: fixed; inset: 0; background: rgba(0,0,0,0.75); z-index: 100000;
+            display: flex; align-items: center; justify-content: center; backdrop-filter: blur(8px);
+        `;
+        document.body.appendChild(modal);
+    }
+    
+    renderEmojiPickerContent('');
+    modal.style.display = 'flex';
+}
+
+function closeServerEmojiPicker() {
+    const modal = document.getElementById('server-emoji-picker-modal');
+    if (modal) modal.style.display = 'none';
+    window.activeEmojiTarget = null;
+}
+
+function renderEmojiPickerContent(searchFilter = '') {
+    const modal = document.getElementById('server-emoji-picker-modal');
+    if (!modal) return;
+    
+    const emojis = window.guildEmojis || [];
+    const filter = (searchFilter || '').toLowerCase().trim();
+    const filtered = filter ? emojis.filter(e => e.name.toLowerCase().includes(filter)) : emojis;
+
+    modal.innerHTML = `
+        <div style="background: #1e1f22; border: 1px solid rgba(255,255,255,0.12); border-radius: 14px; width: 460px; max-width: 95vw; max-height: 82vh; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 25px 60px rgba(0,0,0,0.8); animation: fadeIn 0.15s ease;">
+            <!-- Header -->
+            <div style="padding: 16px 20px; border-bottom: 1px solid rgba(255,255,255,0.06); display: flex; justify-content: space-between; align-items: center; background: #2b2d31;">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <span style="font-size: 1.2rem;">✨</span>
+                    <h3 style="margin: 0; color: #fff; font-size: 1rem; font-weight: 700;">Server Emojis (${emojis.length})</h3>
+                </div>
+                <button type="button" onclick="closeServerEmojiPicker()" style="background: transparent; border: none; color: #949ba4; font-size: 1.2rem; cursor: pointer; padding: 4px;"><i class="fas fa-times"></i></button>
+            </div>
+
+            <!-- Search bar -->
+            <div style="padding: 12px 20px 8px 20px; background: #1e1f22;">
+                <input type="text" placeholder="🔍 Search custom server emoji by name..." value="${escapeHtml(searchFilter)}" 
+                    oninput="renderEmojiPickerContent(this.value)" 
+                    style="width: 100%; box-sizing: border-box; background: #111214; border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 10px 14px; color: #fff; font-size: 0.85rem; outline: none;">
+            </div>
+
+            <!-- Emoji Grid -->
+            <div style="flex: 1; overflow-y: auto; padding: 10px 20px 20px 20px; display: grid; grid-template-columns: repeat(auto-fill, minmax(44px, 1fr)); gap: 8px; background: #1e1f22;">
+                ${filtered.length > 0 ? filtered.map(e => `
+                    <button type="button" onclick="insertEmojiIntoActiveTarget('${e.mention}')" title=":${e.name}:" 
+                        style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.06); border-radius: 8px; width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.15s ease;"
+                        onmouseover="this.style.background='rgba(168,85,247,0.2)'; this.style.borderColor='#a855f7';"
+                        onmouseout="this.style.background='rgba(255,255,255,0.04)'; this.style.borderColor='rgba(255,255,255,0.06)';">
+                        <img src="${e.url}" alt=":${e.name}:" style="width: 28px; height: 28px; object-fit: contain;">
+                    </button>
+                `).join('') : `
+                    <div style="grid-column: 1 / -1; text-align: center; color: #949ba4; padding: 35px 10px; font-size: 0.85rem;">
+                        ${emojis.length === 0 ? 'No custom server emojis found for this guild.' : 'No emojis match your search query.'}
+                    </div>
+                `}
+            </div>
+            
+            <div style="padding: 10px 20px; background: #111214; border-top: 1px solid rgba(255,255,255,0.05); font-size: 0.75rem; color: #949ba4; display: flex; justify-content: space-between; align-items: center;">
+                <span>Click any emoji to insert into active input</span>
+                <span style="color: #a855f7; font-weight: 700;">Animated GIFs & Static PNGs</span>
+            </div>
+        </div>
+    `;
+}
+
+function insertEmojiIntoActiveTarget(emojiMention) {
+    if (!window.activeEmojiTarget) return;
+    const { targetInputId, embedIdx, fieldKey, fieldIdx } = window.activeEmojiTarget;
+
+    if (embedIdx !== null && fieldKey) {
+        if (window.multiEmbedsState[embedIdx]) {
+            if (fieldIdx !== null && window.multiEmbedsState[embedIdx].fields && window.multiEmbedsState[embedIdx].fields[fieldIdx]) {
+                const cur = window.multiEmbedsState[embedIdx].fields[fieldIdx][fieldKey] || '';
+                window.multiEmbedsState[embedIdx].fields[fieldIdx][fieldKey] = cur ? cur + ' ' + emojiMention : emojiMention;
+            } else {
+                const cur = window.multiEmbedsState[embedIdx][fieldKey] || '';
+                window.multiEmbedsState[embedIdx][fieldKey] = cur ? cur + ' ' + emojiMention : emojiMention;
+            }
+            renderMultiEmbedCardsUI();
+        }
+    } else if (targetInputId) {
+        const el = document.getElementById(targetInputId);
+        if (el) {
+            const start = el.selectionStart || el.value.length;
+            const end = el.selectionEnd || el.value.length;
+            const text = el.value;
+            el.value = text.substring(0, start) + emojiMention + ' ' + text.substring(end);
+            el.selectionStart = el.selectionEnd = start + emojiMention.length + 1;
+            el.dispatchEvent(new Event('input', { bubbles: true }));
+        }
+    }
+    closeServerEmojiPicker();
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// MULTI-EMBED UI BUILDER & REALTIME PREVIEW
+// ═══════════════════════════════════════════════════════════════════════════════
+
 function renderMultiEmbedCardsUI() {
     const container = document.getElementById('ebm-cards-container');
     if (!container) return;
     
     let html = '';
     window.multiEmbedsState.forEach((emb, idx) => {
+        const colorPresets = ['#a855f7', '#00aff4', '#10b981', '#ef4444', '#f59e0b', '#ffffff', '#202225'];
+        
         html += `
-        <div class="glass-card multi-embed-card" style="background: rgba(0,0,0,0.25); border: 1px solid rgba(255,255,255,0.08); border-left: 4px solid ${emb.color || '#a855f7'}; border-radius: 8px; padding: 18px; margin-bottom: 15px;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 1px solid rgba(255,255,255,0.06); padding-bottom: 8px;">
-                <span style="font-weight: 700; color: #fff; font-size: 0.9rem; display: flex; align-items: center; gap: 8px;">
-                    <i class="fas fa-layer-group" style="color: ${emb.color || '#a855f7'};"></i> Embed #${idx + 1}
-                </span>
-                ${window.multiEmbedsState.length > 1 ? `
-                <button type="button" onclick="removeMultiEmbedCard(${idx})" class="btn-primary" style="background: #ef4444; border: none; padding: 4px 10px; border-radius: 4px; font-size: 0.75rem; font-weight: 700; cursor: pointer;">
-                    <i class="fas fa-trash-can"></i> Remove
-                </button>` : ''}
-            </div>
-
-            <!-- Color picker -->
-            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px;">
-                <span style="font-size: 0.8rem; color: var(--text-secondary); font-weight: 600;">Embed Color:</span>
-                <input type="color" value="${emb.color || '#a855f7'}" oninput="updateMultiEmbedState(${idx}, 'color', this.value)" style="width: 35px; height: 28px; border: none; background: transparent; cursor: pointer;">
-                <input type="text" value="${emb.color || '#a855f7'}" class="form-control" style="width: 100px; background: rgba(0,0,0,0.3); font-family: var(--font-mono); font-size: 0.8rem;" oninput="updateMultiEmbedState(${idx}, 'color', this.value)">
-            </div>
-
-            <!-- Author info -->
-            <div style="display: grid; grid-template-columns: 1fr 1.5fr; gap: 10px; margin-bottom: 10px;">
-                <input type="text" placeholder="Author Icon URL" value="${escapeHtml(emb.author_icon || '')}" class="form-control" style="background: rgba(0,0,0,0.2); font-size: 0.8rem;" oninput="updateMultiEmbedState(${idx}, 'author_icon', this.value)">
-                <input type="text" placeholder="Author Name" value="${escapeHtml(emb.author_name || '')}" class="form-control" style="background: rgba(0,0,0,0.2); font-size: 0.8rem;" oninput="updateMultiEmbedState(${idx}, 'author_name', this.value)">
-            </div>
-
-            <!-- Title & Description -->
-            <div style="margin-bottom: 10px;">
-                <input type="text" placeholder="Embed Title" value="${escapeHtml(emb.title || '')}" class="form-control" style="background: rgba(0,0,0,0.2); font-size: 0.82rem; font-weight: 700; margin-bottom: 8px;" oninput="updateMultiEmbedState(${idx}, 'title', this.value)">
-                <textarea placeholder="Embed Description" class="form-control" style="height: 80px; background: rgba(0,0,0,0.2); font-family: var(--font-mono); font-size: 0.8rem;" oninput="updateMultiEmbedState(${idx}, 'description', this.value)">${escapeHtml(emb.description || '')}</textarea>
-            </div>
-
-            <!-- Image & Thumbnail -->
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
-                <input type="text" placeholder="Image URL (large)" value="${escapeHtml(emb.image || '')}" class="form-control" style="background: rgba(0,0,0,0.2); font-size: 0.8rem;" oninput="updateMultiEmbedState(${idx}, 'image', this.value)">
-                <input type="text" placeholder="Thumbnail URL (small)" value="${escapeHtml(emb.thumbnail || '')}" class="form-control" style="background: rgba(0,0,0,0.2); font-size: 0.8rem;" oninput="updateMultiEmbedState(${idx}, 'thumbnail', this.value)">
-            </div>
-
-            <!-- Footer -->
-            <div style="display: grid; grid-template-columns: 1.5fr 1fr; gap: 10px; margin-bottom: 10px;">
-                <input type="text" placeholder="Footer Text" value="${escapeHtml(emb.footer || '')}" class="form-control" style="background: rgba(0,0,0,0.2); font-size: 0.8rem;" oninput="updateMultiEmbedState(${idx}, 'footer', this.value)">
-                <input type="text" placeholder="Footer Icon URL" value="${escapeHtml(emb.footer_icon || '')}" class="form-control" style="background: rgba(0,0,0,0.2); font-size: 0.8rem;" oninput="updateMultiEmbedState(${idx}, 'footer_icon', this.value)">
-            </div>
-
-            <!-- Fields Header -->
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px; margin-bottom: 8px;">
-                <span style="font-size: 0.78rem; font-weight: 700; color: var(--text-secondary); text-transform: uppercase;">Fields (${(emb.fields || []).length}/25)</span>
-                <button type="button" onclick="addMultiEmbedField(${idx})" class="btn-secondary" style="padding: 3px 8px; font-size: 0.72rem; border-radius: 4px;">+ Add Field</button>
-            </div>
-
-            <div id="multi-fields-container-${idx}" style="display: flex; flex-direction: column; gap: 8px;">
-                ${(emb.fields || []).map((f, fIdx) => `
-                <div style="display: flex; gap: 6px; align-items: center;">
-                    <input type="text" placeholder="Field Name" value="${escapeHtml(f.name || '')}" class="form-control" style="flex: 1; background: rgba(0,0,0,0.3); font-size: 0.78rem;" oninput="updateMultiEmbedField(${idx}, ${fIdx}, 'name', this.value)">
-                    <input type="text" placeholder="Field Value" value="${escapeHtml(f.value || '')}" class="form-control" style="flex: 1.5; background: rgba(0,0,0,0.3); font-size: 0.78rem;" oninput="updateMultiEmbedField(${idx}, ${fIdx}, 'value', this.value)">
-                    <label style="font-size: 0.72rem; color: var(--text-secondary); display: flex; align-items: center; gap: 3px; cursor: pointer;">
-                        <input type="checkbox" ${f.inline ? 'checked' : ''} onchange="updateMultiEmbedField(${idx}, ${fIdx}, 'inline', this.checked)"> Inline
-                    </label>
-                    <button type="button" onclick="removeMultiEmbedField(${idx}, ${fIdx})" style="background: transparent; border: none; color: #ef4444; cursor: pointer; padding: 2px 4px;"><i class="fas fa-times"></i></button>
+        <div class="glass-card multi-embed-card" style="background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.08); border-left: 5px solid ${emb.color || '#a855f7'}; border-radius: 10px; padding: 20px; margin-bottom: 20px; box-shadow: 0 8px 24px rgba(0,0,0,0.4);">
+            
+            <!-- Top Card Header: Actions -->
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; border-bottom: 1px solid rgba(255,255,255,0.07); padding-bottom: 12px;">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <span style="font-weight: 800; color: #fff; font-size: 0.95rem; display: flex; align-items: center; gap: 8px;">
+                        <span style="display: inline-block; width: 12px; height: 12px; border-radius: 3px; background: ${emb.color || '#a855f7'};"></span>
+                        Embed #${idx + 1}
+                    </span>
+                    <span style="font-size: 0.72rem; color: #949ba4; font-family: var(--font-mono);">(${window.multiEmbedsState.length}/10)</span>
                 </div>
-                `).join('')}
+                <div style="display: flex; gap: 8px;">
+                    <button type="button" onclick="duplicateMultiEmbedCard(${idx})" class="btn-secondary" style="background: rgba(255,255,255,0.07); border: none; padding: 5px 12px; border-radius: 5px; font-size: 0.75rem; font-weight: 700; color: #fff; cursor: pointer;">
+                        <i class="fas fa-clone"></i> Duplicate
+                    </button>
+                    ${window.multiEmbedsState.length > 1 ? `
+                    <button type="button" onclick="removeMultiEmbedCard(${idx})" class="btn-primary" style="background: #ef4444; border: none; padding: 5px 12px; border-radius: 5px; font-size: 0.75rem; font-weight: 700; cursor: pointer; color: #fff;">
+                        <i class="fas fa-trash-can"></i> Remove
+                    </button>` : ''}
+                </div>
             </div>
+
+            <!-- SECTION 1: EMBED COLOR -->
+            <div style="margin-bottom: 14px; background: rgba(0,0,0,0.2); padding: 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.04);">
+                <label style="font-size: 0.78rem; font-weight: 700; color: #c084fc; text-transform: uppercase; letter-spacing: 0.05em; display: block; margin-bottom: 6px;">
+                    <i class="fas fa-palette" style="margin-right: 4px;"></i> Embed Color
+                </label>
+                <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+                    <input type="color" value="${emb.color || '#a855f7'}" oninput="updateMultiEmbedState(${idx}, 'color', this.value)" style="width: 40px; height: 32px; border: none; background: transparent; cursor: pointer; border-radius: 4px;">
+                    <input type="text" value="${emb.color || '#a855f7'}" class="form-control" style="width: 110px; background: rgba(0,0,0,0.4); font-family: var(--font-mono); font-size: 0.82rem; font-weight: 700;" oninput="updateMultiEmbedState(${idx}, 'color', this.value)">
+                    
+                    <!-- Quick Color Swatches -->
+                    <div style="display: flex; gap: 6px; align-items: center; margin-left: 6px;">
+                        ${colorPresets.map(c => `
+                            <button type="button" onclick="updateMultiEmbedState(${idx}, 'color', '${c}')" style="width: 22px; height: 22px; border-radius: 50%; background: ${c}; border: ${emb.color === c ? '2px solid #fff' : '1px solid rgba(255,255,255,0.2)'}; cursor: pointer;" title="${c}"></button>
+                        `).join('')}
+                    </div>
+                </div>
+            </div>
+
+            <!-- SECTION 2: AUTHOR SECTION -->
+            <div style="margin-bottom: 14px; background: rgba(0,0,0,0.2); padding: 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.04);">
+                <label style="font-size: 0.78rem; font-weight: 700; color: #60a5fa; text-transform: uppercase; letter-spacing: 0.05em; display: block; margin-bottom: 6px;">
+                    <i class="fas fa-user-circle" style="margin-right: 4px;"></i> Author Header
+                </label>
+                <div style="display: grid; grid-template-columns: 1.2fr 1fr 1fr; gap: 8px;">
+                    <input type="text" placeholder="Author Name" value="${escapeHtml(emb.author_name || '')}" class="form-control" style="background: rgba(0,0,0,0.3); font-size: 0.82rem;" oninput="updateMultiEmbedState(${idx}, 'author_name', this.value)">
+                    <input type="text" placeholder="Author Icon URL" value="${escapeHtml(emb.author_icon || '')}" class="form-control" style="background: rgba(0,0,0,0.3); font-size: 0.82rem;" oninput="updateMultiEmbedState(${idx}, 'author_icon', this.value)">
+                    <input type="text" placeholder="Author Clickable URL" value="${escapeHtml(emb.author_url || '')}" class="form-control" style="background: rgba(0,0,0,0.3); font-size: 0.82rem;" oninput="updateMultiEmbedState(${idx}, 'author_url', this.value)">
+                </div>
+            </div>
+
+            <!-- SECTION 3: TITLE & DESCRIPTION -->
+            <div style="margin-bottom: 14px; background: rgba(0,0,0,0.2); padding: 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.04);">
+                <label style="font-size: 0.78rem; font-weight: 700; color: #34d399; text-transform: uppercase; letter-spacing: 0.05em; display: block; margin-bottom: 6px;">
+                    <i class="fas fa-heading" style="margin-right: 4px;"></i> Title & Description
+                </label>
+                <div style="display: grid; grid-template-columns: 2fr 1.2fr auto; gap: 8px; margin-bottom: 8px;">
+                    <input type="text" placeholder="Embed Title" value="${escapeHtml(emb.title || '')}" class="form-control" style="background: rgba(0,0,0,0.3); font-size: 0.85rem; font-weight: 700;" oninput="updateMultiEmbedState(${idx}, 'title', this.value)">
+                    <input type="text" placeholder="Title Hyperlink URL (https://...)" value="${escapeHtml(emb.title_url || '')}" class="form-control" style="background: rgba(0,0,0,0.3); font-size: 0.82rem;" oninput="updateMultiEmbedState(${idx}, 'title_url', this.value)">
+                    <button type="button" onclick="openServerEmojiPicker(null, ${idx}, 'title')" title="Insert Server Emoji into Title" class="btn-secondary" style="background: rgba(255,255,255,0.08); border: none; border-radius: 6px; padding: 0 12px; cursor: pointer; font-size: 1rem;">
+                        😊
+                    </button>
+                </div>
+                
+                <div style="position: relative;">
+                    <textarea placeholder="Embed Description (Supports Markdown: **bold**, *italics*, codeblocks, server custom emojis)" class="form-control" style="height: 90px; background: rgba(0,0,0,0.3); font-size: 0.82rem; line-height: 1.45; padding-right: 45px;" oninput="updateMultiEmbedState(${idx}, 'description', this.value)">${escapeHtml(emb.description || '')}</textarea>
+                    <button type="button" onclick="openServerEmojiPicker(null, ${idx}, 'description')" title="Insert Server Emoji into Description" class="btn-secondary" style="position: absolute; right: 10px; top: 10px; background: rgba(255,255,255,0.1); border: none; border-radius: 6px; padding: 6px 10px; cursor: pointer; font-size: 0.95rem;">
+                        😊
+                    </button>
+                </div>
+            </div>
+
+            <!-- SECTION 4: IMAGES (THUMBNAIL TOP-RIGHT & LARGE IMAGE BOTTOM) -->
+            <div style="margin-bottom: 14px; background: rgba(0,0,0,0.2); padding: 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.04);">
+                <label style="font-size: 0.78rem; font-weight: 700; color: #f472b6; text-transform: uppercase; letter-spacing: 0.05em; display: block; margin-bottom: 6px;">
+                    <i class="fas fa-image" style="margin-right: 4px;"></i> Images & Media
+                </label>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                    <div>
+                        <span style="font-size: 0.72rem; color: #949ba4; display: block; margin-bottom: 4px;">Top-Right Image / Thumbnail URL:</span>
+                        <input type="text" placeholder="https://... (small image at top right)" value="${escapeHtml(emb.thumbnail || '')}" class="form-control" style="background: rgba(0,0,0,0.3); font-size: 0.82rem;" oninput="updateMultiEmbedState(${idx}, 'thumbnail', this.value)">
+                    </div>
+                    <div>
+                        <span style="font-size: 0.72rem; color: #949ba4; display: block; margin-bottom: 4px;">Main Large Banner / Image URL:</span>
+                        <input type="text" placeholder="https://... (large full-width banner at bottom)" value="${escapeHtml(emb.image || '')}" class="form-control" style="background: rgba(0,0,0,0.3); font-size: 0.82rem;" oninput="updateMultiEmbedState(${idx}, 'image', this.value)">
+                    </div>
+                </div>
+            </div>
+
+            <!-- SECTION 5: FOOTER & TIMESTAMP -->
+            <div style="margin-bottom: 14px; background: rgba(0,0,0,0.2); padding: 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.04);">
+                <label style="font-size: 0.78rem; font-weight: 700; color: #fbbf24; text-transform: uppercase; letter-spacing: 0.05em; display: block; margin-bottom: 6px;">
+                    <i class="fas fa-shoe-prints" style="margin-right: 4px;"></i> Footer & Timestamp
+                </label>
+                <div style="display: grid; grid-template-columns: 1.5fr auto 1.2fr 1fr; gap: 8px;">
+                    <input type="text" placeholder="Footer Text" value="${escapeHtml(emb.footer || '')}" class="form-control" style="background: rgba(0,0,0,0.3); font-size: 0.82rem;" oninput="updateMultiEmbedState(${idx}, 'footer', this.value)">
+                    <button type="button" onclick="openServerEmojiPicker(null, ${idx}, 'footer')" title="Insert Server Emoji into Footer" class="btn-secondary" style="background: rgba(255,255,255,0.08); border: none; border-radius: 6px; padding: 0 10px; cursor: pointer; font-size: 0.95rem;">
+                        😊
+                    </button>
+                    <input type="text" placeholder="Footer Icon URL" value="${escapeHtml(emb.footer_icon || '')}" class="form-control" style="background: rgba(0,0,0,0.3); font-size: 0.82rem;" oninput="updateMultiEmbedState(${idx}, 'footer_icon', this.value)">
+                    <input type="text" placeholder="Timestamp (e.g. Today at 12:00 PM)" value="${escapeHtml(emb.date || '')}" class="form-control" style="background: rgba(0,0,0,0.3); font-size: 0.82rem;" oninput="updateMultiEmbedState(${idx}, 'date', this.value)">
+                </div>
+            </div>
+
+            <!-- SECTION 6: DYNAMIC FIELDS (UP TO 25) -->
+            <div style="background: rgba(0,0,0,0.2); padding: 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.04);">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                    <span style="font-size: 0.78rem; font-weight: 700; color: #a78bfa; text-transform: uppercase; letter-spacing: 0.05em;">
+                        <i class="fas fa-list-ul" style="margin-right: 4px;"></i> Fields (${(emb.fields || []).length}/25)
+                    </span>
+                    <button type="button" onclick="addMultiEmbedField(${idx})" class="btn-secondary" style="padding: 4px 10px; font-size: 0.75rem; border-radius: 5px; font-weight: 700; background: rgba(168,85,247,0.2); border: 1px solid rgba(168,85,247,0.3); color: #c084fc; cursor: pointer;">
+                        <i class="fas fa-plus"></i> Add Field
+                    </button>
+                </div>
+
+                <div id="multi-fields-container-${idx}" style="display: flex; flex-direction: column; gap: 8px;">
+                    ${(emb.fields || []).map((f, fIdx) => `
+                    <div style="display: flex; gap: 6px; align-items: center; background: rgba(0,0,0,0.25); padding: 6px 10px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.04);">
+                        <input type="text" placeholder="Field Name" value="${escapeHtml(f.name || '')}" class="form-control" style="flex: 1; background: rgba(0,0,0,0.3); font-size: 0.8rem; font-weight: 700;" oninput="updateMultiEmbedField(${idx}, ${fIdx}, 'name', this.value)">
+                        <input type="text" placeholder="Field Value" value="${escapeHtml(f.value || '')}" class="form-control" style="flex: 1.5; background: rgba(0,0,0,0.3); font-size: 0.8rem;" oninput="updateMultiEmbedField(${idx}, ${fIdx}, 'value', this.value)">
+                        <button type="button" onclick="openServerEmojiPicker(null, ${idx}, 'value', ${fIdx})" title="Insert Server Emoji" class="btn-secondary" style="background: rgba(255,255,255,0.08); border: none; border-radius: 4px; padding: 4px 8px; cursor: pointer; font-size: 0.85rem;">😊</button>
+                        <label style="font-size: 0.75rem; color: var(--text-secondary); display: flex; align-items: center; gap: 4px; cursor: pointer; margin-left: 4px;">
+                            <input type="checkbox" ${f.inline ? 'checked' : ''} onchange="updateMultiEmbedField(${idx}, ${fIdx}, 'inline', this.checked)"> Inline
+                        </label>
+                        <button type="button" onclick="removeMultiEmbedField(${idx}, ${fIdx})" style="background: transparent; border: none; color: #ef4444; cursor: pointer; padding: 4px 6px; font-size: 0.85rem;"><i class="fas fa-trash"></i></button>
+                    </div>
+                    `).join('')}
+                </div>
+            </div>
+
         </div>
         `;
     });
@@ -7658,16 +8049,35 @@ function addMultiEmbedCard() {
     const newIdx = window.multiEmbedsState.length + 1;
     window.multiEmbedsState.push({
         color: '#10b981',
+        author_icon: '',
+        author_name: '',
+        author_url: '',
         title: `♡ EMBED MESSAGE #${newIdx} ♡`,
+        title_url: '',
         description: `Additional embed layer #${newIdx} in the same message payload.`,
         image: '',
         thumbnail: '',
         footer: '✦ VEYRA DISCORD BOT ✦',
         footer_icon: '',
+        date: '',
         fields: []
     });
     renderMultiEmbedCardsUI();
     showToast("Embed Added", `Embed #${newIdx} added to the message payload.`);
+}
+
+function duplicateMultiEmbedCard(idx) {
+    if (window.multiEmbedsState.length >= 10) {
+        showToast("Maximum Embeds Reached", "Discord allows up to 10 embeds per message.", "warning");
+        return;
+    }
+    const source = window.multiEmbedsState[idx];
+    if (!source) return;
+    const cloned = JSON.parse(JSON.stringify(source));
+    cloned.title = (cloned.title || 'Embed') + ' (Copy)';
+    window.multiEmbedsState.push(cloned);
+    renderMultiEmbedCardsUI();
+    showToast("Embed Duplicated", `Duplicated embed #${idx + 1}. Total embeds: ${window.multiEmbedsState.length}`);
 }
 
 function removeMultiEmbedCard(idx) {
@@ -7699,50 +8109,64 @@ function updateMultiEmbedPreview() {
     if (!previewContainer) return;
 
     let html = '';
-    if (normalText) {
-        html += `<div style="color: #dcddde; font-size: 0.9rem; margin-bottom: 10px; white-space: pre-wrap;">${escapeHtml(normalText)}</div>`;
+    if (normalText && normalText.trim()) {
+        html += `<div style="color: #dcddde; font-size: 0.92rem; margin-bottom: 12px; white-space: pre-wrap; word-break: break-word;">${parseDiscordEmojis(escapeHtml(normalText))}</div>`;
     }
 
     window.multiEmbedsState.forEach((emb, idx) => {
         const borderCol = emb.color || '#a855f7';
         html += `
-        <div style="background: #2f3136; border-left: 4px solid ${borderCol}; border-radius: 4px; padding: 14px; margin-bottom: 10px; max-width: 520px; display: flex; flex-direction: column; gap: 8px;">
+        <div style="background: #2b2d31; border-left: 4px solid ${borderCol}; border-radius: 4px; padding: 16px; margin-bottom: 12px; max-width: 520px; display: flex; flex-direction: column; gap: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.3);">
+            
+            <!-- Author -->
             ${emb.author_name ? `
-            <div style="display: flex; align-items: center; gap: 8px; font-size: 0.8rem; font-weight: 700; color: #fff;">
-                ${emb.author_icon ? `<img src="${escapeHtml(emb.author_icon)}" style="width: 20px; height: 20px; border-radius: 50%; object-fit: cover;">` : ''}
-                <span>${escapeHtml(emb.author_name)}</span>
+            <div style="display: flex; align-items: center; gap: 8px; font-size: 0.85rem; font-weight: 700;">
+                ${emb.author_icon ? `<img src="${escapeHtml(emb.author_icon)}" style="width: 22px; height: 22px; border-radius: 50%; object-fit: cover;" onerror="this.style.display='none'">` : ''}
+                ${emb.author_url ? `<a href="${escapeHtml(emb.author_url)}" target="_blank" style="color: #fff; text-decoration: underline;">${escapeHtml(emb.author_name)}</a>` : `<span style="color: #fff;">${escapeHtml(emb.author_name)}</span>`}
             </div>` : ''}
 
-            <div style="display: flex; justify-content: space-between; gap: 10px;">
-                <div style="flex: 1;">
-                    ${emb.title ? `<div style="font-size: 0.95rem; font-weight: 700; color: #fff; margin-bottom: 6px;">${escapeHtml(emb.title)}</div>` : ''}
-                    ${emb.description ? `<div style="font-size: 0.85rem; color: #dbdee1; white-space: pre-wrap; line-height: 1.4;">${escapeHtml(emb.description)}</div>` : ''}
+            <!-- Title & Top Right Thumbnail Container -->
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 14px;">
+                <div style="flex: 1; min-width: 0;">
+                    ${emb.title ? `
+                    <div style="font-size: 1rem; font-weight: 700; margin-bottom: 6px;">
+                        ${emb.title_url ? `<a href="${escapeHtml(emb.title_url)}" target="_blank" style="color: #00aff4; text-decoration: none;">${parseDiscordEmojis(escapeHtml(emb.title))}</a>` : `<span style="color: #fff;">${parseDiscordEmojis(escapeHtml(emb.title))}</span>`}
+                    </div>` : ''}
+                    
+                    ${emb.description ? `
+                    <div style="font-size: 0.88rem; color: #dbdee1; white-space: pre-wrap; line-height: 1.45; word-break: break-word;">
+                        ${parseDiscordEmojis(escapeHtml(emb.description))}
+                    </div>` : ''}
                 </div>
                 ${emb.thumbnail ? `
-                <div style="width: 60px; height: 60px; border-radius: 6px; overflow: hidden; flex-shrink: 0;">
-                    <img src="${escapeHtml(emb.thumbnail)}" style="width: 100%; height: 100%; object-fit: cover;">
+                <div style="width: 80px; height: 80px; border-radius: 6px; overflow: hidden; flex-shrink: 0; background: rgba(0,0,0,0.2);">
+                    <img src="${escapeHtml(emb.thumbnail)}" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.style.display='none'">
                 </div>` : ''}
             </div>
 
+            <!-- Fields Grid -->
             ${(emb.fields && emb.fields.length > 0) ? `
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 8px; margin-top: 6px;">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; margin-top: 4px;">
                 ${emb.fields.map(f => `
                 <div style="${f.inline ? '' : 'grid-column: 1 / -1;'}">
-                    <div style="font-size: 0.75rem; font-weight: 700; color: #b9bbbe;">${escapeHtml(f.name || '')}</div>
-                    <div style="font-size: 0.8rem; color: #dcddde;">${escapeHtml(f.value || '')}</div>
+                    <div style="font-size: 0.78rem; font-weight: 700; color: #b5bac1; margin-bottom: 2px;">${parseDiscordEmojis(escapeHtml(f.name || ''))}</div>
+                    <div style="font-size: 0.85rem; color: #dbdee1; word-break: break-word;">${parseDiscordEmojis(escapeHtml(f.value || ''))}</div>
                 </div>
                 `).join('')}
             </div>` : ''}
 
+            <!-- Large Image (Banner) -->
             ${emb.image ? `
-            <div style="width: 100%; border-radius: 4px; overflow: hidden; margin-top: 6px;">
-                <img src="${escapeHtml(emb.image)}" style="width: 100%; max-height: 220px; object-fit: cover; display: block;">
+            <div style="width: 100%; border-radius: 4px; overflow: hidden; margin-top: 4px; background: rgba(0,0,0,0.2);">
+                <img src="${escapeHtml(emb.image)}" style="width: 100%; max-height: 280px; object-fit: cover; display: block;" onerror="this.style.display='none'">
             </div>` : ''}
 
-            ${emb.footer ? `
-            <div style="display: flex; align-items: center; gap: 6px; font-size: 0.72rem; color: #a3a6aa; margin-top: 4px;">
-                ${emb.footer_icon ? `<img src="${escapeHtml(emb.footer_icon)}" style="width: 16px; height: 16px; border-radius: 50%;">` : ''}
-                <span>${escapeHtml(emb.footer)}</span>
+            <!-- Footer & Timestamp -->
+            ${(emb.footer || emb.footer_icon || emb.date) ? `
+            <div style="display: flex; align-items: center; gap: 8px; font-size: 0.75rem; color: #949ba4; margin-top: 4px; flex-wrap: wrap;">
+                ${emb.footer_icon ? `<img src="${escapeHtml(emb.footer_icon)}" style="width: 18px; height: 18px; border-radius: 50%; object-fit: cover;" onerror="this.style.display='none'">` : ''}
+                ${emb.footer ? `<span>${parseDiscordEmojis(escapeHtml(emb.footer))}</span>` : ''}
+                ${emb.date ? `<span>• ${escapeHtml(emb.date)}</span>` : ''}
             </div>` : ''}
         </div>
         `;
