@@ -3847,21 +3847,21 @@ From raids and nukes to spam and unwanted users, I'll protect your community wit
         
     print(f"📡 Cached invite links for {len(bot.guilds)} guilds.")
     
-    # 1. Sync global command tree
-    try:
-        synced_global = await bot.tree.sync()
-        print(f"📡 Cleanly synced {len(synced_global)} global slash commands.")
-    except Exception as e:
-        print(f"❌ Global command tree sync notice: {e}")
-
-    # 2. Instant Guild sync (updates Discord desktop/web/mobile slash command UI immediately)
+    # 1. Clear any duplicate guild-specific commands so Discord UI shows only 1 clean copy per command
     for g in bot.guilds:
         try:
-            bot.tree.copy_global_to(guild=g)
-            synced_g = await bot.tree.sync(guild=g)
-            print(f"⚡ Instant synced {len(synced_g)} slash commands to guild: {g.name} ({g.id})")
+            bot.tree.clear_commands(guild=g)
+            await bot.tree.sync(guild=g)
+            print(f"🧹 Purged duplicate guild commands for {g.name} ({g.id})")
         except Exception as ge:
-            print(f"⚠️ Guild sync notice for {g.id}: {ge}")
+            print(f"⚠️ Guild command cleanup notice for {g.id}: {ge}")
+
+    # 2. Sync single global command tree cleanly
+    try:
+        synced_global = await bot.tree.sync()
+        print(f"📡 Cleanly synced {len(synced_global)} global slash commands (zero duplicates).")
+    except Exception as e:
+        print(f"❌ Global command tree sync notice: {e}")
         
     print(f"📡 Waiting for audit log event logs...")
     print(f"=============================================\n")

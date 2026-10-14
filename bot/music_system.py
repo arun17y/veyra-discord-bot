@@ -99,7 +99,7 @@ YTDL_OPTIONS = {
     "js_runtimes": {"node": {}},
     "extractor_args": {
         "youtube": {
-            "player_client": ["android", "mweb"]
+            "player_client": ["android_vr", "web"]
         }
     },
 }
@@ -784,22 +784,48 @@ class YTSource(discord.PCMVolumeTransformer):
 
     @classmethod
     async def search(cls, query: str, loop, max_results: int = 1):
-        opts = YTDL_OPTIONS.copy()
-        if not query.startswith("http"):
-            query = f"ytsearch{max_results}:{query}"
+        clean_query = query.strip()
+        is_url = clean_query.startswith("http://") or clean_query.startswith("https://")
+        q = clean_query if is_url else f"ytsearch{max_results}:{clean_query}"
 
         def run():
-            ytdl = yt_dlp.YoutubeDL(opts)
+            # 1. Primary: YouTube with android_vr (bypasses bot verification checks)
+            opts_vr = YTDL_OPTIONS.copy()
+            opts_vr["extractor_args"] = {"youtube": {"player_client": ["android_vr"]}}
             try:
-                return ytdl.extract_info(query, download=False)
+                res = yt_dlp.YoutubeDL(opts_vr).extract_info(q, download=False)
+                if res and (res.get("entries") or res.get("url") or res.get("id")):
+                    return res
+            except Exception as e:
+                logger.info("Search strategy 1 (android_vr) notice: %s", e)
+
+            # 2. Secondary: YouTube with default player clients
+            opts_std = YTDL_OPTIONS.copy()
+            try:
+                res = yt_dlp.YoutubeDL(opts_std).extract_info(q, download=False)
+                if res and (res.get("entries") or res.get("url") or res.get("id")):
+                    return res
+            except Exception as e:
+                logger.info("Search strategy 2 notice: %s", e)
+
+            # 3. Tertiary: SoundCloud search fallback (bulletproof on datacenter IPs)
+            if not is_url:
+                opts_sc = YTDL_OPTIONS.copy()
+                opts_sc["cookiefile"] = None
+                opts_sc["extractor_args"] = {}
+                try:
+                    res = yt_dlp.YoutubeDL(opts_sc).extract_info(f"scsearch{max_results}:{clean_query}", download=False)
+                    if res and res.get("entries"):
+                        return res
+                except Exception as e:
+                    logger.info("Search strategy 3 (SoundCloud) notice: %s", e)
+
+            # 4. Final: YouTube without cookies
+            opts_no = YTDL_OPTIONS.copy()
+            opts_no["cookiefile"] = None
+            try:
+                return yt_dlp.YoutubeDL(opts_no).extract_info(q, download=False)
             except Exception:
-                if opts.get("cookiefile"):
-                    opts_no = opts.copy()
-                    opts_no["cookiefile"] = None
-                    try:
-                        return yt_dlp.YoutubeDL(opts_no).extract_info(query, download=False)
-                    except Exception:
-                        pass
                 return None
 
         data = await loop.run_in_executor(None, run)
@@ -813,29 +839,55 @@ class YTSource(discord.PCMVolumeTransformer):
 
     @classmethod
     async def extract_tracks(cls, query: str, loop) -> Tuple[List[dict], bool]:
-        opts = YTDL_OPTIONS.copy()
-        is_search = not query.startswith("http")
-        q = f"ytsearch1:{query}" if is_search else query
+        clean_query = query.strip()
+        is_url = clean_query.startswith("http://") or clean_query.startswith("https://")
+        q = clean_query if is_url else f"ytsearch1:{clean_query}"
 
         def run():
-            ytdl = yt_dlp.YoutubeDL(opts)
+            # 1. Primary: YouTube with android_vr (bypasses bot verification checks)
+            opts_vr = YTDL_OPTIONS.copy()
+            opts_vr["extractor_args"] = {"youtube": {"player_client": ["android_vr"]}}
             try:
-                return ytdl.extract_info(q, download=False)
+                res = yt_dlp.YoutubeDL(opts_vr).extract_info(q, download=False)
+                if res and (res.get("entries") or res.get("url") or res.get("id")):
+                    return res
+            except Exception as e:
+                logger.info("Extract strategy 1 (android_vr) notice: %s", e)
+
+            # 2. Secondary: YouTube with default player clients
+            opts_std = YTDL_OPTIONS.copy()
+            try:
+                res = yt_dlp.YoutubeDL(opts_std).extract_info(q, download=False)
+                if res and (res.get("entries") or res.get("url") or res.get("id")):
+                    return res
+            except Exception as e:
+                logger.info("Extract strategy 2 notice: %s", e)
+
+            # 3. Tertiary: SoundCloud fallback (bulletproof on datacenter IPs)
+            if not is_url:
+                opts_sc = YTDL_OPTIONS.copy()
+                opts_sc["cookiefile"] = None
+                opts_sc["extractor_args"] = {}
+                try:
+                    res = yt_dlp.YoutubeDL(opts_sc).extract_info(f"scsearch1:{clean_query}", download=False)
+                    if res and res.get("entries") and res["entries"][0]:
+                        return res
+                except Exception as e:
+                    logger.info("Extract strategy 3 (SoundCloud) notice: %s", e)
+
+            # 4. Final: YouTube without cookies
+            opts_no = YTDL_OPTIONS.copy()
+            opts_no["cookiefile"] = None
+            try:
+                return yt_dlp.YoutubeDL(opts_no).extract_info(q, download=False)
             except Exception:
-                if opts.get("cookiefile"):
-                    opts_no = opts.copy()
-                    opts_no["cookiefile"] = None
-                    try:
-                        return yt_dlp.YoutubeDL(opts_no).extract_info(q, download=False)
-                    except Exception:
-                        pass
                 return None
 
         data = await loop.run_in_executor(None, run)
         if not data:
             return [], False
 
-        if is_search:
+        if not is_url:
             if "entries" in data and data["entries"] and data["entries"][0]:
                 return [data["entries"][0]], False
             return [], False
@@ -858,7 +910,7 @@ class YTSource(discord.PCMVolumeTransformer):
             opts_android["cookiefile"] = COOKIE_ARG
             opts_android["extractor_args"] = {
                 "youtube": {
-                    "player_client": ["android", "mweb"]
+                    "player_client": ["android_vr", "web", "mweb"]
                 }
             }
             try:
