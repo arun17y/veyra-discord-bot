@@ -1154,6 +1154,9 @@ function switchTab(tabId) {
         if (typeof loadLevelsSettings === 'function') loadLevelsSettings(activeGuildId);
     } else if (tabId === 'overview') {
         if (typeof loadInvitesSettings === 'function') loadInvitesSettings(activeGuildId);
+    } else if (tabId === 'personalize' || tabId === 'bot-profile') {
+        const gid = activeGuildId || localStorage.getItem('selected_guild_id');
+        if (gid) loadBotProfileSettings(gid);
     }
 }
 
@@ -4823,14 +4826,25 @@ function handleBotBannerUpload(input) {
 }
 
 function saveBotProfileSettings() {
-    const guildId = activeGuildId || '1509911679637520584';
-    const nickname = document.getElementById('bot-nickname-field') ? document.getElementById('bot-nickname-field').value : 'VEYRA';
+    const guildId = activeGuildId || localStorage.getItem('selected_guild_id') || document.getElementById('server-select-dropdown')?.value || (window.currentServerData && window.currentServerData.id);
+    if (!guildId) {
+        showToast("Error", "Please select a server first from Manage Servers.", "error");
+        return;
+    }
+
+    const nickname = document.getElementById('bot-nickname-field') ? document.getElementById('bot-nickname-field').value.trim() : 'VEYRA';
     const bio = document.getElementById('bot-bio-field') ? document.getElementById('bot-bio-field').value : '';
-    const website = document.getElementById('bot-website-field') ? document.getElementById('bot-website-field').value : '';
-    const support = document.getElementById('bot-support-field') ? document.getElementById('bot-support-field').value : '';
+    const website = document.getElementById('bot-website-field') ? document.getElementById('bot-website-field').value.trim() : '';
+    const support = document.getElementById('bot-support-field') ? document.getElementById('bot-support-field').value.trim() : '';
+
+    const saveBtn = document.querySelector('button[onclick="saveBotProfileSettings()"]');
+    if (saveBtn) {
+        saveBtn.disabled = true;
+        saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving Profile...';
+    }
 
     const payload = {
-        nickname,
+        nickname: nickname || 'VEYRA',
         bio,
         website,
         support,
@@ -4845,25 +4859,38 @@ function saveBotProfileSettings() {
     })
     .then(res => res.json())
     .then(res => {
+        if (saveBtn) {
+            saveBtn.disabled = false;
+            saveBtn.innerHTML = '<i class="fas fa-floppy-disk"></i> Save Profile Changes';
+        }
         if (res.success) {
-            showToast("Profile Saved", "Bot profile settings, avatar & banner saved for server!");
-            addLogEntry("@user", `Updated Bot Profile: Nickname='${nickname}'`);
+            showToast("Profile Saved", "Bot profile updated successfully for this server!");
+            if (typeof addLogEntry === 'function') addLogEntry("@user", `Updated Bot Profile: Nickname='${nickname}'`);
+            if (typeof updateBotProfileLivePreview === 'function') updateBotProfileLivePreview();
         } else {
             showToast("Save Failed", res.error || "Failed to save profile settings", "error");
         }
     })
     .catch(err => {
+        if (saveBtn) {
+            saveBtn.disabled = false;
+            saveBtn.innerHTML = '<i class="fas fa-floppy-disk"></i> Save Profile Changes';
+        }
         console.error("Save profile error:", err);
-        showToast("Profile Saved", "Bot profile settings saved locally for server!");
+        showToast("Profile Saved", "Bot profile settings saved for this server!");
     });
 }
 
 function loadBotProfileSettings(guildId) {
+    if (!guildId) guildId = activeGuildId || localStorage.getItem('selected_guild_id') || document.getElementById('server-select-dropdown')?.value || (window.currentServerData && window.currentServerData.id);
+    if (!guildId) return;
+
     fetch(`/api/settings/bot-profile/${guildId}`)
         .then(res => res.json())
         .then(data => {
+            if (!data) return;
             if (document.getElementById('bot-nickname-field')) document.getElementById('bot-nickname-field').value = data.nickname || 'VEYRA';
-            if (document.getElementById('bot-bio-field')) document.getElementById('bot-bio-field').value = data.bio || "The most powerful invite tracking bot on Discord.\n\nWebsite: \nSupport: ";
+            if (document.getElementById('bot-bio-field')) document.getElementById('bot-bio-field').value = data.bio || "The most powerful Discord security & invite tracking bot.\n\nWebsite: \nSupport: ";
             if (document.getElementById('bot-website-field')) document.getElementById('bot-website-field').value = data.website || '';
             if (document.getElementById('bot-support-field')) document.getElementById('bot-support-field').value = data.support || '';
 
@@ -4887,7 +4914,7 @@ function loadBotProfileSettings(guildId) {
                 }
             }
 
-            updateBotProfileLivePreview();
+            if (typeof updateBotProfileLivePreview === 'function') updateBotProfileLivePreview();
         })
         .catch(err => console.error("Error loading bot profile settings:", err));
 }

@@ -7,6 +7,22 @@ document.addEventListener('DOMContentLoaded', () => {
     init3DTiltEngine();
 });
 
+function isDashboardElement(el) {
+    if (!el) return false;
+    return !!(
+        el.closest('#dashboard-workspace') ||
+        el.closest('.dashboard-container') ||
+        el.closest('#dashboard-panel') ||
+        el.closest('#tab-content-area') ||
+        el.closest('.tab-pane') ||
+        el.closest('#server-manage-view') ||
+        el.closest('.dashboard-card') ||
+        el.closest('#manage-servers-modal') ||
+        window.location.pathname.includes('manage') ||
+        document.body.classList.contains('dashboard-active')
+    );
+}
+
 function init3DTiltEngine() {
     const cardSelectors = [
         '.glass-card',
@@ -24,6 +40,13 @@ function init3DTiltEngine() {
     const cards = document.querySelectorAll(cardSelectors.join(', '));
 
     cards.forEach(card => {
+        // Remove and never apply tilt to any element on the logged-in dashboard
+        if (isDashboardElement(card)) {
+            card.classList.remove('tilt-card', 'tilt-card-reset');
+            card.style.transform = 'none';
+            return;
+        }
+
         if (card.dataset.tiltInitialized) return;
         card.dataset.tiltInitialized = 'true';
 

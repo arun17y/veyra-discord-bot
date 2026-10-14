@@ -1259,27 +1259,6 @@ async def on_guild_channel_create(channel):
             except Exception as e:
                 print(f"Revert create channel failed: {e}")
 
-    # Auto-configure permission overrides for Unverified role on new channels
-    if not is_deleted:
-        try:
-            conn = get_db()
-            cursor = conn.cursor()
-            cursor.execute("SELECT enabled, unverified_role, channel FROM verification_settings WHERE guild_id = ?", (str(guild.id),))
-            v_row = cursor.fetchone()
-            conn.close()
-            if v_row and v_row[0] == 1 and v_row[1] and str(v_row[1]).isdigit():
-                uv_role = guild.get_role(int(v_row[1]))
-                verify_chan_id = int(v_row[2]) if (v_row[2] and str(v_row[2]).isdigit()) else None
-                
-                if uv_role:
-                    if verify_chan_id and channel.id == verify_chan_id:
-                        await channel.set_permissions(uv_role, read_messages=True, send_messages=True)
-                    else:
-                        await channel.set_permissions(uv_role, read_messages=False, read_message_history=False)
-                    print(f"✅ Auto-configured verification overrides in new channel: #{channel.name}")
-        except Exception as ex:
-            print(f"Failed to auto-configure verification overrides on channel create: {ex}")
-
 # Event 6: Anti Channel Delete (Rate-Limited)
 @bot.event
 async def on_guild_channel_delete(channel):
@@ -3197,16 +3176,21 @@ async def sync_bot_profile_task():
                 # Determine target bot name
                 target_name = bot.user.name
                 
-                # Check guild nickname
                 cursor.execute("SELECT nickname FROM guild_bot_profiles WHERE guild_id = ?", (str(guild.id),))
                 row = cursor.fetchone()
                 if row and row["nickname"]:
-                    target_name = row["nickname"]
-                    if guild.me and guild.me.nick != target_name:
-                        await guild.me.edit(nick=target_name)
-                        print(f"✅ Synced Bot Nickname to '{target_name}' in server: {guild.name}")
+                    target_name = str(row["nickname"]).strip()
+                    if target_name and guild.me and guild.me.nick != target_name:
+                        if guild.me.guild_permissions.change_nickname:
+                            try:
+                                await guild.me.edit(nick=target_name)
+                                safe_target = target_name.encode('ascii', 'backslashreplace').decode('ascii')
+                                safe_guild = guild.name.encode('ascii', 'backslashreplace').decode('ascii')
+                                print(f"✅ Synced Bot Nickname to '{safe_target}' in server: {safe_guild}")
+                            except Exception as nick_err:
+                                print(f"⚠️ Failed to edit nickname in guild {guild.id}: {nick_err}")
             except Exception as ex:
-                print(f"⚠️ Error syncing nickname in guild {guild.name}: {ex}")
+                pass
                 
         # Check global ticket bot profile name
         try:
@@ -5161,7 +5145,7 @@ async def auto_setup_verification_gate(guild, force_recreate=False, allow_create
 
         # Enforce dynamic verification channel/category overrides automatically
         try:
-            if guild.me.guild_permissions.manage_roles and guild.me.guild_permissions.manage_channels:
+            if allow_create and guild.me.guild_permissions.manage_roles and guild.me.guild_permissions.manage_channels:
                 print(f"DEBUG: Auto-configuring channel permissions for verification gate on guild {guild.name}...")
                 
                 # 1. Loop through Categories

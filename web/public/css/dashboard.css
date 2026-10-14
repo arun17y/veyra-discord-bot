@@ -2688,6 +2688,21 @@ button[onclick*="selectServer"]:hover, button:contains("MANAGE SERVER"):hover {
     will-change: transform;
 }
 
+/* Explicitly disable 3D mouse tilt across all dashboard views, tabs and cards */
+#dashboard-workspace .tilt-card,
+#dashboard-workspace .glass-card,
+.dashboard-container .tilt-card,
+.dashboard-panel .tilt-card,
+.tab-pane .tilt-card,
+.tab-pane .glass-card,
+#tab-content-area .tilt-card,
+#tab-content-area .glass-card,
+.screen-section.dashboard-view .tilt-card {
+    transform: none !important;
+    perspective: none !important;
+    transform-style: flat !important;
+}
+
 .tilt-card-reset {
     transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.35s ease, border-color 0.35s ease !important;
 }
