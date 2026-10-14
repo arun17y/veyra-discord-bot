@@ -4781,6 +4781,17 @@ function updateBotProfileLivePreview() {
 
 function compressAndResizeImage(file, maxWidth, maxHeight, quality, callback) {
     if (!file) return;
+    
+    // If file is already reasonably sized (< 400KB), keep 100% original file to avoid any canvas degradation or black background
+    if (file.size <= 400 * 1024) {
+        const directReader = new FileReader();
+        directReader.onload = function(e) {
+            callback(e.target.result);
+        };
+        directReader.readAsDataURL(file);
+        return;
+    }
+
     const reader = new FileReader();
     reader.onload = function(e) {
         const img = new Image();
@@ -4800,8 +4811,11 @@ function compressAndResizeImage(file, maxWidth, maxHeight, quality, callback) {
             canvas.width = width;
             canvas.height = height;
             const ctx = canvas.getContext('2d');
+            
+            // For PNG files, use image/png so alpha channel transparency is preserved and never turns black
+            const isPng = file.type === 'image/png';
             ctx.drawImage(img, 0, 0, width, height);
-            const dataUrl = canvas.toDataURL('image/jpeg', quality);
+            const dataUrl = canvas.toDataURL(isPng ? 'image/png' : 'image/jpeg', quality);
             callback(dataUrl);
         };
         img.onerror = function() {
@@ -4814,42 +4828,40 @@ function compressAndResizeImage(file, maxWidth, maxHeight, quality, callback) {
 
 function handleBotAvatarUpload(input) {
     if (input.files && input.files[0]) {
-        compressAndResizeImage(input.files[0], 256, 256, 0.88, function(dataUrl) {
+        compressAndResizeImage(input.files[0], 512, 512, 0.9, function(dataUrl) {
             window.currentBotAvatarData = dataUrl;
             
             const previewBox = document.getElementById('bot-avatar-preview-box');
             if (previewBox) {
-                previewBox.innerHTML = `<img src="${dataUrl}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">`;
+                previewBox.innerHTML = `<img src="${dataUrl}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%; display: block;">`;
             }
             
             const cardAvatar = document.getElementById('preview-bot-avatar');
             if (cardAvatar) {
-                cardAvatar.innerHTML = `<img src="${dataUrl}" style="width: 100%; height: 100%; object-fit: cover;">`;
+                cardAvatar.innerHTML = `<img src="${dataUrl}" style="width: 100%; height: 100%; object-fit: cover; display: block;">`;
             }
             
-            showToast("Avatar Ready", "Bot avatar compressed & ready to save!");
+            showToast("Avatar Ready", "Bot avatar ready to save!");
         });
     }
 }
 
 function handleBotBannerUpload(input) {
     if (input.files && input.files[0]) {
-        compressAndResizeImage(input.files[0], 600, 240, 0.88, function(dataUrl) {
+        compressAndResizeImage(input.files[0], 900, 360, 0.9, function(dataUrl) {
             window.currentBotBannerData = dataUrl;
             
             const previewBox = document.getElementById('bot-banner-preview-box');
             if (previewBox) {
-                previewBox.innerHTML = `<img src="${dataUrl}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 4px;">`;
+                previewBox.innerHTML = `<img src="${dataUrl}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 4px; display: block;">`;
             }
             
             const cardBanner = document.getElementById('preview-bot-banner');
             if (cardBanner) {
-                cardBanner.style.backgroundImage = `url('${dataUrl}')`;
-                cardBanner.style.backgroundSize = 'cover';
-                cardBanner.style.backgroundPosition = 'center';
+                cardBanner.style.background = `url("${dataUrl}") center/cover no-repeat`;
             }
             
-            showToast("Banner Ready", "Bot banner compressed & ready to save!");
+            showToast("Banner Ready", "Bot banner ready to save!");
         });
     }
 }
@@ -4932,26 +4944,24 @@ function loadBotProfileSettings(guildId) {
             if (data.avatar) {
                 window.currentBotAvatarData = data.avatar;
                 const previewBox = document.getElementById('bot-avatar-preview-box');
-                if (previewBox) previewBox.innerHTML = `<img src="${data.avatar}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">`;
+                if (previewBox) previewBox.innerHTML = `<img src="${data.avatar}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%; display: block;">`;
                 const cardAvatar = document.getElementById('preview-bot-avatar');
-                if (cardAvatar) cardAvatar.innerHTML = `<img src="${data.avatar}" style="width: 100%; height: 100%; object-fit: cover;">`;
+                if (cardAvatar) cardAvatar.innerHTML = `<img src="${data.avatar}" style="width: 100%; height: 100%; object-fit: cover; display: block;">`;
             } else {
                 window.currentBotAvatarData = '';
                 const previewBox = document.getElementById('bot-avatar-preview-box');
                 if (previewBox) previewBox.innerHTML = `<i class="fas fa-plus" style="font-size: 1.1rem;" id="bot-avatar-plus-icon"></i>`;
                 const cardAvatar = document.getElementById('preview-bot-avatar');
-                if (cardAvatar) cardAvatar.innerHTML = `<img src="assets/bypass_logs_avatar.webp" alt="Bot Avatar" style="width: 100%; height: 100%; object-fit: cover;">`;
+                if (cardAvatar) cardAvatar.innerHTML = `<img src="assets/bypass_logs_avatar.webp" alt="Bot Avatar" style="width: 100%; height: 100%; object-fit: cover; display: block;">`;
             }
 
             if (data.banner) {
                 window.currentBotBannerData = data.banner;
                 const previewBox = document.getElementById('bot-banner-preview-box');
-                if (previewBox) previewBox.innerHTML = `<img src="${data.banner}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 4px;">`;
+                if (previewBox) previewBox.innerHTML = `<img src="${data.banner}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 4px; display: block;">`;
                 const cardBanner = document.getElementById('preview-bot-banner');
                 if (cardBanner) {
-                    cardBanner.style.backgroundImage = `url('${data.banner}')`;
-                    cardBanner.style.backgroundSize = 'cover';
-                    cardBanner.style.backgroundPosition = 'center';
+                    cardBanner.style.background = `url("${data.banner}") center/cover no-repeat`;
                 }
             } else {
                 window.currentBotBannerData = '';
@@ -4959,7 +4969,7 @@ function loadBotProfileSettings(guildId) {
                 if (previewBox) previewBox.innerHTML = `<i class="fas fa-image" style="font-size: 1.1rem;" id="bot-banner-plus-icon"></i>`;
                 const cardBanner = document.getElementById('preview-bot-banner');
                 if (cardBanner) {
-                    cardBanner.style.backgroundImage = "linear-gradient(135deg, #0284c7, #0d9488)";
+                    cardBanner.style.background = "linear-gradient(135deg, #0284c7, #0d9488)";
                 }
             }
 
