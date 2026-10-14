@@ -2,6 +2,7 @@ import sys
 import os
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from transcript_engine import generate_full_html_transcript
+from typing import Union, Optional
 # bot.py - Complete Anti-Nuke Discord Bot Core (VEYRA Ultimate)
 from interactive_ui import (
     HelpView, StatsTeamView, build_main_help_embed, PingView,
@@ -501,9 +502,15 @@ async def on_app_command_error(interaction: discord.Interaction, error: app_comm
                 except Exception as ex:
                     print(f"Fallback 247 connect error: {ex}")
 
+        is_voice_cmd = any(k in cmd_qname for k in ["voice", "247", "join", "play", "vc"])
+        if is_voice_cmd:
+            error_desc = "Please select a valid option or voice channel from Discord's list, or join a voice channel first!"
+        else:
+            error_desc = "Please select a valid user or parameter from Discord's list!"
+
         embed = discord.Embed(
             title="⚠️ Invalid Parameter",
-            description="Please select a valid option or voice channel from Discord's list, or join a voice channel first!",
+            description=error_desc,
             color=discord.Color.from_rgb(24, 24, 27)
         )
         embed.set_footer(text="Powered by VEYRA")
@@ -1907,8 +1914,12 @@ async def uptime_slash(interaction: discord.Interaction):
 
 
 @bot.command(name="avatar", aliases=["av", "pfp", "useravatar"], description="Displays user avatar with download link")
-async def avatar_prefix(ctx, member: discord.Member = None):
-    target = member or ctx.author
+async def avatar_prefix(ctx, user: Optional[Union[discord.Member, discord.User]] = None):
+    target = user or ctx.author
+    if ctx.guild and not isinstance(target, discord.Member):
+        m = ctx.guild.get_member(target.id)
+        if m:
+            target = m
     embed, view = build_avatar_embed(target)
     if view:
         await ctx.send(embed=embed, view=view)
@@ -1917,8 +1928,12 @@ async def avatar_prefix(ctx, member: discord.Member = None):
 
 
 @bot.command(name="banner", aliases=["bn", "userbanner"], description="Displays user banner with download link")
-async def banner_prefix(ctx, member: discord.Member = None):
-    target = member or ctx.author
+async def banner_prefix(ctx, user: Optional[Union[discord.Member, discord.User]] = None):
+    target = user or ctx.author
+    if ctx.guild and not isinstance(target, discord.Member):
+        m = ctx.guild.get_member(target.id)
+        if m:
+            target = m
     user_fetched = None
     try:
         user_fetched = await bot.fetch_user(target.id)
@@ -6827,16 +6842,24 @@ async def plan_slash(interaction: discord.Interaction):
 
 # --- ADDITIONAL SCREENSHOTS COMMANDS ---
 
-@bot.tree.command(name="avatar", description="Displays the avatar of a user")
-async def avatar(interaction: discord.Interaction, member: discord.Member = None):
-    target = member or interaction.user
+@bot.tree.command(name="avatar", description="Displays the avatar of a user with a download link")
+async def avatar(interaction: discord.Interaction, user: Optional[Union[discord.Member, discord.User]] = None):
+    target = user or interaction.user
+    if interaction.guild and not isinstance(target, discord.Member):
+        m = interaction.guild.get_member(target.id)
+        if m:
+            target = m
     embed, view = build_avatar_embed(target)
     await interaction.response.send_message(embed=embed, view=view)
 
 
 @bot.tree.command(name="banner", description="Displays the banner of a user with a download link")
-async def banner(interaction: discord.Interaction, member: discord.Member = None):
-    target = member or interaction.user
+async def banner(interaction: discord.Interaction, user: Optional[Union[discord.Member, discord.User]] = None):
+    target = user or interaction.user
+    if interaction.guild and not isinstance(target, discord.Member):
+        m = interaction.guild.get_member(target.id)
+        if m:
+            target = m
     user_fetched = None
     try:
         user_fetched = await bot.fetch_user(target.id)
@@ -6893,8 +6916,8 @@ async def servericon(interaction: discord.Interaction):
 
 
 @bot.tree.command(name="accountage", description="Displays the account age of your account or a user's account")
-async def accountage(interaction: discord.Interaction, member: discord.Member = None):
-    target = member or interaction.user
+async def accountage(interaction: discord.Interaction, user: Optional[Union[discord.Member, discord.User]] = None):
+    target = user or interaction.user
     import datetime
     delta = datetime.datetime.now(datetime.timezone.utc) - target.created_at
     embed = create_veyra_embed(
