@@ -280,72 +280,8 @@ class AntiNukeGroup(app_commands.Group):
         await interaction.response.send_message(embed=embed, ephemeral=True)
 
 
-# ── 5. SETUP WIZARD & CONTROL PANEL ──────────────────────────────────────────
-class InteractiveSetupWizardView(discord.ui.View):
-    def __init__(self, author: discord.User):
-        super().__init__(timeout=300)
-        self.author = author
-
-    @discord.ui.select(
-        placeholder="Select a module to configure...",
-        options=[
-            discord.SelectOption(label="1. Security & Anti-Nuke", value="antinuke", emoji="🛡️"),
-            discord.SelectOption(label="2. Discord Verification", value="verification", emoji="✅"),
-            discord.SelectOption(label="3. Support Tickets", value="tickets", emoji="🎫"),
-            discord.SelectOption(label="4. Welcome & Goodbye", value="welcome", emoji="👋"),
-            discord.SelectOption(label="5. Disaster Recovery", value="recovery", emoji="💾"),
-            discord.SelectOption(label="6. Audit Logging", value="logs", emoji="📝"),
-        ]
-    )
-    async def select_module(self, interaction: discord.Interaction, select: discord.ui.Select):
-        if interaction.user.id != self.author.id:
-            return await interaction.response.send_message("❌ Unauthorized", ephemeral=True)
-
-        val = select.values[0]
-        embed = discord.Embed(
-            title=f"⚙️ Wizard Setup — {val.title()} Module",
-            description=f"To complete configuration for **{val}**, run the corresponding setup command:\n• `/ {val} setup`",
-            color=discord.Color.from_rgb(124, 58, 237)
-        )
-        await interaction.response.edit_message(embed=embed, view=self)
-
-
-# ── 6. REGISTRATION FUNCTION ────────────────────────────────────────────────
-def setup_verification_and_recovery(bot: commands.Bot):
-    bot.tree.add_command(VerificationSystemGroup(bot))
-    bot.tree.add_command(DisasterRecoveryGroup(bot))
-    bot.tree.add_command(AntiNukeGroup(bot))
-
-    @bot.tree.command(name="setup", description="Interactive multi-step bot setup wizard")
-    async def setup_cmd(interaction: discord.Interaction):
-        if not await is_authorized_manager(interaction, "setup"):
-            return
-        view = InteractiveSetupWizardView(interaction.user)
-        embed = discord.Embed(
-            title="🚀 VEYRA All-in-One Setup Wizard",
-            description="Select a module below to quickly configure security, verification, tickets, welcome, and recovery.",
-            color=discord.Color.from_rgb(124, 58, 237)
-        )
-        await interaction.response.send_message(embed=embed, view=view, ephemeral=True)
-
-    @bot.tree.command(name="panel", description="All-in-One Server Control Panel")
-    async def panel_cmd(interaction: discord.Interaction):
-        if not await is_authorized_manager(interaction, "panel"):
-            return
-        embed = discord.Embed(
-            title="🎛️ VEYRA All-in-One Server Control Center",
-            description="Server security, verification, disaster protection, and automation status.",
-            color=discord.Color.from_rgb(34, 197, 94)
-        )
-        embed.add_field(name="🛡️ Anti-Nuke", value="🟢 Active", inline=True)
-        embed.add_field(name="✅ Verification", value="🟢 Active", inline=True)
-        embed.add_field(name="💾 Recovery Snapshot", value="🟢 Ready", inline=True)
-        embed.add_field(name="🎙️ 24/7 Voice", value="🟢 Enabled", inline=True)
-        embed.set_footer(text=f"Server: {interaction.guild.name}")
-        await interaction.response.send_message(embed=embed, ephemeral=True)
-
-    @bot.tree.command(name="enableall", description="1-Click Enable ALL 16 Security & Anti-Nuke Modules")
-    async def enableall_cmd(interaction: discord.Interaction):
+    @app_commands.command(name="enableall", description="1-Click Enable ALL 16 Security & Anti-Nuke Modules")
+    async def enableall_cmd(self, interaction: discord.Interaction):
         if not await is_authorized_manager(interaction, "enableall"):
             return
         await interaction.response.defer(ephemeral=False)
@@ -387,13 +323,13 @@ def setup_verification_and_recovery(bot: commands.Bot):
         embed.set_footer(text=f"Executed by {interaction.user.name} • {ist_now}")
         await interaction.followup.send(embed=embed)
 
-    @bot.tree.command(name="punishall", description="Set punishment type across ALL security triggers (Ban, Kick, Quarantine)")
+    @app_commands.command(name="punishall", description="Set punishment type across ALL security triggers (Ban, Kick, Quarantine)")
     @app_commands.choices(punishment=[
         app_commands.Choice(name="Ban (Permanent)", value="Ban"),
         app_commands.Choice(name="Kick (Remove Member)", value="Kick"),
         app_commands.Choice(name="Quarantine (Remove Roles)", value="Quarantine")
     ])
-    async def punishall_cmd(interaction: discord.Interaction, punishment: app_commands.Choice[str]):
+    async def punishall_cmd(self, interaction: discord.Interaction, punishment: app_commands.Choice[str]):
         if not await is_authorized_manager(interaction, "punishall"):
             return
         await interaction.response.defer(ephemeral=False)
@@ -426,8 +362,8 @@ def setup_verification_and_recovery(bot: commands.Bot):
         embed.set_footer(text=f"Executed by {interaction.user.name} • {ist_now}")
         await interaction.followup.send(embed=embed)
 
-    @bot.tree.command(name="limitall", description="Set threshold action limit across ALL security modules")
-    async def limitall_cmd(interaction: discord.Interaction, limit: int):
+    @app_commands.command(name="limitall", description="Set threshold action limit across ALL security modules")
+    async def limitall_cmd(self, interaction: discord.Interaction, limit: int):
         if not await is_authorized_manager(interaction, "limitall"):
             return
         if limit < 1 or limit > 50:
@@ -458,8 +394,8 @@ def setup_verification_and_recovery(bot: commands.Bot):
         embed.set_footer(text=f"Executed by {interaction.user.name} • {ist_now}")
         await interaction.followup.send(embed=embed)
 
-    @bot.tree.command(name="beastmode", description="🔥 Emergency Fortress Mode: Enables all modules, sets Ban punishment & limit 1")
-    async def beastmode_cmd(interaction: discord.Interaction):
+    @app_commands.command(name="beastmode", description="🔥 Emergency Fortress Mode: Enables all modules, sets Ban punishment & limit 1")
+    async def beastmode_cmd(self, interaction: discord.Interaction):
         if not await is_authorized_manager(interaction, "beastmode"):
             return
         await interaction.response.defer(ephemeral=False)
@@ -496,8 +432,8 @@ def setup_verification_and_recovery(bot: commands.Bot):
         embed.set_footer(text=f"Armed by {interaction.user.name} • {ist_now}")
         await interaction.followup.send(embed=embed)
 
-    @bot.tree.command(name="disableall", description="Pause or disable all security modules for this server")
-    async def disableall_cmd(interaction: discord.Interaction):
+    @app_commands.command(name="disableall", description="Pause or disable all security modules for this server")
+    async def disableall_cmd(self, interaction: discord.Interaction):
         if not await is_authorized_manager(interaction, "disableall"):
             return
         await interaction.response.defer(ephemeral=False)
@@ -529,4 +465,40 @@ def setup_verification_and_recovery(bot: commands.Bot):
         embed.set_footer(text=f"Executed by {interaction.user.name} • {ist_now}")
         await interaction.followup.send(embed=embed)
 
-    print("✅ Registered Verification, Disaster Recovery & Setup Wizard Systems.")
+
+# ── 5. SETUP WIZARD & CONTROL PANEL ──────────────────────────────────────────
+class InteractiveSetupWizardView(discord.ui.View):
+    def __init__(self, author: discord.User):
+        super().__init__(timeout=300)
+        self.author = author
+
+    @discord.ui.select(
+        placeholder="Select a module to configure...",
+        options=[
+            discord.SelectOption(label="1. Security & Anti-Nuke", value="antinuke", emoji="🛡️"),
+            discord.SelectOption(label="2. Discord Verification", value="verification", emoji="✅"),
+            discord.SelectOption(label="3. Support Tickets", value="tickets", emoji="🎫"),
+            discord.SelectOption(label="4. Welcome & Goodbye", value="welcome", emoji="👋"),
+            discord.SelectOption(label="5. Disaster Recovery", value="recovery", emoji="💾"),
+            discord.SelectOption(label="6. Audit Logging", value="logs", emoji="📝"),
+        ]
+    )
+    async def select_module(self, interaction: discord.Interaction, select: discord.ui.Select):
+        if interaction.user.id != self.author.id:
+            return await interaction.response.send_message("❌ Unauthorized", ephemeral=True)
+
+        val = select.values[0]
+        embed = discord.Embed(
+            title=f"⚙️ Wizard Setup — {val.title()} Module",
+            description=f"To complete configuration for **{val}**, run the corresponding setup command:\n• `/ {val} setup`",
+            color=discord.Color.from_rgb(124, 58, 237)
+        )
+        await interaction.response.edit_message(embed=embed, view=self)
+
+
+# ── 6. REGISTRATION FUNCTION ────────────────────────────────────────────────
+def setup_verification_and_recovery(bot: commands.Bot):
+    bot.tree.add_command(VerificationSystemGroup(bot))
+    bot.tree.add_command(DisasterRecoveryGroup(bot))
+    bot.tree.add_command(AntiNukeGroup(bot))
+    print("✅ Registered Verification, Disaster Recovery & AntiNuke Systems.")

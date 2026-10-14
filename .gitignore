@@ -21,4 +21,5 @@ database/*.db
 database/*.db-*
 database/**/*.db
 database/backups/
+*.dll
 

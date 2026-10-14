@@ -282,6 +282,144 @@ class PostgresConnectionWrapper:
             self.commit()
         self.close()
 
+_sqlite_initialized = False
+
+def _ensure_sqlite_schema(conn):
+    global _sqlite_initialized
+    if _sqlite_initialized:
+        return
+    try:
+        cur = conn.cursor()
+        cur.executescript("""
+            CREATE TABLE IF NOT EXISTS guild_settings (
+                guild_id TEXT PRIMARY KEY,
+                prefix TEXT DEFAULT '?',
+                nickname TEXT DEFAULT 'SENTRIX',
+                timezone TEXT DEFAULT 'UTC',
+                updates_channel TEXT DEFAULT '#welcome',
+                moderation_logs TEXT DEFAULT 'none',
+                security_logs TEXT DEFAULT 'none',
+                reports_enabled INTEGER DEFAULT 0,
+                reports_channel TEXT DEFAULT 'none',
+                reports_frequency TEXT DEFAULT 'Monthly',
+                disabled_commands TEXT DEFAULT '[]'
+            );
+            CREATE TABLE IF NOT EXISTS pending_embed_posts (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                guild_id TEXT,
+                channel TEXT,
+                content TEXT,
+                embed_json TEXT,
+                status TEXT DEFAULT 'pending',
+                created_at TEXT
+            );
+            CREATE TABLE IF NOT EXISTS ticket_panels (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                guild_id TEXT,
+                name TEXT,
+                support_roles TEXT DEFAULT '[]',
+                category_id TEXT DEFAULT 'none',
+                panel_title TEXT DEFAULT 'Create a Ticket',
+                panel_description TEXT DEFAULT 'Click the button below to open a ticket.',
+                panel_color TEXT DEFAULT '#a855f7',
+                panel_button_text TEXT DEFAULT 'Create Ticket',
+                ticket_title TEXT DEFAULT 'Support Ticket',
+                ticket_description TEXT DEFAULT 'Thank you for contacting support.',
+                ticket_count INTEGER DEFAULT 0,
+                auto_close INTEGER DEFAULT 0,
+                auto_delete INTEGER DEFAULT 0,
+                categories TEXT,
+                pending_channel_id TEXT
+            );
+            CREATE TABLE IF NOT EXISTS tickets (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                guild_id TEXT,
+                panel_id INTEGER,
+                channel_id TEXT,
+                user_id TEXT,
+                username TEXT,
+                ticket_number INTEGER,
+                status TEXT DEFAULT 'open',
+                claimed_by TEXT,
+                open_time TEXT,
+                close_time TEXT,
+                close_reason TEXT,
+                transcript TEXT,
+                topic TEXT
+            );
+            CREATE TABLE IF NOT EXISTS ticket_settings (
+                guild_id TEXT PRIMARY KEY,
+                claim_mode TEXT DEFAULT 'private',
+                ping_author INTEGER DEFAULT 1,
+                max_tickets INTEGER DEFAULT 100,
+                embed_color TEXT DEFAULT '#d4af37',
+                close_allow_user INTEGER DEFAULT 1,
+                close_allow_staff INTEGER DEFAULT 1,
+                close_allow_roles TEXT DEFAULT '[]',
+                cooldown_seconds INTEGER DEFAULT 60,
+                lockdown INTEGER DEFAULT 0,
+                logs_channel_id TEXT DEFAULT 'none',
+                auto_close_hours INTEGER DEFAULT 0
+            );
+            CREATE TABLE IF NOT EXISTS reports_tracker (
+                guild_id TEXT PRIMARY KEY,
+                last_report TEXT
+            );
+            CREATE TABLE IF NOT EXISTS voice_247_settings (
+                guild_id TEXT PRIMARY KEY,
+                channel_id TEXT NOT NULL,
+                enabled INTEGER DEFAULT 1,
+                last_reconnect TEXT,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            );
+            CREATE TABLE IF NOT EXISTS server_central_settings (
+                guild_id TEXT PRIMARY KEY,
+                mod_log_channel TEXT,
+                sec_log_channel TEXT,
+                audit_log_channel TEXT,
+                mute_role_id TEXT,
+                bot_manager_role_id TEXT,
+                auto_lockdown INTEGER DEFAULT 0,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            );
+            CREATE TABLE IF NOT EXISTS welcome_settings (
+                guild_id TEXT PRIMARY KEY,
+                enabled INTEGER DEFAULT 1,
+                channel TEXT DEFAULT '#welcome',
+                message TEXT,
+                embed_json TEXT,
+                color TEXT DEFAULT '#a855f7',
+                title TEXT DEFAULT '',
+                description TEXT DEFAULT '',
+                image TEXT DEFAULT '',
+                footer TEXT DEFAULT '',
+                author_name TEXT,
+                author_icon TEXT,
+                footer_icon TEXT,
+                thumbnail TEXT
+            );
+            CREATE TABLE IF NOT EXISTS leave_settings (
+                guild_id TEXT PRIMARY KEY,
+                enabled INTEGER DEFAULT 1,
+                channel TEXT DEFAULT '#welcome',
+                message TEXT,
+                embed_json TEXT,
+                color TEXT DEFAULT '#a855f7',
+                title TEXT DEFAULT '',
+                description TEXT DEFAULT '',
+                image TEXT DEFAULT '',
+                footer TEXT DEFAULT '',
+                thumbnail TEXT,
+                author_name TEXT,
+                author_icon TEXT,
+                footer_icon TEXT
+            );
+        """)
+        conn.commit()
+        _sqlite_initialized = True
+    except Exception as ex:
+        print(f"[SQLITE INIT NOTICE] {ex}")
+
 def get_db():
     """
     Returns Neon PostgreSQL connection wrapper if DATABASE_URL is set,
@@ -303,6 +441,8 @@ def get_db():
                 pass
                 
     # Fallback to SQLite
+    os.makedirs(os.path.dirname(DB_PATH_VEYRA), exist_ok=True)
     conn = sqlite3.connect(DB_PATH_VEYRA, timeout=30.0)
     conn.row_factory = sqlite3.Row
+    _ensure_sqlite_schema(conn)
     return conn

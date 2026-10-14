@@ -9,7 +9,51 @@ import asyncio
 THEME_COLOR = discord.Color.from_rgb(43, 45, 49)
 
 def setup_module_commands(bot: commands.Bot):
+    orig_command = bot.command
+    orig_group = bot.group
 
+    def safe_command(*args, **kwargs):
+        def decorator(func):
+            name = kwargs.get('name', func.__name__)
+            aliases = kwargs.get('aliases', [])
+            existing = bot.get_command(name)
+            if existing:
+                bot.remove_command(name)
+            for a in aliases:
+                ex_a = bot.get_command(a)
+                if ex_a:
+                    bot.remove_command(a)
+            try:
+                cmd = commands.command(*args, **kwargs)(func)
+                bot.add_command(cmd)
+                return cmd
+            except Exception as ex:
+                return func
+        return decorator
+
+    def safe_group(*args, **kwargs):
+        def decorator(func):
+            name = kwargs.get('name', func.__name__)
+            existing = bot.get_command(name)
+            if existing:
+                bot.remove_command(name)
+            try:
+                grp = commands.group(*args, **kwargs)(func)
+                bot.add_command(grp)
+                return grp
+            except Exception as ex:
+                return func
+        return decorator
+
+    bot.command = safe_command
+    bot.group = safe_group
+    try:
+        _register_all_modules(bot)
+    finally:
+        bot.command = orig_command
+        bot.group = orig_group
+
+def _register_all_modules(bot: commands.Bot):
     # ==================== FUN COMMANDS ====================
 
     @bot.command(name="dare", description="Get a random dare")

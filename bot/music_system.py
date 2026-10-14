@@ -13,7 +13,7 @@ import sys
 import time
 from collections import deque
 from datetime import datetime, timezone
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Optional, Tuple, Union
 
 import aiohttp
 import discord
@@ -2875,13 +2875,99 @@ def setup_music_system(bot: commands.Bot):
             ctx = await bot.get_context(interaction)
             await cmd_247(ctx)
 
-    @bot.command(name="247", aliases=["24/7", "stay"], description="Toggle 24/7 standby mode in voice channel")
-    async def cmd_247(ctx: commands.Context):
+    @bot.command(name="247", aliases=["24/7", "stay"], description="Configure or toggle 24/7 standby mode in voice channel")
+    async def cmd_247(ctx: commands.Context, action: Optional[str] = None, channel: Optional[Union[discord.VoiceChannel, discord.StageChannel]] = None):
+        guild = ctx.guild
+        if not guild:
+            return
+        
+        # If action is 'set' or 'join'
+        sub = (action or "").lower().strip()
+        if sub in ("set", "join", "connect"):
+            target_vc = channel or getattr(ctx.author.voice, "channel", None) if hasattr(ctx.author, "voice") else None
+            if not target_vc:
+                embed = err("Voice Channel Required", "Please join a voice channel first or mention a valid voice channel (`?247 set #channel`).")
+                return await send_response(ctx, embed=embed)
+            try:
+                vc = guild.voice_client
+                if vc:
+                    if vc.channel.id != target_vc.id and vc.is_connected():
+                        await vc.move_to(target_vc)
+                else:
+                    await target_vc.connect(reconnect=True, timeout=30.0)
+
+                conn = get_db()
+                cursor = conn.cursor()
+                cursor.execute("""
+                    INSERT INTO voice_247_settings (guild_id, channel_id, enabled, last_reconnect, updated_at)
+                    VALUES (?, ?, 1, ?, CURRENT_TIMESTAMP)
+                    ON CONFLICT(guild_id) DO UPDATE SET channel_id = ?, enabled = 1, updated_at = CURRENT_TIMESTAMP
+                """, (str(guild.id), str(target_vc.id), datetime.now(timezone.utc).isoformat(), str(target_vc.id)))
+                conn.commit()
+                conn.close()
+
+                p = get_player(bot, guild.id)
+                p.stay_247 = True
+                MusicDB.set_247(guild.id, 1, target_vc.id, ctx.channel.id)
+
+                embed = ok("24/7 Voice System Active", f"Connected and locked 24/7 to {target_vc.mention}.\nBot will automatically reconnect on restart.")
+                return await send_response(ctx, embed=embed)
+            except Exception as e:
+                return await send_response(ctx, embed=err("Connection Error", f"Could not connect to {target_vc.mention}: `{e}`"))
+
+        elif sub in ("leave", "stop", "off", "disable"):
+            conn = get_db()
+            cursor = conn.cursor()
+            cursor.execute("UPDATE voice_247_settings SET enabled = 0 WHERE guild_id = ?", (str(guild.id),))
+            conn.commit()
+            conn.close()
+
+            p = get_player(bot, guild.id)
+            p.stay_247 = False
+            MusicDB.set_247(guild.id, 0, None, None)
+
+            vc = guild.voice_client
+            if vc and vc.is_connected():
+                await vc.disconnect(force=True)
+
+            embed = ok("24/7 Voice Disabled", "Bot disconnected and 24/7 persistence turned off.")
+            return await send_response(ctx, embed=embed)
+
+        elif sub in ("status", "info"):
+            conn = get_db()
+            cursor = conn.cursor()
+            cursor.execute("SELECT * FROM voice_247_settings WHERE guild_id = ?", (str(guild.id),))
+            row = cursor.fetchone()
+            conn.close()
+            enabled = bool(row['enabled']) if row else False
+            ch_id = int(row['channel_id']) if (row and row['channel_id']) else None
+            ch = guild.get_channel(ch_id) if ch_id else None
+            status_desc = f"**Status:** {'🟢 Active (24/7)' if enabled else '🔴 Inactive'}\n"
+            status_desc += f"**Bound Channel:** {ch.mention if ch else 'None'}\n"
+            status_desc += f"**Voice State:** {'Connected' if (guild.voice_client and guild.voice_client.is_connected()) else 'Disconnected'}"
+            embed = ok("24/7 Voice Status", status_desc)
+            return await send_response(ctx, embed=embed)
+
+        # Default: toggle
         p = get_player(bot, ctx.guild.id)
         p.stay_247 = not p.stay_247
         ch_id = p.voice.channel.id if (p.voice and p.voice.channel) else None
         txt_id = ctx.channel.id
         MusicDB.set_247(ctx.guild.id, 1 if p.stay_247 else 0, ch_id, txt_id)
+
+        conn = get_db()
+        cursor = conn.cursor()
+        if p.stay_247 and ch_id:
+            cursor.execute("""
+                INSERT INTO voice_247_settings (guild_id, channel_id, enabled, last_reconnect, updated_at)
+                VALUES (?, ?, 1, ?, CURRENT_TIMESTAMP)
+                ON CONFLICT(guild_id) DO UPDATE SET channel_id = ?, enabled = 1, updated_at = CURRENT_TIMESTAMP
+            """, (str(guild.id), str(ch_id), datetime.now(timezone.utc).isoformat(), str(ch_id)))
+        else:
+            cursor.execute("UPDATE voice_247_settings SET enabled = 0 WHERE guild_id = ?", (str(guild.id),))
+        conn.commit()
+        conn.close()
+
         await send_response(ctx, embed=ok("24/7 Mode", f"24/7 Standby Mode is now **{'Enabled ✅' if p.stay_247 else 'Disabled ❌'}**."))
 
     try:
@@ -2889,7 +2975,7 @@ def setup_music_system(bot: commands.Bot):
     except Exception as e:
         logger.warning("Could not add MusicSlashGroup: %s", e)
 
-    # Direct top-level slash commands
+    # Core top-level slash commands
     @bot.tree.command(name="play", description="Play any song or playlist from YouTube or Spotify")
     @app_commands.describe(query="Song title, URL, or Spotify link")
     async def tree_play(interaction: discord.Interaction, query: str):
@@ -2932,55 +3018,6 @@ def setup_music_system(bot: commands.Bot):
     async def tree_queue(interaction: discord.Interaction):
         ctx = await bot.get_context(interaction)
         await cmd_queue(ctx)
-
-    @bot.tree.command(name="volume", description="Set playback volume (1-200)")
-    @app_commands.describe(level="Volume percentage")
-    async def tree_volume(interaction: discord.Interaction, level: Optional[int] = None):
-        ctx = await bot.get_context(interaction)
-        await cmd_volume(ctx, level=level)
-
-    @bot.tree.command(name="loop", description="Set loop mode")
-    @app_commands.choices(mode=[
-        app_commands.Choice(name="Off", value="off"),
-        app_commands.Choice(name="Track", value="track"),
-        app_commands.Choice(name="Queue", value="queue"),
-    ])
-    async def tree_loop(interaction: discord.Interaction, mode: str = "track"):
-        ctx = await bot.get_context(interaction)
-        await cmd_loop(ctx, mode=mode)
-
-    @bot.tree.command(name="shuffle", description="Shuffle queue")
-    async def tree_shuffle(interaction: discord.Interaction):
-        ctx = await bot.get_context(interaction)
-        await cmd_shuffle(ctx)
-
-    @bot.tree.command(name="nowplaying", description="Show currently playing track")
-    async def tree_np(interaction: discord.Interaction):
-        ctx = await bot.get_context(interaction)
-        await cmd_np(ctx)
-
-    @bot.tree.command(name="seek", description="Seek to position in playing song")
-    @app_commands.describe(position="Timestamp e.g. 1:30 or seconds 90")
-    async def tree_seek(interaction: discord.Interaction, position: str):
-        ctx = await bot.get_context(interaction)
-        await cmd_seek(ctx, position=position)
-
-    @bot.tree.command(name="lyrics", description="Get lyrics of playing song or search term")
-    @app_commands.describe(query="Song title or leave empty for current song")
-    async def tree_lyrics(interaction: discord.Interaction, query: Optional[str] = None):
-        ctx = await bot.get_context(interaction)
-        await cmd_lyrics(ctx, query=query)
-
-    @bot.tree.command(name="247", description="Toggle 24/7 standby mode in voice channel")
-    async def tree_247(interaction: discord.Interaction):
-        ctx = await bot.get_context(interaction)
-        await cmd_247(ctx)
-
-    @bot.tree.command(name="spotify", description="Play a track or playlist from Spotify")
-    @app_commands.describe(query="Spotify track/playlist URL or song name")
-    async def tree_spotify(interaction: discord.Interaction, query: str):
-        ctx = await bot.get_context(interaction)
-        await cmd_play(ctx, query=query)
 
     bot.command = orig_command
     bot.tree.command = orig_tree_command

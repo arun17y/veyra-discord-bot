@@ -1051,4 +1051,119 @@ def setup_server_control_system(bot: commands.Bot):
     bot.tree.add_command(ServerControlGroup(bot))
     bot.tree.add_command(ServerBackupGroup(bot))
     bot.tree.add_command(SchedulerGroup(bot))
-    print("✅ Registered All-in-One Server Control Command Groups.")
+
+    @bot.tree.command(name="set247", description="Connect bot 24/7 to a voice channel")
+    @app_commands.describe(channel="Voice channel to lock 24/7 (defaults to your current voice channel)")
+    async def tree_set247(interaction: discord.Interaction, channel: typing.Optional[discord.VoiceChannel] = None):
+        await interaction.response.defer()
+        if not await is_authorized_manager(interaction, "247"):
+            return
+        guild = interaction.guild
+        target_vc = channel or resolve_member_voice_channel(guild, interaction.user.id)
+        if not target_vc:
+            embed = discord.Embed(
+                title="⚠️ Voice Channel Required",
+                description="Please join a voice channel first or specify a valid voice channel (`/set247 #channel`)!",
+                color=discord.Color.from_rgb(24, 24, 27)
+            )
+            embed.set_footer(text="Powered by VEYRA")
+            return await interaction.followup.send(embed=embed)
+
+        try:
+            vc = guild.voice_client
+            if vc:
+                if vc.channel.id != target_vc.id and vc.is_connected():
+                    await vc.move_to(target_vc)
+            else:
+                await target_vc.connect(reconnect=True, timeout=30.0)
+
+            conn = get_db()
+            cursor = conn.cursor()
+            cursor.execute("""
+                INSERT OR REPLACE INTO voice_247_settings (guild_id, channel_id, enabled, last_reconnect, updated_at)
+                VALUES (?, ?, 1, ?, CURRENT_TIMESTAMP)
+            """, (str(guild.id), str(target_vc.id), datetime.now(timezone.utc).isoformat()))
+            conn.commit()
+            conn.close()
+
+            await dispatch_discord_log(guild, "audit", "24/7 Voice Connection Enabled", f"Bot locked 24/7 to voice channel {target_vc.mention}.", 0x22c55e)
+            embed = discord.Embed(
+                title="🟢 24/7 Voice System Active",
+                description=f"Connected to {target_vc.mention}.\nConnection saved and will automatically restore on bot restart.",
+                color=discord.Color.from_rgb(24, 24, 27)
+            )
+            embed.set_footer(text="Powered by VEYRA")
+            await interaction.followup.send(embed=embed)
+        except Exception as e:
+            await interaction.followup.send(f"❌ Failed to connect to voice channel: `{e}`")
+
+    @bot.tree.command(name="voice247", description="Configure or view 24/7 voice status")
+    @app_commands.describe(channel="Voice channel to set 24/7 (optional)")
+    async def tree_voice247(interaction: discord.Interaction, channel: typing.Optional[discord.VoiceChannel] = None):
+        if channel:
+            return await tree_set247(interaction, channel=channel)
+        guild = interaction.guild
+        conn = get_db()
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM voice_247_settings WHERE guild_id = ?", (str(guild.id),))
+        row = cursor.fetchone()
+        conn.close()
+        vc = guild.voice_client
+        is_connected = vc and vc.is_connected()
+        vc_name = vc.channel.name if is_connected else "Not Connected"
+        enabled = row['enabled'] if row else 0
+        target_ch_id = row['channel_id'] if row else None
+        target_ch = guild.get_channel(int(target_ch_id)) if target_ch_id else None
+
+        embed = discord.Embed(
+            title="🎙️ 24/7 Voice System Status",
+            color=discord.Color.from_rgb(34, 197, 94) if is_connected else discord.Color.from_rgb(239, 68, 68)
+        )
+        embed.add_field(name="24/7 Enabled", value="🟢 Yes" if enabled == 1 else "🔴 No", inline=True)
+        embed.add_field(name="Live Connection", value=f"🟢 `{vc_name}`" if is_connected else "🔴 Offline", inline=True)
+        embed.add_field(name="Configured Channel", value=target_ch.mention if target_ch else "`None`", inline=True)
+        embed.set_footer(text=f"Server: {guild.name}")
+        await interaction.response.send_message(embed=embed)
+
+    @bot.command(name="set247", aliases=["voice247"], description="Connect bot 24/7 to a voice channel")
+    async def prefix_set247(ctx, channel: typing.Optional[typing.Union[discord.VoiceChannel, discord.StageChannel]] = None):
+        guild = ctx.guild
+        if not guild:
+            return
+        target_vc = channel or resolve_member_voice_channel(guild, ctx.author.id)
+        if not target_vc:
+            embed = discord.Embed(
+                title="⚠️ Voice Channel Required",
+                description="Please join a voice channel first or mention one (`?set247 #channel`)!",
+                color=discord.Color.from_rgb(24, 24, 27)
+            )
+            embed.set_footer(text="Powered by VEYRA")
+            return await ctx.send(embed=embed)
+        try:
+            vc = guild.voice_client
+            if vc:
+                if vc.channel.id != target_vc.id and vc.is_connected():
+                    await vc.move_to(target_vc)
+            else:
+                await target_vc.connect(reconnect=True, timeout=30.0)
+
+            conn = get_db()
+            cursor = conn.cursor()
+            cursor.execute("""
+                INSERT OR REPLACE INTO voice_247_settings (guild_id, channel_id, enabled, last_reconnect, updated_at)
+                VALUES (?, ?, 1, ?, CURRENT_TIMESTAMP)
+            """, (str(guild.id), str(target_vc.id), datetime.now(timezone.utc).isoformat()))
+            conn.commit()
+            conn.close()
+
+            embed = discord.Embed(
+                title="🟢 24/7 Voice System Active",
+                description=f"Connected and locked 24/7 to {target_vc.mention}.\nBot will automatically reconnect on restart.",
+                color=discord.Color.from_rgb(24, 24, 27)
+            )
+            embed.set_footer(text="Powered by VEYRA")
+            await ctx.send(embed=embed)
+        except Exception as e:
+            await ctx.send(f"❌ Failed to connect to voice channel: `{e}`")
+
+    print("✅ Registered All-in-One Server Control Command Groups & 24/7 Commands.")

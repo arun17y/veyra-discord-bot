@@ -2463,17 +2463,7 @@ async def nick_command(ctx, member: discord.Member, *, new_nick: str):
         await ctx.send(f"❌ Failed to change nickname: {e}")
 
 
-@bot.tree.command(name="nick", description="Change a server member's nickname")
-@app_commands.describe(member="Member to change nickname for", new_nick="New nickname")
-@app_commands.checks.has_permissions(manage_nicknames=True)
-async def slash_nick(interaction: discord.Interaction, member: discord.Member, new_nick: str):
-    await interaction.response.defer()
-    try:
-        await member.edit(nick=new_nick)
-        embed = build_nick_embed(member, interaction.user, new_nick)
-        await interaction.followup.send(embed=embed)
-    except Exception as e:
-        await interaction.followup.send(f"❌ Failed to change nickname: {e}", ephemeral=True)
+
 
 
 # --- 6. COMMAND DIRECTIVES ---
@@ -3857,12 +3847,21 @@ From raids and nukes to spam and unwanted users, I'll protect your community wit
         
     print(f"📡 Cached invite links for {len(bot.guilds)} guilds.")
     
-    # Sync global command tree ONCE cleanly without per-guild rate limiting
+    # 1. Sync global command tree
     try:
         synced_global = await bot.tree.sync()
-        print(f"📡 Cleanly synced {len(synced_global)} global slash commands without rate-limit delay.")
+        print(f"📡 Cleanly synced {len(synced_global)} global slash commands.")
     except Exception as e:
         print(f"❌ Global command tree sync notice: {e}")
+
+    # 2. Instant Guild sync (updates Discord desktop/web/mobile slash command UI immediately)
+    for g in bot.guilds:
+        try:
+            bot.tree.copy_global_to(guild=g)
+            synced_g = await bot.tree.sync(guild=g)
+            print(f"⚡ Instant synced {len(synced_g)} slash commands to guild: {g.name} ({g.id})")
+        except Exception as ge:
+            print(f"⚠️ Guild sync notice for {g.id}: {ge}")
         
     print(f"📡 Waiting for audit log event logs...")
     print(f"=============================================\n")
@@ -6369,9 +6368,7 @@ async def unmute_root(interaction: discord.Interaction, member: discord.Member):
         await interaction.response.send_message(f"❌ Failed to unmute: {e}", ephemeral=True)
 
 
-@bot.tree.command(name="user", description="Information about you or the selected user")
-async def user_root(interaction: discord.Interaction, member: discord.Member = None):
-    await whois(interaction, member)
+
 
 
 @bot.tree.command(name="premium", description="Shows information about VEYRA Premium")
@@ -6449,9 +6446,7 @@ async def send_server_info_helper(interaction: discord.Interaction):
     view = ServerInfoView(guild)
     await interaction.response.send_message(embed=embed, view=view)
 
-@bot.tree.command(name="server", description="Information about the server")
-async def server_root(interaction: discord.Interaction):
-    await send_server_info_helper(interaction)
+
 
 @bot.tree.command(name="serverinfo", description="Displays the information about a server")
 async def serverinfo_root(interaction: discord.Interaction):
@@ -7679,7 +7674,6 @@ async def badges_command(interaction: discord.Interaction, user: discord.User = 
     await interaction.response.send_message(embed=embed)
 
 
-@bot.tree.command(name="tstart", description="Starts a timer")
 async def tstart(interaction: discord.Interaction, seconds: int):
     await interaction.response.send_message(f"⏱️ Timer started for **{seconds}** seconds!")
     import asyncio
@@ -7746,7 +7740,6 @@ async def userinfo_command(interaction: discord.Interaction, member: discord.Mem
     await whois(interaction, member)
 
 
-@bot.tree.command(name="variables", description="Displays the variables so that you can use them in custom welcome message")
 async def variables_command(interaction: discord.Interaction):
     await show_variables_helper(interaction)
 
@@ -7844,7 +7837,6 @@ async def warnings(interaction: discord.Interaction, member: discord.Member):
     await interaction.response.send_message(embed=embed)
 
 
-@bot.tree.command(name="whois", description="Get user information")
 async def whois(interaction: discord.Interaction, member: discord.Member = None):
     target = member or interaction.user
     embed = discord.Embed(title=f"👤 User Info - {target}", color=discord.Color.from_rgb(24, 24, 27))
@@ -7917,9 +7909,7 @@ class SlowmodeGroup(app_commands.Group):
         await self.channel(interaction, seconds, channel)
 
 
-@bot.tree.command(name="space", description="Sends a spacer message")
-async def space(interaction: discord.Interaction):
-    await interaction.response.send_message("‎\n‎\n‎")
+
 
 
 # --- NEW LATEST SCREENSHOT COMMANDS ---
