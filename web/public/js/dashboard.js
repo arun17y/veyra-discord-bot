@@ -4782,8 +4782,20 @@ function updateBotProfileLivePreview() {
 function compressAndResizeImage(file, maxWidth, maxHeight, quality, callback) {
     if (!file) return;
     
-    // If file is already reasonably sized (< 400KB), keep 100% original file to avoid any canvas degradation or black background
-    if (file.size <= 400 * 1024) {
+    // Check 10MB ceiling
+    if (file.size > 10 * 1024 * 1024) {
+        if (typeof showToast === 'function') {
+            showToast("File Too Large", "Maximum image size is 10MB.", "error");
+        }
+        return;
+    }
+
+    const isGif = file.type === 'image/gif' || file.name.toLowerCase().endsWith('.gif');
+    const isPng = file.type === 'image/png' || file.name.toLowerCase().endsWith('.png');
+    const isWebp = file.type === 'image/webp' || file.name.toLowerCase().endsWith('.webp');
+
+    // GIFs must NEVER be rendered to canvas — canvas drops all animation frames and fails to export GIF
+    if (isGif) {
         const directReader = new FileReader();
         directReader.onload = function(e) {
             callback(e.target.result);
@@ -4792,6 +4804,17 @@ function compressAndResizeImage(file, maxWidth, maxHeight, quality, callback) {
         return;
     }
 
+    // If file is already reasonably sized (<= 2MB), preserve original file 100% without canvas degradation
+    if (file.size <= 2 * 1024 * 1024) {
+        const directReader = new FileReader();
+        directReader.onload = function(e) {
+            callback(e.target.result);
+        };
+        directReader.readAsDataURL(file);
+        return;
+    }
+
+    // For files between 2MB and 10MB, downscale proportionally on canvas
     const reader = new FileReader();
     reader.onload = function(e) {
         const img = new Image();
@@ -4812,10 +4835,15 @@ function compressAndResizeImage(file, maxWidth, maxHeight, quality, callback) {
             canvas.height = height;
             const ctx = canvas.getContext('2d');
             
-            // For PNG files, use image/png so alpha channel transparency is preserved and never turns black
-            const isPng = file.type === 'image/png';
+            // Clear canvas to ensure complete transparency support
+            ctx.clearRect(0, 0, width, height);
             ctx.drawImage(img, 0, 0, width, height);
-            const dataUrl = canvas.toDataURL(isPng ? 'image/png' : 'image/jpeg', quality);
+
+            let exportType = 'image/jpeg';
+            if (isPng) exportType = 'image/png';
+            else if (isWebp) exportType = 'image/webp';
+
+            const dataUrl = canvas.toDataURL(exportType, quality);
             callback(dataUrl);
         };
         img.onerror = function() {
@@ -4823,12 +4851,16 @@ function compressAndResizeImage(file, maxWidth, maxHeight, quality, callback) {
         };
         img.src = e.target.result;
     };
+    reader.onerror = function() {
+        if (typeof showToast === 'function') showToast("Read Error", "Failed to read image file.", "error");
+    };
     reader.readAsDataURL(file);
 }
 
 function handleBotAvatarUpload(input) {
     if (input.files && input.files[0]) {
-        compressAndResizeImage(input.files[0], 512, 512, 0.9, function(dataUrl) {
+        const file = input.files[0];
+        compressAndResizeImage(file, 512, 512, 0.9, function(dataUrl) {
             window.currentBotAvatarData = dataUrl;
             
             const previewBox = document.getElementById('bot-avatar-preview-box');
@@ -4843,12 +4875,14 @@ function handleBotAvatarUpload(input) {
             
             showToast("Avatar Ready", "Bot avatar ready to save!");
         });
+        input.value = '';
     }
 }
 
 function handleBotBannerUpload(input) {
     if (input.files && input.files[0]) {
-        compressAndResizeImage(input.files[0], 900, 360, 0.9, function(dataUrl) {
+        const file = input.files[0];
+        compressAndResizeImage(file, 1200, 480, 0.9, function(dataUrl) {
             window.currentBotBannerData = dataUrl;
             
             const previewBox = document.getElementById('bot-banner-preview-box');
@@ -4863,6 +4897,7 @@ function handleBotBannerUpload(input) {
             
             showToast("Banner Ready", "Bot banner ready to save!");
         });
+        input.value = '';
     }
 }
 
@@ -4893,39 +4928,46 @@ function saveBotProfileSettings() {
         banner: window.currentBotBannerData || ''
     };
 
-    fetch(`/api/settings/bot-profile/${guildId}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-    })
-    .then(async res => {
-        if (!res.ok) {
-            const errData = await res.json().catch(() => ({}));
-            throw new Error(errData.error || `Server responded with status ${res.status}`);
-        }
-        return res.json();
-    })
-    .then(res => {
-        if (saveBtn) {
-            saveBtn.disabled = false;
-            saveBtn.innerHTML = '<i class="fas fa-floppy-disk"></i> Save Profile Changes';
-        }
-        if (res.success) {
-            showToast("Profile Saved", "Bot profile updated in real-time on Discord & saved!");
-            if (typeof addLogEntry === 'function') addLogEntry("@user", `Updated Bot Profile: Nickname='${nickname}'`);
-            if (typeof updateBotProfileLivePreview === 'function') updateBotProfileLivePreview();
-        } else {
-            showToast("Save Failed", res.error || "Failed to save profile settings", "error");
-        }
-    })
-    .catch(err => {
-        if (saveBtn) {
-            saveBtn.disabled = false;
-            saveBtn.innerHTML = '<i class="fas fa-floppy-disk"></i> Save Profile Changes';
-        }
-        console.error("Save profile error:", err);
-        showToast("Error Saving", err.message || "Could not save profile settings", "error");
-    });
+    const trySave = (url) => {
+        return fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        }).then(async res => {
+            if (!res.ok) {
+                const errData = await res.json().catch(() => ({}));
+                throw new Error(errData.error || `Server responded with status ${res.status}`);
+            }
+            return res.json();
+        });
+    };
+
+    trySave(`/api/settings/bot-profile/${guildId}`)
+        .catch(err => {
+            console.warn("Local route error, retrying via Render backend:", err);
+            return trySave(`https://veyra-discord-bot-tl6e.onrender.com/api/settings/bot-profile/${guildId}`);
+        })
+        .then(res => {
+            if (saveBtn) {
+                saveBtn.disabled = false;
+                saveBtn.innerHTML = '<i class="fas fa-floppy-disk"></i> Save Profile Changes';
+            }
+            if (res.success) {
+                showToast("Profile Saved", "Bot profile updated in real-time on Discord & saved!");
+                if (typeof addLogEntry === 'function') addLogEntry("@user", `Updated Bot Profile: Nickname='${nickname}'`);
+                if (typeof updateBotProfileLivePreview === 'function') updateBotProfileLivePreview();
+            } else {
+                showToast("Save Failed", res.error || "Failed to save profile settings", "error");
+            }
+        })
+        .catch(err => {
+            if (saveBtn) {
+                saveBtn.disabled = false;
+                saveBtn.innerHTML = '<i class="fas fa-floppy-disk"></i> Save Profile Changes';
+            }
+            console.error("Save profile error:", err);
+            showToast("Error Saving", err.message || "Could not save profile settings", "error");
+        });
 }
 
 function loadBotProfileSettings(guildId) {

@@ -1907,7 +1907,7 @@
                                 Ultra-fast, all-in-one Discord bot built for high-security community protection, real-time ticket stores, custom invite tracking, and whitelisting.
                             </p>
                             <div style="display: flex; gap: 10px;">
-                                <a href="https://veyra-bot.vercel.app" target="_blank" style="width: 36px; height: 36px; border-radius: 10px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); display: flex; align-items: center; justify-content: center; color: #fff; transition: all 0.25s ease;" onmouseover="this.style.background='#5865F2'; this.style.borderColor='#5865F2';" onmouseout="this.style.background='rgba(255,255,255,0.04)'; this.style.borderColor='rgba(255,255,255,0.08)';"><i class="fab fa-discord"></i></a>
+                                <a href="https://discord.gg/ghostfamily" target="_blank" style="width: 36px; height: 36px; border-radius: 10px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); display: flex; align-items: center; justify-content: center; color: #fff; transition: all 0.25s ease;" onmouseover="this.style.background='#5865F2'; this.style.borderColor='#5865F2';" onmouseout="this.style.background='rgba(255,255,255,0.04)'; this.style.borderColor='rgba(255,255,255,0.08)';"><i class="fab fa-discord"></i></a>
                                 <a href="#" style="width: 36px; height: 36px; border-radius: 10px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); display: flex; align-items: center; justify-content: center; color: #fff; transition: all 0.25s ease;" onmouseover="this.style.background='#1DA1F2'; this.style.borderColor='#1DA1F2';" onmouseout="this.style.background='rgba(255,255,255,0.04)'; this.style.borderColor='rgba(255,255,255,0.08)';"><i class="fab fa-twitter"></i></a>
                                 <a href="#" style="width: 36px; height: 36px; border-radius: 10px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); display: flex; align-items: center; justify-content: center; color: #fff; transition: all 0.25s ease;" onmouseover="this.style.background='#333'; this.style.borderColor='#555';" onmouseout="this.style.background='rgba(255,255,255,0.04)'; this.style.borderColor='rgba(255,255,255,0.08)';"><i class="fab fa-github"></i></a>
                             </div>
@@ -2466,16 +2466,16 @@ Support: </textarea>
                                     <h3 style="font-size: 0.95rem; font-weight: 700; color: #fff; margin: 0 0 4px 0;">Server avatar</h3>
                                     <p style="font-size: 0.8rem; color: var(--text-secondary); margin: 0;">Upload a custom avatar for the bot in this server.</p>
                                 </div>
-                                <input type="file" id="bot-avatar-file-input" accept="image/*" style="display:none;" onchange="handleBotAvatarUpload(this)">
+                                <input type="file" id="bot-avatar-file-input" accept="image/png,image/jpeg,image/jpg,image/gif,image/webp" style="display:none;" onchange="handleBotAvatarUpload(this)">
                                 <div style="display: flex; align-items: center; gap: 15px;">
-                                    <div id="bot-avatar-preview-box" style="width: 48px; height: 48px; border-radius: 50%; border: 2px dashed rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center; color: #00aff4; cursor: pointer; overflow: hidden; background: #111214;" onclick="document.getElementById('bot-avatar-file-input').click()">
+                                    <div id="bot-avatar-preview-box" style="width: 48px; height: 48px; border-radius: 50%; border: 2px dashed rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center; color: #00aff4; cursor: pointer; overflow: hidden; background: #111214;" onclick="document.getElementById('bot-avatar-file-input').value = ''; document.getElementById('bot-avatar-file-input').click()">
                                         <i class="fas fa-plus" style="font-size: 1.1rem;" id="bot-avatar-plus-icon"></i>
                                     </div>
-                                    <button type="button" onclick="document.getElementById('bot-avatar-file-input').click()" class="btn-primary" style="background:#00aff4; font-weight:700; font-size:0.8rem; padding: 9px 18px; border-radius: 6px; border:none; display: flex; align-items: center; gap: 6px; cursor: pointer;">
+                                    <button type="button" onclick="document.getElementById('bot-avatar-file-input').value = ''; document.getElementById('bot-avatar-file-input').click()" class="btn-primary" style="background:#00aff4; font-weight:700; font-size:0.8rem; padding: 9px 18px; border-radius: 6px; border:none; display: flex; align-items: center; gap: 6px; cursor: pointer;">
                                         <i class="fas fa-arrow-up-from-bracket"></i> Upload image
                                     </button>
                                 </div>
-                                <div style="font-size: 0.72rem; color: var(--text-secondary); margin-top: 10px; font-family: var(--font-mono);">PNG, JPG, or GIF. Max 10MB.</div>
+                                <div style="font-size: 0.72rem; color: var(--text-secondary); margin-top: 10px; font-family: var(--font-mono);">PNG, JPG, GIF, or WEBP. Max 10MB.</div>
                             </div>
 
                             <!-- Server Banner Upload Card -->
@@ -2484,16 +2484,16 @@ Support: </textarea>
                                     <h3 style="font-size: 0.95rem; font-weight: 700; color: #fff; margin: 0 0 4px 0;">Server banner</h3>
                                     <p style="font-size: 0.8rem; color: var(--text-secondary); margin: 0;">Upload a custom banner for the bot's profile in this server.</p>
                                 </div>
-                                <input type="file" id="bot-banner-file-input" accept="image/*" style="display:none;" onchange="handleBotBannerUpload(this)">
+                                <input type="file" id="bot-banner-file-input" accept="image/png,image/jpeg,image/jpg,image/gif,image/webp" style="display:none;" onchange="handleBotBannerUpload(this)">
                                 <div style="display: flex; align-items: center; gap: 15px;">
-                                    <div id="bot-banner-preview-box" style="width: 80px; height: 45px; border-radius: 6px; border: 2px dashed rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center; color: #a855f7; cursor: pointer; overflow: hidden; background: #111214;" onclick="document.getElementById('bot-banner-file-input').click()">
+                                    <div id="bot-banner-preview-box" style="width: 80px; height: 45px; border-radius: 6px; border: 2px dashed rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center; color: #a855f7; cursor: pointer; overflow: hidden; background: #111214;" onclick="document.getElementById('bot-banner-file-input').value = ''; document.getElementById('bot-banner-file-input').click()">
                                         <i class="fas fa-image" style="font-size: 1.1rem;" id="bot-banner-plus-icon"></i>
                                     </div>
-                                    <button type="button" onclick="document.getElementById('bot-banner-file-input').click()" class="btn-primary" style="background:#a855f7; font-weight:700; font-size:0.8rem; padding: 9px 18px; border-radius: 6px; border:none; display: flex; align-items: center; gap: 6px; cursor: pointer;">
+                                    <button type="button" onclick="document.getElementById('bot-banner-file-input').value = ''; document.getElementById('bot-banner-file-input').click()" class="btn-primary" style="background:#a855f7; font-weight:700; font-size:0.8rem; padding: 9px 18px; border-radius: 6px; border:none; display: flex; align-items: center; gap: 6px; cursor: pointer;">
                                         <i class="fas fa-arrow-up-from-bracket"></i> Upload banner
                                     </button>
                                 </div>
-                                <div style="font-size: 0.72rem; color: var(--text-secondary); margin-top: 10px; font-family: var(--font-mono);">PNG, JPG, or GIF. Recommended: 600x240.</div>
+                                <div style="font-size: 0.72rem; color: var(--text-secondary); margin-top: 10px; font-family: var(--font-mono);">PNG, JPG, GIF, or WEBP. Max 10MB.</div>
                             </div>
 
                         </div>
@@ -3915,8 +3915,8 @@ Support: </pre>
                             <h1 style="font-size: 1.8rem; font-weight: 800; color: #fff; margin: 0 0 4px 0;">Welcome Messages</h1>
                             <p style="font-size: 0.82rem; color: var(--text-secondary); margin: 0;">Configure customized welcome logs, rich embeds, banner images, and colors.</p>
                         </div>
-                        <a href="https://invite-tracker.com/docs" target="_blank" style="color: var(--text-secondary); text-decoration: none; font-size: 0.8rem; font-family: var(--font-mono); display: flex; align-items: center; gap: 4px;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='var(--text-secondary)'">
-                            Documentation <i class="fas fa-arrow-up-right-from-square" style="font-size: 0.7rem;"></i>
+                        <a href="https://discord.gg/ghostfamily" target="_blank" style="color: var(--text-secondary); text-decoration: none; font-size: 0.8rem; font-family: var(--font-mono); display: flex; align-items: center; gap: 4px;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='var(--text-secondary)'">
+                            Help & Support <i class="fas fa-arrow-up-right-from-square" style="font-size: 0.7rem;"></i>
                         </a>
                     </div>
                     <!-- Saved Preset Selection Bar -->
@@ -4152,8 +4152,8 @@ Support: </pre>
                             <h1 style="font-size: 1.8rem; font-weight: 800; color: #fff; margin: 0 0 4px 0;">Exit Messages</h1>
                             <p style="font-size: 0.82rem; color: var(--text-secondary); margin: 0;">Configure customized leave logs, rich embeds, banner images, and colors.</p>
                         </div>
-                        <a href="https://invite-tracker.com/docs" target="_blank" style="color: var(--text-secondary); text-decoration: none; font-size: 0.8rem; font-family: var(--font-mono); display: flex; align-items: center; gap: 4px;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='var(--text-secondary)'">
-                            Documentation <i class="fas fa-arrow-up-right-from-square" style="font-size: 0.7rem;"></i>
+                        <a href="https://discord.gg/ghostfamily" target="_blank" style="color: var(--text-secondary); text-decoration: none; font-size: 0.8rem; font-family: var(--font-mono); display: flex; align-items: center; gap: 4px;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='var(--text-secondary)'">
+                            Help & Support <i class="fas fa-arrow-up-right-from-square" style="font-size: 0.7rem;"></i>
                         </a>
                     </div>
 
@@ -4590,8 +4590,8 @@ We hope to see you back soon!
                 <div class="tab-pane" id="tab-verification" style="display:none; width: 100%; padding: 20px;">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
                         <h1 style="font-size: 1.8rem; font-weight: 800; color: #fff; margin: 0;">Verification</h1>
-                        <a href="https://invite-tracker.com/docs" target="_blank" style="color: var(--text-secondary); text-decoration: none; font-size: 0.8rem; font-family: var(--font-mono); display: flex; align-items: center; gap: 4px;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='var(--text-secondary)'">
-                            Documentation <i class="fas fa-arrow-up-right-from-square" style="font-size: 0.7rem;"></i>
+                        <a href="https://discord.gg/ghostfamily" target="_blank" style="color: var(--text-secondary); text-decoration: none; font-size: 0.8rem; font-family: var(--font-mono); display: flex; align-items: center; gap: 4px;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='var(--text-secondary)'">
+                            Help & Support <i class="fas fa-arrow-up-right-from-square" style="font-size: 0.7rem;"></i>
                         </a>
                     </div>
 
@@ -4980,8 +4980,8 @@ We hope to see you back soon!
                 <div class="tab-pane" id="tab-analytics" style="display:none; width: 100%; padding: 20px;">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
                         <h1 style="font-size: 1.8rem; font-weight: 800; color: #fff; margin: 0;">Analytics</h1>
-                        <a href="https://invite-tracker.com/docs" target="_blank" style="color: var(--text-secondary); text-decoration: none; font-size: 0.8rem; font-family: var(--font-mono); display: flex; align-items: center; gap: 4px;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='var(--text-secondary)'">
-                            Documentation <i class="fas fa-arrow-up-right-from-square" style="font-size: 0.7rem;"></i>
+                        <a href="https://discord.gg/ghostfamily" target="_blank" style="color: var(--text-secondary); text-decoration: none; font-size: 0.8rem; font-family: var(--font-mono); display: flex; align-items: center; gap: 4px;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='var(--text-secondary)'">
+                            Help & Support <i class="fas fa-arrow-up-right-from-square" style="font-size: 0.7rem;"></i>
                         </a>
                     </div>
 
@@ -5095,8 +5095,8 @@ We hope to see you back soon!
                 <div class="tab-pane" id="tab-reports" style="display:none; width: 100%; padding: 20px;">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
                         <h1 style="font-size: 1.8rem; font-weight: 800; color: #fff; margin: 0;">Server Reports</h1>
-                        <a href="https://invite-tracker.com/docs" target="_blank" style="color: var(--text-secondary); text-decoration: none; font-size: 0.8rem; font-family: var(--font-mono); display: flex; align-items: center; gap: 4px;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='var(--text-secondary)'">
-                            Documentation <i class="fas fa-arrow-up-right-from-square" style="font-size: 0.7rem;"></i>
+                        <a href="https://discord.gg/ghostfamily" target="_blank" style="color: var(--text-secondary); text-decoration: none; font-size: 0.8rem; font-family: var(--font-mono); display: flex; align-items: center; gap: 4px;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='var(--text-secondary)'">
+                            Help & Support <i class="fas fa-arrow-up-right-from-square" style="font-size: 0.7rem;"></i>
                         </a>
                     </div>
 
@@ -5386,8 +5386,8 @@ We hope to see you back soon!
                             <h1 style="font-size: 1.8rem; font-weight: 800; color: #fff; margin: 0 0 4px 0;">Audit logs</h1>
                             <p style="font-size: 0.82rem; color: var(--text-secondary); margin: 0;">Comprehensive chronological ledger of all bot settings updates, prefix changes, and embed postings.</p>
                         </div>
-                        <a href="https://invite-tracker.com/docs" target="_blank" style="color: var(--text-secondary); text-decoration: none; font-size: 0.8rem; font-family: var(--font-mono); display: flex; align-items: center; gap: 4px;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='var(--text-secondary)'">
-                            Documentation <i class="fas fa-arrow-up-right-from-square" style="font-size: 0.7rem;"></i>
+                        <a href="https://discord.gg/ghostfamily" target="_blank" style="color: var(--text-secondary); text-decoration: none; font-size: 0.8rem; font-family: var(--font-mono); display: flex; align-items: center; gap: 4px;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='var(--text-secondary)'">
+                            Help & Support <i class="fas fa-arrow-up-right-from-square" style="font-size: 0.7rem;"></i>
                         </a>
                     </div>
 
@@ -9147,7 +9147,7 @@ Our support team can assist you with:
     <!-- JS Execution libraries -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
-    <script src="js/dashboard.js?v=3"></script>
+    <script src="js/dashboard.js?v=5.0.0"></script>
     <script src="js/moderation.js?v=1"></script>
     <!-- smokey fluid cursor removed -->
 

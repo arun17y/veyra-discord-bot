@@ -779,19 +779,88 @@ def build_scan_embed(guild: discord.Guild, vulnerabilities: list = None) -> disc
     embed.set_footer(text="Powered by Veyra Development")
     return embed
 
-class AvatarView(View):
-    def __init__(self, avatar_url: str):
+class MediaDownloadView(View):
+    def __init__(self, buttons: list):
         super().__init__(timeout=None)
-        self.add_item(Button(label="Download ↗", url=avatar_url, style=discord.ButtonStyle.link))
+        for item in buttons:
+            if isinstance(item, tuple) and len(item) == 2 and item[1]:
+                self.add_item(Button(label=item[0], url=item[1], style=discord.ButtonStyle.link))
+            elif isinstance(item, str) and item:
+                self.add_item(Button(label="Download ↗", url=item, style=discord.ButtonStyle.link))
+
+class AvatarView(View):
+    def __init__(self, avatar_url: str, server_avatar_url: str = None):
+        super().__init__(timeout=None)
+        if server_avatar_url and server_avatar_url != avatar_url:
+            self.add_item(Button(label="Server Avatar ↗", url=server_avatar_url, style=discord.ButtonStyle.link))
+            self.add_item(Button(label="Global Avatar ↗", url=avatar_url, style=discord.ButtonStyle.link))
+        else:
+            self.add_item(Button(label="Download ↗", url=avatar_url, style=discord.ButtonStyle.link))
 
 def build_avatar_embed(target: discord.Member or discord.User) -> tuple[discord.Embed, View]:
-    avatar_url = str(target.display_avatar.url)
+    try:
+        avatar_url = str(target.display_avatar.with_size(1024).url)
+    except Exception:
+        avatar_url = str(target.display_avatar.url)
+        
+    server_avatar_url = None
+    if hasattr(target, 'guild_avatar') and target.guild_avatar:
+        try:
+            server_avatar_url = str(target.guild_avatar.with_size(1024).url)
+        except Exception:
+            server_avatar_url = str(target.guild_avatar.url)
+
     embed = discord.Embed(
         title=f"🖼️ {target.display_name}'s Avatar",
         color=THEME_COLOR
     )
-    embed.set_image(url=avatar_url)
-    return embed, AvatarView(avatar_url)
+    embed.set_image(url=server_avatar_url or avatar_url)
+    embed.set_footer(text="Powered By Veyra Development™ | Designed By Arun")
+    return embed, AvatarView(avatar_url, server_avatar_url)
+
+class BannerView(View):
+    def __init__(self, banner_url: str, guild_banner_url: str = None):
+        super().__init__(timeout=None)
+        if guild_banner_url and guild_banner_url != banner_url:
+            self.add_item(Button(label="Server Banner ↗", url=guild_banner_url, style=discord.ButtonStyle.link))
+            self.add_item(Button(label="User Banner ↗", url=banner_url, style=discord.ButtonStyle.link))
+        else:
+            self.add_item(Button(label="Download ↗", url=banner_url, style=discord.ButtonStyle.link))
+
+def build_banner_embed(target: discord.Member or discord.User, user_fetched: discord.User = None) -> tuple[discord.Embed, View]:
+    banner_url = None
+    guild_banner_url = None
+    
+    if hasattr(target, 'guild_banner') and target.guild_banner:
+        try:
+            guild_banner_url = str(target.guild_banner.with_size(1024).url)
+        except Exception:
+            guild_banner_url = str(target.guild_banner.url)
+            
+    u = user_fetched or target
+    if hasattr(u, 'banner') and u.banner:
+        try:
+            banner_url = str(u.banner.with_size(1024).url)
+        except Exception:
+            banner_url = str(u.banner.url)
+            
+    active_url = guild_banner_url or banner_url
+    if not active_url:
+        embed = discord.Embed(
+            title=f"🖼️ {target.display_name}'s Banner",
+            description="❌ This user does not have a profile banner set.",
+            color=discord.Color.red()
+        )
+        embed.set_footer(text="Powered By Veyra Development™ | Designed By Arun")
+        return embed, None
+
+    embed = discord.Embed(
+        title=f"🖼️ {target.display_name}'s Banner",
+        color=THEME_COLOR
+    )
+    embed.set_image(url=active_url)
+    embed.set_footer(text="Powered By Veyra Development™ | Designed By Arun")
+    return embed, BannerView(banner_url or active_url, guild_banner_url)
 
 class ServerInfoSelect(Select):
     def __init__(self, guild):

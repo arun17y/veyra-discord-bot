@@ -6,7 +6,8 @@ from transcript_engine import generate_full_html_transcript
 from interactive_ui import (
     HelpView, StatsTeamView, build_main_help_embed, PingView,
     build_ping_health_embed, build_ping_code_embed, build_uptime_embed,
-    AvatarView, build_avatar_embed, ServerInfoView, build_server_info_embed,
+    AvatarView, build_avatar_embed, BannerView, build_banner_embed, MediaDownloadView,
+    ServerInfoView, build_server_info_embed,
     build_nick_embed, RoleplayView, VoiceMasterSetupView, build_voicemaster_setup_embed,
     WhitelistConfigView, build_whitelist_embed, TicketWelcomeView, build_ticket_welcome_embed,
     PlansView, build_plans_embed, build_giveaway_embed, build_scan_embed,
@@ -1905,10 +1906,58 @@ async def uptime_slash(interaction: discord.Interaction):
     await interaction.response.send_message(embed=embed)
 
 
-@bot.command(name="avatar", aliases=["av", "pfp", "useravatar"], description="Displays user avatar")
+@bot.command(name="avatar", aliases=["av", "pfp", "useravatar"], description="Displays user avatar with download link")
 async def avatar_prefix(ctx, member: discord.Member = None):
     target = member or ctx.author
     embed, view = build_avatar_embed(target)
+    if view:
+        await ctx.send(embed=embed, view=view)
+    else:
+        await ctx.send(embed=embed)
+
+
+@bot.command(name="banner", aliases=["bn", "userbanner"], description="Displays user banner with download link")
+async def banner_prefix(ctx, member: discord.Member = None):
+    target = member or ctx.author
+    user_fetched = None
+    try:
+        user_fetched = await bot.fetch_user(target.id)
+    except Exception:
+        pass
+    embed, view = build_banner_embed(target, user_fetched)
+    if view:
+        await ctx.send(embed=embed, view=view)
+    else:
+        await ctx.send(embed=embed)
+
+
+@bot.command(name="servericon", aliases=["sicon", "icon", "guildicon"], description="Displays server icon with download link")
+async def servericon_prefix(ctx):
+    if not ctx.guild or not ctx.guild.icon:
+        return await ctx.send("❌ This server does not have an icon set.")
+    try:
+        icon_url = ctx.guild.icon.with_size(1024).url
+    except Exception:
+        icon_url = ctx.guild.icon.url
+    embed = discord.Embed(title=f"🏰 Icon of {ctx.guild.name}", color=discord.Color.from_rgb(24, 24, 27))
+    embed.set_image(url=str(icon_url))
+    embed.set_footer(text="Powered By Veyra Development™ | Designed By Arun")
+    view = MediaDownloadView([("Download ↗", str(icon_url))])
+    await ctx.send(embed=embed, view=view)
+
+
+@bot.command(name="serverbanner", aliases=["sbanner", "guildbanner"], description="Displays server banner with download link")
+async def serverbanner_prefix(ctx):
+    if not ctx.guild or not ctx.guild.banner:
+        return await ctx.send("❌ This server does not have a banner set.")
+    try:
+        banner_url = ctx.guild.banner.with_size(1024).url
+    except Exception:
+        banner_url = ctx.guild.banner.url
+    embed = discord.Embed(title=f"🏰 Banner of {ctx.guild.name}", color=discord.Color.from_rgb(24, 24, 27))
+    embed.set_image(url=str(banner_url))
+    embed.set_footer(text="Powered By Veyra Development™ | Designed By Arun")
+    view = MediaDownloadView([("Download ↗", str(banner_url))])
     await ctx.send(embed=embed, view=view)
 
 
@@ -6785,59 +6834,62 @@ async def avatar(interaction: discord.Interaction, member: discord.Member = None
     await interaction.response.send_message(embed=embed, view=view)
 
 
-@bot.tree.command(name="banner", description="Displays the banner of a user")
+@bot.tree.command(name="banner", description="Displays the banner of a user with a download link")
 async def banner(interaction: discord.Interaction, member: discord.Member = None):
     target = member or interaction.user
+    user_fetched = None
     try:
         user_fetched = await bot.fetch_user(target.id)
-    except Exception as e:
-        return await interaction.response.send_message(f"❌ Failed to fetch user profile: {e}", ephemeral=True)
+    except Exception:
+        pass
         
-    if not user_fetched.banner:
-        return await interaction.response.send_message("❌ This user does not have a banner set.", ephemeral=True)
-        
-    try:
-        if user_fetched.banner.is_animated():
-            banner_url = user_fetched.banner.replace(format='gif', size=1024).url
-        else:
-            banner_url = user_fetched.banner.replace(format='png', size=1024).url
-    except Exception as ex:
-        print(f"Error replacing banner format: {ex}")
-        banner_url = user_fetched.banner.url
-
-    embed = create_veyra_embed(
-        title=f"🖼️ Banner of {target.name}",
-        description=f"Showing profile banner asset.",
-        color=discord.Color.from_rgb(24, 24, 27),
-        footer="VEYRA V2 • Media Viewer"
-    )
-    embed.set_image(url=str(banner_url))
-    await interaction.response.send_message(embed=embed)
+    embed, view = build_banner_embed(target, user_fetched)
+    if view:
+        await interaction.response.send_message(embed=embed, view=view)
+    else:
+        await interaction.response.send_message(embed=embed, ephemeral=True)
 
 
-@bot.tree.command(name="guildbanner", description="Displays a guild's banner")
+@bot.tree.command(name="guildbanner", description="Displays this server's banner with a download link")
 async def guildbanner(interaction: discord.Interaction):
     guild = interaction.guild
-    if not guild.banner:
+    if not guild or not guild.banner:
         return await interaction.response.send_message("❌ This server does not have a banner set.", ephemeral=True)
         
     try:
-        if guild.banner.is_animated():
-            banner_url = guild.banner.replace(format='gif', size=1024).url
-        else:
-            banner_url = guild.banner.replace(format='png', size=1024).url
-    except Exception as ex:
-        print(f"Error replacing guild banner format: {ex}")
+        banner_url = guild.banner.with_size(1024).url
+    except Exception:
         banner_url = guild.banner.url
 
-    embed = create_veyra_embed(
+    embed = discord.Embed(
         title=f"🏰 Banner of {guild.name}",
-        description=f"Showing current server banner asset.",
-        color=discord.Color.from_rgb(24, 24, 27),
-        footer="VEYRA V2 • Media Viewer"
+        color=discord.Color.from_rgb(24, 24, 27)
     )
     embed.set_image(url=str(banner_url))
-    await interaction.response.send_message(embed=embed)
+    embed.set_footer(text="Powered By Veyra Development™ | Designed By Arun")
+    view = MediaDownloadView([("Download ↗", str(banner_url))])
+    await interaction.response.send_message(embed=embed, view=view)
+
+
+@bot.tree.command(name="servericon", description="Displays this server's icon with a download link")
+async def servericon(interaction: discord.Interaction):
+    guild = interaction.guild
+    if not guild or not guild.icon:
+        return await interaction.response.send_message("❌ This server does not have an icon set.", ephemeral=True)
+        
+    try:
+        icon_url = guild.icon.with_size(1024).url
+    except Exception:
+        icon_url = guild.icon.url
+
+    embed = discord.Embed(
+        title=f"🏰 Icon of {guild.name}",
+        color=discord.Color.from_rgb(24, 24, 27)
+    )
+    embed.set_image(url=str(icon_url))
+    embed.set_footer(text="Powered By Veyra Development™ | Designed By Arun")
+    view = MediaDownloadView([("Download ↗", str(icon_url))])
+    await interaction.response.send_message(embed=embed, view=view)
 
 
 @bot.tree.command(name="accountage", description="Displays the account age of your account or a user's account")
