@@ -32,10 +32,16 @@ logger = logging.getLogger("veyra.music")
 #             AUDIO & OPUS SETUP
 # ─────────────────────────────────────────────
 
-# Ensure Opus audio codec is loaded on Linux/Render and Windows
+# Ensure Opus audio codec is loaded on Windows and Linux
 try:
     if not discord.opus.is_loaded():
         for opus_lib in [
+            os.path.join(os.path.dirname(__file__), "libopus-0.x64.dll"),
+            os.path.join(os.path.dirname(__file__), "..", "libopus-0.x64.dll"),
+            r"C:\Users\Arun Yadav\.gemini\antigravity\scratch\Veyra All in one Discord Bot\bot\libopus-0.x64.dll",
+            r"C:\Users\Arun Yadav\.gemini\antigravity\scratch\Veyra All in one Discord Bot\libopus-0.x64.dll",
+            r"E:\Bot\music bot 1\libopus-0.x64.dll",
+            'libopus-0.x64.dll',
             'libopus.so.0',
             'libopus.so',
             '/usr/lib/x86_64-linux-gnu/libopus.so.0',
@@ -73,6 +79,7 @@ COOKIE_ARG = None
 possible_cookie_paths = [
     os.path.join(os.path.dirname(__file__), "cookies.txt"),
     os.path.join(os.path.dirname(__file__), "..", "cookies.txt"),
+    r"C:\Users\Arun Yadav\.gemini\antigravity\scratch\Veyra All in one Discord Bot\cookies.txt",
     r"E:\Bot\music bot 1\cookies.txt"
 ]
 for cp in possible_cookie_paths:
@@ -81,7 +88,7 @@ for cp in possible_cookie_paths:
         break
 
 YTDL_OPTIONS = {
-    "format": "bestaudio[ext=m4a]/bestaudio/best[ext=webm]/best/bestvideo+bestaudio",
+    "format": "bestaudio/18/best",
     "noplaylist": False,
     "nocheckcertificate": True,
     "ignoreerrors": False,
@@ -92,7 +99,7 @@ YTDL_OPTIONS = {
     "js_runtimes": {"node": {}},
     "extractor_args": {
         "youtube": {
-            "player_client": ["android", "ios", "web"]
+            "player_client": ["android", "mweb"]
         }
     },
 }
@@ -841,22 +848,130 @@ class YTSource(discord.PCMVolumeTransformer):
                 return [data], False
 
     @classmethod
-    async def stream(cls, url: str, loop, volume=1.0, active_filter=None, seek_time=0, speed=1.0, pitch=1.0):
+    async def stream(cls, url: str, loop, volume=1.0, active_filter=None, seek_time=0, speed=1.0, pitch=1.0, track_title=None):
         opts = YTDL_OPTIONS.copy()
+        opts["extract_flat"] = False
 
         def run():
-            ytdl = yt_dlp.YoutubeDL(opts)
+            # 1. Primary: Android + MWeb with cookies
+            opts_android = opts.copy()
+            opts_android["cookiefile"] = COOKIE_ARG
+            opts_android["extractor_args"] = {
+                "youtube": {
+                    "player_client": ["android", "mweb"]
+                }
+            }
             try:
-                return ytdl.extract_info(url, download=False)
+                res = yt_dlp.YoutubeDL(opts_android).extract_info(url, download=False)
+                if res and (res.get("url") or (res.get("entries") and res["entries"][0].get("url"))):
+                    return res
+            except Exception as e:
+                logger.info("Primary android extract attempt: %s", e)
+
+            # 2. TV & Android VR
+            opts_tv = opts.copy()
+            opts_tv["cookiefile"] = COOKIE_ARG
+            opts_tv["extractor_args"] = {
+                "youtube": {
+                    "player_client": ["tv", "android_vr"]
+                }
+            }
+            try:
+                res = yt_dlp.YoutubeDL(opts_tv).extract_info(url, download=False)
+                if res and (res.get("url") or (res.get("entries") and res["entries"][0].get("url"))):
+                    return res
+            except Exception as e:
+                logger.info("TV client extract attempt: %s", e)
+
+            # 3. VisionOS fallback
+            opts_vision = opts.copy()
+            opts_vision["cookiefile"] = COOKIE_ARG
+            opts_vision["extractor_args"] = {
+                "youtube": {
+                    "player_client": ["visionos"]
+                }
+            }
+            try:
+                res = yt_dlp.YoutubeDL(opts_vision).extract_info(url, download=False)
+                if res and (res.get("url") or (res.get("entries") and res["entries"][0].get("url"))):
+                    return res
+            except Exception as e:
+                logger.info("VisionOS client extract attempt: %s", e)
+
+            # 4. Mobile Android / iOS without cookies (fallback)
+            opts_mobile = opts.copy()
+            opts_mobile["cookiefile"] = None
+            opts_mobile["extractor_args"] = {
+                "youtube": {
+                    "player_client": ["android", "ios"]
+                }
+            }
+            try:
+                res = yt_dlp.YoutubeDL(opts_mobile).extract_info(url, download=False)
+                if res and (res.get("url") or (res.get("entries") and res["entries"][0].get("url"))):
+                    return res
             except Exception:
-                if opts.get("cookiefile"):
-                    opts_no = opts.copy()
-                    opts_no["cookiefile"] = None
+                pass
+
+            # 5. SoundCloud fallback (if YouTube failed completely)
+            try:
+                search_term = track_title
+                if not search_term:
                     try:
-                        return yt_dlp.YoutubeDL(opts_no).extract_info(url, download=False)
+                        import urllib.request, json
+                        oembed_url = f"https://www.youtube.com/oembed?url={url}&format=json"
+                        o_req = urllib.request.Request(oembed_url, headers={"User-Agent": "Mozilla/5.0"})
+                        with urllib.request.urlopen(o_req, timeout=3) as o_resp:
+                            o_data = json.loads(o_resp.read().decode())
+                            search_term = o_data.get("title")
                     except Exception:
                         pass
-                return None
+                if not search_term:
+                    vid_match = re.search(r'(?:v=|\/|youtu\.be\/)([0-9A-Za-z_-]{11})', url)
+                    q = f"ytsearch1:{vid_match.group(1)}" if vid_match else url
+                    flat_ytdl = yt_dlp.YoutubeDL({"extract_flat": True, "quiet": True, "cookiefile": COOKIE_ARG})
+                    info = flat_ytdl.extract_info(q, download=False)
+                    entries = info.get("entries", [info]) if info else []
+                    if entries and entries[0]:
+                        search_term = entries[0].get("title")
+
+                if search_term:
+                    clean_term = re.sub(r'\(.*?\)|\[.*?\]', '', search_term).strip()
+                    clean_term = re.sub(r'(?i)\b(official\s*(video|audio|music\s*video|lyric\s*video)?|full\s*video|4k|hd|remastered|lyrics?)\b', '', clean_term).strip()
+                    if "|" in clean_term:
+                        clean_term = clean_term.split("|")[0].strip()
+                    logger.info("Resolving audio via SoundCloud CDN for: %s", clean_term)
+
+                    sc_opts = {
+                        "format": "bestaudio/best",
+                        "quiet": True,
+                        "ignoreerrors": True,
+                        "extract_flat": False,
+                        "nocheckcertificate": True
+                    }
+                    sc_ytdl = yt_dlp.YoutubeDL(sc_opts)
+                    sc_data = sc_ytdl.extract_info(f"scsearch5:{clean_term}", download=False)
+                    sc_entries = sc_data.get("entries", []) if sc_data else []
+                    valid_sc = [
+                        e for e in sc_entries 
+                        if e and (e.get("duration") or 0) >= 60 and e.get("url")
+                        and "slowed" not in (e.get("title") or "").lower()
+                        and "reverb" not in (e.get("title") or "").lower()
+                        and "mashup" not in (e.get("title") or "").lower()
+                    ]
+                    if valid_sc:
+                        logger.info("SoundCloud audio fallback succeeded: %s", valid_sc[0].get('title'))
+                        return valid_sc[0]
+                    elif sc_entries and sc_entries[0].get("url"):
+                        logger.info("SoundCloud audio fallback succeeded: %s", sc_entries[0].get('title'))
+                        return sc_entries[0]
+            except Exception as sc_err:
+                logger.warning("SoundCloud audio fallback failed: %s", sc_err)
+
+            # 6. Default extract_info
+            opts_def = opts.copy()
+            opts_def["cookiefile"] = COOKIE_ARG
+            return yt_dlp.YoutubeDL(opts_def).extract_info(url, download=False)
 
         data = await loop.run_in_executor(None, run)
         if data and "entries" in data and len(data["entries"]) > 0:
@@ -867,15 +982,19 @@ class YTSource(discord.PCMVolumeTransformer):
             raise Exception("No direct audio stream URL extracted.")
 
         headers = data.get("http_headers", {})
-        if "c=ANDROID_VR" in stream_url:
-            ua = "com.google.android.apps.youtube.vr.oculus/1.65.10 (Linux; U; Android 12L; eureka-user Build/SQ3A.220605.009.A1) gzip"
+        if "c=VISIONOS" in stream_url:
+            ua = "Mozilla/5.0 (VisionOS; Mobile/21N307) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1"
         elif "c=ANDROID" in stream_url:
             ua = "com.google.android.youtube/21.02.35 (Linux; U; Android 11) gzip"
+        elif "c=IOS" in stream_url:
+            ua = "com.google.ios.youtube/19.45.4 (iPhone14,3; U; CPU iOS 17_7 like Mac OS X; en_US)"
+        elif "c=ANDROID_VR" in stream_url:
+            ua = "com.google.android.apps.youtube.vr.oculus/1.65.10 (Linux; U; Android 12L; eureka-user Build/SQ3A.220605.009.A1) gzip"
         else:
-            ua = headers.get("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36")
+            ua = headers.get("User-Agent", headers.get("user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"))
 
         ffmpeg_opts = get_ffmpeg_options(active_filter, speed, pitch)
-        ffmpeg_opts["before_options"] += f' -user_agent "{ua}" -headers "Referer: https://www.youtube.com/"'
+        ffmpeg_opts["before_options"] += f' -user_agent "{ua}"'
 
         if seek_time > 0:
             ffmpeg_opts["before_options"] += f" -ss {seek_time}"
@@ -989,16 +1108,16 @@ def history_embed(track: dict) -> discord.Embed:
     return e
 
 def panel_embed(p: GuildPlayer) -> discord.Embed:
-    e = discord.Embed(color=EMBED_COLOR, timestamp=datetime.now(timezone.utc))
-    e.set_author(name="VEYRA MUSIC CONTROLLER", icon_url="https://images.discordapp.net/avatars/1337446506385473637/10b98eb6cbfb0b9be001cb74ef1b933a.png?size=1024")
+    e = discord.Embed(color=0x2B2D31, timestamp=datetime.now(timezone.utc))
+    e.set_author(name="VEYRA MUSIC PLAYER", icon_url="https://images.discordapp.net/avatars/1337446506385473637/10b98eb6cbfb0b9be001cb74ef1b933a.png?size=1024")
 
-    loop_s = "Single" if p.loop == "track" else ("Queue" if p.loop == "queue" else "Off")
+    loop_s = "Track" if p.loop == "track" else ("Queue" if p.loop == "queue" else "Off")
     speed_s = f"{p.speed}x" if p.speed != 1.0 else "Normal"
     vol_pct = int(p.volume * 100)
 
     if p.current:
         title = p.current.get("title", "Unknown Track")
-        url = p.current.get("url", "")
+        url = p.current.get("video_url") or p.current.get("url", "")
         dur = p.fmt(p.current.get("duration", 0))
         author = p.current.get("uploader", "Unknown Artist")
         req_id = p.current.get("requester_id")
@@ -1008,29 +1127,26 @@ def panel_embed(p: GuildPlayer) -> discord.Embed:
         bar = make_progress_bar(pos, total, width=12)
 
         req_str = f"<@{req_id}>" if req_id else "`AutoPlay`"
-        title_link = f"**[{title[:100]}]({url})**" if url else f"**{title[:100]}**"
+
+        e.title = title[:256]
+        if url:
+            e.url = url
 
         e.description = (
-            f"{title_link}\n\n"
             f"`{p.fmt(pos)}` {bar} `{dur}`\n\n"
-            f">>> 👤 **Artist:** `{author[:30]}`\n"
+            f"👤 **Artist:** `{author[:35]}`\n"
             f"🎧 **Requester:** {req_str}\n"
-            f"🔊 **Volume:** `{vol_pct}%` • 🔁 **Loop:** `{loop_s}`\n"
-            f"⚡ **Speed:** `{speed_s}` • 🎛️ **Filter:** `{p.filter.title() if p.filter else 'None'}`\n"
-            f"📋 **Queue Left:** `{len(p.queue)} tracks`"
+            f"🔊 {vol_pct}% | Loop: {loop_s} | Speed: {speed_s} | Queue: {len(p.queue)} tracks"
         )
         if thumb := p.current.get("thumbnail"):
             e.set_thumbnail(url=thumb)
     else:
         e.description = (
-            "### No Track Currently Playing\n\n"
-            ">>> Use `,play <song title or URL>` to stream any music.\n"
-            "Supported sources: YouTube, Spotify, Radio streams.\n\n"
-            f"🔊 **Volume:** `{vol_pct}%` • 🔁 **Loop:** `{loop_s}`\n"
-            f"📋 **Queue:** `{len(p.queue)} tracks`"
+            "*Nothing is currently playing.*\n"
+            "Use `/play` or `,play` to start the vibe!\n\n"
+            f"🔊 {vol_pct}% | Loop: {loop_s} | Speed: {speed_s} | Queue: {len(p.queue)} tracks"
         )
-
-    e.set_footer(text=BRAND_FOOTER)
+    e.set_footer(text="Veyra All in One", icon_url="https://images.discordapp.net/avatars/1337446506385473637/10b98eb6cbfb0b9be001cb74ef1b933a.png?size=1024")
     return e
 
 # ─────────────────────────────────────────────
@@ -1077,19 +1193,36 @@ class MusicPanel(discord.ui.View):
         super().__init__(timeout=None)
         self.player = player
 
-    async def _update(self, interaction: discord.Interaction):
-        await interaction.response.defer()
+    async def on_error(self, interaction: discord.Interaction, error: Exception, item: discord.ui.Item) -> None:
+        logger.error(f"MusicPanel UI error on item {item}: {error}", exc_info=error)
         try:
+            e = err(f"Action failed: {error}")
+            if interaction.response.is_done():
+                await interaction.followup.send(embed=e, ephemeral=True)
+            else:
+                await interaction.response.send_message(embed=e, ephemeral=True)
+        except Exception:
+            pass
+
+    async def _update(self, interaction: discord.Interaction):
+        try:
+            if not interaction.response.is_done():
+                await interaction.response.edit_message(embed=panel_embed(self.player), view=self)
+                return
             await interaction.edit_original_response(embed=panel_embed(self.player), view=self)
         except Exception:
             pass
 
     async def _toast(self, interaction: discord.Interaction, embed: discord.Embed):
-        if not interaction.response.is_done():
-            await interaction.response.send_message(embed=embed, ephemeral=True)
-        else:
-            await interaction.followup.send(embed=embed, ephemeral=True)
+        try:
+            if not interaction.response.is_done():
+                await interaction.response.send_message(embed=embed, ephemeral=True)
+            else:
+                await interaction.followup.send(embed=embed, ephemeral=True)
+        except Exception:
+            pass
 
+    # Row 0: Volume & Core Track Navigation
     @discord.ui.button(label="Vol -", emoji="🔉", style=discord.ButtonStyle.secondary, row=0)
     async def vol_down(self, i: discord.Interaction, b: discord.ui.Button):
         p = self.player
@@ -1117,7 +1250,6 @@ class MusicPanel(discord.ui.View):
     @discord.ui.button(label="Pause", emoji="⏸", style=discord.ButtonStyle.primary, row=0)
     async def pause_resume(self, i: discord.Interaction, b: discord.ui.Button):
         p = self.player
-        await i.response.defer()
         if p.is_playing():
             p.voice.pause()
             p.paused_at = time.time()
@@ -1131,7 +1263,7 @@ class MusicPanel(discord.ui.View):
             b.label = "Pause"
             b.emoji = discord.PartialEmoji.from_str("⏸")
             p.ensure_updater()
-        await i.edit_original_response(embed=panel_embed(p), view=self)
+        await self._update(i)
 
     @discord.ui.button(label="Skip", emoji="⏭", style=discord.ButtonStyle.primary, row=0)
     async def skip(self, i: discord.Interaction, b: discord.ui.Button):
@@ -1151,6 +1283,7 @@ class MusicPanel(discord.ui.View):
         await self._update(i)
         await self._toast(i, ok("Volume Up", f"Volume set to **{int(p.volume*100)}%**"))
 
+    # Row 1: Fast Seek & Jump Controls
     @discord.ui.button(label="-15s", emoji="⏪", style=discord.ButtonStyle.primary, row=1)
     async def rewind_15(self, i: discord.Interaction, b: discord.ui.Button):
         p = self.player
@@ -1191,6 +1324,7 @@ class MusicPanel(discord.ui.View):
         await self._update(i)
         await self._toast(i, ok("Forwarded 15s", f"Playback moved to **{_fmt(pos)}**."))
 
+    # Row 2: Queue Modes & Stop
     @discord.ui.button(label="Shuffle", emoji="🔀", style=discord.ButtonStyle.primary, row=2)
     async def shuffle(self, i: discord.Interaction, b: discord.ui.Button):
         p = self.player
@@ -1212,18 +1346,83 @@ class MusicPanel(discord.ui.View):
         await self._update(i)
         await self._toast(i, ok("Loop Mode", f"Loop mode set to **{p.loop.title()}**."))
 
-    @discord.ui.button(label="Stop", emoji="⏹", style=discord.ButtonStyle.danger, row=2)
+    @discord.ui.button(label="Stop", emoji="⏹", style=discord.ButtonStyle.primary, row=2)
     async def stop(self, i: discord.Interaction, b: discord.ui.Button):
         p = self.player
+        finished = p.current
         p.queue.clear()
         p.current = None
         p.loop = "off"
         if p.voice:
             p.voice.stop()
-            await p.voice.disconnect()
-            p.voice = None
+        
+        is_247 = p.stay_247 or bool(MusicDB.get_247(p.guild_id)[0])
+        if not is_247:
+            if p.voice:
+                try: await p.voice.disconnect()
+                except Exception: pass
+                p.voice = None
+            msg_desc = "Queue cleared & voice disconnected."
+        else:
+            p.stay_247 = True
+            msg_desc = "Playback stopped & queue cleared. Bot remains in voice channel (24/7 active)."
+
+        if p.panel_msg and finished:
+            try:
+                await p.panel_msg.edit(embed=history_embed(finished), view=None)
+            except Exception:
+                pass
+            p.panel_msg = None
+        await self._toast(i, ok("Stopped Playing", msg_desc))
+
+    # Row 3: AutoPlay & Queue List
+    @discord.ui.button(label="AutoPlay", emoji="▶️", style=discord.ButtonStyle.primary, row=3)
+    async def autoplay_btn(self, i: discord.Interaction, b: discord.ui.Button):
+        p = self.player
+        p.autoplay = not p.autoplay
         await self._update(i)
-        await self._toast(i, ok("Stopped", "Music playback stopped and disconnected."))
+        await self._toast(i, ok(f"AutoPlay {'Enabled ✅' if p.autoplay else 'Disabled ❌'}"))
+
+    @discord.ui.button(label="Queue List", emoji="🎵", style=discord.ButtonStyle.primary, row=3)
+    async def queue_btn(self, i: discord.Interaction, b: discord.ui.Button):
+        p = self.player
+        if not p.queue and not p.current:
+            return await self._toast(i, err("Queue is empty!"))
+        lines = []
+        if p.current:
+            lines.append(f"▶ **Now playing:** {p.current['title']} `{p.fmt(p.current.get('duration', 0))}`")
+        for idx, t in enumerate(list(p.queue)[:10], 1):
+            lines.append(f"`{idx}.` {t['title']} `{p.fmt(t.get('duration', 0))}`")
+        if len(p.queue) > 10:
+            lines.append(f"*...and {len(p.queue)-10} more tracks*")
+        await self._toast(i, discord.Embed(title="🎵 Queue List", description="\n".join(lines), color=0x2B2D31))
+
+    # Row 4: Like & Close Panel
+    @discord.ui.button(label="Like", emoji="⭐", style=discord.ButtonStyle.secondary, row=4)
+    async def like_btn(self, i: discord.Interaction, b: discord.ui.Button):
+        p = self.player
+        if not p.current:
+            return await self._toast(i, err("No track currently playing."))
+        track = p.current
+        MusicDB.like_track(i.user.id, track.get("url") or track.get("webpage_url", ""), track.get("title", ""), track.get("uploader", "Unknown"), track.get("thumbnail", ""), track.get("duration", 0))
+        await self._toast(i, ok("Song Liked", f"Added **{track.get('title', 'Track')}** to your Liked tracks."))
+
+    @discord.ui.button(label="Close Panel", emoji="❌", style=discord.ButtonStyle.secondary, row=4)
+    async def close_panel_btn(self, i: discord.Interaction, b: discord.ui.Button):
+        p = self.player
+        if p.panel_msg and p.current:
+            try:
+                await p.panel_msg.edit(embed=history_embed(p.current), view=None)
+            except Exception:
+                pass
+            p.panel_msg = None
+        elif p.panel_msg:
+            try:
+                await p.panel_msg.delete()
+            except Exception:
+                pass
+            p.panel_msg = None
+        await self._toast(i, ok("Panel Closed", "Use `/panel` or `,player` to reopen the player."))
 
 class QueuePaginationView(discord.ui.View):
     def __init__(self, pages: list, user_id: int):
@@ -1382,7 +1581,14 @@ async def ensure_vc(ctx: commands.Context, bot: commands.Bot) -> Optional[discor
             except Exception:
                 pass
 
-        p.voice = await ch.connect(timeout=15, reconnect=True)
+        p.voice = await ch.connect(timeout=15, reconnect=True, self_deaf=True)
+        conn = getattr(p.voice, "_connection", None)
+        if conn and getattr(conn, "dave_protocol_version", 0) > 0:
+            for _ in range(15):
+                if getattr(conn, "can_encrypt", False):
+                    break
+                await asyncio.sleep(0.1)
+
         if isinstance(ch, discord.StageChannel):
             try:
                 await ctx.guild.me.edit(suppress=False)
@@ -1520,7 +1726,8 @@ async def play_next(bot: commands.Bot, guild: discord.Guild, interaction: Option
             active_filter=p.filter,
             seek_time=p.seek_offset,
             speed=p.speed,
-            pitch=p.pitch
+            pitch=p.pitch,
+            track_title=track.get("title")
         )
         if src.data:
             track["url"] = src.data.get("webpage_url") or src.data.get("url", track["url"])
@@ -1531,10 +1738,31 @@ async def play_next(bot: commands.Bot, guild: discord.Guild, interaction: Option
 
         p.history.appendleft(track)
 
+        # DAVE MLS Protocol Sync before playing
+        conn = getattr(p.voice, "_connection", None)
+        if conn and getattr(conn, "dave_protocol_version", 0) > 0 and not getattr(conn, "can_encrypt", False):
+            logger.info("[DAVE] can_encrypt is False before play — re-syncing session")
+            try:
+                await conn.reinit_dave_session()
+                for _ in range(15):
+                    if getattr(conn, "can_encrypt", False):
+                        break
+                    await asyncio.sleep(0.1)
+            except Exception as e:
+                logger.warning(f"[DAVE] reinit error: {e}")
+            if not getattr(conn, "can_encrypt", False) and p.voice.channel:
+                ch = p.voice.channel
+                try:
+                    await p.voice.disconnect(force=True)
+                    await asyncio.sleep(0.3)
+                    p.voice = await ch.connect(timeout=15, reconnect=True, self_deaf=True)
+                except Exception as e:
+                    logger.warning(f"[DAVE] reconnect fallback error: {e}")
+
         def after_cb(error):
             if error:
                 logger.error("Audio playback error: %s", error)
-            asyncio.run_coroutine_threadsafe(play_next(bot, guild), bot.loop)
+            bot.loop.call_soon_threadsafe(lambda: bot.loop.create_task(play_next(bot, guild)))
 
         p.voice.play(src, after=after_cb)
         MusicDB.increment_stat("songs_played")
@@ -1593,6 +1821,35 @@ RADIO_STATIONS = {
 def setup_music_system(bot: commands.Bot):
     """Registers all music commands, audio filters, queue managers, and panels into Veyra."""
     MusicDB.init_schema()
+
+    orig_command = bot.command
+    def safe_command(*args, **kwargs):
+        name = kwargs.get("name") or (args[0] if args and isinstance(args[0], str) else None)
+        aliases = kwargs.get("aliases", [])
+        if name:
+            try: bot.remove_command(name)
+            except Exception: pass
+        for a in aliases:
+            try: bot.remove_command(a)
+            except Exception: pass
+        return orig_command(*args, **kwargs)
+    bot.command = safe_command
+
+    orig_tree_command = bot.tree.command
+    def safe_tree_command(*args, **kwargs):
+        def decorator(func):
+            name = kwargs.get("name") or (args[0] if args and isinstance(args[0], str) else func.__name__)
+            try:
+                bot.tree.remove_command(name)
+            except Exception:
+                pass
+            try:
+                return orig_tree_command(*args, **kwargs)(func)
+            except Exception as ex:
+                logger.warning(f"Could not register slash command /{name}: {ex}")
+                return func
+        return decorator
+    bot.tree.command = safe_tree_command
 
     async def _check_dj(ctx: commands.Context) -> bool:
         if ctx.author.guild_permissions.administrator:
@@ -2613,15 +2870,120 @@ def setup_music_system(bot: commands.Bot):
             ctx = await bot.get_context(interaction)
             await cmd_np(ctx)
 
+        @app_commands.command(name="247", description="Toggle 24/7 standby voice mode")
+        async def slash_music_247(self, interaction: discord.Interaction):
+            ctx = await bot.get_context(interaction)
+            await cmd_247(ctx)
+
+    @bot.command(name="247", aliases=["24/7", "stay"], description="Toggle 24/7 standby mode in voice channel")
+    async def cmd_247(ctx: commands.Context):
+        p = get_player(bot, ctx.guild.id)
+        p.stay_247 = not p.stay_247
+        ch_id = p.voice.channel.id if (p.voice and p.voice.channel) else None
+        txt_id = ctx.channel.id
+        MusicDB.set_247(ctx.guild.id, 1 if p.stay_247 else 0, ch_id, txt_id)
+        await send_response(ctx, embed=ok("24/7 Mode", f"24/7 Standby Mode is now **{'Enabled ✅' if p.stay_247 else 'Disabled ❌'}**."))
+
     try:
         bot.tree.add_command(MusicSlashGroup())
     except Exception as e:
         logger.warning("Could not add MusicSlashGroup: %s", e)
 
+    # Direct top-level slash commands
     @bot.tree.command(name="play", description="Play any song or playlist from YouTube or Spotify")
     @app_commands.describe(query="Song title, URL, or Spotify link")
     async def tree_play(interaction: discord.Interaction, query: str):
         ctx = await bot.get_context(interaction)
         await cmd_play(ctx, query=query)
 
+    @bot.tree.command(name="panel", description="Open the live interactive music control panel")
+    async def tree_panel(interaction: discord.Interaction):
+        p = get_player(bot, interaction.guild_id)
+        if p.panel_msg:
+            try: await p.panel_msg.delete()
+            except Exception: pass
+            p.panel_msg = None
+        view = MusicPanel(p)
+        msg = await interaction.channel.send(embed=panel_embed(p), view=view)
+        p.panel_msg = msg
+        await interaction.response.send_message(embed=ok("Music Panel Opened"), ephemeral=True)
+
+    @bot.tree.command(name="skip", description="Skip current playing track")
+    async def tree_skip(interaction: discord.Interaction):
+        ctx = await bot.get_context(interaction)
+        await cmd_skip(ctx)
+
+    @bot.tree.command(name="stop", description="Stop music, clear queue, and disconnect")
+    async def tree_stop(interaction: discord.Interaction):
+        ctx = await bot.get_context(interaction)
+        await cmd_leave(ctx)
+
+    @bot.tree.command(name="pause", description="Pause playback")
+    async def tree_pause(interaction: discord.Interaction):
+        ctx = await bot.get_context(interaction)
+        await cmd_pause(ctx)
+
+    @bot.tree.command(name="resume", description="Resume playback")
+    async def tree_resume(interaction: discord.Interaction):
+        ctx = await bot.get_context(interaction)
+        await cmd_resume(ctx)
+
+    @bot.tree.command(name="queue", description="Show music queue")
+    async def tree_queue(interaction: discord.Interaction):
+        ctx = await bot.get_context(interaction)
+        await cmd_queue(ctx)
+
+    @bot.tree.command(name="volume", description="Set playback volume (1-200)")
+    @app_commands.describe(level="Volume percentage")
+    async def tree_volume(interaction: discord.Interaction, level: Optional[int] = None):
+        ctx = await bot.get_context(interaction)
+        await cmd_volume(ctx, level=level)
+
+    @bot.tree.command(name="loop", description="Set loop mode")
+    @app_commands.choices(mode=[
+        app_commands.Choice(name="Off", value="off"),
+        app_commands.Choice(name="Track", value="track"),
+        app_commands.Choice(name="Queue", value="queue"),
+    ])
+    async def tree_loop(interaction: discord.Interaction, mode: str = "track"):
+        ctx = await bot.get_context(interaction)
+        await cmd_loop(ctx, mode=mode)
+
+    @bot.tree.command(name="shuffle", description="Shuffle queue")
+    async def tree_shuffle(interaction: discord.Interaction):
+        ctx = await bot.get_context(interaction)
+        await cmd_shuffle(ctx)
+
+    @bot.tree.command(name="nowplaying", description="Show currently playing track")
+    async def tree_np(interaction: discord.Interaction):
+        ctx = await bot.get_context(interaction)
+        await cmd_np(ctx)
+
+    @bot.tree.command(name="seek", description="Seek to position in playing song")
+    @app_commands.describe(position="Timestamp e.g. 1:30 or seconds 90")
+    async def tree_seek(interaction: discord.Interaction, position: str):
+        ctx = await bot.get_context(interaction)
+        await cmd_seek(ctx, position=position)
+
+    @bot.tree.command(name="lyrics", description="Get lyrics of playing song or search term")
+    @app_commands.describe(query="Song title or leave empty for current song")
+    async def tree_lyrics(interaction: discord.Interaction, query: Optional[str] = None):
+        ctx = await bot.get_context(interaction)
+        await cmd_lyrics(ctx, query=query)
+
+    @bot.tree.command(name="247", description="Toggle 24/7 standby mode in voice channel")
+    async def tree_247(interaction: discord.Interaction):
+        ctx = await bot.get_context(interaction)
+        await cmd_247(ctx)
+
+    @bot.tree.command(name="spotify", description="Play a track or playlist from Spotify")
+    @app_commands.describe(query="Spotify track/playlist URL or song name")
+    async def tree_spotify(interaction: discord.Interaction, query: str):
+        ctx = await bot.get_context(interaction)
+        await cmd_play(ctx, query=query)
+
+    bot.command = orig_command
+    bot.tree.command = orig_tree_command
+
     logger.info("Veyra Music System initialized successfully with full audio suite.")
+

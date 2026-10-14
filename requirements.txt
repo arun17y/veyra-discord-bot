@@ -8,3 +8,6 @@ asyncpg>=0.29.0
 aiohttp>=3.9.0
 Pillow>=10.0.0
 yt-dlp>=2025.01.0
+curl_cffi>=0.7.0
+davey
+

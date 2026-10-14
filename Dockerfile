@@ -1,7 +1,13 @@
 FROM python:3.11-slim
 
-# Install Node.js 18
-RUN apt-get update && apt-get install -y curl ca-certificates build-essential && \
+# Install Node.js 18, FFmpeg, and Opus audio codecs for music playback on Linux
+RUN apt-get update && apt-get install -y \
+    curl \
+    ca-certificates \
+    build-essential \
+    ffmpeg \
+    libopus0 \
+    libopus-dev && \
     curl -fsSL https://deb.nodesource.com/setup_18.x | bash - && \
     apt-get install -y nodejs && \
     rm -rf /var/lib/apt/lists/*
