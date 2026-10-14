@@ -4730,6 +4730,19 @@ if (document.readyState === 'loading') {
 window.currentBotAvatarData = '';
 window.currentBotBannerData = '';
 
+function getUnicodeLength(str) {
+    if (!str) return 0;
+    try {
+        if (typeof Intl !== 'undefined' && Intl.Segmenter) {
+            const segmenter = new Intl.Segmenter('en', { granularity: 'grapheme' });
+            return [...segmenter.segment(str)].length;
+        }
+        return [...str].length;
+    } catch (_) {
+        return [...str].length;
+    }
+}
+
 function updateBotProfileLivePreview() {
     const nickEl = document.getElementById('bot-nickname-field');
     const bioEl = document.getElementById('bot-bio-field');
@@ -4741,12 +4754,15 @@ function updateBotProfileLivePreview() {
     const website = webEl ? webEl.value.trim() : '';
     const support = suppEl ? suppEl.value.trim() : '';
 
-    // Update char counts
+    // Update char counts with accurate Unicode / fancy font character counting
+    const nickLen = getUnicodeLength(nick);
+    const bioLen = getUnicodeLength(bioRaw);
+
     const nickCount = document.getElementById('nickname-char-count');
-    if (nickCount) nickCount.innerText = `${nick.length}/32 characters`;
+    if (nickCount) nickCount.innerText = `${nickLen}/32 characters`;
     
     const bioCount = document.getElementById('bio-char-count');
-    if (bioCount) bioCount.innerText = `${bioRaw.length}/180`;
+    if (bioCount) bioCount.innerText = `${bioLen}/180`;
 
     // Update preview nickname
     const prevNick = document.getElementById('preview-bot-nickname');
