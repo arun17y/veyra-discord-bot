@@ -1,0 +1,8 @@
+discord.py>=2.3.0
+yt-dlp[default] @ https://github.com/yt-dlp/yt-dlp/archive/master.tar.gz
+curl_cffi>=0.7.0
+PyNaCl
+aiohttp
+psutil
+davey
+

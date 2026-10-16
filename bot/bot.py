@@ -10853,9 +10853,12 @@ except Exception as e:
     print("Module commands setup notice:", e)
 
 try:
-    from music_system import setup_music_system
+    # Load all-in-one music architecture directly from music_bot folder
+    root_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+    if root_dir not in sys.path:
+        sys.path.insert(0, root_dir)
+    from music_bot import setup_music_system
     setup_music_system(bot)
-    print("✅ Registered VEYRA Production Music System & Audio Suite.")
 except Exception as e:
     print("Music system setup notice:", e)
 

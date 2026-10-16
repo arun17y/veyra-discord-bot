@@ -372,7 +372,7 @@ def _register_all_modules(bot: commands.Bot):
         except Exception as e:
             await ctx.send(f"❌ Could not remove timeout: `{e}`")
 
-    # Note: Full production music engine is loaded via music_system.py
+    # Note: Full production music engine is loaded via music_bot folder
 
     # ==================== MODULE GROUPS ====================
 
