@@ -10967,8 +10967,7 @@ def register_discord_command_tree():
         TicketGroup(),
         RootSetupGroup(),
         WelcomeStandaloneGroup(),
-        ExitStandaloneGroup(),
-        RoleCommandsGroup()
+        ExitStandaloneGroup()
     ]
     for g in groups:
         try:
