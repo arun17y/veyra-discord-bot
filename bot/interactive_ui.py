@@ -864,12 +864,56 @@ def build_banner_embed(target: discord.Member or discord.User, user_fetched: dis
 
 class ServerInfoSelect(Select):
     def __init__(self, guild):
+        self.guild = guild
         options = [
-            discord.SelectOption(label="General Information", emoji="🏠", value="general"),
+            discord.SelectOption(label="General Information", emoji="🏠", value="general", default=True),
             discord.SelectOption(label="Server Roles", emoji="🎭", value="roles"),
             discord.SelectOption(label="Server Emojis", emoji="📺", value="emojis")
         ]
         super().__init__(placeholder="🏠 General Information", min_values=1, max_values=1, options=options)
+
+    async def callback(self, interaction: discord.Interaction):
+        await interaction.response.defer()
+        val = self.values[0]
+        guild = self.guild or interaction.guild
+
+        if val == "general":
+            embed = build_server_info_embed(guild)
+        elif val == "roles":
+            roles = [r.mention for r in reversed(guild.roles[1:])]
+            roles_str = ", ".join(roles[:30]) if roles else "None"
+            if len(roles) > 30:
+                roles_str += f" (+{len(roles)-30} more)"
+            embed = discord.Embed(
+                title=f"{guild.name} — Server Roles ({len(guild.roles)})",
+                description=roles_str,
+                color=THEME_COLOR
+            )
+            if guild.icon:
+                embed.set_thumbnail(url=guild.icon.url)
+            embed.set_footer(text="Powered by Veyra Development")
+        elif val == "emojis":
+            static_emojis = [str(e) for e in guild.emojis if not e.animated]
+            animated_emojis = [str(e) for e in guild.emojis if e.animated]
+            embed = discord.Embed(
+                title=f"{guild.name} — Server Emojis ({len(guild.emojis)})",
+                color=THEME_COLOR
+            )
+            e_desc = ""
+            if static_emojis:
+                e_desc += f"**Static ({len(static_emojis)}):** " + " ".join(static_emojis[:25]) + "\n\n"
+            if animated_emojis:
+                e_desc += f"**Animated ({len(animated_emojis)}):** " + " ".join(animated_emojis[:25])
+            embed.description = e_desc or "No custom emojis on this server."
+            if guild.icon:
+                embed.set_thumbnail(url=guild.icon.url)
+            embed.set_footer(text="Powered by Veyra Development")
+        else:
+            embed = build_server_info_embed(guild)
+
+        for opt in self.options:
+            opt.default = (opt.value == val)
+        await interaction.edit_original_response(embed=embed, view=self.view)
 
 class ServerInfoView(View):
     def __init__(self, guild):
