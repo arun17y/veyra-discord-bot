@@ -1040,100 +1040,56 @@ class ServerSettingsDashboardView(discord.ui.View):
 
 
 # ── 13. REGISTRATION FUNCTION ────────────────────────────────────────────────
-def setup_server_control_system(bot: commands.Bot):
+def setup_server_control_system(bot: commands.Bot, perm_group: app_commands.Group = None):
     """
-    Registers all Server Control app command groups and background loops on bot tree.
+    Registers all Server Control app command groups, Diagnostics Suite, and background loops on bot tree.
     """
     ch_grp = ChannelManagerGroup(bot)
     cat_grp = CategoryManagerGroup(bot)
+    role_grp = RoleManagerGroup(bot)
+    server_grp = ServerControlGroup(bot)
+
     try:
         from channel_system import attach_ultimate_channel_commands, attach_ultimate_category_commands, setup_channel_system_prefix_commands
         attach_ultimate_channel_commands(ch_grp, bot)
         attach_ultimate_category_commands(cat_grp, bot)
         setup_channel_system_prefix_commands(bot)
     except Exception as cs_err:
-        print(f"⚠️ Channel system registration notice: {cs_err}")
+        try:
+            from bot.channel_system import attach_ultimate_channel_commands, attach_ultimate_category_commands, setup_channel_system_prefix_commands
+            attach_ultimate_channel_commands(ch_grp, bot)
+            attach_ultimate_category_commands(cat_grp, bot)
+            setup_channel_system_prefix_commands(bot)
+        except Exception as cs_err2:
+            print(f"⚠️ Channel system registration notice: {cs_err2}")
+
+    try:
+        from advanced_customization import register_role_customization
+        register_role_customization(role_grp, bot)
+    except Exception as r_err:
+        try:
+            from bot.advanced_customization import register_role_customization
+            register_role_customization(role_grp, bot)
+        except Exception as r_err2:
+            print(f"⚠️ Role customization registration notice: {r_err2}")
+
+    try:
+        from diagnostics_suite import setup_diagnostics_suite
+        setup_diagnostics_suite(bot, perm_group, server_grp)
+    except Exception as d_err:
+        try:
+            from bot.diagnostics_suite import setup_diagnostics_suite
+            setup_diagnostics_suite(bot, perm_group, server_grp)
+        except Exception as d_err2:
+            print(f"⚠️ Diagnostics suite registration notice: {d_err2}")
 
     bot.tree.add_command(Voice247Group(bot))
     bot.tree.add_command(ch_grp)
     bot.tree.add_command(cat_grp)
-    bot.tree.add_command(RoleManagerGroup(bot))
-    bot.tree.add_command(ServerControlGroup(bot))
+    bot.tree.add_command(role_grp)
+    bot.tree.add_command(server_grp)
     bot.tree.add_command(ServerBackupGroup(bot))
     bot.tree.add_command(SchedulerGroup(bot))
-
-    @bot.tree.command(name="set247", description="Connect bot 24/7 to a voice channel")
-    @app_commands.describe(channel="Voice channel to lock 24/7 (defaults to your current voice channel)")
-    async def tree_set247(interaction: discord.Interaction, channel: typing.Optional[discord.VoiceChannel] = None):
-        await interaction.response.defer()
-        if not await is_authorized_manager(interaction, "247"):
-            return
-        guild = interaction.guild
-        target_vc = channel or resolve_member_voice_channel(guild, interaction.user.id)
-        if not target_vc:
-            embed = discord.Embed(
-                title="⚠️ Voice Channel Required",
-                description="Please join a voice channel first or specify a valid voice channel (`/set247 #channel`)!",
-                color=discord.Color.from_rgb(24, 24, 27)
-            )
-            embed.set_footer(text="Powered by VEYRA")
-            return await interaction.followup.send(embed=embed)
-
-        try:
-            vc = guild.voice_client
-            if vc:
-                if vc.channel.id != target_vc.id and vc.is_connected():
-                    await vc.move_to(target_vc)
-            else:
-                await target_vc.connect(reconnect=True, timeout=30.0)
-
-            conn = get_db()
-            cursor = conn.cursor()
-            cursor.execute("""
-                INSERT OR REPLACE INTO voice_247_settings (guild_id, channel_id, enabled, last_reconnect, updated_at)
-                VALUES (?, ?, 1, ?, CURRENT_TIMESTAMP)
-            """, (str(guild.id), str(target_vc.id), datetime.now(timezone.utc).isoformat()))
-            conn.commit()
-            conn.close()
-
-            await dispatch_discord_log(guild, "audit", "24/7 Voice Connection Enabled", f"Bot locked 24/7 to voice channel {target_vc.mention}.", 0x22c55e)
-            embed = discord.Embed(
-                title="🟢 24/7 Voice System Active",
-                description=f"Connected to {target_vc.mention}.\nConnection saved and will automatically restore on bot restart.",
-                color=discord.Color.from_rgb(24, 24, 27)
-            )
-            embed.set_footer(text="Powered by VEYRA")
-            await interaction.followup.send(embed=embed)
-        except Exception as e:
-            await interaction.followup.send(f"❌ Failed to connect to voice channel: `{e}`")
-
-    @bot.tree.command(name="voice247", description="Configure or view 24/7 voice status")
-    @app_commands.describe(channel="Voice channel to set 24/7 (optional)")
-    async def tree_voice247(interaction: discord.Interaction, channel: typing.Optional[discord.VoiceChannel] = None):
-        if channel:
-            return await tree_set247(interaction, channel=channel)
-        guild = interaction.guild
-        conn = get_db()
-        cursor = conn.cursor()
-        cursor.execute("SELECT * FROM voice_247_settings WHERE guild_id = ?", (str(guild.id),))
-        row = cursor.fetchone()
-        conn.close()
-        vc = guild.voice_client
-        is_connected = vc and vc.is_connected()
-        vc_name = vc.channel.name if is_connected else "Not Connected"
-        enabled = row['enabled'] if row else 0
-        target_ch_id = row['channel_id'] if row else None
-        target_ch = guild.get_channel(int(target_ch_id)) if target_ch_id else None
-
-        embed = discord.Embed(
-            title="🎙️ 24/7 Voice System Status",
-            color=discord.Color.from_rgb(34, 197, 94) if is_connected else discord.Color.from_rgb(239, 68, 68)
-        )
-        embed.add_field(name="24/7 Enabled", value="🟢 Yes" if enabled == 1 else "🔴 No", inline=True)
-        embed.add_field(name="Live Connection", value=f"🟢 `{vc_name}`" if is_connected else "🔴 Offline", inline=True)
-        embed.add_field(name="Configured Channel", value=target_ch.mention if target_ch else "`None`", inline=True)
-        embed.set_footer(text=f"Server: {guild.name}")
-        await interaction.response.send_message(embed=embed)
 
     @bot.command(name="set247", aliases=["voice247"], description="Connect bot 24/7 to a voice channel")
     async def prefix_set247(ctx, channel: typing.Optional[typing.Union[discord.VoiceChannel, discord.StageChannel]] = None):

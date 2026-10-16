@@ -10812,9 +10812,10 @@ async def leave_prefix_standalone_test(ctx):
 
 
 def register_discord_command_tree():
+    perm_grp = PermissionGroup()
     groups = [
         WhitelistGroup(),
-        PermissionGroup(),
+        perm_grp,
         LogsGroup(),
         LeaderboardGroup(),
         EventsGroup(),
@@ -10832,7 +10833,7 @@ def register_discord_command_tree():
         except Exception as e:
             pass
     try:
-        setup_server_control_system(bot)
+        setup_server_control_system(bot, perm_grp)
     except Exception as e:
         print("Server control registration notice:", e)
     try:

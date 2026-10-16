@@ -1172,6 +1172,124 @@ def attach_ultimate_category_commands(category_group: app_commands.Group, bot: c
         embed.set_footer(text=FOOTER_TEXT)
         await interaction.followup.send(embed=embed)
 
+    # 8. /category copyperms
+    @category_group.command(name="copyperms", description="Copy category permission overwrites to another category")
+    @app_commands.describe(source="Source category", target="Target category to update")
+    async def slash_category_copyperms(interaction: discord.Interaction, source: discord.CategoryChannel, target: discord.CategoryChannel):
+        if not interaction.user.guild_permissions.manage_channels and interaction.user.id != interaction.guild.owner_id:
+            return await interaction.response.send_message("❌ You require `Manage Channels` permission.", ephemeral=True)
+        await interaction.response.defer()
+        try:
+            for t in list(target.overwrites.keys()):
+                await target.set_permissions(t, overwrite=None)
+            for t, ow in source.overwrites.items():
+                await target.set_permissions(t, overwrite=ow)
+            embed = discord.Embed(
+                title="🛡️ Category Permissions Replicated",
+                description=f"Copied `{len(source.overwrites)}` overwrites from **{source.name}** to **{target.name}**.",
+                color=discord.Color(THEME_SUCCESS)
+            )
+            embed.set_footer(text=FOOTER_TEXT)
+            await interaction.followup.send(embed=embed)
+        except Exception as e:
+            await interaction.followup.send(f"❌ Failed to copy category permissions: `{e}`")
+
+    # 9. /category renamebulk
+    @category_group.command(name="renamebulk", description="Bulk rename categories with prefix/suffix formatting")
+    @app_commands.describe(prefix="Optional prefix (e.g. '📂 ')", suffix="Optional suffix")
+    async def slash_category_renamebulk(interaction: discord.Interaction, prefix: typing.Optional[str] = "", suffix: typing.Optional[str] = ""):
+        if not interaction.user.guild_permissions.manage_channels and interaction.user.id != interaction.guild.owner_id:
+            return await interaction.response.send_message("❌ You require `Manage Channels` permission.", ephemeral=True)
+        await interaction.response.defer()
+        count = 0
+        for cat in interaction.guild.categories:
+            new_title = f"{prefix}{cat.name}{suffix}"
+            try:
+                await cat.edit(name=new_title)
+                count += 1
+            except Exception:
+                pass
+        embed = discord.Embed(
+            title="✏️ Bulk Category Rename",
+            description=f"Updated `{count}` categories with prefix `{prefix}` and suffix `{suffix}`.",
+            color=discord.Color(THEME_SUCCESS)
+        )
+        embed.set_footer(text=FOOTER_TEXT)
+        await interaction.followup.send(embed=embed)
+
+    # 10. /category template
+    @category_group.command(name="template", description="Save or apply category and child channel layout templates")
+    @app_commands.describe(action="save, apply, or list", template_name="Template identifier", category="Category to capture or instantiate")
+    @app_commands.choices(action=[
+        app_commands.Choice(name="Save Structure as Template", value="save"),
+        app_commands.Choice(name="Apply Template Structure", value="apply"),
+        app_commands.Choice(name="List Category Templates", value="list")
+    ])
+    async def slash_category_template(interaction: discord.Interaction, action: app_commands.Choice[str], template_name: typing.Optional[str] = None, category: typing.Optional[discord.CategoryChannel] = None):
+        if not interaction.user.guild_permissions.manage_channels and interaction.user.id != interaction.guild.owner_id:
+            return await interaction.response.send_message("❌ You require `Manage Channels` permission.", ephemeral=True)
+        await interaction.response.defer()
+        conn = get_db()
+        cursor = conn.cursor()
+        guild_id = str(interaction.guild.id)
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS category_templates (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                guild_id TEXT NOT NULL,
+                template_name TEXT NOT NULL,
+                structure_json TEXT NOT NULL,
+                created_by TEXT,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                UNIQUE(guild_id, template_name)
+            )
+        """)
+        conn.commit()
+
+        if action.value == "save":
+            if not template_name or not category:
+                return await interaction.followup.send("⚠️ `template_name` and `category` are required to save.")
+            ch_list = [{"name": c.name, "type": str(c.type), "topic": getattr(c, "topic", None)} for c in category.channels]
+            cursor.execute("INSERT OR REPLACE INTO category_templates (guild_id, template_name, structure_json, created_by) VALUES (?, ?, ?, ?)", (guild_id, template_name, json.dumps(ch_list), str(interaction.user.id)))
+            conn.commit()
+            embed = discord.Embed(
+                title="💾 Category Template Saved",
+                description=f"Saved **{template_name}** with `{len(ch_list)}` channel definitions.",
+                color=discord.Color(THEME_SUCCESS)
+            )
+            embed.set_footer(text=FOOTER_TEXT)
+            await interaction.followup.send(embed=embed)
+        elif action.value == "apply":
+            if not template_name:
+                return await interaction.followup.send("⚠️ `template_name` is required.")
+            cursor.execute("SELECT structure_json FROM category_templates WHERE guild_id = ? AND template_name = ?", (guild_id, template_name))
+            row = cursor.fetchone()
+            if not row:
+                return await interaction.followup.send(f"❌ Template `{template_name}` not found.")
+            ch_data = json.loads(row[0])
+            target_cat = category or await interaction.guild.create_category(name=f"{template_name}-Category")
+            created = 0
+            for item in ch_data:
+                try:
+                    await interaction.guild.create_text_channel(name=item["name"], category=target_cat, topic=item.get("topic"))
+                    created += 1
+                except Exception:
+                    pass
+            embed = discord.Embed(
+                title="✅ Category Template Applied",
+                description=f"Applied **{template_name}** under **{target_cat.name}** (`{created}` channels instantiated).",
+                color=discord.Color(THEME_SUCCESS)
+            )
+            embed.set_footer(text=FOOTER_TEXT)
+            await interaction.followup.send(embed=embed)
+        elif action.value == "list":
+            cursor.execute("SELECT template_name, created_at FROM category_templates WHERE guild_id = ?", (guild_id,))
+            rows = cursor.fetchall()
+            names = [f"• **{r[0]}** (Saved: `{r[1]}`)" for r in rows] if rows else ["No category templates saved."]
+            embed = discord.Embed(title="📜 Category Templates", description="\n".join(names), color=discord.Color(THEME_PURPLE))
+            embed.set_footer(text=FOOTER_TEXT)
+            await interaction.followup.send(embed=embed)
+
+
 
 # ── 9. PREFIX COMMANDS FOR CHANNEL & CATEGORY SUITE ──────────────────────────
 def setup_channel_system_prefix_commands(bot: commands.Bot):
