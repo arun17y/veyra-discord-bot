@@ -244,20 +244,21 @@ def _register_all_modules(bot: commands.Bot):
         embed.set_footer(text="Powered by Veyra Development™")
         await ctx.send(embed=embed)
 
-    @bot.command(name="banner", description="Displays user or server banner")
-    async def banner_cmd(ctx, member: discord.Member = None):
-        target = member or ctx.author
-        user = await bot.fetch_user(target.id)
-        if user.banner:
-            embed = discord.Embed(title=f"{target.name}'s Banner", color=THEME_COLOR)
-            embed.set_image(url=user.banner.url)
-        else:
-            embed = discord.Embed(
-                description=f"⚠️ {target.mention} does not have a custom profile banner.",
-                color=THEME_COLOR
-            )
-        embed.set_footer(text="Powered by Veyra Development™")
-        await ctx.send(embed=embed)
+    if not bot.get_command("banner"):
+        @bot.command(name="banner", description="Displays user or server banner")
+        async def banner_cmd(ctx, member: discord.Member = None):
+            target = member or ctx.author
+            user = await bot.fetch_user(target.id)
+            if user.banner:
+                embed = discord.Embed(title=f"{target.name}'s Banner", color=THEME_COLOR)
+                embed.set_image(url=user.banner.url)
+            else:
+                embed = discord.Embed(
+                    description=f"⚠️ {target.mention} does not have a custom profile banner.",
+                    color=THEME_COLOR
+                )
+            embed.set_footer(text="Powered by Veyra Development™")
+            await ctx.send(embed=embed)
 
     @bot.command(name="membercount", aliases=["mc"], description="Display server member counts")
     async def membercount_cmd(ctx):

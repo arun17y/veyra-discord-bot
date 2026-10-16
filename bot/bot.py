@@ -3972,19 +3972,19 @@ From raids and nukes to spam and unwanted users, I'll protect your community wit
         
     print(f"📡 Cached invite links for {len(bot.guilds)} guilds.")
     
-    # 1. Instantly publish commands to all active guilds for 1-second real-time activation
+    # 1. Cleanly purge any guild-scoped duplicate commands so Discord only renders clean global slash commands
     for g in bot.guilds:
         try:
-            bot.tree.copy_global_to(guild=g)
+            bot.tree.clear_commands(guild=g)
             await bot.tree.sync(guild=g)
-            print(f"⚡ Instantly published real-time commands to guild: {g.name} ({g.id})")
+            print(f"🧹 Cleaned guild command overrides for: {g.name} ({g.id})")
         except Exception as ge:
-            print(f"⚠️ Guild command sync notice for {g.id}: {ge}")
+            print(f"⚠️ Guild command cleanup notice for {g.id}: {ge}")
 
-    # 2. Sync single global command tree cleanly
+    # 2. Sync single global command tree cleanly (no duplicates)
     try:
         synced_global = await bot.tree.sync()
-        print(f"📡 Cleanly synced {len(synced_global)} global slash commands.")
+        print(f"📡 Cleanly synced {len(synced_global)} global slash commands (zero duplicates).")
     except Exception as e:
         print(f"❌ Global command tree sync notice: {e}")
         
@@ -3994,11 +3994,6 @@ From raids and nukes to spam and unwanted users, I'll protect your community wit
 @bot.event
 async def on_guild_join(guild):
     print(f"📥 Joined new guild: {guild.name} ({guild.id})")
-    try:
-        bot.tree.copy_global_to(guild=guild)
-        await bot.tree.sync(guild=guild)
-    except Exception:
-        pass
     await cache_invites(guild)
     update_db_bot_guilds()
     await sync_active_bot_guilds()

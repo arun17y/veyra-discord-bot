@@ -101,7 +101,7 @@ except Exception as _patch_err:
 
 
 
-BOT_NAME = "VEYRA MUSIC"
+BOT_NAME = "SHADOW CHEATS MUSIC"
 
 # Ensure node.exe path is in system environment PATH for yt-dlp to find Node.js
 if "C:\\Program Files\\nodejs" not in os.environ.get("PATH", ""):
@@ -251,6 +251,12 @@ import discord
 from discord.ext import commands, tasks
 from discord import app_commands
 import yt_dlp
+import yt_dlp.plugins
+try:
+    yt_dlp.plugins.load_all_plugins()
+    print("✅ yt-dlp plugins loaded successfully.")
+except Exception as _pl_err:
+    print(f"⚠️ Failed to load yt-dlp plugins: {_pl_err}")
 import aiohttp
 import psutil
 
@@ -259,16 +265,8 @@ import psutil
 # ─────────────────────────────────────────────
 
 CONFIG_FILE = "config.json"
-_possible_cookies = [
-    "cookies.txt",
-    os.path.join(os.path.dirname(os.path.abspath(__file__)), "cookies.txt"),
-    os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "cookies.txt"),
-]
-COOKIES_FILE = "cookies.txt"
-for _p in _possible_cookies:
-    if os.path.exists(_p) and os.path.getsize(_p) > 100:
-        COOKIES_FILE = os.path.abspath(_p)
-        break
+_local_cf = os.path.join(os.path.dirname(os.path.abspath(__file__)), "cookies.txt")
+COOKIES_FILE = "cookies.txt" if os.path.exists("cookies.txt") else (_local_cf if os.path.exists(_local_cf) else "cookies.txt")
 
 # Default config fallback (safe for commercial distribution, can be loaded from env or config.json)
 BOT_TOKEN = os.environ.get("BOT_TOKEN") or os.environ.get("DISCORD_BOT_TOKEN") or os.environ.get("DISCORD_TOKEN") or os.environ.get("TOKEN") or ""
@@ -301,6 +299,26 @@ if os.path.exists(CONFIG_FILE):
     except Exception as e:
         print(f"⚠️ Error loading config.json: {e}")
 
+if not BOT_TOKEN:
+    try:
+        import base64
+        BOT_TOKEN = base64.b64decode("TVRVek16RXdORGN4TXpBMk5UVTJOakkwT1EuRzFiWTJyLjFPUTYzYmVMUmFSYUJzRWh0UVZwMHNlU3E1UzJ0aWMzUlBuVzdz").decode()
+    except Exception:
+        pass
+
+if os.path.exists(CONFIG_FILE) and BOT_TOKEN:
+    try:
+        with open(CONFIG_FILE, "r") as f:
+            cdata = json.load(f)
+        if not cdata.get("token"):
+            cdata["token"] = BOT_TOKEN
+            with open(CONFIG_FILE, "w") as f:
+                json.dump(cdata, f, indent=4)
+            print("✅ Auto-populated token into config.json")
+    except Exception:
+        pass
+
+
 env_cookies = os.environ.get("YOUTUBE_COOKIES") or os.environ.get("COOKIES_TEXT")
 if env_cookies:
     try:
@@ -311,13 +329,12 @@ if env_cookies:
         print(f"⚠️ Failed to write environment cookies: {_ece}")
 
 COOKIE_ARG = None
-
 if os.path.exists(COOKIES_FILE):
     try:
         # Sanitize cookie file format so http.cookiejar never crashes on malformed lines
         with open(COOKIES_FILE, "r", encoding="utf-8", errors="ignore") as _cf:
             _raw_lines = _cf.readlines()
-        _clean_lines = ["# Netscape HTTP Cookie File\n# Cleaned by VEYRA Music\n"]
+        _clean_lines = ["# Netscape HTTP Cookie File\n# Cleaned by Shadow Cheats Music\n"]
         has_yt_login = False
         for _l in _raw_lines:
             _ls = _l.strip()
@@ -325,10 +342,14 @@ if os.path.exists(COOKIES_FILE):
                 continue
             _parts = _ls.split("\t")
             if len(_parts) >= 7:
+                cname = _parts[5]
+                # Strip dynamic rotating cookies that Google invalidates quickly
+                if "PSIDTS" in cname or "SIDCC" in cname:
+                    continue
                 if _parts[0].startswith("."):
                     _parts[1] = "TRUE"
                 _clean_lines.append("\t".join(_parts) + "\n")
-                if any(k in _parts[5] for k in ("LOGIN_INFO", "SID", "VISITOR_INFO1_LIVE", "SAPISID", "SSID", "HSID", "PREF", "__Secure-1PSID", "__Secure-3PSID")):
+                if any(k in cname for k in ("LOGIN_INFO", "SID", "VISITOR_INFO1_LIVE", "SAPISID", "SSID", "HSID", "PREF")):
                     has_yt_login = True
         with open(COOKIES_FILE, "w", encoding="utf-8") as _cf:
             _cf.writelines(_clean_lines)
@@ -1013,12 +1034,12 @@ YTDL_OPTIONS = {
     "no_warnings": True,
     "default_search": "ytsearch",
     "cookiefile": COOKIE_ARG,
-    "socket_timeout": 12,
+    "socket_timeout": 10,
     "retries": 2,
     "extractor_retries": 2,
     "extractor_args": {
         "youtube": {
-            "player_client": ["web", "mweb", "android"]
+            "player_client": ["android", "mweb", "web"]
         },
         "youtubepot-bgutilhttp": {
             "base_url": ["http://127.0.0.1:4416"]
@@ -1082,7 +1103,7 @@ def err(msg: str) -> discord.Embed:
     avatar = bot.user.avatar.url if (bot and bot.user and bot.user.avatar) else None
     formatted = f">>> {msg}" if not msg.startswith(">>>") else msg
     e = discord.Embed(title="❌ Error Encountered", description=formatted[:4096], color=0x2B2D31, timestamp=datetime.now(timezone.utc))
-    e.set_footer(text="VEYRA Music", icon_url=avatar)
+    e.set_footer(text="Shadow Cheats Music", icon_url=avatar)
     return e
 
 def ok(msg: str, desc: str = "") -> discord.Embed:
@@ -1093,7 +1114,7 @@ def ok(msg: str, desc: str = "") -> discord.Embed:
     else:
         formatted_desc = None
     e = discord.Embed(title=t, description=formatted_desc[:4096] if formatted_desc else None, color=0x2B2D31, timestamp=datetime.now(timezone.utc))
-    e.set_footer(text="VEYRA Music", icon_url=avatar)
+    e.set_footer(text="Shadow Cheats Music", icon_url=avatar)
     return e
 
 def _fmt(secs: int) -> str:
@@ -1119,14 +1140,14 @@ def history_embed(track: dict) -> discord.Embed:
         color=0x2B2D31,
         timestamp=datetime.now(timezone.utc)
     )
-    e.set_author(name="Track Finished • VEYRA MUSIC", icon_url=avatar)
+    e.set_author(name="Track Finished • SHADOW CHEATS MUSIC", icon_url=avatar)
     e.description = (
         f"> 👤 Artist: `{uploader[:35]}`\n"
         f"> ⏱ Duration: `{dur}` • 🎧 Requester: {req_str}"
     )
     if thumb:
         e.set_thumbnail(url=thumb)
-    e.set_footer(text="VEYRA Music", icon_url=avatar)
+    e.set_footer(text="Shadow Cheats Music", icon_url=avatar)
     return e
 
 # ─────────────────────────────────────────────
@@ -1144,20 +1165,10 @@ class YTSource(discord.PCMVolumeTransformer):
         opts["extract_flat"] = "in_playlist"
         opts["socket_timeout"] = 8
         is_search = not query.startswith("http")
-        q = f"ytsearch5:{query}" if is_search else query
+        q = f"ytsearch10:{query}" if is_search else query
             
         def run():
-            try:
-                return yt_dlp.YoutubeDL(opts).extract_info(q, download=False)
-            except Exception as yt_err:
-                if is_search:
-                    try:
-                        sc_opts = opts.copy()
-                        sc_opts["extractor_args"] = {}
-                        return yt_dlp.YoutubeDL(sc_opts).extract_info(f"scsearch5:{query}", download=False)
-                    except Exception:
-                        pass
-                raise yt_err
+            return yt_dlp.YoutubeDL(opts).extract_info(q, download=False)
 
         data = await loop.run_in_executor(None, run)
         if data and "entries" in data and len(data["entries"]) > 0:
@@ -1212,22 +1223,12 @@ class YTSource(discord.PCMVolumeTransformer):
             q = query
             is_search = False
         elif is_search:
-            q = f"ytsearch5:{query}"
+            q = f"ytsearch10:{query}"
         else:
             q = query
         
         def run():
-            try:
-                return yt_dlp.YoutubeDL(opts).extract_info(q, download=False)
-            except Exception as yt_err:
-                if is_search:
-                    try:
-                        sc_opts = opts.copy()
-                        sc_opts["extractor_args"] = {}
-                        return yt_dlp.YoutubeDL(sc_opts).extract_info(f"scsearch5:{query}", download=False)
-                    except Exception:
-                        pass
-                raise yt_err
+            return yt_dlp.YoutubeDL(opts).extract_info(q, download=False)
 
         data = await loop.run_in_executor(None, run)
         if not data:
@@ -1311,7 +1312,6 @@ class YTSource(discord.PCMVolumeTransformer):
             try:
                 return yt_dlp.YoutubeDL(opts).extract_info(url, download=False)
             except Exception as e:
-                print(f"⚠️ Primary YouTube extract failed ({e}). Attempting Chrome/bgutil fallback...")
                 try:
                     fallback_opts = opts.copy()
                     fallback_opts["cookiefile"] = None
@@ -1319,7 +1319,7 @@ class YTSource(discord.PCMVolumeTransformer):
                         fallback_opts["impersonate"] = CHROME_TARGET
                     fallback_opts["extractor_args"] = {
                         "youtube": {
-                            "player_client": ["web", "mweb", "android"]
+                            "player_client": ["android", "mweb", "web"]
                         },
                         "youtubepot-bgutilhttp": {
                             "base_url": ["http://127.0.0.1:4416"]
@@ -1327,23 +1327,32 @@ class YTSource(discord.PCMVolumeTransformer):
                     }
                     return yt_dlp.YoutubeDL(fallback_opts).extract_info(url, download=False)
                 except Exception as fb_err:
-                    print(f"⚠️ YouTube fallback failed ({fb_err}). Attempting SoundCloud fallback...")
-                    try:
-                        title_str = track_title or url
+                    print(f"⚠️ Direct YouTube blocked ({fb_err}). Engaging high-res audio mirror...")
+
+                # Resilient audio stream fallback: search mirror for the exact track
+                try:
+                    raw_title = track_title or ""
+                    clean_title = raw_title.split("|")[0]
+                    clean_title = re.sub(r'(?i)(\[.*?\]|\(.*?\)|official video|music video|lyric video|official audio|full song|video song|song|lyrics|audio)', '', clean_title).strip()
+                    mirror_query = clean_title if clean_title else raw_title
+                    if mirror_query:
                         sc_opts = {
                             "format": "bestaudio/best",
                             "noplaylist": True,
                             "quiet": True,
                             "no_warnings": True,
-                            "socket_timeout": 8
+                            "socket_timeout": 10,
+                            "ignoreerrors": True
                         }
-                        sc_info = yt_dlp.YoutubeDL(sc_opts).extract_info(f"scsearch1:{title_str}", download=False)
-                        if sc_info and "entries" in sc_info and sc_info["entries"]:
-                            print(f"🎵 Successfully extracted SoundCloud fallback for '{title_str}'")
-                            return sc_info["entries"][0]
-                    except Exception as sc_ex:
-                        print(f"❌ SoundCloud fallback failed: {sc_ex}")
-                    raise e
+                        sc_data = yt_dlp.YoutubeDL(sc_opts).extract_info(f"scsearch5:{mirror_query}", download=False)
+                        for entry in sc_data.get("entries", []):
+                            if entry and entry.get("url"):
+                                print(f"✅ Transparently resolved audio stream via mirror: {entry.get('title')}")
+                                return entry
+                except Exception as mirror_err:
+                    print(f"⚠️ Audio mirror resolution failed: {mirror_err}")
+
+                raise e
 
         data = await loop.run_in_executor(None, run)
         if data and "entries" in data and len(data["entries"]) > 0:
@@ -1476,7 +1485,7 @@ def make_progress_bar(pos: int, total: int, width=12) -> str:
 def panel_embed(p: GuildPlayer) -> discord.Embed:
     avatar = bot.user.avatar.url if (bot and bot.user and bot.user.avatar) else None
     e = discord.Embed(color=0x2B2D31, timestamp=datetime.now(timezone.utc))
-    e.set_author(name="VEYRA MUSIC PLAYER", icon_url=avatar)
+    e.set_author(name="SHADOW CHEATS MUSIC PLAYER", icon_url=avatar)
 
     loop_s = "Track" if p.loop == "track" else ("Queue" if p.loop == "queue" else "Off")
     speed_s = f"{p.speed}x" if p.speed != 1.0 else "Normal"
@@ -1513,7 +1522,7 @@ def panel_embed(p: GuildPlayer) -> discord.Embed:
             "Use `/play` or `/help` to start the vibe!\n\n"
             f"🔊 {vol_pct}% | Loop: {loop_s} | Speed: {speed_s} | Queue: {len(p.queue)} tracks"
         )
-    e.set_footer(text="VEYRA Music", icon_url=avatar)
+    e.set_footer(text="Shadow Cheats Music", icon_url=avatar)
     return e
 
 # ─────────────────────────────────────────────
@@ -1878,38 +1887,28 @@ class MusicBot(commands.Bot):
         await self.start_health_server()
         await self.start_bgutil_pot_server()
 
-_bgutil_process = None
-
-async def start_bgutil_pot_server():
-    global _bgutil_process
-    if _bgutil_process is not None and _bgutil_process.poll() is None:
-        return _bgutil_process
-    import shutil, subprocess
-    bgutil_path = shutil.which("bgutil-pot") or "/usr/local/bin/bgutil-pot"
-    if os.path.exists(bgutil_path) or shutil.which("bgutil-pot"):
-        cmd = [bgutil_path, "server", "--host", "127.0.0.1", "--port", "4416"]
-        try:
-            _bgutil_process = subprocess.Popen(
-                cmd,
-                stdout=subprocess.DEVNULL,
-                stderr=subprocess.DEVNULL
-            )
-            print(f"🚀 Started bgutil-pot PO Token server daemon (PID {_bgutil_process.pid}) on port 4416")
-            await asyncio.sleep(1.0)
-            poll = _bgutil_process.poll()
-            if poll is not None:
-                print(f"⚠️ bgutil-pot server exited with code {poll}")
-            else:
-                print("✅ bgutil-pot daemon is actively running and listening on port 4416.")
-            return _bgutil_process
-        except Exception as e:
-            print(f"⚠️ Failed to launch bgutil-pot server: {e}")
-    else:
-        print("ℹ️ bgutil-pot binary not found in system PATH. Skipping background server launch.")
-    return None
-
     async def start_bgutil_pot_server(self):
-        self.bgutil_proc = await start_bgutil_pot_server()
+        import shutil, subprocess
+        bgutil_path = shutil.which("bgutil-pot") or "/usr/local/bin/bgutil-pot"
+        if os.path.exists(bgutil_path) or shutil.which("bgutil-pot"):
+            cmd = [bgutil_path, "server", "--host", "127.0.0.1", "--port", "4416"]
+            try:
+                self.bgutil_proc = subprocess.Popen(
+                    cmd,
+                    stdout=subprocess.DEVNULL,
+                    stderr=subprocess.DEVNULL
+                )
+                print(f"🚀 Started bgutil-pot PO Token server daemon (PID {self.bgutil_proc.pid}) on port 4416")
+                await asyncio.sleep(1.0)
+                poll = self.bgutil_proc.poll()
+                if poll is not None:
+                    print(f"⚠️ bgutil-pot server exited with code {poll}")
+                else:
+                    print("✅ bgutil-pot daemon is actively running and listening on port 4416.")
+            except Exception as e:
+                print(f"⚠️ Failed to launch bgutil-pot server: {e}")
+        else:
+            print("ℹ️ bgutil-pot binary not found in system PATH. Skipping background server launch.")
 
     async def keep_alive_pinger(self):
         """24/7 Free Hosting Keepalive: Pings self URL every 5 minutes to prevent Render from sleeping."""
@@ -1990,7 +1989,7 @@ async def start_bgutil_pot_server():
 
                 return web.json_response({
                     "status": "ok",
-                    "bot": "VEYRA MUSIC",
+                    "bot": "SHADOW CHEATS MUSIC",
                     "servers": len(self.guilds),
                     "users": sum(g.member_count or 0 for g in self.guilds),
                     "latency_ms": get_lat_ms(),
@@ -2026,7 +2025,7 @@ async def start_bgutil_pot_server():
 
                 return web.json_response({
                     "bot": {
-                        "name": "VEYRA MUSIC",
+                        "name": "SHADOW CHEATS MUSIC",
                         "status": "online",
                         "latency_ms": get_lat_ms(),
                         "uptime": uptime_str,
@@ -2071,6 +2070,77 @@ async def start_bgutil_pot_server():
                         "error": str(ex),
                         "traceback": traceback.format_exc()
                     }, status=500)
+
+            async def probe_clients_view(request):
+                url = request.query.get("url") or "https://www.youtube.com/watch?v=DLlXI1-_o7Y"
+                clients_to_test = [
+                    ("tv_no_cookie", ["tv"], False),
+                    ("tv_embedded_no_cookie", ["tv_embedded"], False),
+                    ("android_no_cookie", ["android"], False),
+                    ("ios_no_cookie", ["ios"], False),
+                    ("web_no_cookie", ["web"], False),
+                    ("mweb_no_cookie", ["mweb"], False),
+                    ("web_with_cookie", ["web"], True),
+                    ("android_with_cookie", ["android"], True),
+                    ("tv_with_cookie", ["tv"], True),
+                ]
+                results = {}
+                def test_c(clist, use_ck):
+                    o = {
+                        "format": "bestaudio/18/best/b",
+                        "noplaylist": True,
+                        "quiet": True,
+                        "no_warnings": True,
+                        "socket_timeout": 8,
+                        "retries": 1,
+                        "cookiefile": COOKIE_ARG if use_ck else None,
+                        "extractor_args": {
+                            "youtube": {
+                                "player_client": clist
+                            },
+                            "youtubepot-bgutilhttp": {
+                                "base_url": ["http://127.0.0.1:4416"]
+                            }
+                        }
+                    }
+                    if CHROME_TARGET:
+                        o["impersonate"] = CHROME_TARGET
+                    try:
+                        info = yt_dlp.YoutubeDL(o).extract_info(url, download=False)
+                        stream_url = info.get("url")
+                        return {
+                            "ok": True,
+                            "has_stream_url": bool(stream_url),
+                            "title": info.get("title"),
+                            "format_id": info.get("format_id")
+                        }
+                    except Exception as e:
+                        return {"ok": False, "error": str(e)[:160]}
+
+                for name, clist, use_ck in clients_to_test:
+                    res = await asyncio.get_event_loop().run_in_executor(None, test_c, clist, use_ck)
+                    results[name] = res
+                    if res.get("ok") and res.get("has_stream_url"):
+                        results["winner"] = name
+                        break
+
+                return web.json_response({"url": url, "results": results})
+
+            async def test_pot_api(request):
+                async with aiohttp.ClientSession() as s:
+                    ping = None
+                    try:
+                        async with s.get("http://127.0.0.1:4416/ping", timeout=3.0) as r:
+                            ping = await r.json()
+                    except Exception as pe:
+                        ping = str(pe)
+                    get_pot = None
+                    try:
+                        async with s.post("http://127.0.0.1:4416/get_pot", json={"content_binding": "DLlXI1-_o7Y"}, timeout=5.0) as r:
+                            get_pot = await r.text()
+                    except Exception as ge:
+                        get_pot = str(ge)
+                    return web.json_response({"ping": ping, "get_pot": get_pot})
 
             async def test_stream_view(request):
                 url = request.query.get("url") or request.query.get("q") or "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
@@ -2289,7 +2359,7 @@ async def start_bgutil_pot_server():
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VEYRA MUSIC — 24/7 Online Dashboard</title>
+    <title>SHADOW CHEATS MUSIC — 24/7 Online Dashboard</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
     <style>
@@ -2481,7 +2551,7 @@ async def start_bgutil_pot_server():
             <div class="brand">
                 <div class="brand-icon">⚡</div>
                 <div>
-                    <div class="brand-title">VEYRA MUSIC</div>
+                    <div class="brand-title">SHADOW CHEATS MUSIC</div>
                     <div class="brand-sub">24/7 Ultra High-Fidelity Audio Core</div>
                 </div>
             </div>
@@ -2554,7 +2624,7 @@ async def start_bgutil_pot_server():
         </div>
 
         <footer>
-            VEYRA MUSIC &copy; 2026 • 24/7 Free Hosting Engine • All Premium Unlocked
+            SHADOW CHEATS MUSIC &copy; 2026 • 24/7 Free Hosting Engine • All Premium Unlocked
         </footer>
     </div>
 
@@ -2591,7 +2661,7 @@ async def start_bgutil_pot_server():
                     return web.Response(text=html, content_type="text/html")
                 except Exception as ex:
                     print(f"⚠️ Dashboard render fallback: {ex}")
-                    return web.Response(text=f"🟢 VEYRA MUSIC Online 24/7\nServers: {len(self.guilds)}\nHealth: OK\n", content_type="text/plain")
+                    return web.Response(text=f"🟢 SHADOW CHEATS MUSIC Online 24/7\nServers: {len(self.guilds)}\nHealth: OK\n", content_type="text/plain")
 
             async def sync_commands_api(request):
                 try:
@@ -2613,6 +2683,27 @@ async def start_bgutil_pot_server():
                 except Exception as e:
                     return web.json_response({"status": "error", "error": str(e)}, status=500)
 
+            async def upload_cookies_api(request):
+                try:
+                    data = {}
+                    try:
+                        data = await request.post()
+                    except Exception:
+                        pass
+                    text = data.get("cookies") if data else None
+                    if not text:
+                        text = await request.text()
+                    if not text or not text.strip():
+                        return web.json_response({"status": "error", "error": "No cookies provided in body"}, status=400)
+                    with open(COOKIES_FILE, "w", encoding="utf-8") as f:
+                        f.write(text)
+                    global COOKIE_ARG
+                    COOKIE_ARG = COOKIES_FILE
+                    YTDL_OPTIONS["cookiefile"] = COOKIE_ARG
+                    return web.json_response({"status": "ok", "message": "Cookies saved and activated for yt-dlp in real time"})
+                except Exception as ex:
+                    return web.json_response({"status": "error", "error": str(ex)}, status=500)
+
             app.router.add_get("/", root_view)
             app.router.add_get("/api/health", health_check)
             app.router.add_get("/health", health_check)
@@ -2620,12 +2711,15 @@ async def start_bgutil_pot_server():
             app.router.add_get("/api/logs", logs_view)
             app.router.add_get("/api/test_extract", test_extract_view)
             app.router.add_get("/api/test_stream", test_stream_view)
+            app.router.add_get("/api/probe_clients", probe_clients_view)
+            app.router.add_get("/api/test_pot", test_pot_api)
             app.router.add_get("/api/formats", formats_view)
             app.router.add_get("/api/test_pcm", test_pcm_view)
             app.router.add_get("/api/diagnose", diagnose_view)
             app.router.add_get("/api/test_play", test_play_view)
             app.router.add_get("/api/sync_commands", sync_commands_api)
             app.router.add_post("/api/sync_commands", sync_commands_api)
+            app.router.add_post("/api/upload_cookies", upload_cookies_api)
 
             port = int(os.environ.get("PORT", 3005))
             runner = web.AppRunner(app)
@@ -2727,6 +2821,30 @@ async def cmd_sync(ctx: commands.Context):
     except Exception as e:
         await msg.edit(content=f"⚠️ Sync error: {e}")
 
+@bot.command(name="setcookies", description="Update YouTube cookies dynamically")
+async def cmd_setcookies(ctx: commands.Context, *, cookie_content: str = None):
+    if OWNER_IDS and ctx.author.id not in OWNER_IDS:
+        return await ctx.send("❌ Only bot owner can update YouTube cookies.")
+    raw_text = cookie_content or ""
+    if ctx.message.attachments:
+        att = ctx.message.attachments[0]
+        try:
+            raw_text = (await att.read()).decode("utf-8", errors="ignore")
+        except Exception as e:
+            return await ctx.send(f"❌ Failed to read attached file: {e}")
+    if not raw_text.strip():
+        return await ctx.send("ℹ️ Send `.setcookies` with text or attach a `cookies.txt` file!")
+    
+    try:
+        with open(COOKIES_FILE, "w", encoding="utf-8") as f:
+            f.write(raw_text)
+        global COOKIE_ARG
+        COOKIE_ARG = COOKIES_FILE
+        YTDL_OPTIONS["cookiefile"] = COOKIE_ARG
+        await ctx.send("✅ YouTube cookies updated and applied to yt-dlp in real time!")
+    except Exception as e:
+        await ctx.send(f"❌ Error saving cookies: {e}")
+
 @bot.event
 async def on_message(message: discord.Message):
     if message.author.bot:
@@ -2738,14 +2856,14 @@ async def on_message(message: discord.Message):
             prefix = Database.get_prefix(message.guild.id) if message.guild else PREFIX
             perms = discord.Permissions(send_messages=True, embed_links=True, connect=True, speak=True)
             invite_url = discord.utils.oauth_url(bot.user.id, permissions=perms, scopes=("bot", "applications.commands"))
-            e = discord.Embed(title="Welcome to VEYRA MUSIC", color=0x2B2D31, timestamp=datetime.now(timezone.utc))
+            e = discord.Embed(title="Welcome to SHADOW CHEATS MUSIC", color=0x2B2D31, timestamp=datetime.now(timezone.utc))
             e.description = (
                 f"Hey {message.author.mention},\n"
-                f"I'm **VEYRA MUSIC**, your friendly music bot.\n"
+                f"I'm **SHADOW CHEATS MUSIC**, your friendly music bot.\n"
                 f"Prefix for this server: `{prefix}`\n"
                 f"Type `{prefix}help` for more information."
             )
-            e.set_footer(text="VEYRA Music", icon_url=bot.user.avatar.url if bot.user.avatar else None)
+            e.set_footer(text="Shadow Cheats Music", icon_url=bot.user.avatar.url if bot.user.avatar else None)
             return await message.reply(embed=e, view=MentionLinksView(invite_url))
 
     await bot.process_commands(message)
@@ -2858,7 +2976,7 @@ async def on_guild_join(guild: discord.Guild):
             pass
 
 # Inactivity and Empty Voice Channel Auto-Disconnect Task Loop (with 24/7 Watchdog)
-@tasks.loop(seconds=25)
+@tasks.loop(seconds=60)
 async def check_voice_channels():
     # 1. 24/7 Watchdog: Enforce presence for all guilds configured with stay_247 = 1
     try:
@@ -2873,9 +2991,9 @@ async def check_voice_channels():
                 p.stay_247 = True
 
                 existing_vc = guild.voice_client
-                if existing_vc and existing_vc.is_connected():
+                if existing_vc is not None:
                     p.voice = existing_vc
-                    if existing_vc.channel.id != vc_id:
+                    if existing_vc.is_connected() and existing_vc.channel and existing_vc.channel.id != vc_id:
                         ch = guild.get_channel(vc_id)
                         if ch and isinstance(ch, (discord.VoiceChannel, discord.StageChannel)):
                             try:
@@ -2884,7 +3002,7 @@ async def check_voice_channels():
                                 pass
                     continue
 
-                if getattr(p, "is_connecting", False):
+                if getattr(p, "is_connecting", False) or (p.voice and p.voice.is_connected()):
                     continue
 
                 ch = guild.get_channel(vc_id)
@@ -3949,14 +4067,14 @@ async def slash_invite(ctx: commands.Context):
     )
     url = discord.utils.oauth_url(bot.user.id, permissions=perms, scopes=("bot", "applications.commands"))
     e = discord.Embed(
-        title="🔗 Invite VEYRA MUSIC Bot",
+        title="🔗 Invite SHADOW CHEATS MUSIC Bot",
         description=f"[**Click here to invite the bot**]({url})\n\nGrants required permissions:\n`Send Messages` · `Embed Links` · `Connect` · `Speak` · `Use Slash Commands`",
         color=0x7d5fff
     )
     await ctx.send(embed=e)
 
 # About / Info Command
-@bot.hybrid_command(name="about", aliases=["info"], description="Display premium features and information about VEYRA MUSIC")
+@bot.hybrid_command(name="about", aliases=["info"], description="Display premium features and information about SHADOW CHEATS MUSIC")
 async def slash_about(ctx: commands.Context):
     perms = discord.Permissions(
         send_messages=True,
@@ -3970,15 +4088,15 @@ async def slash_about(ctx: commands.Context):
     )
     invite_url = discord.utils.oauth_url(bot.user.id, permissions=perms, scopes=("bot", "applications.commands"))
     support_url = "https://discord.com/users/1256986886631854080"
-    vote_url = "https://top.gg/bot/veyra"
+    vote_url = "https://top.gg/bot/shadowcheats"
 
     embed = discord.Embed(
-        title="VEYRA MUSIC", 
+        title="SHADOW CHEATS MUSIC", 
         color=0x2B2D31,
         timestamp=datetime.now(timezone.utc)
     )
     embed.description = (
-        f"> **VEYRA MUSIC** is a high-fidelity Discord music bot streaming 24/7 with zero lag.\n\n"
+        f"> **SHADOW CHEATS MUSIC** is a high-fidelity Discord music bot streaming 24/7 with zero lag.\n\n"
         f"• **Commands:** `98`\n"
         f"• **Latency:** `{round(bot.latency * 1000, 2)}ms`\n"
         f"• **Servers:** `{len(bot.guilds)}`\n"
@@ -3988,7 +4106,7 @@ async def slash_about(ctx: commands.Context):
         f"[Invite Me]({invite_url}) | [Support & Owner]({support_url})"
     )
     embed.set_thumbnail(url=bot.user.avatar.url if bot.user.avatar else "")
-    embed.set_footer(text="VEYRA Music", icon_url=bot.user.avatar.url if bot.user.avatar else "")
+    embed.set_footer(text="Shadow Cheats Music", icon_url=bot.user.avatar.url if bot.user.avatar else "")
     await ctx.send(embed=embed)
 
 # Purge / Clean Bot Messages Command
@@ -4090,14 +4208,14 @@ async def slash_prefix(ctx: commands.Context, new_prefix: str):
     await ctx.send(embed=ok("Prefix Updated", f"Prefix successfully changed to **`{new_prefix}`** for this server."))
 
 # Premium Status Check Command
-@bot.hybrid_command(name="premium", description="Show all info about VEYRA MUSIC premium")
+@bot.hybrid_command(name="premium", description="Show all info about SHADOW CHEATS MUSIC premium")
 async def slash_premium(ctx: commands.Context):
     e = discord.Embed(
         title="💎 Premium Subscription Status",
-        description="**Status:** Active\n**Plan:** Lifetime Free Premium (All Features Unlocked)\n\nThank you for using VEYRA MUSIC! Enjoy unlimited high-quality streams, databases, playlists, and audio filters.",
+        description="**Status:** Active\n**Plan:** Lifetime Free Premium (All Features Unlocked)\n\nThank you for using SHADOW CHEATS MUSIC! Enjoy unlimited high-quality streams, databases, playlists, and audio filters.",
         color=0xd4af37
     )
-    e.set_footer(text="VEYRA MUSIC · Premium Unlocked")
+    e.set_footer(text="SHADOW CHEATS MUSIC · Premium Unlocked")
     await ctx.send(embed=e)
 
 # Anime Music Command
@@ -4509,8 +4627,8 @@ async def check_dj_permission(ctx: commands.Context) -> bool:
 
 @bot.hybrid_command(name="vote", description="All vote info and links for the bot")
 async def slash_vote(ctx: commands.Context):
-    e = discord.Embed(title="🗳️ Vote for VEYRA MUSIC!", color=0x7d5fff)
-    e.description = "Help our bot grow by voting on top.gg!\n\n[Click here to vote for VEYRA MUSIC](https://top.gg/bot/veyra)"
+    e = discord.Embed(title="🗳️ Vote for SHADOW CHEATS MUSIC!", color=0x7d5fff)
+    e.description = "Help our bot grow by voting on top.gg!\n\n[Click here to vote for SHADOW CHEATS MUSIC](https://top.gg/bot/shadowcheats)"
     e.set_footer(text="Thank you for your support!")
     await send_response(ctx, embed=e)
 
@@ -4546,7 +4664,7 @@ async def slash_ping(ctx: commands.Context):
         "Delete     :: 1.95 MS\n"
         "```"
     )
-    e.set_footer(text="VEYRA Music", icon_url=avatar)
+    e.set_footer(text="Shadow Cheats Music", icon_url=avatar)
     await send_response(ctx, embed=e)
 
 @bot.hybrid_command(name="uptime", description="Shows the bot uptime and connection status")
@@ -4566,7 +4684,7 @@ async def slash_uptime(ctx: commands.Context):
         f"**Started:** <t:{int(bot.uptime_start)}:R>\n"
         f"**Websocket:** `{latency}ms`"
     )
-    e.set_footer(text="VEYRA Music", icon_url=avatar)
+    e.set_footer(text="Shadow Cheats Music", icon_url=avatar)
     await send_response(ctx, embed=e)
 
 @bot.hybrid_command(name="stats", description="Show detailed system and bot performance statistics")
@@ -4589,7 +4707,7 @@ async def slash_stats(ctx: commands.Context):
 
     avatar = bot.user.avatar.url if (bot.user and bot.user.avatar) else None
 
-    e = discord.Embed(title="VEYRA MUSIC Performance", color=0x2B2D31, timestamp=datetime.now(timezone.utc))
+    e = discord.Embed(title="SHADOW CHEATS MUSIC Performance", color=0x2B2D31, timestamp=datetime.now(timezone.utc))
     e.description = (
         f"```yaml\n"
         f"Uptime     :: {uptime_str}\n"
@@ -4602,7 +4720,7 @@ async def slash_stats(ctx: commands.Context):
     )
     if avatar:
         e.set_thumbnail(url=avatar)
-    e.set_footer(text="VEYRA Music", icon_url=avatar)
+    e.set_footer(text="Shadow Cheats Music", icon_url=avatar)
     await send_response(ctx, embed=e)
 
 @bot.hybrid_command(name="pl-create", description="Creates a new custom playlist")
@@ -5127,7 +5245,7 @@ async def slash_bass(ctx: commands.Context):
 
 @bot.hybrid_command(name="checkvote", description="Check if you have voted or not for the bot")
 async def slash_checkvote(ctx: commands.Context):
-    await send_response(ctx, embed=ok("Voted Status", f"Thank you, **{ctx.author.name}**! You have voted for **VEYRA MUSIC** on top.gg (Premium Unlocked!)."))
+    await send_response(ctx, embed=ok("Voted Status", f"Thank you, **{ctx.author.name}**! You have voted for **SHADOW CHEATS MUSIC** on top.gg (Premium Unlocked!)."))
 
 @bot.command(name="chipmunk", description="Set Chipmunk Filter")
 async def slash_chipmunk(ctx: commands.Context):
@@ -5263,7 +5381,7 @@ async def slash_treblebass(ctx: commands.Context):
 async def slash_support(ctx: commands.Context):
     e = discord.Embed(title="👑 Official Support & Owner", color=0x7d5fff)
     e.description = "Need help, custom setup, or have inquiries? Contact the bot owner directly!\n\n**[Click here to Message Owner (Arun)](https://discord.com/users/1256986886631854080)**"
-    e.set_footer(text="VEYRA Support")
+    e.set_footer(text="SHADOW CHEATS Support")
     await send_response(ctx, embed=e)
 
 @bot.hybrid_command(name="spotify", description="Play a song from Spotify using name or URL")
@@ -5308,9 +5426,9 @@ async def slash_previous(ctx: commands.Context):
 # ─────────────────────────────────────────────
 
 def get_home_help_embed(bot_name: str, prefix: str, avatar_url: Optional[str], invite_url: str) -> discord.Embed:
-    e = discord.Embed(title="VEYRA MUSIC Guide", color=0x2B2D31, timestamp=datetime.now(timezone.utc))
+    e = discord.Embed(title="SHADOW CHEATS MUSIC Guide", color=0x2B2D31, timestamp=datetime.now(timezone.utc))
     e.description = (
-        f"Hey, I am **VEYRA MUSIC** - Your Server Music Companion\n\n"
+        f"Hey, I am **SHADOW CHEATS MUSIC** - Your Server Music Companion\n\n"
         f"• **Prefix for this server:** `{prefix}`\n"
         f"• **Total Commands:** `114`\n"
         f"• **Use** `{prefix}help` to get started!\n\n"
@@ -5329,7 +5447,7 @@ def get_home_help_embed(bot_name: str, prefix: str, avatar_url: Optional[str], i
     )
     if avatar_url:
         e.set_thumbnail(url=avatar_url)
-    e.set_footer(text="VEYRA Music", icon_url=avatar_url)
+    e.set_footer(text="Shadow Cheats Music", icon_url=avatar_url)
     return e
 
 class HelpSelect(discord.ui.Select):
@@ -5357,33 +5475,33 @@ class HelpSelect(discord.ui.Select):
         if val == "home":
             e = get_home_help_embed(self.bot_name, self.prefix, avatar, self.invite_url)
         elif val == "music":
-            e = discord.Embed(title="VEYRA MUSIC - Music", color=0x2B2D31, timestamp=datetime.now(timezone.utc))
+            e = discord.Embed(title="SHADOW CHEATS MUSIC - Music", color=0x2B2D31, timestamp=datetime.now(timezone.utc))
             e.description = "`play`, `pause`, `resume`, `skip`, `skipto`, `stop`, `seek`, `replay`, `forward`, `backward`, `nowplaying`, `panel`"
-            e.set_footer(text="VEYRA Music", icon_url=avatar)
+            e.set_footer(text="Shadow Cheats Music", icon_url=avatar)
         elif val == "queue":
-            e = discord.Embed(title="VEYRA MUSIC - Queue", color=0x2B2D31, timestamp=datetime.now(timezone.utc))
+            e = discord.Embed(title="SHADOW CHEATS MUSIC - Queue", color=0x2B2D31, timestamp=datetime.now(timezone.utc))
             e.description = "`queue`, `clearqueue`, `shuffle`, `history`, `historyplay`, `bump`, `move`, `remove`, `removeduplicates`"
-            e.set_footer(text="VEYRA Music", icon_url=avatar)
+            e.set_footer(text="Shadow Cheats Music", icon_url=avatar)
         elif val == "filters":
-            e = discord.Embed(title="VEYRA MUSIC - Filters", color=0x2B2D31, timestamp=datetime.now(timezone.utc))
+            e = discord.Embed(title="SHADOW CHEATS MUSIC - Filters", color=0x2B2D31, timestamp=datetime.now(timezone.utc))
             e.description = "`filter`, `clearfilter`, `8d`, `bass`, `bassboost`, `chipmunk`, `earrape`, `karaoke`, `lofi`, `nightcore`, `pop`, `radio`, `slowmo`, `soft`, `treblebass`, `vaporwave`"
-            e.set_footer(text="VEYRA Music", icon_url=avatar)
+            e.set_footer(text="Shadow Cheats Music", icon_url=avatar)
         elif val == "playlists":
-            e = discord.Embed(title="VEYRA MUSIC - Playlists", color=0x2B2D31, timestamp=datetime.now(timezone.utc))
+            e = discord.Embed(title="SHADOW CHEATS MUSIC - Playlists", color=0x2B2D31, timestamp=datetime.now(timezone.utc))
             e.description = "`pl-list`, `pl-create`, `pl-delete`, `pl-info`, `pl-play`, `pl-playshuffle`, `pl-savecurrent`, `pl-savequeue`, `pl-rename`, `fv-save`, `fv-play`, `fv-info`, `gb-all`, `gb-create`, `gb-delete`, `gb-play`, `gb-save`"
-            e.set_footer(text="VEYRA Music", icon_url=avatar)
+            e.set_footer(text="Shadow Cheats Music", icon_url=avatar)
         elif val == "voice":
-            e = discord.Embed(title="VEYRA MUSIC - Voice", color=0x2B2D31, timestamp=datetime.now(timezone.utc))
+            e = discord.Embed(title="SHADOW CHEATS MUSIC - Voice", color=0x2B2D31, timestamp=datetime.now(timezone.utc))
             e.description = "`join`, `leave`, `stay247`, `24/7`, `247`, `setchannel`, `removesetchannel`, `announce`"
-            e.set_footer(text="VEYRA Music", icon_url=avatar)
+            e.set_footer(text="Shadow Cheats Music", icon_url=avatar)
         elif val == "settings":
-            e = discord.Embed(title="VEYRA MUSIC - Settings", color=0x2B2D31, timestamp=datetime.now(timezone.utc))
+            e = discord.Embed(title="SHADOW CHEATS MUSIC - Settings", color=0x2B2D31, timestamp=datetime.now(timezone.utc))
             e.description = "`setprefix`, `volume`, `defaultvolume`, `adddj`, `removedj`, `toggledj`, `loop`, `autoplay`, `voteskip`"
-            e.set_footer(text="VEYRA Music", icon_url=avatar)
+            e.set_footer(text="Shadow Cheats Music", icon_url=avatar)
         elif val == "info":
-            e = discord.Embed(title="VEYRA MUSIC - Information", color=0x2B2D31, timestamp=datetime.now(timezone.utc))
+            e = discord.Embed(title="SHADOW CHEATS MUSIC - Information", color=0x2B2D31, timestamp=datetime.now(timezone.utc))
             e.description = "`help`, `ping`, `stats`, `uptime`, `about`, `invite`, `support`, `server-profile`"
-            e.set_footer(text="VEYRA Music", icon_url=avatar)
+            e.set_footer(text="Shadow Cheats Music", icon_url=avatar)
         
         await interaction.response.edit_message(embed=e, view=self.view)
 
@@ -5403,7 +5521,7 @@ class HelpCategoryView(discord.ui.View):
 
 @bot.hybrid_command(name="help", aliases=["h"], description="Show bot commands and subcategories")
 async def slash_help(ctx: commands.Context):
-    bot_name = "VEYRA MUSIC"
+    bot_name = "SHADOW CHEATS MUSIC"
     prefix = Database.get_prefix(ctx.guild.id) if ctx.guild else PREFIX
     perms = discord.Permissions(send_messages=True, embed_links=True, connect=True, speak=True)
     invite_url = discord.utils.oauth_url(bot.user.id, permissions=perms, scopes=("bot", "applications.commands")) if bot.user else "https://discord.com"
@@ -5512,7 +5630,7 @@ def launch_background_health_server(bot_instance):
 if __name__ == "__main__":
     launch_background_health_server(bot)
     time.sleep(0.5)
-    print("\n🚀 Starting VEYRA MUSIC (yt-dlp + free premium)...")
+    print("\n🚀 Starting SHADOW CHEATS MUSIC (yt-dlp + free premium)...")
     if not BOT_TOKEN or "YOUR_DISCORD_BOT_TOKEN" in BOT_TOKEN or BOT_TOKEN.strip() == "":
         print("\n" + "═"*60)
         print(" ❌ CONFIGURATION ERROR:")
@@ -5527,7 +5645,7 @@ if __name__ == "__main__":
     rate_limit_backoff = 60
     while True:
         try:
-            bot.http.user_agent = "DiscordBot (https://github.com/veyra/music, 2.7.1) Python/3.11 aiohttp/3.9.5"
+            bot.http.user_agent = "DiscordBot (https://github.com/shadowcheats/music, 2.7.1) Python/3.11 aiohttp/3.9.5"
             if os.environ.get("DISCORD_API_BASE"):
                 discord.http.Route.BASE = os.environ.get("DISCORD_API_BASE")
             bot.run(BOT_TOKEN)

@@ -1,12 +1,12 @@
 {
     "token": "",
-    "prefix": ".",
-    "owner_ids": [
-        1256986886631854080,
-        1277163358906220616
-    ],
-    "spotify": {
-        "clientId": "321c535c35b4423a945c9a6df5c5be06",
-        "clientSecret": "1bc3fee6cfd743be843ef29047bfe46d"
-    }
+    "prefix":  ".",
+    "owner_ids":  [
+                      1256986886631854080,
+                      1277163358906220616
+                  ],
+    "spotify":  {
+                    "clientId":  "321c535c35b4423a945c9a6df5c5be06",
+                    "clientSecret":  "1bc3fee6cfd743be843ef29047bfe46d"
+                }
 }

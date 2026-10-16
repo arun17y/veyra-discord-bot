@@ -141,8 +141,15 @@ def setup_music_system(target_bot: commands.Bot):
             logger.debug(f"Could not add prefix command {cmd.name}: {e}")
 
     # 3. Register Core Top-Level Slash Commands for instant Discord autocomplete UI (stays safely under 100 slash ceiling)
+    def _clear_tree_cmd(name: str):
+        try:
+            if target_bot.tree.get_command(name):
+                target_bot.tree.remove_command(name)
+        except Exception:
+            pass
 
     try:
+        _clear_tree_cmd("play")
         @target_bot.tree.command(name="play", description="Play any song or playlist from YouTube or Spotify")
         @app_commands.describe(query="Song title, YouTube URL/playlist, or Spotify link")
         async def tree_play(interaction: discord.Interaction, query: str):
@@ -152,6 +159,7 @@ def setup_music_system(target_bot: commands.Bot):
         logger.debug(f"tree_play registration: {e}")
 
     try:
+        _clear_tree_cmd("panel")
         @target_bot.tree.command(name="panel", description="Open the live interactive music control panel")
         async def tree_panel(interaction: discord.Interaction):
             ctx = await target_bot.get_context(interaction)
@@ -160,6 +168,7 @@ def setup_music_system(target_bot: commands.Bot):
         logger.debug(f"tree_panel registration: {e}")
 
     try:
+        _clear_tree_cmd("skip")
         @target_bot.tree.command(name="skip", description="Skip current playing track")
         async def tree_skip(interaction: discord.Interaction):
             ctx = await target_bot.get_context(interaction)
@@ -168,6 +177,7 @@ def setup_music_system(target_bot: commands.Bot):
         logger.debug(f"tree_skip registration: {e}")
 
     try:
+        _clear_tree_cmd("stop")
         @target_bot.tree.command(name="stop", description="Stop music, clear queue, and disconnect")
         async def tree_stop(interaction: discord.Interaction):
             ctx = await target_bot.get_context(interaction)
@@ -176,6 +186,7 @@ def setup_music_system(target_bot: commands.Bot):
         logger.debug(f"tree_stop registration: {e}")
 
     try:
+        _clear_tree_cmd("pause")
         @target_bot.tree.command(name="pause", description="Pause playback")
         async def tree_pause(interaction: discord.Interaction):
             ctx = await target_bot.get_context(interaction)
@@ -184,6 +195,7 @@ def setup_music_system(target_bot: commands.Bot):
         logger.debug(f"tree_pause registration: {e}")
 
     try:
+        _clear_tree_cmd("resume")
         @target_bot.tree.command(name="resume", description="Resume playback")
         async def tree_resume(interaction: discord.Interaction):
             ctx = await target_bot.get_context(interaction)
@@ -192,6 +204,7 @@ def setup_music_system(target_bot: commands.Bot):
         logger.debug(f"tree_resume registration: {e}")
 
     try:
+        _clear_tree_cmd("queue")
         @target_bot.tree.command(name="queue", description="Show music queue")
         async def tree_queue(interaction: discord.Interaction):
             ctx = await target_bot.get_context(interaction)
@@ -200,6 +213,7 @@ def setup_music_system(target_bot: commands.Bot):
         logger.debug(f"tree_queue registration: {e}")
 
     try:
+        _clear_tree_cmd("stay247")
         @target_bot.tree.command(name="stay247", description="Toggle 24/7 channel presence (bot stays in VC)")
         async def tree_stay247(interaction: discord.Interaction):
             ctx = await target_bot.get_context(interaction)
@@ -208,6 +222,7 @@ def setup_music_system(target_bot: commands.Bot):
         logger.debug(f"tree_stay247 registration: {e}")
 
     try:
+        _clear_tree_cmd("247")
         @target_bot.tree.command(name="247", description="Set 24/7 system (toggle staying in voice channel)")
         async def tree_247(interaction: discord.Interaction):
             ctx = await target_bot.get_context(interaction)
