@@ -229,6 +229,9 @@ def ensure_antinuke_schema():
             )
         """)
         conn.commit()
+        cursor.execute("CREATE TABLE IF NOT EXISTS leveling_ignored_channels (guild_id TEXT, channel_id TEXT, PRIMARY KEY (guild_id, channel_id))")
+        cursor.execute("CREATE TABLE IF NOT EXISTS sticky_messages (channel_id TEXT PRIMARY KEY, message_id TEXT, content TEXT, embed_data TEXT)")
+        conn.commit()
 
         cursor.execute("PRAGMA table_info(antinuke_settings)")
         existing_cols = {row['name'] for row in cursor.fetchall()}
@@ -11124,7 +11127,8 @@ def register_discord_command_tree():
         TicketGroup(),
         RootSetupGroup(),
         WelcomeStandaloneGroup(),
-        ExitStandaloneGroup()
+        ExitStandaloneGroup(),
+        RoleCommandsGroup()
     ]
     for g in groups:
         try:
