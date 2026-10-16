@@ -343,13 +343,10 @@ if os.path.exists(COOKIES_FILE):
             _parts = _ls.split("\t")
             if len(_parts) >= 7:
                 cname = _parts[5]
-                # Strip dynamic rotating cookies that Google invalidates quickly
-                if "PSIDTS" in cname or "SIDCC" in cname:
-                    continue
                 if _parts[0].startswith("."):
                     _parts[1] = "TRUE"
                 _clean_lines.append("\t".join(_parts) + "\n")
-                if any(k in cname for k in ("LOGIN_INFO", "SID", "VISITOR_INFO1_LIVE", "SAPISID", "SSID", "HSID", "PREF")):
+                if any(k in cname for k in ("LOGIN_INFO", "SID", "VISITOR_INFO1_LIVE", "SAPISID", "SSID", "HSID", "PREF", "PSIDTS")):
                     has_yt_login = True
         with open(COOKIES_FILE, "w", encoding="utf-8") as _cf:
             _cf.writelines(_clean_lines)
