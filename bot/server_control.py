@@ -751,6 +751,7 @@ class RoleManagerGroup(app_commands.Group):
     def __init__(self, bot: commands.Bot):
         super().__init__(name="role", description="Advanced Server Role Management Suite")
         self.bot = bot
+        self.active_tasks = {}
 
     @app_commands.command(name="create", description="Create a new server role")
     async def create_cmd(self, interaction: discord.Interaction, name: str, color_hex: str = "#99aab5", hoist: bool = False, mentionable: bool = False):
@@ -831,6 +832,126 @@ class RoleManagerGroup(app_commands.Group):
             await interaction.followup.send(f"✅ Removed {role.mention} from {member.mention}.")
         except Exception as e:
             await interaction.followup.send(f"❌ Role removal failed: `{e}`")
+
+    @app_commands.command(name="all", description="Assign or remove a role to all human members (excludes bots & apps)")
+    @app_commands.describe(role="The role to assign/remove", action="Action to perform (Default: Add)")
+    @app_commands.choices(action=[
+        app_commands.Choice(name="Add (Assign role to all human members)", value="add"),
+        app_commands.Choice(name="Remove (Remove role from all human members)", value="remove")
+    ])
+    async def all_cmd(self, interaction: discord.Interaction, role: discord.Role, action: app_commands.Choice[str] = None):
+        if not await is_authorized_manager(interaction, "role"):
+            return
+        await interaction.response.defer()
+        guild = interaction.guild
+        act = action.value if action else "add"
+        act_name = "added" if act == "add" else "removed"
+
+        if role >= guild.me.top_role:
+            return await interaction.followup.send(f"❌ Role {role.mention} is higher than or equal to my highest role ({guild.me.top_role.mention}). Drag my bot role above {role.name} in Server Settings -> Roles.")
+
+        if not guild.chunked:
+            try:
+                await guild.chunk()
+            except Exception:
+                pass
+
+        human_members = [m for m in guild.members if not m.bot]
+        total_humans = len(human_members)
+        if total_humans == 0:
+            return await interaction.followup.send("⚠️ No human members found in this server.")
+
+        self.active_tasks[guild.id] = True
+        prog_msg = await interaction.followup.send(f"⏳ **Bulk Role ({act.upper()}):** Processing **{total_humans}** human members for role {role.mention} (excluding bots)...\nUse `/role cancel` or `.role cancel` to stop.")
+
+        count = 0
+        failed = 0
+        last_edit = asyncio.get_event_loop().time()
+
+        for idx, member in enumerate(human_members, start=1):
+            if not self.active_tasks.get(guild.id):
+                return await interaction.channel.send("⏹️ Bulk role task was cancelled.")
+
+            try:
+                if act == "add" and role not in member.roles:
+                    await member.add_roles(role, reason=f"Bulk /role all executed by {interaction.user}")
+                    count += 1
+                elif act == "remove" and role in member.roles:
+                    await member.remove_roles(role, reason=f"Bulk /role all executed by {interaction.user}")
+                    count += 1
+            except discord.HTTPException as http_ex:
+                if http_ex.status == 429:
+                    retry_after = getattr(http_ex, 'retry_after', 2.0) or 2.0
+                    await asyncio.sleep(float(retry_after) + 0.5)
+                    try:
+                        if act == "add" and role not in member.roles:
+                            await member.add_roles(role)
+                            count += 1
+                        elif act == "remove" and role in member.roles:
+                            await member.remove_roles(role)
+                            count += 1
+                    except Exception:
+                        failed += 1
+                else:
+                    failed += 1
+            except Exception:
+                failed += 1
+
+            now = asyncio.get_event_loop().time()
+            if now - last_edit > 4 or idx == total_humans:
+                last_edit = now
+                try:
+                    await prog_msg.edit(content=f"⏳ **Bulk Role ({act.upper()}):** Processing... `{count}/{total_humans}` members updated (Processed: {idx}/{total_humans})")
+                except Exception:
+                    pass
+
+            await asyncio.sleep(0.35)
+
+        self.active_tasks.pop(guild.id, None)
+        embed = discord.Embed(
+            title="✅ Bulk Role Operation Completed",
+            description=f"Role {role.mention} was successfully **{act_name}** for **{count}** human members.\n(Excluded all bots and applications. Failed: `{failed}`).",
+            color=discord.Color.from_rgb(16, 185, 129)
+        )
+        embed.set_footer(text="Powered by VEYRA 2.0 Management Suite")
+        await interaction.channel.send(embed=embed)
+
+    @app_commands.command(name="bots", description="Toggle a role for all bots")
+    @app_commands.choices(action=[
+        app_commands.Choice(name="Add", value="add"),
+        app_commands.Choice(name="Remove", value="remove")
+    ])
+    async def bots_cmd(self, interaction: discord.Interaction, role: discord.Role, action: app_commands.Choice[str]):
+        if not await is_authorized_manager(interaction, "role"):
+            return
+        await interaction.response.defer()
+        guild = interaction.guild
+
+        self.active_tasks[guild.id] = True
+        count = 0
+        for member in guild.members:
+            if not self.active_tasks.get(guild.id):
+                return await interaction.followup.send("⏹️ Role bulk task was cancelled.")
+            if member.bot:
+                try:
+                    if action.value == 'add' and role not in member.roles:
+                        await member.add_roles(role)
+                        count += 1
+                    elif action.value == 'remove' and role in member.roles:
+                        await member.remove_roles(role)
+                        count += 1
+                except Exception:
+                    pass
+        self.active_tasks.pop(guild.id, None)
+        await interaction.followup.send(f"✅ Successfully {action.name.lower()}ed role {role.name} for **{count}** bots.")
+
+    @app_commands.command(name="cancel", description="Cancel current role assignment")
+    async def cancel_cmd(self, interaction: discord.Interaction):
+        if interaction.guild.id in self.active_tasks:
+            self.active_tasks[interaction.guild.id] = False
+            await interaction.response.send_message("✅ Cancel signal sent for active bulk role tasks.")
+        else:
+            await interaction.response.send_message("ℹ️ No active bulk role tasks running on this server.", ephemeral=True)
 
 
 # ── 9. EMERGENCY SERVER LOCKDOWN SYSTEM ─────────────────────────────────────
