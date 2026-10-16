@@ -114,9 +114,14 @@ def setup_music_system(target_bot: commands.Bot):
                             try:
                                 if not guild.voice_client:
                                     p.is_connecting = True
-                                    p.voice = await ch.connect(timeout=20, reconnect=True)
+                                    p.voice = await ch.connect(timeout=20, reconnect=True, self_deaf=True)
                                     if tx_id:
                                         p.text_ch = guild.get_channel(tx_id)
+                                    if isinstance(ch, discord.StageChannel):
+                                        try:
+                                            await guild.me.edit(suppress=False)
+                                        except Exception:
+                                            pass
                                     print(f"🎙️ [Music 24/7] Connected to {ch.name} in {guild.name}")
                             except Exception as ex:
                                 print(f"⚠️ [Music 24/7] Reconnect notice for {guild.name}: {ex}")
@@ -216,7 +221,7 @@ def setup_music_system(target_bot: commands.Bot):
         _clear_tree_cmd("stay247")
         @target_bot.tree.command(name="stay247", description="Toggle or set 24/7 channel presence (bot stays permanently in VC)")
         @app_commands.describe(channel="Target voice channel to stay 24/7 (optional, defaults to your current voice channel)")
-        async def tree_stay247(interaction: discord.Interaction, channel: typing.Optional[discord.VoiceChannel] = None):
+        async def tree_stay247(interaction: discord.Interaction, channel: typing.Optional[typing.Union[discord.VoiceChannel, discord.StageChannel]] = None):
             ctx = await target_bot.get_context(interaction)
             await mbot.slash_stay247(ctx, channel=channel)
     except Exception as e:

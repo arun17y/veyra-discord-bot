@@ -526,29 +526,98 @@ class Database:
 
     @staticmethod
     def get_247(guild_id: int) -> tuple:
-        conn = sqlite3.connect(DB_FILE)
-        cursor = conn.cursor()
-        cursor.execute("SELECT stay_247, stay_voice_id, stay_text_id FROM guild_settings WHERE guild_id = ?", (guild_id,))
-        row = cursor.fetchone()
-        conn.close()
-        return row if row else (0, None, None)
+        stay_247, stay_voice_id, stay_text_id = 0, None, None
+        try:
+            conn = sqlite3.connect(DB_FILE)
+            cursor = conn.cursor()
+            cursor.execute("SELECT stay_247, stay_voice_id, stay_text_id FROM guild_settings WHERE guild_id = ?", (guild_id,))
+            row = cursor.fetchone()
+            conn.close()
+            if row:
+                stay_247, stay_voice_id, stay_text_id = int(row[0] or 0), (int(row[1]) if row[1] else None), (int(row[2]) if row[2] else None)
+        except Exception:
+            pass
+
+        if not stay_247:
+            try:
+                from bot.db_adapter import get_db
+                conn_v = get_db()
+                cur_v = conn_v.cursor()
+                cur_v.execute("SELECT channel_id, enabled FROM voice_247_settings WHERE guild_id = ?", (str(guild_id),))
+                row_v = cur_v.fetchone()
+                conn_v.close()
+                if row_v:
+                    en = row_v['enabled'] if isinstance(row_v, dict) or hasattr(row_v, '__getitem__') and not isinstance(row_v, (tuple, list)) else row_v[1]
+                    ch = row_v['channel_id'] if isinstance(row_v, dict) or hasattr(row_v, '__getitem__') and not isinstance(row_v, (tuple, list)) else row_v[0]
+                    if en == 1 and ch:
+                        return (1, int(ch), stay_text_id)
+            except Exception:
+                pass
+
+        return (stay_247, stay_voice_id, stay_text_id)
 
     @staticmethod
     def get_all_247() -> list[tuple]:
-        conn = sqlite3.connect(DB_FILE)
-        cursor = conn.cursor()
-        cursor.execute("SELECT guild_id, stay_247, stay_voice_id, stay_text_id FROM guild_settings WHERE stay_247 = 1")
-        rows = cursor.fetchall()
-        conn.close()
-        return rows
+        merged = {}
+        try:
+            conn = sqlite3.connect(DB_FILE)
+            cursor = conn.cursor()
+            cursor.execute("SELECT guild_id, stay_247, stay_voice_id, stay_text_id FROM guild_settings WHERE stay_247 = 1")
+            for r in cursor.fetchall():
+                merged[int(r[0])] = (int(r[0]), int(r[1]), int(r[2]) if r[2] else None, int(r[3]) if r[3] else None)
+            conn.close()
+        except Exception:
+            pass
+
+        try:
+            from bot.db_adapter import get_db
+            conn_v = get_db()
+            cur_v = conn_v.cursor()
+            cur_v.execute("SELECT guild_id, channel_id FROM voice_247_settings WHERE enabled = 1")
+            for row in cur_v.fetchall():
+                try:
+                    g_id = int(row['guild_id'] if isinstance(row, dict) or hasattr(row, '__getitem__') and not isinstance(row, (tuple, list)) else row[0])
+                    ch_id = int(row['channel_id'] if isinstance(row, dict) or hasattr(row, '__getitem__') and not isinstance(row, (tuple, list)) else row[1])
+                    if g_id not in merged:
+                        merged[g_id] = (g_id, 1, ch_id, None)
+                    else:
+                        orig = merged[g_id]
+                        merged[g_id] = (g_id, 1, orig[2] or ch_id, orig[3])
+                except Exception:
+                    pass
+            conn_v.close()
+        except Exception:
+            pass
+
+        return list(merged.values())
 
     @staticmethod
     def set_247(guild_id: int, enabled: int, voice_id: Optional[int] = None, text_id: Optional[int] = None):
-        conn = sqlite3.connect(DB_FILE)
-        conn.execute("INSERT INTO guild_settings (guild_id, stay_247, stay_voice_id, stay_text_id) VALUES (?, ?, ?, ?) ON CONFLICT(guild_id) DO UPDATE SET stay_247 = ?, stay_voice_id = ?, stay_text_id = ?", 
-                     (guild_id, enabled, voice_id, text_id, enabled, voice_id, text_id))
-        conn.commit()
-        conn.close()
+        try:
+            conn = sqlite3.connect(DB_FILE)
+            conn.execute("INSERT INTO guild_settings (guild_id, stay_247, stay_voice_id, stay_text_id) VALUES (?, ?, ?, ?) ON CONFLICT(guild_id) DO UPDATE SET stay_247 = ?, stay_voice_id = ?, stay_text_id = ?", 
+                         (guild_id, enabled, voice_id, text_id, enabled, voice_id, text_id))
+            conn.commit()
+            conn.close()
+        except Exception:
+            pass
+
+        try:
+            from bot.db_adapter import get_db
+            conn_v = get_db()
+            cur_v = conn_v.cursor()
+            if enabled:
+                if voice_id:
+                    cur_v.execute("""
+                        INSERT OR REPLACE INTO voice_247_settings (guild_id, channel_id, enabled, updated_at)
+                        VALUES (?, ?, 1, CURRENT_TIMESTAMP)
+                    """, (str(guild_id), str(voice_id)))
+            else:
+                cur_v.execute("UPDATE voice_247_settings SET enabled = 0 WHERE guild_id = ?", (str(guild_id),))
+            conn_v.commit()
+            conn_v.close()
+        except Exception:
+            pass
 
     @staticmethod
     def like_track(user_id: int, url: str, title: str, author: str, thumbnail: str, duration: int):
@@ -2804,7 +2873,7 @@ class MusicBot(commands.Bot):
                         continue
                     try:
                         p.is_connecting = True
-                        p.voice = await ch.connect(timeout=25, reconnect=True)
+                        p.voice = await ch.connect(timeout=25, reconnect=True, self_deaf=True)
                         if tx_id:
                             p.text_ch = guild.get_channel(tx_id)
                         if isinstance(ch, discord.StageChannel):
@@ -2909,7 +2978,7 @@ async def on_voice_state_update(member, before, after):
                 if ch:
                     try:
                         p.is_connecting = True
-                        p.voice = await ch.connect(timeout=20, reconnect=True)
+                        p.voice = await ch.connect(timeout=20, reconnect=True, self_deaf=True)
                         p.stay_247 = True
                         if tx_id:
                             p.text_ch = member.guild.get_channel(tx_id)
@@ -3022,7 +3091,7 @@ async def check_voice_channels():
                 if ch and isinstance(ch, (discord.VoiceChannel, discord.StageChannel)):
                     try:
                         p.is_connecting = True
-                        p.voice = await ch.connect(timeout=20, reconnect=True)
+                        p.voice = await ch.connect(timeout=20, reconnect=True, self_deaf=True)
                         p.stay_247 = True
                         if tx_id:
                             p.text_ch = guild.get_channel(tx_id)
@@ -4150,15 +4219,30 @@ async def handle_247_command(ctx: commands.Context, channel: Optional[Union[disc
     p = bot.get_player(ctx.guild.id)
     p.text_ch = ctx.channel
     
-    # 1. Determine target voice channel
+    # 1. Determine target voice channel with multi-tier fallback
     target_ch = channel
+    if not target_ch and getattr(ctx, "message", None) and getattr(ctx.message, "channel_mentions", None):
+        for cm in ctx.message.channel_mentions:
+            f_ch = ctx.guild.get_channel(cm.id)
+            if f_ch and isinstance(f_ch, (discord.VoiceChannel, discord.StageChannel)):
+                target_ch = f_ch
+                break
+
     if not target_ch and getattr(ctx.author, "voice", None) and ctx.author.voice.channel:
         target_ch = ctx.author.voice.channel
-    elif not target_ch and ctx.guild.voice_client and ctx.guild.voice_client.channel:
+
+    if not target_ch:
+        voice_states = getattr(ctx.guild, 'voice_states', getattr(ctx.guild, '_voice_states', None))
+        if voice_states and isinstance(voice_states, dict):
+            vs = voice_states.get(ctx.author.id)
+            if vs and getattr(vs, 'channel', None):
+                target_ch = vs.channel
+
+    if not target_ch and ctx.guild.voice_client and ctx.guild.voice_client.channel:
         target_ch = ctx.guild.voice_client.channel
 
     if not target_ch:
-        return await send_response(ctx, embed=err("Join a voice channel or specify one (e.g. `/247 channel:#General`) to configure 24/7 mode!"))
+        return await send_response(ctx, embed=err("Join a voice channel or specify one (e.g. `/247 set #channel`, `/247 channel #channel`, or `/stay247`)!"))
 
     # 2. Connect or move to voice channel safely
     try:

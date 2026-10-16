@@ -2213,7 +2213,7 @@ async def unlockall_prefix(ctx):
     await ctx.send(embed=embed)
 
 
-@bot.command(name="247", aliases=["24/7", "vc247", "stay247"], description="Connects and locks 24/7 voice channel")
+@bot.command(name="247", aliases=["24/7", "vc247", "stay247", "voice247", "set247", "stay"], description="Connects and locks 24/7 voice channel")
 async def voice_247_prefix(ctx, *args):
     action = args[0].lower() if args else None
     if action in ["leave", "off", "disable", "disconnect", "stop"]:
@@ -2244,35 +2244,66 @@ async def voice_247_prefix(ctx, *args):
         return await ctx.send(embed=embed)
 
     target_vc = None
-    if args:
-        remaining = [a for a in args if a.lower() not in ["join", "set", "enable", "connect"]]
-        if remaining:
-            raw_target = " ".join(remaining).strip("<#>").strip()
-            if raw_target.isdigit():
-                target_vc = ctx.guild.get_channel(int(raw_target))
-                if not isinstance(target_vc, discord.VoiceChannel):
-                    target_vc = None
-            if not target_vc:
-                target_vc = discord.utils.find(lambda c: isinstance(c, discord.VoiceChannel) and c.name.lower() == raw_target.lower(), ctx.guild.channels)
 
+    # 1. Channel mentions in message
+    if ctx.message.channel_mentions:
+        for cm in ctx.message.channel_mentions:
+            f_ch = ctx.guild.get_channel(cm.id)
+            if f_ch and isinstance(f_ch, (discord.VoiceChannel, discord.StageChannel)):
+                target_vc = f_ch
+                break
+
+    # 2. Extract channel ID or name from args
+    if not target_vc and args:
+        import re
+        full_text = " ".join(args).strip()
+        id_match = re.search(r'\b\d{17,20}\b', full_text)
+        if id_match:
+            ch_by_id = ctx.guild.get_channel(int(id_match.group(0)))
+            if ch_by_id and isinstance(ch_by_id, (discord.VoiceChannel, discord.StageChannel)):
+                target_vc = ch_by_id
+
+        if not target_vc:
+            noise = {"join", "set", "enable", "connect", "channel", "channels", "stay", "vc", "voice", "to", "247", "24/7"}
+            filtered_words = [a for a in args if a.lower() not in noise and not a.startswith("<#")]
+            if filtered_words:
+                target_name = " ".join(filtered_words).strip().lower()
+                target_vc = discord.utils.find(
+                    lambda c: isinstance(c, (discord.VoiceChannel, discord.StageChannel)) and (c.name.lower() == target_name or target_name in c.name.lower()),
+                    ctx.guild.channels
+                )
+
+    # 3. User current voice channel
     if not target_vc:
         target_vc = resolve_member_voice_channel(ctx.guild, ctx.author.id)
+
+    # 4. Bot current voice channel fallback
+    if not target_vc and ctx.guild.voice_client and ctx.guild.voice_client.channel:
+        target_vc = ctx.guild.voice_client.channel
 
     if not target_vc:
         embed = discord.Embed(
             title="⚠️ Voice Channel Required",
-            description="Please specify a valid voice channel or join a voice channel first!",
+            description="Please specify a valid voice channel or join a voice channel first!\n*Usage: `.247 set #channel`, `.247 channel #channel`, or `.stay247`*",
             color=discord.Color.from_rgb(24, 24, 27)
         )
         embed.set_footer(text="Powered by VEYRA")
         return await ctx.send(embed=embed)
 
     vc = ctx.guild.voice_client
-    if vc:
-        if vc.channel.id != target_vc.id and vc.is_connected():
-            await vc.move_to(target_vc)
-    else:
-        await target_vc.connect(reconnect=True, timeout=30.0)
+    try:
+        if vc:
+            if vc.channel.id != target_vc.id and vc.is_connected():
+                await vc.move_to(target_vc)
+        else:
+            await target_vc.connect(reconnect=True, timeout=30.0, self_deaf=True)
+        if isinstance(target_vc, discord.StageChannel):
+            try:
+                await ctx.guild.me.edit(suppress=False)
+            except Exception:
+                pass
+    except Exception as e:
+        print(f"[voice_247_prefix connect error] {e}")
 
     conn = get_db()
     cursor = conn.cursor()
@@ -2287,13 +2318,15 @@ async def voice_247_prefix(ctx, *args):
         from music_bot import bot as music_sub_bot
         p = music_sub_bot.get_player(ctx.guild.id)
         p.stay_247 = True
+        p.voice = ctx.guild.voice_client
+        p.text_ch = ctx.channel
         music_sub_bot.Database.set_247(ctx.guild.id, 1, target_vc.id, ctx.channel.id)
-    except Exception:
-        pass
+    except Exception as _m_err:
+        print(f"Music 247 sync notice: {_m_err}")
 
     embed = discord.Embed(
         title="🟢 24/7 Voice System Active",
-        description=f"Connected to {target_vc.mention}.\nConnection saved and will automatically restore on bot restart.",
+        description=f"Connected and locked 24/7 to {target_vc.mention}.\nConnection saved and will automatically restore on bot restart.",
         color=discord.Color.from_rgb(24, 24, 27)
     )
     embed.set_footer(text="Powered by VEYRA")
@@ -3979,16 +4012,36 @@ From raids and nukes to spam and unwanted users, I'll protect your community wit
         vc_rows = cursor_vc.fetchall()
         conn_vc.close()
         for r_vc in vc_rows:
-            g = bot.get_guild(int(r_vc[0]))
-            if g:
-                vc_ch = g.get_channel(int(r_vc[1]))
-                if vc_ch and isinstance(vc_ch, discord.VoiceChannel):
-                    try:
-                        if not g.voice_client:
-                            await vc_ch.connect(reconnect=True, timeout=15.0)
-                            print(f"🎙️ Restored 24/7 Voice connection: {g.name} -> #{vc_ch.name}")
-                    except Exception as ex_vc:
-                        print(f"Notice: 24/7 voice reconnect: {ex_vc}")
+            try:
+                g_id = int(r_vc['guild_id'] if isinstance(r_vc, dict) or hasattr(r_vc, '__getitem__') and not isinstance(r_vc, (tuple, list)) else r_vc[0])
+                c_id = int(r_vc['channel_id'] if isinstance(r_vc, dict) or hasattr(r_vc, '__getitem__') and not isinstance(r_vc, (tuple, list)) else r_vc[1])
+                g = bot.get_guild(g_id)
+                if g:
+                    vc_ch = g.get_channel(c_id)
+                    if vc_ch and isinstance(vc_ch, (discord.VoiceChannel, discord.StageChannel)):
+                        try:
+                            vc = g.voice_client
+                            if not vc or not vc.is_connected():
+                                vc = await vc_ch.connect(reconnect=True, timeout=20.0, self_deaf=True)
+                                print(f"🎙️ Restored 24/7 Voice connection: {g.name} -> #{vc_ch.name}")
+                            elif vc.channel and vc.channel.id != vc_ch.id:
+                                await vc.move_to(vc_ch)
+                            if isinstance(vc_ch, discord.StageChannel):
+                                try:
+                                    await g.me.edit(suppress=False)
+                                except Exception:
+                                    pass
+                            try:
+                                from music_bot import bot as music_sub_bot
+                                p = music_sub_bot.get_player(g.id)
+                                p.stay_247 = True
+                                p.voice = vc or g.voice_client
+                            except Exception:
+                                pass
+                        except Exception as ex_vc:
+                            print(f"Notice: 24/7 voice reconnect: {ex_vc}")
+            except Exception as ex_row:
+                print(f"Notice: 24/7 row parse: {ex_row}")
     except Exception as ex:
         print(f"Error restoring 24/7 voice connections: {ex}")
         
