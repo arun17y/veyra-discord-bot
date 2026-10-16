@@ -1212,6 +1212,33 @@ def setup_server_control_system(bot: commands.Bot, perm_group: app_commands.Grou
     bot.tree.add_command(ServerBackupGroup(bot))
     bot.tree.add_command(SchedulerGroup(bot))
 
+    @bot.tree.command(name="roleall", description="Assign or remove a role to all human members (excludes bots & apps)")
+    @app_commands.describe(role="The role to assign/remove", action="Action to perform (Default: Add)")
+    @app_commands.choices(action=[
+        app_commands.Choice(name="Add (Assign role to all human members)", value="add"),
+        app_commands.Choice(name="Remove (Remove role from all human members)", value="remove")
+    ])
+    async def tree_roleall(interaction: discord.Interaction, role: discord.Role, action: app_commands.Choice[str] = None):
+        return await role_grp.all_cmd(interaction, role, action)
+
+    @bot.tree.command(name="rolecancel", description="Cancel active bulk role assignment")
+    async def tree_rolecancel(interaction: discord.Interaction):
+        return await role_grp.cancel_cmd(interaction)
+
+    @bot.command(name="roleall", description="Assign or remove a role to all human members (excludes bots & apps)")
+    @commands.has_permissions(manage_roles=True)
+    async def prefix_roleall_direct(ctx: commands.Context, role: discord.Role, action: str = "add"):
+        cmd = bot.get_command("role all")
+        if cmd:
+            return await ctx.invoke(cmd, role=role, action=action)
+
+    @bot.command(name="rolecancel", description="Cancel active bulk role assignment")
+    @commands.has_permissions(manage_roles=True)
+    async def prefix_rolecancel_direct(ctx: commands.Context):
+        cmd = bot.get_command("role cancel")
+        if cmd:
+            return await ctx.invoke(cmd)
+
     @bot.command(name="set247", aliases=["voice247"], description="Connect bot 24/7 to a voice channel")
     async def prefix_set247(ctx, channel: typing.Optional[typing.Union[discord.VoiceChannel, discord.StageChannel]] = None):
         guild = ctx.guild
