@@ -352,6 +352,11 @@ class Voice247Group(app_commands.Group):
         embed.set_footer(text="Powered by VEYRA")
         await interaction.followup.send(embed=embed)
 
+    @app_commands.command(name="channel", description="Set default 24/7 voice channel for this server (alias for /247 set)")
+    @app_commands.describe(channel="Voice channel to set (optional, defaults to your current voice channel)")
+    async def channel_cmd(self, interaction: discord.Interaction, channel: typing.Optional[discord.VoiceChannel] = None):
+        return await self.set_cmd(interaction, channel)
+
     @app_commands.command(name="status", description="Show current 24/7 voice connection status")
     async def status_cmd(self, interaction: discord.Interaction):
         guild = interaction.guild

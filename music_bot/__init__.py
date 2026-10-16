@@ -214,20 +214,12 @@ def setup_music_system(target_bot: commands.Bot):
 
     try:
         _clear_tree_cmd("stay247")
-        @target_bot.tree.command(name="stay247", description="Toggle 24/7 channel presence (bot stays in VC)")
-        async def tree_stay247(interaction: discord.Interaction):
+        @target_bot.tree.command(name="stay247", description="Toggle or set 24/7 channel presence (bot stays permanently in VC)")
+        @app_commands.describe(channel="Target voice channel to stay 24/7 (optional, defaults to your current voice channel)")
+        async def tree_stay247(interaction: discord.Interaction, channel: typing.Optional[discord.VoiceChannel] = None):
             ctx = await target_bot.get_context(interaction)
-            await mbot.slash_stay247(ctx)
+            await mbot.slash_stay247(ctx, channel=channel)
     except Exception as e:
         logger.debug(f"tree_stay247 registration: {e}")
-
-    try:
-        _clear_tree_cmd("247")
-        @target_bot.tree.command(name="247", description="Set 24/7 system (toggle staying in voice channel)")
-        async def tree_247(interaction: discord.Interaction):
-            ctx = await target_bot.get_context(interaction)
-            await mbot.slash_247(ctx)
-    except Exception as e:
-        logger.debug(f"tree_247 registration: {e}")
 
     print("✅ VEYRA All-in-One Bot: Loaded complete Music Suite from music_bot.")

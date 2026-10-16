@@ -4192,6 +4192,22 @@ async def handle_247_command(ctx: commands.Context, channel: Optional[Union[disc
     vc_id = target_ch.id if p.stay_247 else None
     Database.set_247(ctx.guild.id, 1 if p.stay_247 else 0, vc_id, ctx.channel.id)
 
+    try:
+        from bot.db_adapter import get_db
+        conn = get_db()
+        cursor = conn.cursor()
+        if p.stay_247 and vc_id:
+            cursor.execute("""
+                INSERT OR REPLACE INTO voice_247_settings (guild_id, channel_id, enabled, last_reconnect, updated_at)
+                VALUES (?, ?, 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+            """, (str(ctx.guild.id), str(vc_id)))
+        else:
+            cursor.execute("UPDATE voice_247_settings SET enabled = 0 WHERE guild_id = ?", (str(ctx.guild.id),))
+        conn.commit()
+        conn.close()
+    except Exception:
+        pass
+
     if p.stay_247:
         desc = f"24/7 Presence Mode is now **Enabled ✅**\nThe bot will stay permanently active in {target_ch.mention}."
     else:

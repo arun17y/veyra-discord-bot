@@ -2210,7 +2210,7 @@ async def unlockall_prefix(ctx):
     await ctx.send(embed=embed)
 
 
-@bot.command(name="247", aliases=["24/7", "vc247"], description="Connects and locks 24/7 voice channel")
+@bot.command(name="247", aliases=["24/7", "vc247", "stay247"], description="Connects and locks 24/7 voice channel")
 async def voice_247_prefix(ctx, *args):
     action = args[0].lower() if args else None
     if action in ["leave", "off", "disable", "disconnect", "stop"]:
@@ -2219,6 +2219,14 @@ async def voice_247_prefix(ctx, *args):
         cursor.execute("UPDATE voice_247_settings SET enabled = 0 WHERE guild_id = ?", (str(ctx.guild.id),))
         conn.commit()
         conn.close()
+
+        try:
+            from music_bot import bot as music_sub_bot
+            p = music_sub_bot.get_player(ctx.guild.id)
+            p.stay_247 = False
+            music_sub_bot.Database.set_247(ctx.guild.id, 0, None, ctx.channel.id)
+        except Exception:
+            pass
 
         vc = ctx.guild.voice_client
         if vc and vc.is_connected():
@@ -2271,6 +2279,14 @@ async def voice_247_prefix(ctx, *args):
     """, (str(ctx.guild.id), str(target_vc.id), datetime.now(timezone.utc).isoformat()))
     conn.commit()
     conn.close()
+
+    try:
+        from music_bot import bot as music_sub_bot
+        p = music_sub_bot.get_player(ctx.guild.id)
+        p.stay_247 = True
+        music_sub_bot.Database.set_247(ctx.guild.id, 1, target_vc.id, ctx.channel.id)
+    except Exception:
+        pass
 
     embed = discord.Embed(
         title="🟢 24/7 Voice System Active",
@@ -3975,21 +3991,21 @@ From raids and nukes to spam and unwanted users, I'll protect your community wit
         
     print(f"📡 Cached invite links for {len(bot.guilds)} guilds.")
     
-    # 1. Cleanly purge any guild-scoped duplicate commands so Discord only renders clean global slash commands
-    for g in bot.guilds:
-        try:
-            bot.tree.clear_commands(guild=g)
-            await bot.tree.sync(guild=g)
-            print(f"🧹 Cleaned guild command overrides for: {g.name} ({g.id})")
-        except Exception as ge:
-            print(f"⚠️ Guild command cleanup notice for {g.id}: {ge}")
-
-    # 2. Sync single global command tree cleanly (no duplicates)
+    # 1. Sync single global command tree cleanly (no duplicates)
     try:
         synced_global = await bot.tree.sync()
         print(f"📡 Cleanly synced {len(synced_global)} global slash commands (zero duplicates).")
     except Exception as e:
         print(f"❌ Global command tree sync notice: {e}")
+
+    # 2. Instantly push all commands to current guilds so Discord UI renders them with ZERO propagation delay
+    for g in bot.guilds:
+        try:
+            bot.tree.copy_global_to(guild=g)
+            synced_guild = await bot.tree.sync(guild=g)
+            print(f"⚡ Instantly rendered {len(synced_guild)} slash commands for: {g.name} ({g.id})")
+        except Exception as ge:
+            print(f"⚠️ Guild command sync notice for {g.id}: {ge}")
         
     print(f"📡 Waiting for audit log event logs...")
     print(f"=============================================\n")
