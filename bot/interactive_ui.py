@@ -734,7 +734,7 @@ def build_veyra_embed(title: str, description: str = "", state: str = "info", fi
     return embed
 
 
-def create_veyra_embed(title: str, description: str = "", status: str = None, fields: list = None, thumbnail: str = None, color: discord.Color = THEME_COLOR, footer: str = "Powered by Veyra Development", icon_url: str = None) -> discord.Embed:
+def create_veyra_embed(title: str, description: str = "", status: str = None, fields: list = None, thumbnail: str = None, color: discord.Color = THEME_COLOR, footer: str = "Powered by Veyra Development", icon_url: str = None, **kwargs) -> discord.Embed:
     embed = discord.Embed(
         title=title,
         description=description,

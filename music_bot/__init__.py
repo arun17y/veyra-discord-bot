@@ -21,6 +21,13 @@ ffmpeg_bin = os.path.join(music_dir, "ffmpeg", "bin")
 if os.path.exists(ffmpeg_bin) and ffmpeg_bin not in os.environ.get("PATH", ""):
     os.environ["PATH"] = ffmpeg_bin + os.pathsep + os.environ.get("PATH", "")
 
+try:
+    import yt_dlp.plugins
+    yt_dlp.plugins.load_all_plugins()
+    print("✅ yt-dlp plugins loaded successfully in music_bot.")
+except Exception as _pl_err:
+    print(f"⚠️ Failed to load yt-dlp plugins: {_pl_err}")
+
 # Import the core music bot module
 from . import bot as mbot
 
@@ -83,6 +90,12 @@ def setup_music_system(target_bot: commands.Bot):
                 print("🔊 Music 24/7 Watchdog task loop started.")
             except Exception as e:
                 logger.debug(f"Watchdog start notice: {e}")
+
+        try:
+            if hasattr(mbot, "start_bgutil_pot_server"):
+                asyncio.create_task(mbot.start_bgutil_pot_server())
+        except Exception as _bg_err:
+            logger.debug(f"bgutil server start notice: {_bg_err}")
 
         async def _reconnect_247():
             await asyncio.sleep(4)

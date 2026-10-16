@@ -259,7 +259,16 @@ import psutil
 # ─────────────────────────────────────────────
 
 CONFIG_FILE = "config.json"
+_possible_cookies = [
+    "cookies.txt",
+    os.path.join(os.path.dirname(os.path.abspath(__file__)), "cookies.txt"),
+    os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "cookies.txt"),
+]
 COOKIES_FILE = "cookies.txt"
+for _p in _possible_cookies:
+    if os.path.exists(_p) and os.path.getsize(_p) > 100:
+        COOKIES_FILE = os.path.abspath(_p)
+        break
 
 # Default config fallback (safe for commercial distribution, can be loaded from env or config.json)
 BOT_TOKEN = os.environ.get("BOT_TOKEN") or os.environ.get("DISCORD_BOT_TOKEN") or os.environ.get("DISCORD_TOKEN") or os.environ.get("TOKEN") or ""
@@ -292,6 +301,14 @@ if os.path.exists(CONFIG_FILE):
     except Exception as e:
         print(f"⚠️ Error loading config.json: {e}")
 
+env_cookies = os.environ.get("YOUTUBE_COOKIES") or os.environ.get("COOKIES_TEXT")
+if env_cookies:
+    try:
+        with open(COOKIES_FILE, "w", encoding="utf-8") as _ef:
+            _ef.write(env_cookies)
+        print("✅ Synced cookies from environment variable to cookies.txt")
+    except Exception as _ece:
+        print(f"⚠️ Failed to write environment cookies: {_ece}")
 
 COOKIE_ARG = None
 
@@ -311,7 +328,7 @@ if os.path.exists(COOKIES_FILE):
                 if _parts[0].startswith("."):
                     _parts[1] = "TRUE"
                 _clean_lines.append("\t".join(_parts) + "\n")
-                if any(k in _parts[5] for k in ["LOGIN_INFO", "__Secure-3PSID", "__Secure-1PSID", "SID"]):
+                if any(k in _parts[5] for k in ("LOGIN_INFO", "SID", "VISITOR_INFO1_LIVE", "SAPISID", "SSID", "HSID", "PREF", "__Secure-1PSID", "__Secure-3PSID")):
                     has_yt_login = True
         with open(COOKIES_FILE, "w", encoding="utf-8") as _cf:
             _cf.writelines(_clean_lines)
@@ -320,7 +337,7 @@ if os.path.exists(COOKIES_FILE):
             print(f"✅ Loaded verified YouTube account cookies from {COOKIES_FILE}")
         else:
             COOKIE_ARG = None
-            print(f"ℹ️ {COOKIES_FILE} does not contain authenticated YouTube session cookies. Using Chrome TLS impersonation.")
+            print(f"ℹ️ {COOKIES_FILE} does not contain valid YouTube session cookies. Using Chrome TLS impersonation.")
     except Exception as _ce:
         print(f"⚠️ Error sanitizing {COOKIES_FILE}: {_ce}")
         COOKIE_ARG = None
@@ -995,18 +1012,21 @@ YTDL_OPTIONS = {
     "quiet": True,
     "no_warnings": True,
     "default_search": "ytsearch",
-    "cookiefile": None,
-    "socket_timeout": 10,
-    "retries": 1,
-    "extractor_retries": 1,
-    "js_runtimes": {"deno": {}, "node": {}},
-    "remote_components": ["ejs:github", "ejs:npm"],
+    "cookiefile": COOKIE_ARG,
+    "socket_timeout": 12,
+    "retries": 2,
+    "extractor_retries": 2,
     "extractor_args": {
         "youtube": {
-            "player_client": ["android_vr", "android", "mweb", "web"]
+            "player_client": ["web", "mweb", "android"]
+        },
+        "youtubepot-bgutilhttp": {
+            "base_url": ["http://127.0.0.1:4416"]
         }
     },
 }
+if CHROME_TARGET:
+    YTDL_OPTIONS["impersonate"] = CHROME_TARGET
 
 # ─────────────────────────────────────────────
 #                 EMBED HELPERS (MODERN UI)
@@ -1284,32 +1304,32 @@ class YTSource(discord.PCMVolumeTransformer):
         opts = YTDL_OPTIONS.copy()
         opts["extract_flat"] = False
         opts["format"] = "18/bestaudio/best/b"
-        opts["cookiefile"] = None
-        opts["socket_timeout"] = 10
+        opts["cookiefile"] = COOKIE_ARG
+        opts["socket_timeout"] = 12
 
         def run():
             try:
-                clean_opts = opts.copy()
-                clean_opts["extractor_args"] = {
-                    "youtube": {
-                        "player_client": ["android_vr", "android", "mweb", "web"]
-                    }
-                }
-                return yt_dlp.YoutubeDL(clean_opts).extract_info(url, download=False)
+                return yt_dlp.YoutubeDL(opts).extract_info(url, download=False)
             except Exception as e:
-                print(f"⚠️ Primary YouTube extract failed ({e}). Attempting Android fallback...")
+                print(f"⚠️ Primary YouTube extract failed ({e}). Attempting Chrome/bgutil fallback...")
                 try:
                     fallback_opts = opts.copy()
+                    fallback_opts["cookiefile"] = None
+                    if CHROME_TARGET:
+                        fallback_opts["impersonate"] = CHROME_TARGET
                     fallback_opts["extractor_args"] = {
                         "youtube": {
-                            "player_client": ["android_vr", "android"]
+                            "player_client": ["web", "mweb", "android"]
+                        },
+                        "youtubepot-bgutilhttp": {
+                            "base_url": ["http://127.0.0.1:4416"]
                         }
                     }
                     return yt_dlp.YoutubeDL(fallback_opts).extract_info(url, download=False)
                 except Exception as fb_err:
                     print(f"⚠️ YouTube fallback failed ({fb_err}). Attempting SoundCloud fallback...")
                     try:
-                        title_str = (data.get("title") if isinstance(data, dict) else None) or url
+                        title_str = track_title or url
                         sc_opts = {
                             "format": "bestaudio/best",
                             "noplaylist": True,
@@ -1858,28 +1878,38 @@ class MusicBot(commands.Bot):
         await self.start_health_server()
         await self.start_bgutil_pot_server()
 
+_bgutil_process = None
+
+async def start_bgutil_pot_server():
+    global _bgutil_process
+    if _bgutil_process is not None and _bgutil_process.poll() is None:
+        return _bgutil_process
+    import shutil, subprocess
+    bgutil_path = shutil.which("bgutil-pot") or "/usr/local/bin/bgutil-pot"
+    if os.path.exists(bgutil_path) or shutil.which("bgutil-pot"):
+        cmd = [bgutil_path, "server", "--host", "127.0.0.1", "--port", "4416"]
+        try:
+            _bgutil_process = subprocess.Popen(
+                cmd,
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL
+            )
+            print(f"🚀 Started bgutil-pot PO Token server daemon (PID {_bgutil_process.pid}) on port 4416")
+            await asyncio.sleep(1.0)
+            poll = _bgutil_process.poll()
+            if poll is not None:
+                print(f"⚠️ bgutil-pot server exited with code {poll}")
+            else:
+                print("✅ bgutil-pot daemon is actively running and listening on port 4416.")
+            return _bgutil_process
+        except Exception as e:
+            print(f"⚠️ Failed to launch bgutil-pot server: {e}")
+    else:
+        print("ℹ️ bgutil-pot binary not found in system PATH. Skipping background server launch.")
+    return None
+
     async def start_bgutil_pot_server(self):
-        import shutil, subprocess
-        bgutil_path = shutil.which("bgutil-pot") or "/usr/local/bin/bgutil-pot"
-        if os.path.exists(bgutil_path) or shutil.which("bgutil-pot"):
-            cmd = [bgutil_path, "server", "--host", "127.0.0.1", "--port", "4416"]
-            try:
-                self.bgutil_proc = subprocess.Popen(
-                    cmd,
-                    stdout=subprocess.DEVNULL,
-                    stderr=subprocess.DEVNULL
-                )
-                print(f"🚀 Started bgutil-pot PO Token server daemon (PID {self.bgutil_proc.pid}) on port 4416")
-                await asyncio.sleep(1.0)
-                poll = self.bgutil_proc.poll()
-                if poll is not None:
-                    print(f"⚠️ bgutil-pot server exited with code {poll}")
-                else:
-                    print("✅ bgutil-pot daemon is actively running and listening on port 4416.")
-            except Exception as e:
-                print(f"⚠️ Failed to launch bgutil-pot server: {e}")
-        else:
-            print("ℹ️ bgutil-pot binary not found in system PATH. Skipping background server launch.")
+        self.bgutil_proc = await start_bgutil_pot_server()
 
     async def keep_alive_pinger(self):
         """24/7 Free Hosting Keepalive: Pings self URL every 5 minutes to prevent Render from sleeping."""

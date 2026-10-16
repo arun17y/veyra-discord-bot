@@ -2888,7 +2888,9 @@ def create_veyra_embed(
     fields: list = None,
     thumbnail: str = None,
     color: discord.Color = discord.Color.from_rgb(147, 51, 234),
-    footer: str = "Powered By Veyra Development™ | Designed By Arun"
+    footer: str = "Powered By Veyra Development™ | Designed By Arun",
+    icon_url: str = None,
+    **kwargs
 ):
     import datetime
     desc_content = ""
@@ -2906,12 +2908,20 @@ def create_veyra_embed(
         embed.set_thumbnail(url=thumbnail)
         
     if fields:
-        for name, value, inline in fields:
+        for f in fields:
+            if len(f) == 3:
+                name, value, inline = f
+            elif len(f) == 2:
+                name, value = f
+                inline = False
+            else:
+                continue
             embed.add_field(name=name, value=value, inline=inline)
             
+    footer_icon = icon_url or (bot.user.avatar.url if bot.user and bot.user.avatar else None)
     embed.set_footer(
         text=footer,
-        icon_url=bot.user.avatar.url if bot.user and bot.user.avatar else None
+        icon_url=footer_icon
     )
     embed.timestamp = datetime.datetime.now(datetime.timezone.utc)
     return embed
@@ -4896,6 +4906,67 @@ def init_db():
             username TEXT,
             access_token TEXT,
             updated_at TEXT
+        )
+    """)
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS guild_subscriptions (
+            guild_id TEXT PRIMARY KEY,
+            plan_type TEXT DEFAULT 'Free',
+            granted_by TEXT,
+            expires_at TEXT,
+            created_at TEXT
+        )
+    """)
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS user_subscriptions (
+            user_id TEXT PRIMARY KEY,
+            plan_type TEXT DEFAULT 'Free',
+            granted_by TEXT,
+            expires_at TEXT,
+            created_at TEXT
+        )
+    """)
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS ticket_settings (
+            guild_id TEXT PRIMARY KEY,
+            claim_mode TEXT DEFAULT 'private',
+            max_tickets INTEGER DEFAULT 3,
+            embed_color TEXT DEFAULT '#d4af37',
+            ping_author INTEGER DEFAULT 1,
+            close_allow_user INTEGER DEFAULT 1,
+            close_allow_staff INTEGER DEFAULT 1,
+            close_allow_roles TEXT DEFAULT '[]',
+            cooldown_seconds INTEGER DEFAULT 60,
+            lockdown INTEGER DEFAULT 0,
+            logs_channel_id TEXT DEFAULT 'none',
+            auto_close_hours INTEGER DEFAULT 0
+        )
+    """)
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS ticket_panels (
+            id TEXT PRIMARY KEY,
+            guild_id TEXT,
+            name TEXT,
+            support_roles TEXT DEFAULT '[]',
+            category_id TEXT DEFAULT 'none',
+            panel_title TEXT DEFAULT 'Create a Ticket',
+            panel_description TEXT DEFAULT 'Click the button below to open a ticket.',
+            panel_color TEXT DEFAULT '#a855f7',
+            panel_button_text TEXT DEFAULT 'Create Ticket',
+            ticket_title TEXT DEFAULT 'Support Ticket',
+            ticket_description TEXT DEFAULT 'Thank you for contacting support.',
+            ticket_count INTEGER DEFAULT 0,
+            auto_close INTEGER DEFAULT 0,
+            auto_delete INTEGER DEFAULT 0,
+            categories TEXT,
+            pending_channel_id TEXT
+        )
+    """)
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS ticket_blacklist (
+            guild_id TEXT,
+            user_id TEXT,
+            PRIMARY KEY (guild_id, user_id)
         )
     """)
     
@@ -7752,17 +7823,19 @@ async def badges_command(interaction: discord.Interaction, user: discord.User = 
     if target.id == 1256986886631854080:
         badges_list.append("🛠️ **VEYRA Lead Developer**")
     
-    conn = get_db()
-    cursor = conn.cursor()
-    cursor.execute("SELECT plan_type FROM user_subscriptions WHERE user_id = ?", (str(target.id),))
-    u_row = cursor.fetchone()
-    cursor.execute("SELECT plan_type FROM guild_subscriptions WHERE guild_id = ?", (str(interaction.guild.id),))
-    g_row = cursor.fetchone()
-    conn.close()
-    
     plan = "Free"
-    if u_row: plan = u_row[0]
-    elif g_row: plan = g_row[0]
+    try:
+        conn = get_db()
+        cursor = conn.cursor()
+        cursor.execute("SELECT plan_type FROM user_subscriptions WHERE user_id = ?", (str(target.id),))
+        u_row = cursor.fetchone()
+        cursor.execute("SELECT plan_type FROM guild_subscriptions WHERE guild_id = ?", (str(interaction.guild.id),))
+        g_row = cursor.fetchone()
+        conn.close()
+        if u_row: plan = u_row[0]
+        elif g_row: plan = g_row[0]
+    except Exception as e:
+        plan = "Free"
     
     if plan == 'Premium':
         badges_list.append("💎 **Premium Supporter**")
@@ -10852,6 +10925,12 @@ try:
     setup_module_commands(bot)
 except Exception as e:
     print("Module commands setup notice:", e)
+
+try:
+    from cloneserver_system import setup_cloneserver_system
+    setup_cloneserver_system(bot)
+except Exception as e:
+    print("Cloneserver setup notice:", e)
 
 try:
     # Load all-in-one music architecture directly from music_bot folder

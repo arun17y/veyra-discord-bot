@@ -414,6 +414,20 @@ def _ensure_sqlite_schema(conn):
                 author_icon TEXT,
                 footer_icon TEXT
             );
+            CREATE TABLE IF NOT EXISTS guild_subscriptions (
+                guild_id TEXT PRIMARY KEY,
+                plan_type TEXT DEFAULT 'Free',
+                granted_by TEXT,
+                expires_at TEXT,
+                created_at TEXT
+            );
+            CREATE TABLE IF NOT EXISTS user_subscriptions (
+                user_id TEXT PRIMARY KEY,
+                plan_type TEXT DEFAULT 'Free',
+                granted_by TEXT,
+                expires_at TEXT,
+                created_at TEXT
+            );
         """)
         conn.commit()
         _sqlite_initialized = True
