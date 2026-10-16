@@ -1,0 +1,15 @@
+name: 24/7 Render Keepalive
+
+on:
+  schedule:
+    - cron: "*/5 * * * *"
+  workflow_dispatch:
+
+jobs:
+  keepalive:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping Render Service
+        run: |
+          response=$(curl -s -o /dev/null -w "%{http_code}" --max-time 45 https://shadow-cheats-music-eu.onrender.com/health || true)
+          echo "Keepalive ping response: HTTP $response"

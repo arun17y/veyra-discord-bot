@@ -1312,24 +1312,37 @@ class YTSource(discord.PCMVolumeTransformer):
             try:
                 return yt_dlp.YoutubeDL(opts).extract_info(url, download=False)
             except Exception as e:
-                try:
-                    fallback_opts = opts.copy()
-                    fallback_opts["cookiefile"] = None
-                    if CHROME_TARGET:
-                        fallback_opts["impersonate"] = CHROME_TARGET
-                    fallback_opts["extractor_args"] = {
-                        "youtube": {
-                            "player_client": ["android", "mweb", "web"]
-                        },
-                        "youtubepot-bgutilhttp": {
-                            "base_url": ["http://127.0.0.1:4416"]
+                # Step 1: Retry YouTube with multi-client rotation (android, mweb, ios, tv)
+                for clist in [["android"], ["mweb"], ["ios"], ["tv"]]:
+                    try:
+                        fallback_opts = opts.copy()
+                        fallback_opts["cookiefile"] = COOKIE_ARG
+                        fallback_opts["extractor_args"] = {
+                            "youtube": {
+                                "player_client": clist
+                            }
                         }
-                    }
-                    return yt_dlp.YoutubeDL(fallback_opts).extract_info(url, download=False)
-                except Exception as fb_err:
-                    print(f"⚠️ Direct YouTube blocked ({fb_err}). Engaging high-res audio mirror...")
+                        return yt_dlp.YoutubeDL(fallback_opts).extract_info(url, download=False)
+                    except Exception:
+                        continue
 
-                # Resilient audio stream fallback: search mirror for the exact track
+                # Step 2: Try without cookies if cookies caused a challenge
+                for clist in [["android"], ["mweb"], ["ios"]]:
+                    try:
+                        fallback_opts = opts.copy()
+                        fallback_opts["cookiefile"] = None
+                        if CHROME_TARGET:
+                            fallback_opts["impersonate"] = CHROME_TARGET
+                        fallback_opts["extractor_args"] = {
+                            "youtube": {
+                                "player_client": clist
+                            }
+                        }
+                        return yt_dlp.YoutubeDL(fallback_opts).extract_info(url, download=False)
+                    except Exception:
+                        continue
+
+                # Step 3: Resilient mirror search with strict title verification
                 try:
                     raw_title = track_title or ""
                     clean_title = raw_title.split("|")[0]
@@ -1345,10 +1358,13 @@ class YTSource(discord.PCMVolumeTransformer):
                             "ignoreerrors": True
                         }
                         sc_data = yt_dlp.YoutubeDL(sc_opts).extract_info(f"scsearch5:{mirror_query}", download=False)
+                        q_words = set(re.findall(r'[a-zA-Z0-9]+', mirror_query.lower())) - {"the", "a", "an", "and", "in", "of", "to", "by", "is", "for"}
                         for entry in sc_data.get("entries", []):
                             if entry and entry.get("url"):
-                                print(f"✅ Transparently resolved audio stream via mirror: {entry.get('title')}")
-                                return entry
+                                entry_title = (entry.get("title") or "").lower()
+                                if q_words and any(w in entry_title for w in q_words):
+                                    print(f"✅ Transparently resolved audio stream via mirror: {entry.get('title')}")
+                                    return entry
                 except Exception as mirror_err:
                     print(f"⚠️ Audio mirror resolution failed: {mirror_err}")
 

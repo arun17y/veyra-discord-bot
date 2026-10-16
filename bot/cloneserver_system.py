@@ -278,16 +278,7 @@ async def execute_server_clone(bot: commands.Bot, source: discord.Guild, target:
     # ── 7. CLONE EMOJIS, STICKERS & SOUNDBOARD ────────────────────────────────
     await log_step(f"🎨 **Step 5/6: Cloning Emojis, Stickers & Soundboard Sounds...**\nRecreated `{len(category_map)}` categories and `{created_channels}` channels.")
 
-    cloned_emojis = 0
-    max_emojis = target.emoji_limit
-    for e in source.emojis[:max_emojis]:
-        try:
-            img_data = await e.read()
-            await target.create_custom_emoji(name=e.name, image=img_data, reason=f"Server clone from {source.name}")
-            cloned_emojis += 1
-            await asyncio.sleep(0.3)
-        except Exception:
-            pass
+    cloned_emojis, _ = await clone_emojis_only(source, target)
 
     cloned_stickers = 0
     max_stickers = target.sticker_limit
@@ -360,21 +351,100 @@ async def execute_server_clone(bot: commands.Bot, source: discord.Guild, target:
             pass
 
 
-async def clone_emojis_only(source: discord.Guild, target: discord.Guild) -> tuple[int, int]:
+async def clone_emojis_only(source: discord.Guild, target: discord.Guild, status_msg: discord.Message = None) -> tuple[int, int]:
     cloned = 0
-    max_emojis = target.emoji_limit
-    source_emojis = source.emojis
-    for e in source_emojis[:max_emojis]:
+    # Separate static and animated emojis because Discord allocates separate quotas for each
+    source_static = [e for e in source.emojis if not e.animated]
+    source_animated = [e for e in source.emojis if e.animated]
+    
+    current_static_count = sum(1 for e in target.emojis if not e.animated)
+    current_animated_count = sum(1 for e in target.emojis if e.animated)
+    
+    max_static = target.emoji_limit
+    max_animated = target.emoji_limit
+    
+    avail_static = max(0, max_static - current_static_count)
+    avail_animated = max(0, max_animated - current_animated_count)
+    
+    existing_names = {e.name for e in target.emojis}
+    
+    emojis_to_clone = []
+    s_added = 0
+    for e in source_static:
+        if e.name not in existing_names and s_added < avail_static:
+            emojis_to_clone.append(e)
+            s_added += 1
+            
+    a_added = 0
+    for e in source_animated:
+        if e.name not in existing_names and a_added < avail_animated:
+            emojis_to_clone.append(e)
+            a_added += 1
+
+    total_candidates = len(emojis_to_clone)
+    if total_candidates == 0:
+        return 0, len(source.emojis)
+        
+    last_update_time = time.time()
+    
+    for idx, e in enumerate(emojis_to_clone, start=1):
+        clean_name = re.sub(r'[^a-zA-Z0-9_]', '', e.name)
+        if len(clean_name) < 2:
+            clean_name = f"e_{clean_name}"
+        clean_name = clean_name[:32]
+        
         try:
-            if any(te.name == e.name for te in target.emojis):
-                continue
             img_data = await e.read()
-            await target.create_custom_emoji(name=e.name, image=img_data, reason=f"VEYRA Clone from {source.name}")
-            cloned += 1
-            await asyncio.sleep(0.3)
+            # If image data > 256KB, compress/resize with PIL
+            if len(img_data) > 256000:
+                try:
+                    import io
+                    from PIL import Image
+                    im = Image.open(io.BytesIO(img_data))
+                    im.thumbnail((128, 128))
+                    buf = io.BytesIO()
+                    im.save(buf, format="PNG", optimize=True)
+                    if buf.tell() < len(img_data):
+                        img_data = buf.getvalue()
+                except Exception:
+                    pass
         except Exception:
-            pass
-    return cloned, len(source_emojis)
+            continue
+            
+        # Robust upload with 429 rate limit backoff and retries
+        for attempt in range(5):
+            try:
+                await target.create_custom_emoji(name=clean_name, image=img_data, reason=f"VEYRA Clone from {source.name}")
+                cloned += 1
+                existing_names.add(clean_name)
+                break
+            except discord.HTTPException as http_ex:
+                if http_ex.status == 429:
+                    # Rate limited by Discord - wait full retry_after plus safety buffer
+                    retry_after = getattr(http_ex, 'retry_after', 2.5) or 2.5
+                    await asyncio.sleep(float(retry_after) + 0.5)
+                    continue
+                elif http_ex.code in (30008,):  # Max emojis reached
+                    return cloned, len(source.emojis)
+                elif http_ex.code in (50035,):  # Invalid asset or name
+                    break
+                else:
+                    await asyncio.sleep(1.5)
+            except Exception:
+                break
+                
+        # Update live status every 5 emojis or 5 seconds if status_msg is available
+        if status_msg and (idx % 5 == 0 or idx == total_candidates or time.time() - last_update_time > 5):
+            try:
+                last_update_time = time.time()
+                await status_msg.edit(content=f"⏳ **Cloning Emojis & GIFs** from **{source.name}**...\nProgress: `{cloned}/{total_candidates}` transferred (Processed: {idx}/{total_candidates}).")
+            except Exception:
+                pass
+                
+        # Safe pacing between creation requests
+        await asyncio.sleep(1.0)
+        
+    return cloned, len(source.emojis)
 
 async def clone_stickers_only(source: discord.Guild, target: discord.Guild) -> tuple[int, int]:
     cloned = 0
@@ -688,8 +758,8 @@ def setup_cloneserver_system(bot: commands.Bot):
             source = await resolve_source_guild(interaction.user, interaction.guild, source_server_id, interaction, is_slash=True)
             if not source:
                 return
-            await interaction.followup.send(f"⏳ **Cloning emojis & animated GIFs** from **{source.name}** (`{source.id}`)...\nThis may take a minute due to Discord rate limits.")
-            cloned, total = await clone_emojis_only(source, interaction.guild)
+            prog_msg = await interaction.followup.send(f"⏳ **Cloning emojis & animated GIFs** from **{source.name}** (`{source.id}`)...\nThis may take a minute due to Discord rate limits.", wait=True)
+            cloned, total = await clone_emojis_only(source, interaction.guild, status_msg=prog_msg)
             embed = discord.Embed(
                 title="😀 Emojis & GIFs Cloned Successfully",
                 description=f"Cloned **{cloned}** emojis out of **{total}** available from **{source.name}**.\nLimit for this server: `{interaction.guild.emoji_limit}`.",
@@ -881,8 +951,8 @@ def setup_cloneserver_system(bot: commands.Bot):
         source = await resolve_source_guild(ctx.author, ctx.guild, source_server_id, ctx, is_slash=False)
         if not source:
             return
-        await ctx.send(f"⏳ Copying emojis from **{source.name}**...")
-        cloned, total = await clone_emojis_only(source, ctx.guild)
+        prog_msg = await ctx.send(f"⏳ Copying emojis from **{source.name}**...")
+        cloned, total = await clone_emojis_only(source, ctx.guild, status_msg=prog_msg)
         await ctx.send(f"✅ Cloned **{cloned}** out of **{total}** emojis from **{source.name}**.")
 
     @prefix_clone.command(name="stickers", aliases=["sticker"])

@@ -23,5 +23,8 @@ database/**/*.db
 database/backups/
 *.dll
 *.db
+*.exe
+ffmpeg/
+**/ffmpeg/
 
 .env*
