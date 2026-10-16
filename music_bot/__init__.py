@@ -1,4 +1,4 @@
-"""
+r"""
 music_bot - Production Music Architecture for VEYRA All-in-One Bot
 Ported directly from shadow-music-bot (E:\Bot\music bot 1)
 """
