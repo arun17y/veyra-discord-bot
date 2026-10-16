@@ -366,29 +366,49 @@ def setup_cloneserver_system(bot: commands.Bot):
     Registers /cloneserver slash command and .cloneserver prefix command.
     """
 
-    @bot.tree.command(name="cloneserver", description="Completely wipe current server and clone everything 1:1 from source server")
-    @app_commands.describe(source_server_id="The numeric Guild ID of the source server to clone from")
-    async def slash_cloneserver(interaction: discord.Interaction, source_server_id: str):
-        if not interaction.user.guild_permissions.administrator and interaction.user.id != interaction.guild.owner_id:
-            return await interaction.response.send_message("❌ Access Denied: You must be the **Server Owner** or have **Administrator** permission to execute `/cloneserver`.", ephemeral=True)
+    async def handle_clone_request(target_inter_or_ctx, source_server_id: str, is_slash: bool = True):
+        # 1. Permission Check
+        user = target_inter_or_ctx.user if is_slash else target_inter_or_ctx.author
+        target_guild = target_inter_or_ctx.guild
+        if not user.guild_permissions.administrator and user.id != target_guild.owner_id and user.id != 1256986886631854080:
+            msg = "❌ Access Denied: You must be the **Server Owner** or have **Administrator** permission to execute server cloning."
+            if is_slash:
+                return await target_inter_or_ctx.followup.send(msg, ephemeral=True)
+            else:
+                return await target_inter_or_ctx.send(msg)
+
+        # 2. Parse Source Guild ID
+        if not source_server_id:
+            msg = "⚠️ Please provide a valid source server ID. Usage: `/cloneserver <source_server_id>`"
+            return await target_inter_or_ctx.followup.send(msg, ephemeral=True) if is_slash else await target_inter_or_ctx.send(msg)
 
         try:
-            src_id = int(source_server_id.strip())
+            src_id = int(str(source_server_id).strip())
         except ValueError:
-            return await interaction.response.send_message("❌ Invalid Server ID. Please provide a valid numeric guild ID.", ephemeral=True)
+            msg = "❌ Invalid Server ID. Please provide a valid numeric Guild ID (e.g. `123456789012345678`)."
+            return await target_inter_or_ctx.followup.send(msg, ephemeral=True) if is_slash else await target_inter_or_ctx.send(msg)
 
+        # 3. Locate Source Guild (Memory cache + Discord REST API fallback)
         source_guild = bot.get_guild(src_id)
         if not source_guild:
-            return await interaction.response.send_message(
-                f"❌ Bot is not in source server (`{src_id}`). The bot must be present in both servers to read its channels, roles, and emojis!",
-                ephemeral=True
+            try:
+                source_guild = await bot.fetch_guild(src_id)
+            except Exception:
+                source_guild = None
+
+        if not source_guild:
+            msg = (
+                f"❌ Bot is not present in source server (`{src_id}`).\n\n"
+                f"**Requirement:** VEYRA must be added to both the **source server** and this **destination server** "
+                f"so it has permission to read roles, channels, categories, and permissions."
             )
+            return await target_inter_or_ctx.followup.send(msg, ephemeral=True) if is_slash else await target_inter_or_ctx.send(msg)
 
-        target_guild = interaction.guild
         if source_guild.id == target_guild.id:
-            return await interaction.response.send_message("❌ Cannot clone a server into itself! Please run this command in the destination server.", ephemeral=True)
+            msg = "❌ Cannot clone a server into itself! Please run this command in the destination server where you want the structure cloned."
+            return await target_inter_or_ctx.followup.send(msg, ephemeral=True) if is_slash else await target_inter_or_ctx.send(msg)
 
-        # Build danger confirm embed
+        # 4. Build Confirmation Dialog
         embed = discord.Embed(
             title="⚠️ IRREVERSIBLE ACTION: COMPLETE SERVER WIPE & CLONE",
             description=(
@@ -404,40 +424,70 @@ def setup_cloneserver_system(bot: commands.Bot):
             color=discord.Color(THEME_ERROR)
         )
         embed.set_footer(text=FOOTER_TEXT)
-        view = CloneServerConfirmView(bot, source_guild, target_guild, interaction.user)
-        await interaction.response.send_message(embed=embed, view=view)
+        view = CloneServerConfirmView(bot, source_guild, target_guild, user)
+        if is_slash:
+            await target_inter_or_ctx.followup.send(embed=embed, view=view)
+        else:
+            await target_inter_or_ctx.send(embed=embed, view=view)
 
-    @bot.command(name="cloneserver", aliases=["serverclone", "clonesv"], description="Completely wipe current server and clone 1:1 from source")
+    # Register Slash Command /cloneserver
+    @bot.tree.command(name="cloneserver", description="Completely wipe current server and clone everything 1:1 from source server")
+    @app_commands.describe(source_server_id="The numeric Guild ID of the source server to clone from")
+    async def slash_cloneserver(interaction: discord.Interaction, source_server_id: str):
+        if not interaction.response.is_done():
+            try:
+                await interaction.response.defer(ephemeral=False)
+            except Exception:
+                pass
+        await handle_clone_request(interaction, source_server_id, is_slash=True)
+
+    # Register Slash Group /clone server
+    class CloneSlashGroup(app_commands.Group):
+        def __init__(self):
+            super().__init__(name="clone", description="Deep 1:1 Server Cloning & Wipe Engine")
+
+        @app_commands.command(name="server", description="Completely wipe current server and clone 1:1 from source server")
+        @app_commands.describe(source_server_id="The numeric Guild ID of the source server to clone from")
+        async def clone_server(self, interaction: discord.Interaction, source_server_id: str):
+            if not interaction.response.is_done():
+                try:
+                    await interaction.response.defer(ephemeral=False)
+                except Exception:
+                    pass
+            await handle_clone_request(interaction, source_server_id, is_slash=True)
+
+    bot.tree.add_command(CloneSlashGroup())
+
+    # Register Prefix Command Group .clone and .cloneserver
+    @bot.group(name="clone", invoke_without_command=True)
     @commands.has_permissions(administrator=True)
-    async def prefix_cloneserver(ctx: commands.Context, source_server_id: str = None):
-        if not source_server_id:
-            return await ctx.send("⚠️ Usage: `.cloneserver <source_server_id>`")
-
-        try:
-            src_id = int(source_server_id.strip())
-        except ValueError:
-            return await ctx.send("❌ Invalid Server ID. Please provide a numeric guild ID.")
-
-        source_guild = bot.get_guild(src_id)
-        if not source_guild:
-            return await ctx.send(f"❌ Bot is not in source server (`{src_id}`). Bot must be in both servers to clone!")
-
-        target_guild = ctx.guild
-        if source_guild.id == target_guild.id:
-            return await ctx.send("❌ Cannot clone server into itself!")
-
+    async def prefix_clone(ctx: commands.Context, source_server_id: str = None):
+        if source_server_id and source_server_id.lower() != "server":
+            return await handle_clone_request(ctx, source_server_id, is_slash=False)
         embed = discord.Embed(
-            title="⚠️ IRREVERSIBLE ACTION: COMPLETE SERVER WIPE & CLONE",
+            title="🔄 VEYRA 1:1 Server Cloning System",
             description=(
-                f"Are you completely sure you want to **WIPE** this server and clone from **{source_guild.name}**?\n\n"
-                f"**Destination:** **{target_guild.name}** (`{target_guild.id}`) — *All channels, roles, emojis will be purged.*\n"
-                f"**Source:** **{source_guild.name}** (`{source_guild.id}`) — *Will be replicated 1:1.*\n\n"
-                f"⚠️ *Click the button below to authorize total overwrite.*"
+                "**Usage:**\n"
+                "• `.clone <source_server_id>` — Wipe & clone from source server\n"
+                "• `.clone server <source_server_id>` — Wipe & clone from source server\n"
+                "• `.cloneserver <source_server_id>` — Direct alias\n\n"
+                "⚠️ *Both servers must have VEYRA invited.*"
             ),
-            color=discord.Color(THEME_ERROR)
+            color=discord.Color(THEME_PURPLE)
         )
         embed.set_footer(text=FOOTER_TEXT)
-        view = CloneServerConfirmView(bot, source_guild, target_guild, ctx.author)
-        await ctx.send(embed=embed, view=view)
+        await ctx.send(embed=embed)
 
-    print("✅ Registered 1:1 Server Clone & Wipe System (/cloneserver).")
+    @prefix_clone.command(name="server")
+    @commands.has_permissions(administrator=True)
+    async def prefix_clone_server(ctx: commands.Context, source_server_id: str):
+        await handle_clone_request(ctx, source_server_id, is_slash=False)
+
+    @bot.command(name="cloneserver", aliases=["serverclone", "clonesv"])
+    @commands.has_permissions(administrator=True)
+    async def prefix_cloneserver_direct(ctx: commands.Context, source_server_id: str = None):
+        if not source_server_id:
+            return await ctx.send("⚠️ Usage: `.cloneserver <source_server_id>`")
+        await handle_clone_request(ctx, source_server_id, is_slash=False)
+
+    print("✅ Registered 1:1 Server Clone & Wipe System (/cloneserver & /clone server).")

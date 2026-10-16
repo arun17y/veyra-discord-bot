@@ -2084,7 +2084,7 @@ async def serverbanner_prefix(ctx):
     await ctx.send(embed=embed, view=view)
 
 
-@bot.command(name="serverinfo", aliases=["si", "guildinfo", "server"], description="Displays server information")
+@bot.command(name="serverinfo", aliases=["si", "guildinfo"], description="Displays server information")
 async def serverinfo_prefix(ctx):
     embed = build_server_info_embed(ctx.guild)
     view = ServerInfoView(ctx.guild)
@@ -3972,19 +3972,19 @@ From raids and nukes to spam and unwanted users, I'll protect your community wit
         
     print(f"📡 Cached invite links for {len(bot.guilds)} guilds.")
     
-    # 1. Clear any duplicate guild-specific commands so Discord UI shows only 1 clean copy per command
+    # 1. Instantly publish commands to all active guilds for 1-second real-time activation
     for g in bot.guilds:
         try:
-            bot.tree.clear_commands(guild=g)
+            bot.tree.copy_global_to(guild=g)
             await bot.tree.sync(guild=g)
-            print(f"🧹 Purged duplicate guild commands for {g.name} ({g.id})")
+            print(f"⚡ Instantly published real-time commands to guild: {g.name} ({g.id})")
         except Exception as ge:
-            print(f"⚠️ Guild command cleanup notice for {g.id}: {ge}")
+            print(f"⚠️ Guild command sync notice for {g.id}: {ge}")
 
     # 2. Sync single global command tree cleanly
     try:
         synced_global = await bot.tree.sync()
-        print(f"📡 Cleanly synced {len(synced_global)} global slash commands (zero duplicates).")
+        print(f"📡 Cleanly synced {len(synced_global)} global slash commands.")
     except Exception as e:
         print(f"❌ Global command tree sync notice: {e}")
         
@@ -3994,6 +3994,11 @@ From raids and nukes to spam and unwanted users, I'll protect your community wit
 @bot.event
 async def on_guild_join(guild):
     print(f"📥 Joined new guild: {guild.name} ({guild.id})")
+    try:
+        bot.tree.copy_global_to(guild=guild)
+        await bot.tree.sync(guild=guild)
+    except Exception:
+        pass
     await cache_invites(guild)
     update_db_bot_guilds()
     await sync_active_bot_guilds()
