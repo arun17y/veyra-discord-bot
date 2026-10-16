@@ -24,3 +24,4 @@ database/backups/
 *.dll
 *.db
 
+.env*
