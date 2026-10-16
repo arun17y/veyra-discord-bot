@@ -10933,6 +10933,12 @@ except Exception as e:
     print("Cloneserver setup notice:", e)
 
 try:
+    from server_customization import setup_server_customization
+    setup_server_customization(bot)
+except Exception as e:
+    print("Server customization setup notice:", e)
+
+try:
     # Load all-in-one music architecture directly from music_bot folder
     root_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
     if root_dir not in sys.path:

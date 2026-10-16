@@ -252,7 +252,7 @@ class PostgresAdapter {
 }
 
 function getDatabase(sqliteFallbackPath) {
-  const dbUrl = process.env.DATABASE_URL;
+  const dbUrl = process.env.DATABASE_URL || "postgresql://neondb_owner:npg_QyNVAknl8BZ6@ep-floral-mouse-artqhsoc-pooler.c-4.us-west-2.aws.neon.tech/neondb?sslmode=require";
   if (dbUrl && dbUrl.startsWith('postgres')) {
     return new PostgresAdapter(dbUrl);
   }

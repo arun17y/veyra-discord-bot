@@ -3,7 +3,7 @@ import os
 import re
 import sqlite3
 
-DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://neondb_owner:npg_u16miIQSLZGO@ep-morning-hat-b5421rgl-pooler.c-7.us-east-2.aws.neon.tech/neondb?sslmode=require")
+DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://neondb_owner:npg_QyNVAknl8BZ6@ep-floral-mouse-artqhsoc-pooler.c-4.us-west-2.aws.neon.tech/neondb?sslmode=require")
 DB_PATH_VEYRA = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "database", "VEYRA.db"))
 
 PK_MAP = {

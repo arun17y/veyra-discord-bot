@@ -5,7 +5,7 @@ import os
 import sys
 
 SQLITE_PATH = os.path.abspath("database/VEYRA.db")
-PG_URL = "postgresql://neondb_owner:npg_u16miIQSLZGO@ep-morning-hat-b5421rgl-pooler.c-7.us-east-2.aws.neon.tech/neondb?sslmode=require"
+PG_URL = "postgresql://neondb_owner:npg_QyNVAknl8BZ6@ep-floral-mouse-artqhsoc-pooler.c-4.us-west-2.aws.neon.tech/neondb?sslmode=require"
 
 sqlite_conn = sqlite3.connect(SQLITE_PATH)
 s_cur = sqlite_conn.cursor()
