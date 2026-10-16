@@ -22,9 +22,9 @@ from discord.ext import commands
 import yt_dlp
 
 try:
-    from bot.db_adapter import get_db
-except ImportError:
     from db_adapter import get_db
+except ImportError:
+    from bot.db_adapter import get_db
 
 logger = logging.getLogger("veyra.music")
 
@@ -71,35 +71,72 @@ def get_ffmpeg_executable() -> str:
             return c
     return "ffmpeg"
 
-# Spotify credentials from environment
-SPOTIFY_CLIENT_ID = os.environ.get("SPOTIFY_CLIENT_ID", "")
-SPOTIFY_CLIENT_SECRET = os.environ.get("SPOTIFY_CLIENT_SECRET", "")
+# Spotify credentials from environment or default config fallback
+SPOTIFY_CLIENT_ID = os.environ.get("SPOTIFY_CLIENT_ID", "") or "321c535c35b4423a945c9a6df5c5be06"
+SPOTIFY_CLIENT_SECRET = os.environ.get("SPOTIFY_CLIENT_SECRET", "") or "1bc3fee6cfd743be843ef29047bfe46d"
 
 COOKIE_ARG = None
 possible_cookie_paths = [
     os.path.join(os.path.dirname(__file__), "cookies.txt"),
     os.path.join(os.path.dirname(__file__), "..", "cookies.txt"),
     r"C:\Users\Arun Yadav\.gemini\antigravity\scratch\Veyra All in one Discord Bot\cookies.txt",
+    r"C:\Users\Arun Yadav\.gemini\antigravity\scratch\Veyra All in one Discord Bot\bot\cookies.txt",
     r"E:\Bot\music bot 1\cookies.txt"
 ]
 for cp in possible_cookie_paths:
     if os.path.exists(cp):
-        COOKIE_ARG = os.path.abspath(cp)
-        break
+        try:
+            with open(cp, "r", encoding="utf-8", errors="ignore") as _cf:
+                _raw_lines = _cf.readlines()
+            _clean_lines = ["# Netscape HTTP Cookie File\n# Cleaned by Veyra Music Engine\n"]
+            has_yt_login = False
+            for _l in _raw_lines:
+                _ls = _l.strip()
+                if not _ls or _ls.startswith("#"):
+                    continue
+                _parts = _ls.split("\t")
+                if len(_parts) >= 7:
+                    if _parts[0].startswith("."):
+                        _parts[1] = "TRUE"
+                    _clean_lines.append("\t".join(_parts) + "\n")
+                    if any(k in _parts[5] for k in ["LOGIN_INFO", "__Secure-3PSID", "__Secure-1PSID", "SID"]):
+                        has_yt_login = True
+            with open(cp, "w", encoding="utf-8") as _cf:
+                _cf.writelines(_clean_lines)
+            if has_yt_login:
+                COOKIE_ARG = os.path.abspath(cp)
+                logger.info("Loaded verified YouTube account cookies from %s", cp)
+                break
+        except Exception as _ce:
+            logger.warning("Error sanitizing %s: %s", cp, _ce)
+
+try:
+    from yt_dlp.networking.impersonate import ImpersonateTarget
+    CHROME_TARGET = ImpersonateTarget("chrome")
+    logger.info("Chrome TLS impersonation target active for direct YouTube extraction.")
+except Exception as _ite:
+    CHROME_TARGET = None
 
 YTDL_OPTIONS = {
-    "format": "bestaudio/18/best",
-    "noplaylist": False,
+    "format": "bestaudio/18/best/b",
+    "noplaylist": True,
     "nocheckcertificate": True,
     "ignoreerrors": False,
     "quiet": True,
     "no_warnings": True,
     "default_search": "ytsearch",
     "cookiefile": COOKIE_ARG,
-    "js_runtimes": {"node": {}},
+    "socket_timeout": 10,
+    "retries": 1,
+    "extractor_retries": 1,
+    "js_runtimes": {"deno": {}, "node": {}},
+    "remote_components": ["ejs:github", "ejs:npm"],
     "extractor_args": {
         "youtube": {
-            "player_client": ["android_vr", "web"]
+            "player_client": ["web", "mweb", "android_vr", "android"]
+        },
+        "youtubepot-bgutilhttp": {
+            "base_url": ["http://127.0.0.1:4416"]
         }
     },
 }
@@ -786,23 +823,30 @@ class YTSource(discord.PCMVolumeTransformer):
     async def search(cls, query: str, loop, max_results: int = 1):
         clean_query = query.strip()
         is_url = clean_query.startswith("http://") or clean_query.startswith("https://")
-        q = clean_query if is_url else f"ytsearch{max_results}:{clean_query}"
+        q = clean_query if is_url else f"ytsearch5:{clean_query}"
+
+        opts = YTDL_OPTIONS.copy()
+        opts["extract_flat"] = "in_playlist"
+        opts["socket_timeout"] = 8
 
         def run():
-            # 1. Primary: YouTube with android_vr (bypasses bot verification checks)
-            opts_vr = YTDL_OPTIONS.copy()
-            opts_vr["extractor_args"] = {"youtube": {"player_client": ["android_vr"]}}
+            # 1. Primary: yt-dlp with configured options (PO Token provider + Android VR + Web)
             try:
-                res = yt_dlp.YoutubeDL(opts_vr).extract_info(q, download=False)
+                res = yt_dlp.YoutubeDL(opts).extract_info(q, download=False)
                 if res and (res.get("entries") or res.get("url") or res.get("id")):
                     return res
             except Exception as e:
-                logger.info("Search strategy 1 (android_vr) notice: %s", e)
+                logger.info("Search strategy 1 notice: %s", e)
 
-            # 2. Secondary: YouTube with default player clients
-            opts_std = YTDL_OPTIONS.copy()
+            # 2. Secondary fallback: direct android_vr without cookie
             try:
-                res = yt_dlp.YoutubeDL(opts_std).extract_info(q, download=False)
+                opts_vr = opts.copy()
+                opts_vr["cookiefile"] = None
+                opts_vr["extractor_args"] = {
+                    "youtube": {"player_client": ["android_vr", "android"]},
+                    "youtubepot-bgutilhttp": {"base_url": ["http://127.0.0.1:4416"]}
+                }
+                res = yt_dlp.YoutubeDL(opts_vr).extract_info(q, download=False)
                 if res and (res.get("entries") or res.get("url") or res.get("id")):
                     return res
             except Exception as e:
@@ -810,7 +854,7 @@ class YTSource(discord.PCMVolumeTransformer):
 
             # 3. Tertiary: SoundCloud search fallback (bulletproof on datacenter IPs)
             if not is_url:
-                opts_sc = YTDL_OPTIONS.copy()
+                opts_sc = opts.copy()
                 opts_sc["cookiefile"] = None
                 opts_sc["extractor_args"] = {}
                 try:
@@ -820,52 +864,102 @@ class YTSource(discord.PCMVolumeTransformer):
                 except Exception as e:
                     logger.info("Search strategy 3 (SoundCloud) notice: %s", e)
 
-            # 4. Final: YouTube without cookies
-            opts_no = YTDL_OPTIONS.copy()
-            opts_no["cookiefile"] = None
-            try:
-                return yt_dlp.YoutubeDL(opts_no).extract_info(q, download=False)
-            except Exception:
-                return None
+            return None
 
         data = await loop.run_in_executor(None, run)
         if not data:
             return [] if max_results > 1 else {}
 
-        if "entries" in data and data["entries"]:
+        if "entries" in data and len(data["entries"]) > 0:
             entries = [e for e in data["entries"] if e]
+            if not is_url:
+                q_lower = clean_query.lower()
+                selected = None
+                for e in entries:
+                    if not e: continue
+                    dur = int(e.get("duration") or 0)
+                    url = e.get("url") or e.get("webpage_url") or ""
+                    title = (e.get("title") or "").lower()
+                    if "/shorts/" in url or "#shorts" in title or "#short" in title or (0 < dur < 60):
+                        continue
+                    ad_keywords = ["teaser", "trailer", "promo", "preview", "commercial", "advertisement", "ad video"]
+                    if not any(k in q_lower for k in ad_keywords):
+                        if any(k in title for k in ad_keywords):
+                            continue
+                    selected = e
+                    break
+                if not selected:
+                    for e in entries:
+                        if not e: continue
+                        dur = int(e.get("duration") or 0)
+                        url = e.get("url") or e.get("webpage_url") or ""
+                        if "/shorts/" not in url and dur >= 60:
+                            selected = e
+                            break
+                if not selected and entries:
+                    selected = entries[0]
+                if selected:
+                    u = selected.get("webpage_url") or selected.get("url") or ""
+                    if u and not u.startswith("http"):
+                        u = f"https://www.youtube.com/watch?v={u}"
+                    selected["url"] = u
+                    selected["webpage_url"] = u
+                    return [selected] if max_results > 1 else selected
+
             return entries if max_results > 1 else (entries[0] if entries else {})
-        return [] if max_results > 1 else data
+
+        u = data.get("webpage_url") or data.get("url") or ""
+        if u and not u.startswith("http"):
+            u = f"https://www.youtube.com/watch?v={u}"
+        data["url"] = u
+        data["webpage_url"] = u
+        return [data] if max_results > 1 else data
 
     @classmethod
     async def extract_tracks(cls, query: str, loop) -> Tuple[List[dict], bool]:
         clean_query = query.strip()
-        is_url = clean_query.startswith("http://") or clean_query.startswith("https://")
-        q = clean_query if is_url else f"ytsearch1:{clean_query}"
+        vid_match = re.search(r'(?:v=|\/|youtu\.be\/)([0-9A-Za-z_-]{11})', clean_query)
+        is_playlist_url = "list=" in clean_query
+        is_search = not clean_query.startswith("http")
+
+        if vid_match and not is_playlist_url:
+            q = clean_query
+            is_search = False
+        elif is_search:
+            q = f"ytsearch5:{clean_query}"
+        else:
+            q = clean_query
+
+        opts = YTDL_OPTIONS.copy()
+        opts["extract_flat"] = "in_playlist"
+        opts["socket_timeout"] = 8
 
         def run():
-            # 1. Primary: YouTube with android_vr (bypasses bot verification checks)
-            opts_vr = YTDL_OPTIONS.copy()
-            opts_vr["extractor_args"] = {"youtube": {"player_client": ["android_vr"]}}
+            # 1. Primary: yt-dlp with configured options (PO Token provider + Android VR + Web)
             try:
-                res = yt_dlp.YoutubeDL(opts_vr).extract_info(q, download=False)
+                res = yt_dlp.YoutubeDL(opts).extract_info(q, download=False)
                 if res and (res.get("entries") or res.get("url") or res.get("id")):
                     return res
             except Exception as e:
-                logger.info("Extract strategy 1 (android_vr) notice: %s", e)
+                logger.info("Extract strategy 1 notice: %s", e)
 
-            # 2. Secondary: YouTube with default player clients
-            opts_std = YTDL_OPTIONS.copy()
+            # 2. Secondary fallback: direct android_vr without cookie
             try:
-                res = yt_dlp.YoutubeDL(opts_std).extract_info(q, download=False)
+                opts_vr = opts.copy()
+                opts_vr["cookiefile"] = None
+                opts_vr["extractor_args"] = {
+                    "youtube": {"player_client": ["android_vr", "android"]},
+                    "youtubepot-bgutilhttp": {"base_url": ["http://127.0.0.1:4416"]}
+                }
+                res = yt_dlp.YoutubeDL(opts_vr).extract_info(q, download=False)
                 if res and (res.get("entries") or res.get("url") or res.get("id")):
                     return res
             except Exception as e:
                 logger.info("Extract strategy 2 notice: %s", e)
 
-            # 3. Tertiary: SoundCloud fallback (bulletproof on datacenter IPs)
-            if not is_url:
-                opts_sc = YTDL_OPTIONS.copy()
+            # 3. Tertiary: SoundCloud fallback
+            if is_search:
+                opts_sc = opts.copy()
                 opts_sc["cookiefile"] = None
                 opts_sc["extractor_args"] = {}
                 try:
@@ -875,155 +969,130 @@ class YTSource(discord.PCMVolumeTransformer):
                 except Exception as e:
                     logger.info("Extract strategy 3 (SoundCloud) notice: %s", e)
 
-            # 4. Final: YouTube without cookies
-            opts_no = YTDL_OPTIONS.copy()
-            opts_no["cookiefile"] = None
-            try:
-                return yt_dlp.YoutubeDL(opts_no).extract_info(q, download=False)
-            except Exception:
-                return None
+            return None
 
         data = await loop.run_in_executor(None, run)
         if not data:
             return [], False
 
-        if not is_url:
-            if "entries" in data and data["entries"] and data["entries"][0]:
-                return [data["entries"][0]], False
+        if is_search:
+            entries = data.get("entries", [])
+            q_lower = clean_query.lower()
+            selected = None
+            for e in entries:
+                if not e: continue
+                dur = int(e.get("duration") or 0)
+                url = e.get("url") or e.get("webpage_url") or ""
+                title = (e.get("title") or "").lower()
+                # Strictly filter out YouTube Shorts (duration < 60s or /shorts/ in url or #shorts in title)
+                if "/shorts/" in url or "#shorts" in title or "#short" in title or (0 < dur < 60):
+                    continue
+                # Strictly filter out Ads / Promos / Teasers / Trailers / Commercials
+                ad_keywords = ["teaser", "trailer", "promo", "preview", "commercial", "advertisement", "ad video"]
+                if not any(k in q_lower for k in ad_keywords):
+                    if any(k in title for k in ad_keywords):
+                        continue
+                # Filter out 1 hour / loop / extended unless explicitly requested
+                if not any(k in q_lower for k in ["1 hour", "1hr", "10 hour", "loop", "extended"]):
+                    if any(k in title for k in ["1 hour", "10 hour", "10 hrs", "1 hr loop", "[1 hour]"]):
+                        continue
+                if "slowed" not in q_lower and ("slowed" in title or "reverb" in title):
+                    continue
+                if "sped" not in q_lower and "speed" not in q_lower and ("sped up" in title or "speed up" in title):
+                    continue
+                if "edit" not in q_lower and ("[edit" in title or "(edit" in title or "edit audio" in title):
+                    continue
+                selected = e
+                break
+
+            if not selected and entries:
+                for e in entries:
+                    if not e: continue
+                    dur = int(e.get("duration") or 0)
+                    url = e.get("url") or e.get("webpage_url") or ""
+                    if "/shorts/" not in url and dur >= 60:
+                        selected = e
+                        break
+
+            if not selected and entries:
+                selected = entries[0]
+
+            if selected:
+                u = selected.get("webpage_url") or selected.get("url") or ""
+                if u and not u.startswith("http"):
+                    u = f"https://www.youtube.com/watch?v={u}"
+                selected["url"] = u
+                selected["webpage_url"] = u
+                return [selected], False
             return [], False
         else:
             is_playlist = "entries" in data and not data.get("_type") == "video"
             if is_playlist:
                 tracks = [e for e in data["entries"] if e]
+                for t in tracks:
+                    u = t.get("webpage_url") or t.get("url") or ""
+                    if u and not u.startswith("http"):
+                        u = f"https://www.youtube.com/watch?v={u}"
+                    t["url"] = u
+                    t["webpage_url"] = u
                 return tracks, True
             else:
+                u = data.get("webpage_url") or data.get("url") or ""
+                if u and not u.startswith("http"):
+                    u = f"https://www.youtube.com/watch?v={u}"
+                data["url"] = u
+                data["webpage_url"] = u
                 return [data], False
 
     @classmethod
     async def stream(cls, url: str, loop, volume=1.0, active_filter=None, seek_time=0, speed=1.0, pitch=1.0, track_title=None):
         opts = YTDL_OPTIONS.copy()
         opts["extract_flat"] = False
+        opts["format"] = "18/bestaudio/best/b"
+        opts["cookiefile"] = COOKIE_ARG
+        opts["socket_timeout"] = 10
 
         def run():
-            # 1. Primary: Android + MWeb with cookies
-            opts_android = opts.copy()
-            opts_android["cookiefile"] = COOKIE_ARG
-            opts_android["extractor_args"] = {
-                "youtube": {
-                    "player_client": ["android_vr", "web", "mweb"]
-                }
-            }
+            # 1. Primary: yt-dlp with configured options (PO Token provider + Android VR + Web)
             try:
-                res = yt_dlp.YoutubeDL(opts_android).extract_info(url, download=False)
-                if res and (res.get("url") or (res.get("entries") and res["entries"][0].get("url"))):
-                    return res
+                return yt_dlp.YoutubeDL(opts).extract_info(url, download=False)
             except Exception as e:
-                logger.info("Primary android extract attempt: %s", e)
-
-            # 2. TV & Android VR
-            opts_tv = opts.copy()
-            opts_tv["cookiefile"] = COOKIE_ARG
-            opts_tv["extractor_args"] = {
-                "youtube": {
-                    "player_client": ["tv", "android_vr"]
-                }
-            }
-            try:
-                res = yt_dlp.YoutubeDL(opts_tv).extract_info(url, download=False)
-                if res and (res.get("url") or (res.get("entries") and res["entries"][0].get("url"))):
-                    return res
-            except Exception as e:
-                logger.info("TV client extract attempt: %s", e)
-
-            # 3. VisionOS fallback
-            opts_vision = opts.copy()
-            opts_vision["cookiefile"] = COOKIE_ARG
-            opts_vision["extractor_args"] = {
-                "youtube": {
-                    "player_client": ["visionos"]
-                }
-            }
-            try:
-                res = yt_dlp.YoutubeDL(opts_vision).extract_info(url, download=False)
-                if res and (res.get("url") or (res.get("entries") and res["entries"][0].get("url"))):
-                    return res
-            except Exception as e:
-                logger.info("VisionOS client extract attempt: %s", e)
-
-            # 4. Mobile Android / iOS without cookies (fallback)
-            opts_mobile = opts.copy()
-            opts_mobile["cookiefile"] = None
-            opts_mobile["extractor_args"] = {
-                "youtube": {
-                    "player_client": ["android", "ios"]
-                }
-            }
-            try:
-                res = yt_dlp.YoutubeDL(opts_mobile).extract_info(url, download=False)
-                if res and (res.get("url") or (res.get("entries") and res["entries"][0].get("url"))):
-                    return res
-            except Exception:
-                pass
-
-            # 5. SoundCloud fallback (if YouTube failed completely)
-            try:
-                search_term = track_title
-                if not search_term:
-                    try:
-                        import urllib.request, json
-                        oembed_url = f"https://www.youtube.com/oembed?url={url}&format=json"
-                        o_req = urllib.request.Request(oembed_url, headers={"User-Agent": "Mozilla/5.0"})
-                        with urllib.request.urlopen(o_req, timeout=3) as o_resp:
-                            o_data = json.loads(o_resp.read().decode())
-                            search_term = o_data.get("title")
-                    except Exception:
-                        pass
-                if not search_term:
-                    vid_match = re.search(r'(?:v=|\/|youtu\.be\/)([0-9A-Za-z_-]{11})', url)
-                    q = f"ytsearch1:{vid_match.group(1)}" if vid_match else url
-                    flat_ytdl = yt_dlp.YoutubeDL({"extract_flat": True, "quiet": True, "cookiefile": COOKIE_ARG})
-                    info = flat_ytdl.extract_info(q, download=False)
-                    entries = info.get("entries", [info]) if info else []
-                    if entries and entries[0]:
-                        search_term = entries[0].get("title")
-
-                if search_term:
-                    clean_term = re.sub(r'\(.*?\)|\[.*?\]', '', search_term).strip()
-                    clean_term = re.sub(r'(?i)\b(official\s*(video|audio|music\s*video|lyric\s*video)?|full\s*video|4k|hd|remastered|lyrics?)\b', '', clean_term).strip()
-                    if "|" in clean_term:
-                        clean_term = clean_term.split("|")[0].strip()
-                    logger.info("Resolving audio via SoundCloud CDN for: %s", clean_term)
-
-                    sc_opts = {
-                        "format": "bestaudio/best",
-                        "quiet": True,
-                        "ignoreerrors": True,
-                        "extract_flat": False,
-                        "nocheckcertificate": True
+                logger.info("Primary YouTube extract failed (%s). Attempting Android VR fallback...", e)
+                try:
+                    fallback_opts = opts.copy()
+                    fallback_opts["cookiefile"] = None
+                    fallback_opts["extractor_args"] = {
+                        "youtube": {
+                            "player_client": ["android_vr", "android"]
+                        },
+                        "youtubepot-bgutilhttp": {
+                            "base_url": ["http://127.0.0.1:4416"]
+                        }
                     }
-                    sc_ytdl = yt_dlp.YoutubeDL(sc_opts)
-                    sc_data = sc_ytdl.extract_info(f"scsearch5:{clean_term}", download=False)
-                    sc_entries = sc_data.get("entries", []) if sc_data else []
-                    valid_sc = [
-                        e for e in sc_entries 
-                        if e and (e.get("duration") or 0) >= 60 and e.get("url")
-                        and "slowed" not in (e.get("title") or "").lower()
-                        and "reverb" not in (e.get("title") or "").lower()
-                        and "mashup" not in (e.get("title") or "").lower()
-                    ]
-                    if valid_sc:
-                        logger.info("SoundCloud audio fallback succeeded: %s", valid_sc[0].get('title'))
-                        return valid_sc[0]
-                    elif sc_entries and sc_entries[0].get("url"):
-                        logger.info("SoundCloud audio fallback succeeded: %s", sc_entries[0].get('title'))
-                        return sc_entries[0]
-            except Exception as sc_err:
-                logger.warning("SoundCloud audio fallback failed: %s", sc_err)
-
-            # 6. Default extract_info
-            opts_def = opts.copy()
-            opts_def["cookiefile"] = COOKIE_ARG
-            return yt_dlp.YoutubeDL(opts_def).extract_info(url, download=False)
+                    return yt_dlp.YoutubeDL(fallback_opts).extract_info(url, download=False)
+                except Exception as fb_err:
+                    logger.info("YouTube fallback failed (%s). Attempting SoundCloud CDN fallback...", fb_err)
+                    search_term = track_title
+                    if not search_term:
+                        vid_match = re.search(r'(?:v=|\/|youtu\.be\/)([0-9A-Za-z_-]{11})', url)
+                        if vid_match:
+                            try:
+                                flat = yt_dlp.YoutubeDL({"extract_flat": True, "quiet": True}).extract_info(f"https://www.youtube.com/watch?v={vid_match.group(1)}", download=False)
+                                if flat:
+                                    search_term = flat.get("title")
+                            except Exception:
+                                pass
+                    if search_term:
+                        clean_term = re.sub(r'\(.*?\)|\[.*?\]', '', search_term).strip()
+                        clean_term = re.sub(r'(?i)\b(official\s*(video|audio|music\s*video|lyric\s*video)?|full\s*video|4k|hd|remastered|lyrics?)\b', '', clean_term).strip()
+                        sc_opts = {"format": "bestaudio/best", "quiet": True, "nocheckcertificate": True}
+                        try:
+                            sc_res = yt_dlp.YoutubeDL(sc_opts).extract_info(f"scsearch1:{clean_term}", download=False)
+                            if sc_res and sc_res.get("entries") and sc_res["entries"][0]:
+                                return sc_res["entries"][0]
+                        except Exception:
+                            pass
+                    raise e
 
         data = await loop.run_in_executor(None, run)
         if data and "entries" in data and len(data["entries"]) > 0:
@@ -1034,16 +1103,7 @@ class YTSource(discord.PCMVolumeTransformer):
             raise Exception("No direct audio stream URL extracted.")
 
         headers = data.get("http_headers", {})
-        if "c=VISIONOS" in stream_url:
-            ua = "Mozilla/5.0 (VisionOS; Mobile/21N307) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1"
-        elif "c=ANDROID" in stream_url:
-            ua = "com.google.android.youtube/21.02.35 (Linux; U; Android 11) gzip"
-        elif "c=IOS" in stream_url:
-            ua = "com.google.ios.youtube/19.45.4 (iPhone14,3; U; CPU iOS 17_7 like Mac OS X; en_US)"
-        elif "c=ANDROID_VR" in stream_url:
-            ua = "com.google.android.apps.youtube.vr.oculus/1.65.10 (Linux; U; Android 12L; eureka-user Build/SQ3A.220605.009.A1) gzip"
-        else:
-            ua = headers.get("User-Agent", headers.get("user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"))
+        ua = headers.get("User-Agent") or headers.get("user-agent") or "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
 
         ffmpeg_opts = get_ffmpeg_options(active_filter, speed, pitch)
         ffmpeg_opts["before_options"] += f' -user_agent "{ua}"'
@@ -1790,26 +1850,14 @@ async def play_next(bot: commands.Bot, guild: discord.Guild, interaction: Option
 
         p.history.appendleft(track)
 
-        # DAVE MLS Protocol Sync before playing
+        # Ensure DAVE E2EE session is initialized if protocol version > 0
         conn = getattr(p.voice, "_connection", None)
         if conn and getattr(conn, "dave_protocol_version", 0) > 0 and not getattr(conn, "can_encrypt", False):
-            logger.info("[DAVE] can_encrypt is False before play — re-syncing session")
             try:
-                await conn.reinit_dave_session()
-                for _ in range(15):
-                    if getattr(conn, "can_encrypt", False):
-                        break
-                    await asyncio.sleep(0.1)
-            except Exception as e:
-                logger.warning(f"[DAVE] reinit error: {e}")
-            if not getattr(conn, "can_encrypt", False) and p.voice.channel:
-                ch = p.voice.channel
-                try:
-                    await p.voice.disconnect(force=True)
-                    await asyncio.sleep(0.3)
-                    p.voice = await ch.connect(timeout=15, reconnect=True, self_deaf=True)
-                except Exception as e:
-                    logger.warning(f"[DAVE] reconnect fallback error: {e}")
+                if hasattr(conn, "reinit_dave_session"):
+                    await conn.reinit_dave_session()
+            except Exception as d_err:
+                pass
 
         def after_cb(error):
             if error:

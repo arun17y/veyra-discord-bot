@@ -61,6 +61,114 @@ def _acquire_pid_lock():
 _acquire_pid_lock()
 # ─────────────────────────────────────────────────────────────────────────────
 
+# Ensure node.exe path is in system environment PATH for yt-dlp to find Node.js
+if "C:\\Program Files\\nodejs" not in os.environ.get("PATH", ""):
+    os.environ["PATH"] = "C:\\Program Files\\nodejs" + os.pathsep + os.environ.get("PATH", "")
+
+# Ensure local and system FFmpeg bin are in the environment PATH
+ffmpeg_candidate_dirs = [
+    r"C:\ffmpeg\bin",
+    os.path.join(os.path.dirname(os.path.abspath(__file__)), "ffmpeg", "bin"),
+    os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "ffmpeg", "bin")
+]
+for p in ffmpeg_candidate_dirs:
+    if os.path.exists(p) and p not in os.environ.get("PATH", ""):
+        os.environ["PATH"] = p + os.pathsep + os.environ.get("PATH", "")
+
+# Cloudflare Datacenter Rate Limit Bypass (Error Code 0)
+# Uses Chrome 120 TLS fingerprint via curl_cffi to transparently bypass Cloudflare blocks on datacenter IPs
+try:
+    import discord.http
+    import discord.errors
+    from curl_cffi.requests import AsyncSession as _CurlAsyncSession
+
+    _orig_http_request = discord.http.HTTPClient.request
+
+    async def _stealth_http_request(self, route: discord.http.Route, *args, **kwargs):
+        try:
+            return await _orig_http_request(self, route, *args, **kwargs)
+        except Exception as exc:
+            err_msg = str(exc).lower()
+            if "429" not in err_msg and "blocked" not in err_msg and "rate limit" not in err_msg:
+                raise
+            
+            print(f"🛡️ [Cloudflare Bypass] Intercepted {exc}. Rerouting {route.method} {route.url} through Chrome TLS impersonation...")
+            req_headers = {
+                'Authorization': f'Bot {self.token}' if getattr(self, 'token', None) else ''
+            }
+            if 'headers' in kwargs and kwargs['headers']:
+                for k, v in kwargs['headers'].items():
+                    if k.lower() != 'user-agent':
+                        req_headers[k] = v
+                
+            async with _CurlAsyncSession(impersonate="chrome120") as s:
+                res = await s.request(
+                    route.method,
+                    route.url,
+                    headers=req_headers,
+                    json=kwargs.get('json'),
+                    data=kwargs.get('data'),
+                    timeout=kwargs.get('timeout', 30)
+                )
+                print(f"✅ [Cloudflare Bypass] Response: HTTP {res.status_code}")
+                if res.status_code in (200, 201):
+                    try:
+                        return res.json()
+                    except Exception:
+                        return res.text
+                elif res.status_code == 204:
+                    return None
+                elif res.status_code == 429:
+                    try:
+                        retry_after = float(res.json().get('retry_after', 5.0))
+                    except Exception:
+                        retry_after = 5.0
+                    print(f"⏳ [Cloudflare Bypass] Rate limited. Sleeping for {retry_after}s before retry...")
+                    import asyncio
+                    await asyncio.sleep(retry_after)
+                    res = await s.request(
+                        route.method,
+                        route.url,
+                        headers=req_headers,
+                        json=kwargs.get('json'),
+                        data=kwargs.get('data'),
+                        timeout=kwargs.get('timeout', 30)
+                    )
+                    if res.status_code in (200, 201):
+                        try:
+                            return res.json()
+                        except Exception:
+                            return res.text
+                    elif res.status_code == 204:
+                        return None
+                    raise exc
+                else:
+                    raise exc
+
+    discord.http.HTTPClient.request = _stealth_http_request
+    print("🔒 Stealth Chrome TLS Cloudflare Bypass installed for Discord API.")
+except Exception as _patch_err:
+    print(f"⚠️ Could not install stealth HTTPClient patch: {_patch_err}")
+
+def start_bgutil_pot_server():
+    import shutil, subprocess
+    bgutil_path = shutil.which("bgutil-pot") or "/usr/local/bin/bgutil-pot"
+    if os.path.exists(bgutil_path) or shutil.which("bgutil-pot"):
+        cmd = [bgutil_path, "server", "--host", "127.0.0.1", "--port", "4416"]
+        try:
+            bgutil_proc = subprocess.Popen(
+                cmd,
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL
+            )
+            print(f"🚀 Started bgutil-pot PO Token server daemon (PID {bgutil_proc.pid}) on port 4416")
+        except Exception as e:
+            print(f"⚠️ Failed to launch bgutil-pot server: {e}")
+    else:
+        print("ℹ️ bgutil-pot binary not found in system PATH. Skipping background server launch.")
+
+start_bgutil_pot_server()
+
 import discord
 from discord import app_commands
 from discord.ext import commands, tasks
