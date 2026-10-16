@@ -1044,9 +1044,19 @@ def setup_server_control_system(bot: commands.Bot):
     """
     Registers all Server Control app command groups and background loops on bot tree.
     """
+    ch_grp = ChannelManagerGroup(bot)
+    cat_grp = CategoryManagerGroup(bot)
+    try:
+        from channel_system import attach_ultimate_channel_commands, attach_ultimate_category_commands, setup_channel_system_prefix_commands
+        attach_ultimate_channel_commands(ch_grp, bot)
+        attach_ultimate_category_commands(cat_grp, bot)
+        setup_channel_system_prefix_commands(bot)
+    except Exception as cs_err:
+        print(f"⚠️ Channel system registration notice: {cs_err}")
+
     bot.tree.add_command(Voice247Group(bot))
-    bot.tree.add_command(ChannelManagerGroup(bot))
-    bot.tree.add_command(CategoryManagerGroup(bot))
+    bot.tree.add_command(ch_grp)
+    bot.tree.add_command(cat_grp)
     bot.tree.add_command(RoleManagerGroup(bot))
     bot.tree.add_command(ServerControlGroup(bot))
     bot.tree.add_command(ServerBackupGroup(bot))

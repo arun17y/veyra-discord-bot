@@ -1,5 +1,5 @@
 # Netscape HTTP Cookie File
-# Cleaned by Shadow Cheats Music
+# Cleaned by VEYRA Music
 .youtube.com	TRUE	/	FALSE	0	PREF	f4=4000000&f6=40000000&tz=UTC&f7=100&hl=en
 .youtube.com	TRUE	/	TRUE	1798539550	__Secure-YENID	16.YTE=IJDONcZMvSiJ0AElbh1T6NM1qAwF5yw0TK2HV5ZK2PaRBnK49TeC_dNrbyaZHuObSWiMvC_1xCKI4Sx6JY6jQHR7aa-yXAsNQN8Yl_cAf374xUjiqS4DtXPz7KPff452UuDjkGy4_FILzz6_rBO_gP6YxUVhOa1kQe6eldnHoUOimVe9TIVgyaZWX68VaxugWas3_BcNADj0Efyc_gCVdwD2bG9Zr3Adrs74wqcpBLt16lEX5ikKVtNvvdCZMXer2qkh_OnRBTD7FQ2bMK5iNfqFnkwuovxgLDyhs6_XoDFHUqedE1x_-0rCF2xY_Jhqtj4bejUqewLoB1cyrzSGXw
 .youtube.com	TRUE	/	TRUE	1799319779	__Secure-1PSIDTS	sidts-CjUByojQU9ITyyvDj8TxzSvmK-fuXrU3yRkwCHdMggSb_5deVlwz4w_zAwRGY06CxjVKTE81IxAA

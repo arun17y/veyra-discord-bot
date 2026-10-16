@@ -101,7 +101,7 @@ except Exception as _patch_err:
 
 
 
-BOT_NAME = "SHADOW CHEATS MUSIC"
+BOT_NAME = "VEYRA MUSIC"
 
 # Ensure node.exe path is in system environment PATH for yt-dlp to find Node.js
 if "C:\\Program Files\\nodejs" not in os.environ.get("PATH", ""):
@@ -300,7 +300,7 @@ if os.path.exists(COOKIES_FILE):
         # Sanitize cookie file format so http.cookiejar never crashes on malformed lines
         with open(COOKIES_FILE, "r", encoding="utf-8", errors="ignore") as _cf:
             _raw_lines = _cf.readlines()
-        _clean_lines = ["# Netscape HTTP Cookie File\n# Cleaned by Shadow Cheats Music\n"]
+        _clean_lines = ["# Netscape HTTP Cookie File\n# Cleaned by VEYRA Music\n"]
         has_yt_login = False
         for _l in _raw_lines:
             _ls = _l.strip()
@@ -1003,10 +1003,7 @@ YTDL_OPTIONS = {
     "remote_components": ["ejs:github", "ejs:npm"],
     "extractor_args": {
         "youtube": {
-            "player_client": ["web", "mweb", "android_vr", "android"]
-        },
-        "youtubepot-bgutilhttp": {
-            "base_url": ["http://127.0.0.1:4416"]
+            "player_client": ["android_vr", "android", "mweb", "web"]
         }
     },
 }
@@ -1065,7 +1062,7 @@ def err(msg: str) -> discord.Embed:
     avatar = bot.user.avatar.url if (bot and bot.user and bot.user.avatar) else None
     formatted = f">>> {msg}" if not msg.startswith(">>>") else msg
     e = discord.Embed(title="❌ Error Encountered", description=formatted[:4096], color=0x2B2D31, timestamp=datetime.now(timezone.utc))
-    e.set_footer(text="Shadow Cheats Music", icon_url=avatar)
+    e.set_footer(text="VEYRA Music", icon_url=avatar)
     return e
 
 def ok(msg: str, desc: str = "") -> discord.Embed:
@@ -1076,7 +1073,7 @@ def ok(msg: str, desc: str = "") -> discord.Embed:
     else:
         formatted_desc = None
     e = discord.Embed(title=t, description=formatted_desc[:4096] if formatted_desc else None, color=0x2B2D31, timestamp=datetime.now(timezone.utc))
-    e.set_footer(text="Shadow Cheats Music", icon_url=avatar)
+    e.set_footer(text="VEYRA Music", icon_url=avatar)
     return e
 
 def _fmt(secs: int) -> str:
@@ -1102,14 +1099,14 @@ def history_embed(track: dict) -> discord.Embed:
         color=0x2B2D31,
         timestamp=datetime.now(timezone.utc)
     )
-    e.set_author(name="Track Finished • SHADOW CHEATS MUSIC", icon_url=avatar)
+    e.set_author(name="Track Finished • VEYRA MUSIC", icon_url=avatar)
     e.description = (
         f"> 👤 Artist: `{uploader[:35]}`\n"
         f"> ⏱ Duration: `{dur}` • 🎧 Requester: {req_str}"
     )
     if thumb:
         e.set_thumbnail(url=thumb)
-    e.set_footer(text="Shadow Cheats Music", icon_url=avatar)
+    e.set_footer(text="VEYRA Music", icon_url=avatar)
     return e
 
 # ─────────────────────────────────────────────
@@ -1130,7 +1127,17 @@ class YTSource(discord.PCMVolumeTransformer):
         q = f"ytsearch5:{query}" if is_search else query
             
         def run():
-            return yt_dlp.YoutubeDL(opts).extract_info(q, download=False)
+            try:
+                return yt_dlp.YoutubeDL(opts).extract_info(q, download=False)
+            except Exception as yt_err:
+                if is_search:
+                    try:
+                        sc_opts = opts.copy()
+                        sc_opts["extractor_args"] = {}
+                        return yt_dlp.YoutubeDL(sc_opts).extract_info(f"scsearch5:{query}", download=False)
+                    except Exception:
+                        pass
+                raise yt_err
 
         data = await loop.run_in_executor(None, run)
         if data and "entries" in data and len(data["entries"]) > 0:
@@ -1190,7 +1197,17 @@ class YTSource(discord.PCMVolumeTransformer):
             q = query
         
         def run():
-            return yt_dlp.YoutubeDL(opts).extract_info(q, download=False)
+            try:
+                return yt_dlp.YoutubeDL(opts).extract_info(q, download=False)
+            except Exception as yt_err:
+                if is_search:
+                    try:
+                        sc_opts = opts.copy()
+                        sc_opts["extractor_args"] = {}
+                        return yt_dlp.YoutubeDL(sc_opts).extract_info(f"scsearch5:{query}", download=False)
+                    except Exception:
+                        pass
+                raise yt_err
 
         data = await loop.run_in_executor(None, run)
         if not data:
@@ -1272,22 +1289,40 @@ class YTSource(discord.PCMVolumeTransformer):
 
         def run():
             try:
-                return yt_dlp.YoutubeDL(opts).extract_info(url, download=False)
+                clean_opts = opts.copy()
+                clean_opts["extractor_args"] = {
+                    "youtube": {
+                        "player_client": ["android_vr", "android", "mweb", "web"]
+                    }
+                }
+                return yt_dlp.YoutubeDL(clean_opts).extract_info(url, download=False)
             except Exception as e:
-                print(f"⚠️ Primary YouTube extract failed ({e}). Attempting Android VR fallback...")
+                print(f"⚠️ Primary YouTube extract failed ({e}). Attempting Android fallback...")
                 try:
                     fallback_opts = opts.copy()
                     fallback_opts["extractor_args"] = {
                         "youtube": {
                             "player_client": ["android_vr", "android"]
-                        },
-                        "youtubepot-bgutilhttp": {
-                            "base_url": ["http://127.0.0.1:4416"]
                         }
                     }
                     return yt_dlp.YoutubeDL(fallback_opts).extract_info(url, download=False)
                 except Exception as fb_err:
-                    print(f"❌ YouTube fallback failed ({fb_err})")
+                    print(f"⚠️ YouTube fallback failed ({fb_err}). Attempting SoundCloud fallback...")
+                    try:
+                        title_str = (data.get("title") if isinstance(data, dict) else None) or url
+                        sc_opts = {
+                            "format": "bestaudio/best",
+                            "noplaylist": True,
+                            "quiet": True,
+                            "no_warnings": True,
+                            "socket_timeout": 8
+                        }
+                        sc_info = yt_dlp.YoutubeDL(sc_opts).extract_info(f"scsearch1:{title_str}", download=False)
+                        if sc_info and "entries" in sc_info and sc_info["entries"]:
+                            print(f"🎵 Successfully extracted SoundCloud fallback for '{title_str}'")
+                            return sc_info["entries"][0]
+                    except Exception as sc_ex:
+                        print(f"❌ SoundCloud fallback failed: {sc_ex}")
                     raise e
 
         data = await loop.run_in_executor(None, run)
@@ -1421,7 +1456,7 @@ def make_progress_bar(pos: int, total: int, width=12) -> str:
 def panel_embed(p: GuildPlayer) -> discord.Embed:
     avatar = bot.user.avatar.url if (bot and bot.user and bot.user.avatar) else None
     e = discord.Embed(color=0x2B2D31, timestamp=datetime.now(timezone.utc))
-    e.set_author(name="SHADOW CHEATS MUSIC PLAYER", icon_url=avatar)
+    e.set_author(name="VEYRA MUSIC PLAYER", icon_url=avatar)
 
     loop_s = "Track" if p.loop == "track" else ("Queue" if p.loop == "queue" else "Off")
     speed_s = f"{p.speed}x" if p.speed != 1.0 else "Normal"
@@ -1458,7 +1493,7 @@ def panel_embed(p: GuildPlayer) -> discord.Embed:
             "Use `/play` or `/help` to start the vibe!\n\n"
             f"🔊 {vol_pct}% | Loop: {loop_s} | Speed: {speed_s} | Queue: {len(p.queue)} tracks"
         )
-    e.set_footer(text="Shadow Cheats Music", icon_url=avatar)
+    e.set_footer(text="VEYRA Music", icon_url=avatar)
     return e
 
 # ─────────────────────────────────────────────
@@ -1925,7 +1960,7 @@ class MusicBot(commands.Bot):
 
                 return web.json_response({
                     "status": "ok",
-                    "bot": "SHADOW CHEATS MUSIC",
+                    "bot": "VEYRA MUSIC",
                     "servers": len(self.guilds),
                     "users": sum(g.member_count or 0 for g in self.guilds),
                     "latency_ms": get_lat_ms(),
@@ -1961,7 +1996,7 @@ class MusicBot(commands.Bot):
 
                 return web.json_response({
                     "bot": {
-                        "name": "SHADOW CHEATS MUSIC",
+                        "name": "VEYRA MUSIC",
                         "status": "online",
                         "latency_ms": get_lat_ms(),
                         "uptime": uptime_str,
@@ -2224,7 +2259,7 @@ class MusicBot(commands.Bot):
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SHADOW CHEATS MUSIC — 24/7 Online Dashboard</title>
+    <title>VEYRA MUSIC — 24/7 Online Dashboard</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
     <style>
@@ -2416,7 +2451,7 @@ class MusicBot(commands.Bot):
             <div class="brand">
                 <div class="brand-icon">⚡</div>
                 <div>
-                    <div class="brand-title">SHADOW CHEATS MUSIC</div>
+                    <div class="brand-title">VEYRA MUSIC</div>
                     <div class="brand-sub">24/7 Ultra High-Fidelity Audio Core</div>
                 </div>
             </div>
@@ -2489,7 +2524,7 @@ class MusicBot(commands.Bot):
         </div>
 
         <footer>
-            SHADOW CHEATS MUSIC &copy; 2026 • 24/7 Free Hosting Engine • All Premium Unlocked
+            VEYRA MUSIC &copy; 2026 • 24/7 Free Hosting Engine • All Premium Unlocked
         </footer>
     </div>
 
@@ -2526,7 +2561,7 @@ class MusicBot(commands.Bot):
                     return web.Response(text=html, content_type="text/html")
                 except Exception as ex:
                     print(f"⚠️ Dashboard render fallback: {ex}")
-                    return web.Response(text=f"🟢 SHADOW CHEATS MUSIC Online 24/7\nServers: {len(self.guilds)}\nHealth: OK\n", content_type="text/plain")
+                    return web.Response(text=f"🟢 VEYRA MUSIC Online 24/7\nServers: {len(self.guilds)}\nHealth: OK\n", content_type="text/plain")
 
             async def sync_commands_api(request):
                 try:
@@ -2673,14 +2708,14 @@ async def on_message(message: discord.Message):
             prefix = Database.get_prefix(message.guild.id) if message.guild else PREFIX
             perms = discord.Permissions(send_messages=True, embed_links=True, connect=True, speak=True)
             invite_url = discord.utils.oauth_url(bot.user.id, permissions=perms, scopes=("bot", "applications.commands"))
-            e = discord.Embed(title="Welcome to SHADOW CHEATS MUSIC", color=0x2B2D31, timestamp=datetime.now(timezone.utc))
+            e = discord.Embed(title="Welcome to VEYRA MUSIC", color=0x2B2D31, timestamp=datetime.now(timezone.utc))
             e.description = (
                 f"Hey {message.author.mention},\n"
-                f"I'm **SHADOW CHEATS MUSIC**, your friendly music bot.\n"
+                f"I'm **VEYRA MUSIC**, your friendly music bot.\n"
                 f"Prefix for this server: `{prefix}`\n"
                 f"Type `{prefix}help` for more information."
             )
-            e.set_footer(text="Shadow Cheats Music", icon_url=bot.user.avatar.url if bot.user.avatar else None)
+            e.set_footer(text="VEYRA Music", icon_url=bot.user.avatar.url if bot.user.avatar else None)
             return await message.reply(embed=e, view=MentionLinksView(invite_url))
 
     await bot.process_commands(message)
@@ -3884,14 +3919,14 @@ async def slash_invite(ctx: commands.Context):
     )
     url = discord.utils.oauth_url(bot.user.id, permissions=perms, scopes=("bot", "applications.commands"))
     e = discord.Embed(
-        title="🔗 Invite SHADOW CHEATS MUSIC Bot",
+        title="🔗 Invite VEYRA MUSIC Bot",
         description=f"[**Click here to invite the bot**]({url})\n\nGrants required permissions:\n`Send Messages` · `Embed Links` · `Connect` · `Speak` · `Use Slash Commands`",
         color=0x7d5fff
     )
     await ctx.send(embed=e)
 
 # About / Info Command
-@bot.hybrid_command(name="about", aliases=["info"], description="Display premium features and information about SHADOW CHEATS MUSIC")
+@bot.hybrid_command(name="about", aliases=["info"], description="Display premium features and information about VEYRA MUSIC")
 async def slash_about(ctx: commands.Context):
     perms = discord.Permissions(
         send_messages=True,
@@ -3905,15 +3940,15 @@ async def slash_about(ctx: commands.Context):
     )
     invite_url = discord.utils.oauth_url(bot.user.id, permissions=perms, scopes=("bot", "applications.commands"))
     support_url = "https://discord.com/users/1256986886631854080"
-    vote_url = "https://top.gg/bot/shadowcheats"
+    vote_url = "https://top.gg/bot/veyra"
 
     embed = discord.Embed(
-        title="SHADOW CHEATS MUSIC", 
+        title="VEYRA MUSIC", 
         color=0x2B2D31,
         timestamp=datetime.now(timezone.utc)
     )
     embed.description = (
-        f"> **SHADOW CHEATS MUSIC** is a high-fidelity Discord music bot streaming 24/7 with zero lag.\n\n"
+        f"> **VEYRA MUSIC** is a high-fidelity Discord music bot streaming 24/7 with zero lag.\n\n"
         f"• **Commands:** `98`\n"
         f"• **Latency:** `{round(bot.latency * 1000, 2)}ms`\n"
         f"• **Servers:** `{len(bot.guilds)}`\n"
@@ -3923,7 +3958,7 @@ async def slash_about(ctx: commands.Context):
         f"[Invite Me]({invite_url}) | [Support & Owner]({support_url})"
     )
     embed.set_thumbnail(url=bot.user.avatar.url if bot.user.avatar else "")
-    embed.set_footer(text="Shadow Cheats Music", icon_url=bot.user.avatar.url if bot.user.avatar else "")
+    embed.set_footer(text="VEYRA Music", icon_url=bot.user.avatar.url if bot.user.avatar else "")
     await ctx.send(embed=embed)
 
 # Purge / Clean Bot Messages Command
@@ -4025,14 +4060,14 @@ async def slash_prefix(ctx: commands.Context, new_prefix: str):
     await ctx.send(embed=ok("Prefix Updated", f"Prefix successfully changed to **`{new_prefix}`** for this server."))
 
 # Premium Status Check Command
-@bot.hybrid_command(name="premium", description="Show all info about SHADOW CHEATS MUSIC premium")
+@bot.hybrid_command(name="premium", description="Show all info about VEYRA MUSIC premium")
 async def slash_premium(ctx: commands.Context):
     e = discord.Embed(
         title="💎 Premium Subscription Status",
-        description="**Status:** Active\n**Plan:** Lifetime Free Premium (All Features Unlocked)\n\nThank you for using SHADOW CHEATS MUSIC! Enjoy unlimited high-quality streams, databases, playlists, and audio filters.",
+        description="**Status:** Active\n**Plan:** Lifetime Free Premium (All Features Unlocked)\n\nThank you for using VEYRA MUSIC! Enjoy unlimited high-quality streams, databases, playlists, and audio filters.",
         color=0xd4af37
     )
-    e.set_footer(text="SHADOW CHEATS MUSIC · Premium Unlocked")
+    e.set_footer(text="VEYRA MUSIC · Premium Unlocked")
     await ctx.send(embed=e)
 
 # Anime Music Command
@@ -4444,8 +4479,8 @@ async def check_dj_permission(ctx: commands.Context) -> bool:
 
 @bot.hybrid_command(name="vote", description="All vote info and links for the bot")
 async def slash_vote(ctx: commands.Context):
-    e = discord.Embed(title="🗳️ Vote for SHADOW CHEATS MUSIC!", color=0x7d5fff)
-    e.description = "Help our bot grow by voting on top.gg!\n\n[Click here to vote for SHADOW CHEATS MUSIC](https://top.gg/bot/shadowcheats)"
+    e = discord.Embed(title="🗳️ Vote for VEYRA MUSIC!", color=0x7d5fff)
+    e.description = "Help our bot grow by voting on top.gg!\n\n[Click here to vote for VEYRA MUSIC](https://top.gg/bot/veyra)"
     e.set_footer(text="Thank you for your support!")
     await send_response(ctx, embed=e)
 
@@ -4481,7 +4516,7 @@ async def slash_ping(ctx: commands.Context):
         "Delete     :: 1.95 MS\n"
         "```"
     )
-    e.set_footer(text="Shadow Cheats Music", icon_url=avatar)
+    e.set_footer(text="VEYRA Music", icon_url=avatar)
     await send_response(ctx, embed=e)
 
 @bot.hybrid_command(name="uptime", description="Shows the bot uptime and connection status")
@@ -4501,7 +4536,7 @@ async def slash_uptime(ctx: commands.Context):
         f"**Started:** <t:{int(bot.uptime_start)}:R>\n"
         f"**Websocket:** `{latency}ms`"
     )
-    e.set_footer(text="Shadow Cheats Music", icon_url=avatar)
+    e.set_footer(text="VEYRA Music", icon_url=avatar)
     await send_response(ctx, embed=e)
 
 @bot.hybrid_command(name="stats", description="Show detailed system and bot performance statistics")
@@ -4524,7 +4559,7 @@ async def slash_stats(ctx: commands.Context):
 
     avatar = bot.user.avatar.url if (bot.user and bot.user.avatar) else None
 
-    e = discord.Embed(title="SHADOW CHEATS MUSIC Performance", color=0x2B2D31, timestamp=datetime.now(timezone.utc))
+    e = discord.Embed(title="VEYRA MUSIC Performance", color=0x2B2D31, timestamp=datetime.now(timezone.utc))
     e.description = (
         f"```yaml\n"
         f"Uptime     :: {uptime_str}\n"
@@ -4537,7 +4572,7 @@ async def slash_stats(ctx: commands.Context):
     )
     if avatar:
         e.set_thumbnail(url=avatar)
-    e.set_footer(text="Shadow Cheats Music", icon_url=avatar)
+    e.set_footer(text="VEYRA Music", icon_url=avatar)
     await send_response(ctx, embed=e)
 
 @bot.hybrid_command(name="pl-create", description="Creates a new custom playlist")
@@ -5062,7 +5097,7 @@ async def slash_bass(ctx: commands.Context):
 
 @bot.hybrid_command(name="checkvote", description="Check if you have voted or not for the bot")
 async def slash_checkvote(ctx: commands.Context):
-    await send_response(ctx, embed=ok("Voted Status", f"Thank you, **{ctx.author.name}**! You have voted for **SHADOW CHEATS MUSIC** on top.gg (Premium Unlocked!)."))
+    await send_response(ctx, embed=ok("Voted Status", f"Thank you, **{ctx.author.name}**! You have voted for **VEYRA MUSIC** on top.gg (Premium Unlocked!)."))
 
 @bot.command(name="chipmunk", description="Set Chipmunk Filter")
 async def slash_chipmunk(ctx: commands.Context):
@@ -5198,7 +5233,7 @@ async def slash_treblebass(ctx: commands.Context):
 async def slash_support(ctx: commands.Context):
     e = discord.Embed(title="👑 Official Support & Owner", color=0x7d5fff)
     e.description = "Need help, custom setup, or have inquiries? Contact the bot owner directly!\n\n**[Click here to Message Owner (Arun)](https://discord.com/users/1256986886631854080)**"
-    e.set_footer(text="SHADOW CHEATS Support")
+    e.set_footer(text="VEYRA Support")
     await send_response(ctx, embed=e)
 
 @bot.hybrid_command(name="spotify", description="Play a song from Spotify using name or URL")
@@ -5243,9 +5278,9 @@ async def slash_previous(ctx: commands.Context):
 # ─────────────────────────────────────────────
 
 def get_home_help_embed(bot_name: str, prefix: str, avatar_url: Optional[str], invite_url: str) -> discord.Embed:
-    e = discord.Embed(title="SHADOW CHEATS MUSIC Guide", color=0x2B2D31, timestamp=datetime.now(timezone.utc))
+    e = discord.Embed(title="VEYRA MUSIC Guide", color=0x2B2D31, timestamp=datetime.now(timezone.utc))
     e.description = (
-        f"Hey, I am **SHADOW CHEATS MUSIC** - Your Server Music Companion\n\n"
+        f"Hey, I am **VEYRA MUSIC** - Your Server Music Companion\n\n"
         f"• **Prefix for this server:** `{prefix}`\n"
         f"• **Total Commands:** `114`\n"
         f"• **Use** `{prefix}help` to get started!\n\n"
@@ -5264,7 +5299,7 @@ def get_home_help_embed(bot_name: str, prefix: str, avatar_url: Optional[str], i
     )
     if avatar_url:
         e.set_thumbnail(url=avatar_url)
-    e.set_footer(text="Shadow Cheats Music", icon_url=avatar_url)
+    e.set_footer(text="VEYRA Music", icon_url=avatar_url)
     return e
 
 class HelpSelect(discord.ui.Select):
@@ -5292,33 +5327,33 @@ class HelpSelect(discord.ui.Select):
         if val == "home":
             e = get_home_help_embed(self.bot_name, self.prefix, avatar, self.invite_url)
         elif val == "music":
-            e = discord.Embed(title="SHADOW CHEATS MUSIC - Music", color=0x2B2D31, timestamp=datetime.now(timezone.utc))
+            e = discord.Embed(title="VEYRA MUSIC - Music", color=0x2B2D31, timestamp=datetime.now(timezone.utc))
             e.description = "`play`, `pause`, `resume`, `skip`, `skipto`, `stop`, `seek`, `replay`, `forward`, `backward`, `nowplaying`, `panel`"
-            e.set_footer(text="Shadow Cheats Music", icon_url=avatar)
+            e.set_footer(text="VEYRA Music", icon_url=avatar)
         elif val == "queue":
-            e = discord.Embed(title="SHADOW CHEATS MUSIC - Queue", color=0x2B2D31, timestamp=datetime.now(timezone.utc))
+            e = discord.Embed(title="VEYRA MUSIC - Queue", color=0x2B2D31, timestamp=datetime.now(timezone.utc))
             e.description = "`queue`, `clearqueue`, `shuffle`, `history`, `historyplay`, `bump`, `move`, `remove`, `removeduplicates`"
-            e.set_footer(text="Shadow Cheats Music", icon_url=avatar)
+            e.set_footer(text="VEYRA Music", icon_url=avatar)
         elif val == "filters":
-            e = discord.Embed(title="SHADOW CHEATS MUSIC - Filters", color=0x2B2D31, timestamp=datetime.now(timezone.utc))
+            e = discord.Embed(title="VEYRA MUSIC - Filters", color=0x2B2D31, timestamp=datetime.now(timezone.utc))
             e.description = "`filter`, `clearfilter`, `8d`, `bass`, `bassboost`, `chipmunk`, `earrape`, `karaoke`, `lofi`, `nightcore`, `pop`, `radio`, `slowmo`, `soft`, `treblebass`, `vaporwave`"
-            e.set_footer(text="Shadow Cheats Music", icon_url=avatar)
+            e.set_footer(text="VEYRA Music", icon_url=avatar)
         elif val == "playlists":
-            e = discord.Embed(title="SHADOW CHEATS MUSIC - Playlists", color=0x2B2D31, timestamp=datetime.now(timezone.utc))
+            e = discord.Embed(title="VEYRA MUSIC - Playlists", color=0x2B2D31, timestamp=datetime.now(timezone.utc))
             e.description = "`pl-list`, `pl-create`, `pl-delete`, `pl-info`, `pl-play`, `pl-playshuffle`, `pl-savecurrent`, `pl-savequeue`, `pl-rename`, `fv-save`, `fv-play`, `fv-info`, `gb-all`, `gb-create`, `gb-delete`, `gb-play`, `gb-save`"
-            e.set_footer(text="Shadow Cheats Music", icon_url=avatar)
+            e.set_footer(text="VEYRA Music", icon_url=avatar)
         elif val == "voice":
-            e = discord.Embed(title="SHADOW CHEATS MUSIC - Voice", color=0x2B2D31, timestamp=datetime.now(timezone.utc))
+            e = discord.Embed(title="VEYRA MUSIC - Voice", color=0x2B2D31, timestamp=datetime.now(timezone.utc))
             e.description = "`join`, `leave`, `stay247`, `24/7`, `247`, `setchannel`, `removesetchannel`, `announce`"
-            e.set_footer(text="Shadow Cheats Music", icon_url=avatar)
+            e.set_footer(text="VEYRA Music", icon_url=avatar)
         elif val == "settings":
-            e = discord.Embed(title="SHADOW CHEATS MUSIC - Settings", color=0x2B2D31, timestamp=datetime.now(timezone.utc))
+            e = discord.Embed(title="VEYRA MUSIC - Settings", color=0x2B2D31, timestamp=datetime.now(timezone.utc))
             e.description = "`setprefix`, `volume`, `defaultvolume`, `adddj`, `removedj`, `toggledj`, `loop`, `autoplay`, `voteskip`"
-            e.set_footer(text="Shadow Cheats Music", icon_url=avatar)
+            e.set_footer(text="VEYRA Music", icon_url=avatar)
         elif val == "info":
-            e = discord.Embed(title="SHADOW CHEATS MUSIC - Information", color=0x2B2D31, timestamp=datetime.now(timezone.utc))
+            e = discord.Embed(title="VEYRA MUSIC - Information", color=0x2B2D31, timestamp=datetime.now(timezone.utc))
             e.description = "`help`, `ping`, `stats`, `uptime`, `about`, `invite`, `support`, `server-profile`"
-            e.set_footer(text="Shadow Cheats Music", icon_url=avatar)
+            e.set_footer(text="VEYRA Music", icon_url=avatar)
         
         await interaction.response.edit_message(embed=e, view=self.view)
 
@@ -5338,7 +5373,7 @@ class HelpCategoryView(discord.ui.View):
 
 @bot.hybrid_command(name="help", aliases=["h"], description="Show bot commands and subcategories")
 async def slash_help(ctx: commands.Context):
-    bot_name = "SHADOW CHEATS MUSIC"
+    bot_name = "VEYRA MUSIC"
     prefix = Database.get_prefix(ctx.guild.id) if ctx.guild else PREFIX
     perms = discord.Permissions(send_messages=True, embed_links=True, connect=True, speak=True)
     invite_url = discord.utils.oauth_url(bot.user.id, permissions=perms, scopes=("bot", "applications.commands")) if bot.user else "https://discord.com"
@@ -5447,7 +5482,7 @@ def launch_background_health_server(bot_instance):
 if __name__ == "__main__":
     launch_background_health_server(bot)
     time.sleep(0.5)
-    print("\n🚀 Starting SHADOW CHEATS MUSIC (yt-dlp + free premium)...")
+    print("\n🚀 Starting VEYRA MUSIC (yt-dlp + free premium)...")
     if not BOT_TOKEN or "YOUR_DISCORD_BOT_TOKEN" in BOT_TOKEN or BOT_TOKEN.strip() == "":
         print("\n" + "═"*60)
         print(" ❌ CONFIGURATION ERROR:")
@@ -5462,7 +5497,7 @@ if __name__ == "__main__":
     rate_limit_backoff = 60
     while True:
         try:
-            bot.http.user_agent = "DiscordBot (https://github.com/shadowcheats/music, 2.7.1) Python/3.11 aiohttp/3.9.5"
+            bot.http.user_agent = "DiscordBot (https://github.com/veyra/music, 2.7.1) Python/3.11 aiohttp/3.9.5"
             if os.environ.get("DISCORD_API_BASE"):
                 discord.http.Route.BASE = os.environ.get("DISCORD_API_BASE")
             bot.run(BOT_TOKEN)
