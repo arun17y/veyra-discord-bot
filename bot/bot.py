@@ -3346,18 +3346,25 @@ async def sync_bot_profile_task():
             try:
                 cursor.execute("SELECT nickname, avatar, banner FROM guild_bot_profiles WHERE guild_id = ?", (str(guild.id),))
                 row = cursor.fetchone()
+                target_name = "VEYRA"
                 if row:
-                    target_name = (row["nickname"] or "").strip()
-                    if target_name and guild.me and guild.me.nick != target_name:
-                        can_edit = guild.me.guild_permissions.change_nickname or guild.me.guild_permissions.administrator
-                        if can_edit:
-                            try:
-                                await guild.me.edit(nick=target_name)
-                                safe_target = target_name.encode('ascii', 'backslashreplace').decode('ascii')
-                                safe_guild = guild.name.encode('ascii', 'backslashreplace').decode('ascii')
-                                print(f"✅ Synced Bot Nickname to '{safe_target}' in server: {safe_guild}")
-                            except Exception as nick_err:
-                                print(f"⚠️ Failed to edit nickname in guild {guild.id}: {nick_err}")
+                    try:
+                        target_name = (row["nickname"] or "VEYRA").strip()
+                    except Exception:
+                        try:
+                            target_name = (row[0] or "VEYRA").strip()
+                        except Exception:
+                            target_name = "VEYRA"
+                if target_name and guild.me and guild.me.nick != target_name:
+                    can_edit = guild.me.guild_permissions.change_nickname or guild.me.guild_permissions.administrator
+                    if can_edit:
+                        try:
+                            await guild.me.edit(nick=target_name)
+                            safe_target = target_name.encode('ascii', 'backslashreplace').decode('ascii')
+                            safe_guild = guild.name.encode('ascii', 'backslashreplace').decode('ascii')
+                            print(f"✅ Synced Bot Nickname to '{safe_target}' in server: {safe_guild}")
+                        except Exception as nick_err:
+                            pass
                                 
                     # Sync Server Avatar if custom avatar provided
                     av_data = row["avatar"]
@@ -7153,6 +7160,11 @@ async def membercount(interaction: discord.Interaction):
 
 @bot.tree.command(name="permissions", description="Displays the information about what permissions the bot requires to function properly")
 async def permissions(interaction: discord.Interaction):
+    if not interaction.response.is_done():
+        try:
+            await interaction.response.defer()
+        except Exception:
+            pass
     embed = discord.Embed(title="🛡️ Bot Permissions Audit", color=discord.Color.from_rgb(24, 24, 27))
     perms_needed = [
         ("Administrator", "Required for anti-nuke rollbacks, auto-moderation, and full security enforcement."),
@@ -7163,7 +7175,7 @@ async def permissions(interaction: discord.Interaction):
     ]
     for p, desc in perms_needed:
         embed.add_field(name=p, value=desc, inline=False)
-    await interaction.response.send_message(embed=embed)
+    await interaction.followup.send(embed=embed)
 
 
 # --- LOGS / WELCOME GREETINGS ---
@@ -8341,6 +8353,10 @@ def has_ticket_plan():
     async def predicate(interaction: discord.Interaction):
         if interaction.user.id == 1256986886631854080:
             return True
+        if interaction.guild and interaction.guild.owner_id == interaction.user.id:
+            return True
+        if interaction.user and getattr(interaction.user, 'guild_permissions', None) and interaction.user.guild_permissions.administrator:
+            return True
 
         plan = check_guild_plan(interaction.guild.id)
         plans = [p.strip().lower() for p in plan.split(',')]
@@ -8733,21 +8749,24 @@ def get_default_ticket_panel_dict(guild):
 
 def get_or_create_guild_ticket_panel(guild):
     conn = get_db()
-    conn.row_factory = sqlite3.Row
+    if hasattr(conn, "row_factory"):
+        try:
+            import sqlite3
+            conn.row_factory = sqlite3.Row
+        except Exception:
+            pass
     cursor = conn.cursor()
-    cursor.execute("SELECT * FROM ticket_panels WHERE guild_id = ? ORDER BY rowid ASC LIMIT 1", (str(guild.id),))
+    cursor.execute("SELECT * FROM ticket_panels WHERE guild_id = ? ORDER BY id ASC LIMIT 1", (str(guild.id),))
     panel = cursor.fetchone()
 
     if not panel:
         default_data = get_default_ticket_panel_dict(guild)
-        panel_id = f"panel_{guild.id}"
         cursor.execute("""
-            INSERT OR REPLACE INTO ticket_panels (
-                id, guild_id, name, panel_title, panel_color, panel_description, 
+            INSERT INTO ticket_panels (
+                guild_id, name, panel_title, panel_color, panel_description, 
                 panel_button_text, ticket_title, ticket_description, categories
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
         """, (
-            panel_id,
             str(guild.id),
             "Support Panel",
             default_data["panel_title"],
@@ -8759,7 +8778,7 @@ def get_or_create_guild_ticket_panel(guild):
             default_data["categories"]
         ))
         conn.commit()
-        cursor.execute("SELECT * FROM ticket_panels WHERE id = ?", (panel_id,))
+        cursor.execute("SELECT * FROM ticket_panels WHERE guild_id = ? ORDER BY id DESC LIMIT 1", (str(guild.id),))
         panel = cursor.fetchone()
 
     conn.close()
@@ -8767,30 +8786,55 @@ def get_or_create_guild_ticket_panel(guild):
 
 async def post_guild_ticket_panel(target_channel, guild, panel_id: str = None):
     conn = get_db()
-    conn.row_factory = sqlite3.Row
+    if hasattr(conn, "row_factory"):
+        try:
+            import sqlite3
+            conn.row_factory = sqlite3.Row
+        except Exception:
+            pass
     cursor = conn.cursor()
     panel = None
     if panel_id:
-        cursor.execute("SELECT * FROM ticket_panels WHERE id = ? AND guild_id = ?", (str(panel_id), str(guild.id)))
-        panel = cursor.fetchone()
+        if str(panel_id).isdigit():
+            try:
+                cursor.execute("SELECT * FROM ticket_panels WHERE id = ? AND guild_id = ?", (int(panel_id), str(guild.id)))
+                panel = cursor.fetchone()
+            except Exception:
+                panel = None
+        if not panel:
+            try:
+                cursor.execute("SELECT * FROM ticket_panels WHERE guild_id = ? AND (name = ? OR panel_title = ?)", (str(guild.id), str(panel_id), str(panel_id)))
+                panel = cursor.fetchone()
+            except Exception:
+                panel = None
     if not panel:
-        cursor.execute("SELECT * FROM ticket_panels WHERE guild_id = ? ORDER BY rowid ASC LIMIT 1", (str(guild.id),))
+        cursor.execute("SELECT * FROM ticket_panels WHERE guild_id = ? ORDER BY id ASC LIMIT 1", (str(guild.id),))
         panel = cursor.fetchone()
     conn.close()
 
     if not panel:
         panel = get_or_create_guild_ticket_panel(guild)
 
-    pid = panel['id']
-    hex_color = (panel['panel_color'] or '#22c55e').lstrip('#')
+    def _pv(p, key, default=None):
+        if p is None:
+            return default
+        try:
+            val = p[key]
+            return val if val is not None else default
+        except Exception:
+            pass
+        return default
+
+    pid = _pv(panel, 'id', 1)
+    hex_color = (_pv(panel, 'panel_color') or '#22c55e').lstrip('#')
     try:
         color_int = int(hex_color, 16)
     except ValueError:
         color_int = 0x22c55e
 
     guild_name = guild.name if guild else "Server"
-    p_title = panel['panel_title'] or f"***{guild_name} Support Store***"
-    p_desc = panel['panel_description'] or f"Welcome to the official {guild_name} Ticket Centre."
+    p_title = _pv(panel, 'panel_title') or f"***{guild_name} Support Store***"
+    p_desc = _pv(panel, 'panel_description') or f"Welcome to the official {guild_name} Ticket Centre."
 
     embed = discord.Embed(
         title=p_title,
@@ -8802,29 +8846,32 @@ async def post_guild_ticket_panel(target_channel, guild, panel_id: str = None):
     embed.timestamp = datetime.utcnow()
 
     categories_list = []
-    if 'categories' in panel.keys() and panel['categories']:
+    cat_raw = _pv(panel, 'categories')
+    if cat_raw:
         try:
-            categories_list = json.loads(panel['categories'])
+            categories_list = json.loads(cat_raw) if isinstance(cat_raw, str) else cat_raw
         except Exception:
-            pass
+            categories_list = []
 
     class CustomTicketPanelView(discord.ui.View):
         def __init__(self):
             super().__init__(timeout=None)
             
             # Green Create Ticket Button (Success style)
-            btn_label = panel['panel_button_text'] or "📩 Create Ticket"
+            btn_label = _pv(panel, 'panel_button_text') or "📩 Create Ticket"
             self.add_item(discord.ui.Button(
                 label=btn_label,
                 style=discord.ButtonStyle.success, # Green Button
                 custom_id=f"ticket_create_btn:{pid}"
             ))
 
-            if categories_list:
+            if categories_list and isinstance(categories_list, list):
                 options = []
                 for cat in categories_list:
-                    lbl = cat.get('label', 'Support')[:100]
-                    desc = cat.get('description', '')[:100] or None
+                    if not isinstance(cat, dict):
+                        continue
+                    lbl = str(cat.get('label', 'Support'))[:100]
+                    desc = str(cat.get('description', ''))[:100] or None
                     emoji_char = cat.get('emoji', '')
                     
                     emoji = None
@@ -8841,14 +8888,15 @@ async def post_guild_ticket_panel(target_channel, guild, panel_id: str = None):
                         emoji=emoji
                     ))
                 
-                self.select_menu = discord.ui.Select(
-                    placeholder="Select an option",
-                    min_values=1,
-                    max_values=1,
-                    options=options,
-                    custom_id=f"ticket_select_category:{pid}"
-                )
-                self.add_item(self.select_menu)
+                if options:
+                    self.select_menu = discord.ui.Select(
+                        placeholder="Select an option",
+                        min_values=1,
+                        max_values=1,
+                        options=options,
+                        custom_id=f"ticket_select_category:{pid}"
+                    )
+                    self.add_item(self.select_menu)
 
     return await target_channel.send(embed=embed, view=CustomTicketPanelView())
 
@@ -8889,8 +8937,17 @@ class TicketSetupGroup(app_commands.Group):
             INSERT INTO ticket_panels (guild_id, name, support_roles, category_id, panel_title, panel_description, panel_button_text, ticket_title, ticket_description, auto_close)
             VALUES (?, 'Quick Setup Panel', ?, ?, '🎫 VEYRA Support', ?, '🎫 Create Ticket', 'Support Ticket', 'Support team will assist you shortly.', 0)
         """, (str(guild.id), support_roles_json, category_id_str, default_desc))
-        panel_id = cursor.lastrowid
+        panel_id = getattr(cursor, "lastrowid", None)
         conn.commit()
+        if not panel_id:
+            try:
+                cursor.execute("SELECT id FROM ticket_panels WHERE guild_id = ? ORDER BY id DESC LIMIT 1", (str(guild.id),))
+                last_p = cursor.fetchone()
+                if last_p:
+                    panel_id = last_p['id'] if hasattr(last_p, 'keys') else last_p[0]
+            except Exception:
+                panel_id = 1
+        panel_id = panel_id or 1
         class CustomTicketPanelView(discord.ui.View):
             def __init__(self):
                 super().__init__(timeout=None)
@@ -10114,15 +10171,25 @@ async def handle_create_ticket_interaction(interaction: discord.Interaction, pan
         return await interaction.followup.send("❌ Tickets can only be created inside a server channel.", ephemeral=True)
         
     conn = get_db()
-    conn.row_factory = sqlite3.Row
+    if hasattr(conn, "row_factory"):
+        try:
+            import sqlite3
+            conn.row_factory = sqlite3.Row
+        except Exception:
+            pass
     cursor = conn.cursor()
     
     # 1. Fetch ticket panel
-    cursor.execute("SELECT * FROM ticket_panels WHERE id = ? AND guild_id = ?", (str(panel_id), str(guild.id)))
-    panel = cursor.fetchone()
+    panel = None
+    if panel_id and str(panel_id).isdigit():
+        try:
+            cursor.execute("SELECT * FROM ticket_panels WHERE id = ? AND guild_id = ?", (int(panel_id), str(guild.id)))
+            panel = cursor.fetchone()
+        except Exception:
+            panel = None
     
     if not panel:
-        cursor.execute("SELECT * FROM ticket_panels WHERE guild_id = ? ORDER BY rowid ASC LIMIT 1", (str(guild.id),))
+        cursor.execute("SELECT * FROM ticket_panels WHERE guild_id = ? ORDER BY id ASC LIMIT 1", (str(guild.id),))
         panel = cursor.fetchone()
         
     if not panel:

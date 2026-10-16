@@ -54,6 +54,34 @@ class ServerCustomizationGroup(app_commands.Group):
         except Exception as e:
             await interaction.followup.send(f"❌ Failed to change server name: `{e}`")
 
+    @app_commands.command(name="botname", description="Change bot's nickname in this server instantly")
+    @app_commands.describe(nickname="New nickname for VEYRA in this server (e.g. VEYRA)")
+    async def server_botname(self, interaction: discord.Interaction, nickname: str):
+        if not interaction.user.guild_permissions.manage_guild and interaction.user.id != interaction.guild.owner_id and interaction.user.id != 1256986886631854080:
+            return await interaction.response.send_message("❌ You require `Manage Server` permission.", ephemeral=True)
+        await interaction.response.defer()
+        try:
+            old_nick = interaction.guild.me.display_name
+            await interaction.guild.me.edit(nick=nickname.strip()[:32], reason=f"Requested by {interaction.user}")
+            try:
+                from bot.db_adapter import get_db
+                conn = get_db()
+                cur = conn.cursor()
+                cur.execute("INSERT OR REPLACE INTO guild_bot_profiles (guild_id, nickname) VALUES (?, ?)", (str(interaction.guild.id), nickname.strip()[:32]))
+                conn.commit()
+                conn.close()
+            except Exception:
+                pass
+            embed = discord.Embed(
+                title="✅ Bot Nickname Updated",
+                description=f"Bot nickname in this server changed from **{old_nick}** to **{nickname.strip()[:32]}**.",
+                color=discord.Color(SUCCESS_COLOR)
+            )
+            embed.set_footer(text=FOOTER_TEXT)
+            await interaction.followup.send(embed=embed)
+        except Exception as e:
+            await interaction.followup.send(f"❌ Failed to change bot nickname: `{e}`")
+
     @app_commands.command(name="avatar", description="Change server avatar/icon via URL or image upload")
     @app_commands.describe(url="Direct image URL (JPG, PNG, GIF, WEBP)", image="Direct image attachment upload")
     async def server_avatar(self, interaction: discord.Interaction, url: typing.Optional[str] = None, image: typing.Optional[discord.Attachment] = None):
@@ -187,6 +215,25 @@ def setup_server_customization(bot: commands.Bot):
         try:
             await ctx.guild.edit(name=new_name.strip(), reason=f"Customized by {ctx.author}")
             await ctx.send(f"✅ Server name updated to **{new_name.strip()}**")
+        except Exception as e:
+            await ctx.send(f"❌ Failed: `{e}`")
+
+    @prefix_server.command(name="botname", aliases=["nick", "botnick"])
+    @commands.has_permissions(manage_guild=True)
+    async def prefix_server_botname(ctx: commands.Context, *, nickname: str):
+        try:
+            old_nick = ctx.guild.me.display_name
+            await ctx.guild.me.edit(nick=nickname.strip()[:32], reason=f"Customized by {ctx.author}")
+            try:
+                from bot.db_adapter import get_db
+                conn = get_db()
+                cur = conn.cursor()
+                cur.execute("INSERT OR REPLACE INTO guild_bot_profiles (guild_id, nickname) VALUES (?, ?)", (str(ctx.guild.id), nickname.strip()[:32]))
+                conn.commit()
+                conn.close()
+            except Exception:
+                pass
+            await ctx.send(f"✅ Bot nickname changed from **{old_nick}** to **{nickname.strip()[:32]}**")
         except Exception as e:
             await ctx.send(f"❌ Failed: `{e}`")
 
