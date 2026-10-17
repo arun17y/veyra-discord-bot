@@ -4067,6 +4067,14 @@ async def auto_send_reports_task():
     except Exception as e:
         print(f"Error in auto_send_reports_task: {e}")
 
+@tasks.loop(seconds=30)
+async def periodic_guild_sync_task():
+    try:
+        update_db_bot_guilds()
+        await sync_active_bot_guilds()
+    except Exception:
+        pass
+
 @bot.event
 async def on_ready():
     print(f"\n=============================================")
@@ -4141,6 +4149,9 @@ From raids and nukes to spam and unwanted users, I'll protect your community wit
         
     if not auto_send_reports_task.is_running():
         auto_send_reports_task.start()
+
+    if not periodic_guild_sync_task.is_running():
+        periodic_guild_sync_task.start()
         
     bot.add_view(UnifiedVerificationButtonView())
     bot.add_view(TicketWelcomeView())

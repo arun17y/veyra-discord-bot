@@ -1359,6 +1359,20 @@ function simulateAddBot(serverName, serverId) {
         url += '&guild_id=' + encodeURIComponent(serverId);
     }
     window.open(url, 'Invite VEYRA Bot', 'width=500,height=800,resizable=yes,scrollbars=yes');
+
+    // Real-time polling: Check every 3 seconds for 45s so the added server flips to "Bot Active" automatically
+    let pollCount = 0;
+    if (window._addBotPollTimer) clearInterval(window._addBotPollTimer);
+    window._addBotPollTimer = setInterval(() => {
+        pollCount++;
+        if (pollCount > 15) {
+            clearInterval(window._addBotPollTimer);
+            return;
+        }
+        if (window.isUserLoggedIn && typeof checkSession === 'function') {
+            checkSession(true);
+        }
+    }, 3000);
 }
 
 function updateHeaderWidgetsVisibility(isLoggedIn, user = null) {
@@ -2708,7 +2722,7 @@ window.clickManageServers = function() {
 };
 
 // Check for active Discord OAuth2 session
-function checkSession() {
+function checkSession(forceRefresh = false) {
     const localSess = localStorage.getItem('VEYRA_session') || localStorage.getItem('SENTRIX_session');
     const fetchHeaders = {};
     if (localSess && localSess !== 'undefined') {
@@ -2716,7 +2730,8 @@ function checkSession() {
             fetchHeaders['Authorization'] = 'Bearer ' + encodeURIComponent(localSess);
         } catch (e) {}
     }
-    fetch('/api/auth/session?t=' + Date.now(), { cache: 'no-store', headers: fetchHeaders })
+    const refreshParam = forceRefresh ? '&refresh=true' : '';
+    fetch('/api/auth/session?t=' + Date.now() + refreshParam, { cache: 'no-store', headers: fetchHeaders })
         .then(res => res.json())
         .then(data => {
             if (data.loggedIn && data.user) {
@@ -2904,9 +2919,15 @@ function renderUserGuilds(guilds, loggedIn = false) {
         <p style="font-size: 0.88rem; color: var(--text-secondary); margin: 0 0 16px 0; font-family: var(--font-display); font-weight: 500;">
             Manage your Discord servers with VEYRA Security & VEYRA TICKET
         </p>
-        <button onclick="simulateAddBot('New Guild')" class="invite-bot-btn" style="background: transparent; color: #f59e0b; border: 1.5px solid rgba(245, 158, 11, 0.45); padding: 8px 18px; border-radius: 6px; font-family: var(--font-mono); font-weight: 700; font-size: 0.76rem; letter-spacing: 0.05em; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.background='rgba(245, 158, 11, 0.05)'" onmouseout="this.style.background='transparent'">
-            + INVITE BOT
-        </button>
+        <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+            <button onclick="simulateAddBot('New Guild')" class="invite-bot-btn" style="background: transparent; color: #f59e0b; border: 1.5px solid rgba(245, 158, 11, 0.45); padding: 8px 18px; border-radius: 6px; font-family: var(--font-mono); font-weight: 700; font-size: 0.76rem; letter-spacing: 0.05em; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.background='rgba(245, 158, 11, 0.05)'" onmouseout="this.style.background='transparent'">
+                + INVITE BOT
+            </button>
+            <button id="refresh-servers-btn" onclick="manualRefreshServers()" style="background: rgba(168, 85, 247, 0.12); color: #c084fc; border: 1.5px solid rgba(168, 85, 247, 0.35); padding: 8px 16px; border-radius: 6px; font-family: var(--font-mono); font-weight: 700; font-size: 0.76rem; letter-spacing: 0.05em; cursor: pointer; transition: all 0.2s; display: inline-flex; align-items: center; gap: 6px;" onmouseover="this.style.background='rgba(168, 85, 247, 0.2)'" onmouseout="this.style.background='rgba(168, 85, 247, 0.12)'">
+                <i class="fas fa-arrows-rotate" id="refresh-servers-icon"></i>
+                <span>REFRESH STATUS</span>
+            </button>
+        </div>
     `;
     container.appendChild(headerDiv);
 
@@ -3116,6 +3137,35 @@ function filterGuildsList() {
         <div style="font-size: 0.72rem; color: var(--text-secondary); font-weight: 500; font-family: var(--font-display);">Invite VEYRA Security to another server</div>
     `;
     listGrid.appendChild(addCard);
+}
+
+// Real-time server status refresh function
+window.manualRefreshServers = function() {
+    const icon = document.getElementById('refresh-servers-icon');
+    if (icon) icon.classList.add('fa-spin');
+    if (typeof checkSession === 'function') {
+        checkSession(true);
+    }
+    setTimeout(() => {
+        if (icon) icon.classList.remove('fa-spin');
+    }, 1200);
+};
+
+// Window focus listener: immediately update bot status when returning to dashboard tab
+window.addEventListener('focus', () => {
+    if (window.isUserLoggedIn && typeof checkSession === 'function') {
+        checkSession(true);
+    }
+});
+
+// Periodic background check every 12 seconds when viewing server list
+if (!window._serversRealtimeTimer) {
+    window._serversRealtimeTimer = setInterval(() => {
+        const serversScreen = document.getElementById('screen-servers');
+        if (window.isUserLoggedIn && serversScreen && serversScreen.style.display !== 'none' && typeof checkSession === 'function') {
+            checkSession(false);
+        }
+    }, 12000);
 }
 
 // Dynamic Animations

@@ -2673,52 +2673,123 @@ app.all('/api/auth/logout', (req, res) => {
     res.json({ success: true, loggedOut: true });
 });
 
-// Helper to fetch list of guilds the bot is currently in using local SQLite database cache
-async function getBotGuilds() {
-    // 1. Try querying the database first to prevent rate limiting
+// In-memory cache for live Discord bot guilds to prevent rate limits while ensuring real-time accuracy
+let _cachedBotGuilds = null;
+let _cachedBotGuildsTime = 0;
+const BOT_GUILDS_CACHE_TTL = 8000; // 8 seconds TTL for instant real-time detection
+
+// Helper to fetch live guilds the bot is currently in directly from Discord REST API
+async function getBotGuilds(forceRefresh = false) {
+    const now = Date.now();
+    if (!forceRefresh && _cachedBotGuilds && (now - _cachedBotGuildsTime < BOT_GUILDS_CACHE_TTL)) {
+        return _cachedBotGuilds;
+    }
+
+    const token = process.env.DISCORD_BOT_TOKEN;
+    if (token) {
+        try {
+            const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args)).catch(() => global.fetch(...args));
+            const res = await fetch('https://discord.com/api/v10/users/@me/guilds', {
+                headers: {
+                    Authorization: `Bot ${token}`
+                }
+            });
+            if (res.status === 200) {
+                const guilds = await res.json();
+                if (Array.isArray(guilds)) {
+                    const normalized = guilds.map(g => ({
+                        id: String(g.id),
+                        guild_id: String(g.id),
+                        name: g.name,
+                        icon: g.icon,
+                        member_count: g.approximate_member_count || g.member_count || 0
+                    }));
+                    _cachedBotGuilds = normalized;
+                    _cachedBotGuildsTime = Date.now();
+
+                    // Sync to active_bot_guilds database table asynchronously
+                    try {
+                        db.serialize(() => {
+                            normalized.forEach(g => {
+                                db.run("INSERT OR REPLACE INTO active_bot_guilds (guild_id, name, icon) VALUES (?, ?, ?)", [g.id, g.name, g.icon]);
+                            });
+                        });
+                    } catch (_) {}
+
+                    return normalized;
+                }
+            } else {
+                console.warn(`[BOT GUILDS] Discord API returned status ${res.status}`);
+            }
+        } catch (e) {
+            console.error("[BOT GUILDS] Error fetching from Discord API:", e.message);
+        }
+    }
+
+    // Fallback 1: Return in-memory cache if available
+    if (_cachedBotGuilds && _cachedBotGuilds.length > 0) {
+        return _cachedBotGuilds;
+    }
+
+    // Fallback 2: Query database table
     try {
-        const rows = await new Promise((resolve, reject) => {
-            db.all("SELECT guild_id as id, name, icon FROM active_bot_guilds", [], (err, rows) => {
-                if (err) reject(err);
-                else resolve(rows);
+        const rows = await new Promise((resolve) => {
+            db.all("SELECT guild_id as id, guild_id, name, icon FROM active_bot_guilds", [], (err, rows) => {
+                resolve(rows || []);
             });
         });
         if (rows && rows.length > 0) {
-            return rows;
+            _cachedBotGuilds = rows.map(r => ({ ...r, id: String(r.id || r.guild_id), guild_id: String(r.id || r.guild_id) }));
+            _cachedBotGuildsTime = Date.now();
+            return _cachedBotGuilds;
         }
     } catch (e) {
-        console.error("Error querying active_bot_guilds table from database:", e);
+        console.error("[BOT GUILDS] Error querying active_bot_guilds fallback:", e.message);
     }
 
-    // 2. Fallback to Discord API if database cache is empty
-    const token = process.env.DISCORD_BOT_TOKEN;
-    if (!token) return [];
-    try {
-        const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args)).catch(() => global.fetch(...args));
-        const res = await fetch('https://discord.com/api/v10/users/@me/guilds', {
-            headers: {
-                Authorization: `Bot ${token}`
-            }
-        });
-        const guilds = await res.json();
-        if (Array.isArray(guilds)) {
-            // Save in database asynchronously so it gets cached
-            guilds.forEach(g => {
-                db.run("INSERT OR REPLACE INTO active_bot_guilds (guild_id, name, icon) VALUES (?, ?, ?)", [g.id, g.name, g.icon]);
-            });
-            return guilds;
-        } else {
-            console.error("Bot guilds API response is not an array:", guilds);
-        }
-    } catch (e) {
-        console.error("Error fetching bot guilds from API:", e);
-    }
     return [];
 }
 
+// Helper to fetch live user guilds with stored user OAuth access token
+async function fetchFreshUserGuilds(userId) {
+    if (!userId) return null;
+    return new Promise((resolve) => {
+        db.get("SELECT access_token FROM user_oauth_tokens WHERE user_id = ?", [userId], async (err, row) => {
+            if (err || !row || !row.access_token) return resolve(null);
+            try {
+                const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args)).catch(() => global.fetch(...args));
+                const res = await fetch('https://discord.com/api/v10/users/@me/guilds', {
+                    headers: { Authorization: `Bearer ${row.access_token}` }
+                });
+                const guilds = await res.json();
+                if (Array.isArray(guilds)) {
+                    const MANAGE_GUILD = 0x20n;
+                    const ADMINISTRATOR = 0x8n;
+                    const mapped = guilds.map(g => {
+                        const perms = BigInt(g.permissions || 0);
+                        const canManage = g.owner || (perms & MANAGE_GUILD) === MANAGE_GUILD || (perms & ADMINISTRATOR) === ADMINISTRATOR;
+                        return {
+                            id: String(g.id),
+                            name: g.name,
+                            icon: g.icon,
+                            can_invite: canManage,
+                            active: false
+                        };
+                    });
+                    return resolve(mapped);
+                }
+            } catch (e) {
+                console.error("fetchFreshUserGuilds error:", e.message);
+            }
+            resolve(null);
+        });
+    });
+}
+
+// GET /api/auth/session - User authentication & real-time server detection
 app.get('/api/auth/session', async (req, res) => {
     const session = getSessionData(req);
-    console.log(`[AUTH] /api/auth/session hit. Session loaded: ${!!session}`);
+    const forceRefresh = req.query.refresh === 'true';
     if (session) {
         try {
             if (session.user && session.user.id) {
@@ -2732,23 +2803,49 @@ app.get('/api/auth/session', async (req, res) => {
                 }
             }
 
-            // Filter out any mock/fake servers from the session (safety net)
-            const cleanedGuilds = (session.guilds || []).filter(g => g && g.id && !g.id.includes('mock'));
+            let userGuilds = session.guilds || [];
 
-            // Check real-time memberships of the bot
-            const botGuilds = await getBotGuilds();
-            const botGuildIds = botGuilds.map(bg => bg.id);
+            // Check if user has stored OAuth token to refresh fresh guilds from Discord
+            if (session.user && session.user.id) {
+                try {
+                    const freshGuilds = await fetchFreshUserGuilds(session.user.id);
+                    if (freshGuilds && Array.isArray(freshGuilds) && freshGuilds.length > 0) {
+                        userGuilds = freshGuilds;
+                        session.guilds = freshGuilds;
+                        const isSecure = req.protocol === 'https' || req.headers['x-forwarded-proto'] === 'https';
+                        let cookiePayload = JSON.stringify({ user: session.user, guilds: freshGuilds });
+                        if (Buffer.byteLength(cookiePayload, 'utf8') <= 3800) {
+                            res.cookie('SENTRIX_session', cookiePayload, { maxAge: 24 * 60 * 60 * 1000, httpOnly: false, sameSite: 'lax', secure: isSecure, path: '/' });
+                            res.cookie('VEYRA_session', cookiePayload, { maxAge: 24 * 60 * 60 * 1000, httpOnly: false, sameSite: 'lax', secure: isSecure, path: '/' });
+                        }
+                    }
+                } catch (err) {
+                    console.error("User guilds refresh error:", err);
+                }
+            }
+
+            // Filter out any mock/fake servers from the session (safety net)
+            const cleanedGuilds = userGuilds.filter(g => g && g.id && !String(g.id).includes('mock'));
+
+            // Check real-time memberships of the bot directly from Discord API
+            const botGuilds = await getBotGuilds(forceRefresh);
+            const botGuildIdSet = new Set(botGuilds.map(bg => String(bg.id || bg.guild_id)));
             
             // Annotate which servers have the bot active dynamically
-            const updatedGuilds = cleanedGuilds.map(g => ({
-                ...g,
-                active: botGuildIds.includes(g.id)
-            }));
+            const updatedGuilds = cleanedGuilds.map(g => {
+                const isBotActive = botGuildIdSet.has(String(g.id));
+                return {
+                    ...g,
+                    active: isBotActive,
+                    missing: false
+                };
+            });
             
             return res.json({ 
                 loggedIn: true, 
                 user: session.user, 
-                guilds: updatedGuilds 
+                guilds: updatedGuilds,
+                botGuildsCount: botGuilds.length
             });
         } catch (e) {
             console.error("[AUTH] Session processing error:", e);
@@ -2757,6 +2854,50 @@ app.get('/api/auth/session', async (req, res) => {
         console.log("[AUTH] Session check fallback: No active session found via cookie or Auth header.");
     }
     res.json({ loggedIn: false });
+});
+
+// GET /api/user/guilds - Dedicated Real-Time Servers API
+app.get('/api/user/guilds', async (req, res) => {
+    const session = getSessionData(req);
+    const forceRefresh = req.query.refresh === 'true';
+    if (!session || !session.user) {
+        return res.status(401).json({ success: false, error: 'Unauthorized' });
+    }
+    try {
+        let userGuilds = session.guilds || [];
+        if (session.user.id) {
+            const freshGuilds = await fetchFreshUserGuilds(session.user.id);
+            if (freshGuilds && Array.isArray(freshGuilds) && freshGuilds.length > 0) {
+                userGuilds = freshGuilds;
+            }
+        }
+        const cleaned = userGuilds.filter(g => g && g.id && !String(g.id).includes('mock'));
+        const botGuilds = await getBotGuilds(forceRefresh);
+        const botGuildIdSet = new Set(botGuilds.map(bg => String(bg.id || bg.guild_id)));
+        const annotated = cleaned.map(g => ({
+            ...g,
+            active: botGuildIdSet.has(String(g.id)),
+            missing: false
+        }));
+        res.json({
+            success: true,
+            guilds: annotated,
+            botGuildsCount: botGuilds.length
+        });
+    } catch (e) {
+        res.status(500).json({ success: false, error: e.message });
+    }
+});
+
+// GET /api/bot/guilds - Real-time list of guilds where VEYRA is installed
+app.get('/api/bot/guilds', async (req, res) => {
+    const forceRefresh = req.query.refresh === 'true';
+    try {
+        const botGuilds = await getBotGuilds(forceRefresh);
+        res.json({ success: true, count: botGuilds.length, guilds: botGuilds });
+    } catch (e) {
+        res.status(500).json({ success: false, error: e.message });
+    }
 });
 
 // Setup mock session cookie combining bot real guilds & mock list
