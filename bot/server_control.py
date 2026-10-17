@@ -734,16 +734,6 @@ class ChannelManagerGroup(app_commands.Group):
         embed.set_footer(text=f"Guild: {interaction.guild.name}")
         await interaction.response.send_message(embed=embed)
 
-    @app_commands.command(name="lockmsg", description="Lock channel: everyone can view & read history, but cannot send messages")
-    @app_commands.describe(channel="The channel to lock (default: current)", reason="Optional reason for the lock")
-    async def lockmsg_cmd(self, interaction: discord.Interaction, channel: discord.TextChannel = None, reason: str = None):
-        return await execute_lockmsg(interaction, channel, reason, is_unlock=False)
-
-    @app_commands.command(name="unlockmsg", description="Unlock channel: restore standard messaging permissions for @everyone")
-    @app_commands.describe(channel="The channel to unlock (default: current)", reason="Optional reason for the unlock")
-    async def unlockmsg_cmd(self, interaction: discord.Interaction, channel: discord.TextChannel = None, reason: str = None):
-        return await execute_lockmsg(interaction, channel, reason, is_unlock=True)
-
 
 async def execute_lockmsg(target, channel: typing.Optional[discord.TextChannel] = None, reason: typing.Optional[str] = None, is_unlock: bool = False):
     is_interaction = isinstance(target, discord.Interaction)
