@@ -1595,6 +1595,9 @@ def is_feature_enabled(guild_id, feature_name):
         print(f"Error checking feature status for {feature_name}: {e}")
         return True
 
+_disabled_commands_cache = {}
+_disabled_commands_cache_time = {}
+
 async def check_disabled_commands(interaction: discord.Interaction):
     if interaction.type == discord.InteractionType.application_command:
         if interaction.command and interaction.guild:
@@ -1609,20 +1612,36 @@ async def check_disabled_commands(interaction: discord.Interaction):
             # Match against frontend names
             frontend_name = CMD_MAP.get(full_name, full_name.replace(" ", "-"))
             
-            # Query disabled commands from db
-            try:
-                conn = get_db()
-                cursor = conn.cursor()
-                cursor.execute("SELECT disabled_commands FROM guild_settings WHERE guild_id = ?", (str(interaction.guild.id),))
-                row = cursor.fetchone()
-                conn.close()
-                if row and row[0]:
-                    disabled = json.loads(row[0])
-                    if frontend_name in disabled:
+            # Fast in-memory check to prevent blocking the 3-second interaction window
+            guild_id_str = str(interaction.guild.id)
+            import time as _t
+            now = _t.time()
+            disabled = _disabled_commands_cache.get(guild_id_str)
+            last_cached = _disabled_commands_cache_time.get(guild_id_str, 0)
+            
+            if disabled is None or (now - last_cached > 60):
+                try:
+                    conn = get_db()
+                    cursor = conn.cursor()
+                    cursor.execute("SELECT disabled_commands FROM guild_settings WHERE guild_id = ?", (guild_id_str,))
+                    row = cursor.fetchone()
+                    conn.close()
+                    if row and row[0]:
+                        disabled = json.loads(row[0])
+                    else:
+                        disabled = []
+                    _disabled_commands_cache[guild_id_str] = disabled
+                    _disabled_commands_cache_time[guild_id_str] = now
+                except Exception:
+                    disabled = _disabled_commands_cache.get(guild_id_str, [])
+            
+            if frontend_name in disabled:
+                try:
+                    if not interaction.response.is_done():
                         await interaction.response.send_message("❌ This command has been disabled by the server administrator.", ephemeral=True)
-                        return False
-            except Exception as e:
-                print(f"Error checking disabled commands: {e}")
+                except Exception:
+                    pass
+                return False
     return True
 
 bot.tree.interaction_check = check_disabled_commands
@@ -4067,14 +4086,6 @@ async def auto_send_reports_task():
     except Exception as e:
         print(f"Error in auto_send_reports_task: {e}")
 
-@tasks.loop(seconds=30)
-async def periodic_guild_sync_task():
-    try:
-        update_db_bot_guilds()
-        await sync_active_bot_guilds()
-    except Exception:
-        pass
-
 @bot.event
 async def on_ready():
     print(f"\n=============================================")
@@ -4150,65 +4161,11 @@ From raids and nukes to spam and unwanted users, I'll protect your community wit
     if not auto_send_reports_task.is_running():
         auto_send_reports_task.start()
 
-    if not periodic_guild_sync_task.is_running():
-        periodic_guild_sync_task.start()
-        
     bot.add_view(UnifiedVerificationButtonView())
     bot.add_view(TicketWelcomeView())
     bot.add_view(ClosedTicketActionsView())
-        
-    # Cache initial invite lists for all guilds the bot is currently in
-    for guild in bot.guilds:
-        await cache_invites(guild)
-    
-    update_db_bot_guilds()
-    update_db_guild_roles_and_channels()
-    await sync_active_bot_guilds()
 
-    # Restore persistent 24/7 Voice connections
-    try:
-        conn_vc = get_db()
-        cursor_vc = conn_vc.cursor()
-        cursor_vc.execute("SELECT guild_id, channel_id FROM voice_247_settings WHERE enabled = 1")
-        vc_rows = cursor_vc.fetchall()
-        conn_vc.close()
-        for r_vc in vc_rows:
-            try:
-                g_id = int(r_vc['guild_id'] if isinstance(r_vc, dict) or hasattr(r_vc, '__getitem__') and not isinstance(r_vc, (tuple, list)) else r_vc[0])
-                c_id = int(r_vc['channel_id'] if isinstance(r_vc, dict) or hasattr(r_vc, '__getitem__') and not isinstance(r_vc, (tuple, list)) else r_vc[1])
-                g = bot.get_guild(g_id)
-                if g:
-                    vc_ch = g.get_channel(c_id)
-                    if vc_ch and isinstance(vc_ch, (discord.VoiceChannel, discord.StageChannel)):
-                        try:
-                            vc = g.voice_client
-                            if not vc or not vc.is_connected():
-                                vc = await vc_ch.connect(reconnect=True, timeout=20.0, self_deaf=True)
-                                print(f"🎙️ Restored 24/7 Voice connection: {g.name} -> #{vc_ch.name}")
-                            elif vc.channel and vc.channel.id != vc_ch.id:
-                                await vc.move_to(vc_ch)
-                            if isinstance(vc_ch, discord.StageChannel):
-                                try:
-                                    await g.me.edit(suppress=False)
-                                except Exception:
-                                    pass
-                            try:
-                                from music_bot import bot as music_sub_bot
-                                p = music_sub_bot.get_player(g.id)
-                                p.stay_247 = True
-                                p.voice = vc or g.voice_client
-                            except Exception:
-                                pass
-                        except Exception as ex_vc:
-                            print(f"Notice: 24/7 voice reconnect: {ex_vc}")
-            except Exception as ex_row:
-                print(f"Notice: 24/7 row parse: {ex_row}")
-    except Exception as ex:
-        print(f"Error restoring 24/7 voice connections: {ex}")
-        
-    print(f"📡 Cached invite links for {len(bot.guilds)} guilds.")
-    
-    # 1. Clean up duplicate guild-scoped commands so only single global commands exist
+    # 1. Immediate Global Command Sync (Zero Duplicates, Prioritized)
     for g in bot.guilds:
         try:
             bot.tree.clear_commands(guild=g)
@@ -4217,12 +4174,71 @@ From raids and nukes to spam and unwanted users, I'll protect your community wit
         except Exception as ge:
             print(f"⚠️ Guild command cleanup notice for {g.id}: {ge}")
 
-    # 2. Sync single global command tree cleanly (no duplicates)
     try:
         synced_global = await bot.tree.sync()
         print(f"📡 Cleanly synced {len(synced_global)} global slash commands (zero duplicates).")
     except Exception as e:
         print(f"❌ Global command tree sync notice: {e}")
+
+    # 2. Non-blocking background startup for database caching & voice reconnects
+    async def background_post_ready():
+        await asyncio.sleep(1)
+        for guild in bot.guilds:
+            try:
+                await cache_invites(guild)
+            except Exception:
+                pass
+
+        try:
+            update_db_bot_guilds()
+            update_db_guild_roles_and_channels()
+            await sync_active_bot_guilds()
+        except Exception as dbe:
+            print(f"Notice: background DB sync: {dbe}")
+
+        # Restore persistent 24/7 Voice connections
+        try:
+            conn_vc = get_db()
+            cursor_vc = conn_vc.cursor()
+            cursor_vc.execute("SELECT guild_id, channel_id FROM voice_247_settings WHERE enabled = 1")
+            vc_rows = cursor_vc.fetchall()
+            conn_vc.close()
+            for r_vc in vc_rows:
+                try:
+                    g_id = int(r_vc['guild_id'] if isinstance(r_vc, dict) or hasattr(r_vc, '__getitem__') and not isinstance(r_vc, (tuple, list)) else r_vc[0])
+                    c_id = int(r_vc['channel_id'] if isinstance(r_vc, dict) or hasattr(r_vc, '__getitem__') and not isinstance(r_vc, (tuple, list)) else r_vc[1])
+                    g = bot.get_guild(g_id)
+                    if g:
+                        vc_ch = g.get_channel(c_id)
+                        if vc_ch and isinstance(vc_ch, (discord.VoiceChannel, discord.StageChannel)):
+                            try:
+                                vc = g.voice_client
+                                if not vc or not vc.is_connected():
+                                    vc = await vc_ch.connect(reconnect=True, timeout=15.0, self_deaf=True)
+                                    print(f"🎙️ Restored 24/7 Voice connection: {g.name} -> #{vc_ch.name}")
+                                elif vc.channel and vc.channel.id != vc_ch.id:
+                                    await vc.move_to(vc_ch)
+                                if isinstance(vc_ch, discord.StageChannel):
+                                    try:
+                                        await g.me.edit(suppress=False)
+                                    except Exception:
+                                        pass
+                                try:
+                                    from music_bot import bot as music_sub_bot
+                                    p = music_sub_bot.get_player(g.id)
+                                    p.stay_247 = True
+                                    p.voice = vc or g.voice_client
+                                except Exception:
+                                    pass
+                            except Exception as ex_vc:
+                                print(f"Notice: 24/7 voice reconnect: {ex_vc}")
+                except Exception as ex_row:
+                    print(f"Notice: 24/7 row parse: {ex_row}")
+        except Exception as ex:
+            print(f"Error restoring 24/7 voice connections: {ex}")
+
+    asyncio.create_task(background_post_ready())
+    print(f"📡 Bot startup complete. Ready for interactions!")
         
     print(f"📡 Waiting for audit log event logs...")
     print(f"=============================================\n")

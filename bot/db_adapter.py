@@ -421,6 +421,27 @@ def _ensure_sqlite_schema(conn):
                 expires_at TEXT,
                 created_at TEXT
             );
+            CREATE TABLE IF NOT EXISTS active_bot_guilds (
+                guild_id TEXT PRIMARY KEY,
+                name TEXT NOT NULL,
+                icon TEXT,
+                member_count INTEGER DEFAULT 0
+            );
+            CREATE TABLE IF NOT EXISTS guild_roles (
+                guild_id TEXT,
+                role_id TEXT,
+                name TEXT,
+                color TEXT,
+                position INTEGER,
+                PRIMARY KEY (guild_id, role_id)
+            );
+            CREATE TABLE IF NOT EXISTS guild_channels (
+                guild_id TEXT,
+                channel_id TEXT,
+                name TEXT,
+                type TEXT,
+                PRIMARY KEY (guild_id, channel_id)
+            );
             CREATE TABLE IF NOT EXISTS user_subscriptions (
                 user_id TEXT PRIMARY KEY,
                 plan_type TEXT DEFAULT 'Free',
@@ -454,9 +475,16 @@ def get_db():
             except Exception as direct_err:
                 pass
                 
-    # Fallback to SQLite
+    # Fallback to SQLite with WAL mode & concurrency optimizations
     os.makedirs(os.path.dirname(DB_PATH_VEYRA), exist_ok=True)
-    conn = sqlite3.connect(DB_PATH_VEYRA, timeout=30.0)
+    conn = sqlite3.connect(DB_PATH_VEYRA, timeout=10.0)
+    try:
+        conn.execute("PRAGMA journal_mode=WAL;")
+        conn.execute("PRAGMA busy_timeout=5000;")
+        conn.execute("PRAGMA synchronous=NORMAL;")
+    except Exception:
+        pass
     conn.row_factory = sqlite3.Row
-    _ensure_sqlite_schema(conn)
+    if not _sqlite_initialized:
+        _ensure_sqlite_schema(conn)
     return conn
