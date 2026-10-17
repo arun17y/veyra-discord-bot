@@ -1,5 +1,6 @@
 import sys
 import os
+import re
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from transcript_engine import generate_full_html_transcript
 from typing import Union, Optional
