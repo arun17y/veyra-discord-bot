@@ -1042,9 +1042,16 @@ async def execute_bulk_role(target, role: discord.Role, action: str = "add"):
     
     prog_msg = None
     try:
-        prog_msg = await channel.send(embed=status_embed)
-    except Exception:
-        pass
+        if is_interaction:
+            prog_msg = await target.followup.send(embed=status_embed)
+        else:
+            prog_msg = await channel.send(embed=status_embed)
+    except Exception as ex:
+        print(f"Notice: failed to send initial bulk role status embed: {ex}")
+        try:
+            prog_msg = await channel.send(embed=status_embed)
+        except Exception:
+            pass
 
     target_count = guild.member_count or len(guild.members)
     all_members = []
@@ -1091,7 +1098,10 @@ async def execute_bulk_role(target, role: discord.Role, action: str = "add"):
             try: await prog_msg.edit(embed=ok_emb)
             except Exception: pass
         else:
-            await channel.send(embed=ok_emb)
+            if is_interaction:
+                await target.followup.send(embed=ok_emb)
+            else:
+                await channel.send(embed=ok_emb)
         return
 
     # 4. Activate task and begin real-time adaptive worker loop
@@ -1148,7 +1158,10 @@ async def execute_bulk_role(target, role: discord.Role, action: str = "add"):
                 try: await prog_msg.edit(embed=cancel_emb)
                 except Exception: pass
             else:
-                await channel.send(embed=cancel_emb)
+                if is_interaction:
+                    await target.followup.send(embed=cancel_emb)
+                else:
+                    await channel.send(embed=cancel_emb)
             return
 
         success = False
@@ -1201,9 +1214,15 @@ async def execute_bulk_role(target, role: discord.Role, action: str = "add"):
         try:
             await prog_msg.edit(embed=done_emb)
         except Exception:
-            await channel.send(embed=done_emb)
+            if is_interaction:
+                await target.followup.send(embed=done_emb)
+            else:
+                await channel.send(embed=done_emb)
     else:
-        await channel.send(embed=done_emb)
+        if is_interaction:
+            await target.followup.send(embed=done_emb)
+        else:
+            await channel.send(embed=done_emb)
 
 
 # ── 9. EMERGENCY SERVER LOCKDOWN SYSTEM ─────────────────────────────────────
