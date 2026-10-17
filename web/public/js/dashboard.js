@@ -4017,17 +4017,17 @@ function parseDiscordEmojis(text) {
 
     // 1. Full Discord emojis: <:name:id> or <a:name:id> (both raw and HTML-escaped)
     parsed = parsed
-        .replace(/&lt;a?:([a-zA-Z0-9_]+):([0-9]+)&gt;/g, (match, name, id) => {
-            const ext = match.includes('&lt;a:') ? 'gif' : 'png';
+        .replace(/&lt;(a)?:?([a-zA-Z0-9_\-]+):([0-9]+)&gt;/g, (match, isAnim, name, id) => {
+            const ext = isAnim ? 'gif' : 'png';
             return `<img src="https://cdn.discordapp.com/emojis/${id}.${ext}" alt="${name}" title="${name}" class="discord-emoji-img" style="width: 1.35em; height: 1.35em; vertical-align: -0.2em; display: inline-block; object-fit: contain;">`;
         })
-        .replace(/<a?:([a-zA-Z0-9_]+):([0-9]+)>/g, (match, name, id) => {
-            const ext = match.startsWith('<a:') ? 'gif' : 'png';
+        .replace(/<(a)?:?([a-zA-Z0-9_\-]+):([0-9]+)>/g, (match, isAnim, name, id) => {
+            const ext = isAnim ? 'gif' : 'png';
             return `<img src="https://cdn.discordapp.com/emojis/${id}.${ext}" alt="${name}" title="${name}" class="discord-emoji-img" style="width: 1.35em; height: 1.35em; vertical-align: -0.2em; display: inline-block; object-fit: contain;">`;
         });
 
     // 2. Custom name resolution :name: or :1551561322158760006webp:
-    parsed = parsed.replace(/(?<!<)(?<!<a):([a-zA-Z0-9_]{2,36}):(?!\d+>)/g, (match, rawName) => {
+    parsed = parsed.replace(/(?<!<)(?<!<a):([a-zA-Z0-9_\-]{2,36}):(?!\d+>)/g, (match, rawName) => {
         const lower = rawName.toLowerCase();
         const norm = lower.replace(/[-_]/g, '');
 
@@ -4060,6 +4060,9 @@ function parseDiscordEmojis(text) {
 
     // 3. Discord Markdown formatting for preview
     parsed = parsed
+        .replace(/^###\s+(.+)$/gm, '<div style="font-size: 0.95rem; font-weight: 700; color: #dbdee1; margin: 3px 0;">$1</div>')
+        .replace(/^##\s+(.+)$/gm, '<div style="font-size: 1.1rem; font-weight: 700; color: #fff; margin: 4px 0;">$1</div>')
+        .replace(/^#\s+(.+)$/gm, '<div style="font-size: 1.25rem; font-weight: 800; color: #fff; margin: 6px 0;">$1</div>')
         .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
         .replace(/(?<!\*)\*([^*]+)\*(?!\*)/g, '<em>$1</em>')
         .replace(/__(.+?)__/g, '<u>$1</u>')
@@ -8014,15 +8017,15 @@ function renderMultiEmbedCardsUI() {
                     <i class="fas fa-heading" style="margin-right: 4px;"></i> Title & Description
                 </label>
                 <div style="display: grid; grid-template-columns: 2fr 1.2fr auto; gap: 8px; margin-bottom: 8px;">
-                    <input type="text" placeholder="Embed Title" value="${escapeHtml(emb.title || '')}" class="form-control" style="background: rgba(0,0,0,0.3); font-size: 0.85rem; font-weight: 700;" oninput="updateMultiEmbedState(${idx}, 'title', this.value)">
-                    <input type="text" placeholder="Title Hyperlink URL (https://...)" value="${escapeHtml(emb.title_url || '')}" class="form-control" style="background: rgba(0,0,0,0.3); font-size: 0.82rem;" oninput="updateMultiEmbedState(${idx}, 'title_url', this.value)">
+                    <input type="text" placeholder="Embed Title" value="${escapeHtml(emb.title || '')}" class="form-control" style="background: rgba(0,0,0,0.3); font-size: 0.85rem; font-weight: 700;" oninput="updateMultiEmbedState(${idx}, 'title', this.value)" onchange="updateMultiEmbedState(${idx}, 'title', this.value)" onkeyup="updateMultiEmbedState(${idx}, 'title', this.value)" onpaste="setTimeout(() => updateMultiEmbedState(${idx}, 'title', this.value), 30)">
+                    <input type="text" placeholder="Title Hyperlink URL (https://...)" value="${escapeHtml(emb.title_url || '')}" class="form-control" style="background: rgba(0,0,0,0.3); font-size: 0.82rem;" oninput="updateMultiEmbedState(${idx}, 'title_url', this.value)" onchange="updateMultiEmbedState(${idx}, 'title_url', this.value)">
                     <button type="button" onclick="openServerEmojiPicker(null, ${idx}, 'title')" title="Insert Server Emoji into Title" class="btn-secondary" style="background: rgba(255,255,255,0.08); border: none; border-radius: 6px; padding: 0 12px; cursor: pointer; font-size: 1rem;">
                         😊
                     </button>
                 </div>
                 
                 <div style="position: relative;">
-                    <textarea placeholder="Embed Description (Supports Markdown: **bold**, *italics*, codeblocks, server custom emojis)" class="form-control" style="height: 90px; background: rgba(0,0,0,0.3); font-size: 0.82rem; line-height: 1.45; padding-right: 45px;" oninput="updateMultiEmbedState(${idx}, 'description', this.value)">${escapeHtml(emb.description || '')}</textarea>
+                    <textarea placeholder="Embed Description (Supports Markdown: **bold**, *italics*, codeblocks, server custom emojis)" class="form-control" style="height: 90px; background: rgba(0,0,0,0.3); font-size: 0.82rem; line-height: 1.45; padding-right: 45px;" oninput="updateMultiEmbedState(${idx}, 'description', this.value)" onchange="updateMultiEmbedState(${idx}, 'description', this.value)" onkeyup="updateMultiEmbedState(${idx}, 'description', this.value)" onpaste="setTimeout(() => updateMultiEmbedState(${idx}, 'description', this.value), 30)">${escapeHtml(emb.description || '')}</textarea>
                     <button type="button" onclick="openServerEmojiPicker(null, ${idx}, 'description')" title="Insert Server Emoji into Description" class="btn-secondary" style="position: absolute; right: 10px; top: 10px; background: rgba(255,255,255,0.1); border: none; border-radius: 6px; padding: 6px 10px; cursor: pointer; font-size: 0.95rem;">
                         😊
                     </button>

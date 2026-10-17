@@ -540,13 +540,14 @@ db.serialize(() => {
     db.run("ALTER TABLE published_listings ADD COLUMN listed INTEGER DEFAULT 0", (err) => {});
 });
 
-// Fetch Guild Emojis (Live Discord REST API with DB fallback)
+// Fetch Guild Emojis (Live Discord REST API with DB fallback and global cross-server pool)
 app.get('/api/guild/emojis/:guild_id', async (req, res) => {
     const guildId = req.params.guild_id;
+    let emojis = [];
     try {
         const discordRes = await discordRequest('GET', `/guilds/${guildId}/emojis`);
         if (discordRes.status === 200 && Array.isArray(discordRes.body)) {
-            const emojis = discordRes.body.map(e => ({
+            emojis = discordRes.body.map(e => ({
                 id: e.id,
                 name: e.name,
                 animated: !!e.animated,
@@ -559,15 +560,27 @@ app.get('/api/guild/emojis/:guild_id', async (req, res) => {
                         [guildId, e.id, e.name, e.url], () => {});
                 });
             } catch (_) {}
-            return res.json(emojis);
         }
     } catch (apiErr) {
         console.warn(`[EMOJI API ERROR] Live fetch failed for guild ${guildId}:`, apiErr.message);
     }
 
-    db.all("SELECT * FROM guild_emojis WHERE guild_id = ?", [guildId], (err, rows) => {
-        if (err) return res.json([]);
-        res.json(rows || []);
+    db.all("SELECT DISTINCT emoji_id as id, name, url FROM guild_emojis", [], (err, rows) => {
+        if (!err && Array.isArray(rows)) {
+            const existingIds = new Set(emojis.map(e => String(e.id)));
+            rows.forEach(r => {
+                if (!existingIds.has(String(r.id))) {
+                    emojis.push({
+                        id: r.id,
+                        name: r.name,
+                        animated: (r.url || '').endsWith('.gif'),
+                        url: r.url || `https://cdn.discordapp.com/emojis/${r.id}.png?size=48`,
+                        mention: `<${(r.url || '').endsWith('.gif') ? 'a:' : ':'}${r.name}:${r.id}>`
+                    });
+                }
+            });
+        }
+        res.json(emojis);
     });
 });
 
