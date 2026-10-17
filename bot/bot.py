@@ -3564,20 +3564,24 @@ async def sync_bot_profile_task():
         conn = get_db()
         cursor = conn.cursor()
         
-        # 1. Sync Nickname and Server Avatar per guild cleanly
+        # 1. Sync Nickname per guild and global profile (avatar, banner, bio)
         for guild in bot.guilds:
             try:
-                cursor.execute("SELECT nickname, avatar, banner FROM guild_bot_profiles WHERE guild_id = ?", (str(guild.id),))
+                cursor.execute("SELECT nickname, avatar, banner, bio FROM guild_bot_profiles WHERE guild_id = ?", (str(guild.id),))
                 row = cursor.fetchone()
+                if not row:
+                    continue
+
                 target_name = "VEYRA"
-                if row:
+                try:
+                    target_name = (row["nickname"] or "VEYRA").strip()
+                except Exception:
                     try:
-                        target_name = (row["nickname"] or "VEYRA").strip()
+                        target_name = (row[0] or "VEYRA").strip()
                     except Exception:
-                        try:
-                            target_name = (row[0] or "VEYRA").strip()
-                        except Exception:
-                            target_name = "VEYRA"
+                        target_name = "VEYRA"
+
+                # Sync Nickname in this guild
                 if target_name and guild.me and guild.me.nick != target_name:
                     can_edit = guild.me.guild_permissions.change_nickname or guild.me.guild_permissions.administrator
                     if can_edit:
@@ -3589,22 +3593,77 @@ async def sync_bot_profile_task():
                         except Exception as nick_err:
                             pass
                                 
-                    # Sync Server Avatar if custom avatar provided
+                # Sync Global Bot Avatar
+                av_data = None
+                try:
                     av_data = row["avatar"]
-                    if av_data and av_data.startswith("data:image"):
-                        if not hasattr(bot, "_last_synced_guild_avatars"):
-                            bot._last_synced_guild_avatars = {}
-                        if bot._last_synced_guild_avatars.get(guild.id) != av_data:
-                            try:
-                                _, b64_str = av_data.split(",", 1)
-                                img_bytes = base64.b64decode(b64_str)
-                                await guild.me.edit(avatar=img_bytes)
-                                bot._last_synced_guild_avatars[guild.id] = av_data
-                                safe_gname = guild.name.encode('ascii', 'backslashreplace').decode('ascii')
-                                print(f"✅ Synced Bot Server Avatar in guild: {safe_gname}")
-                            except Exception as av_err:
-                                bot._last_synced_guild_avatars[guild.id] = av_data
-                                print(f"⚠️ Server avatar notice for guild {guild.id}: {av_err}")
+                except Exception:
+                    try:
+                        av_data = row[1]
+                    except Exception:
+                        pass
+
+                if av_data and isinstance(av_data, str) and av_data.startswith("data:image"):
+                    if not hasattr(bot, "_last_synced_avatar"):
+                        bot._last_synced_avatar = None
+                    if bot._last_synced_avatar != av_data:
+                        try:
+                            _, b64_str = av_data.split(",", 1)
+                            img_bytes = base64.b64decode(b64_str)
+                            await bot.user.edit(avatar=img_bytes)
+                            bot._last_synced_avatar = av_data
+                            print(f"✅ Synced Global Bot Avatar on Discord!")
+                        except Exception as av_err:
+                            bot._last_synced_avatar = av_data
+                            print(f"⚠️ Bot avatar sync notice: {av_err}")
+
+                # Sync Global Bot Banner
+                ban_data = None
+                try:
+                    ban_data = row["banner"]
+                except Exception:
+                    try:
+                        ban_data = row[2]
+                    except Exception:
+                        pass
+
+                if ban_data and isinstance(ban_data, str) and ban_data.startswith("data:image"):
+                    if not hasattr(bot, "_last_synced_banner"):
+                        bot._last_synced_banner = None
+                    if bot._last_synced_banner != ban_data:
+                        try:
+                            _, b64_str = ban_data.split(",", 1)
+                            ban_bytes = base64.b64decode(b64_str)
+                            await bot.user.edit(banner=ban_bytes)
+                            bot._last_synced_banner = ban_data
+                            print(f"✅ Synced Global Bot Banner on Discord!")
+                        except Exception as ban_err:
+                            bot._last_synced_banner = ban_data
+                            print(f"⚠️ Bot banner sync notice: {ban_err}")
+
+                # Sync Bot About Me / Application Description
+                bio_data = None
+                try:
+                    bio_data = row["bio"]
+                except Exception:
+                    try:
+                        bio_data = row[3]
+                    except Exception:
+                        pass
+
+                if bio_data and isinstance(bio_data, str) and bio_data.strip():
+                    if not hasattr(bot, "_last_synced_bio"):
+                        bot._last_synced_bio = None
+                    clean_bio = bio_data.strip()[:400]
+                    if bot._last_synced_bio != clean_bio:
+                        try:
+                            from discord.http import Route
+                            await bot.http.request(Route('PATCH', '/applications/@me'), json={'description': clean_bio})
+                            bot._last_synced_bio = clean_bio
+                            print(f"✅ Synced Bot About Me Description on Discord!")
+                        except Exception as bio_err:
+                            bot._last_synced_bio = clean_bio
+                            print(f"⚠️ Bot bio sync notice: {bio_err}")
             except Exception as ex:
                 pass
                 

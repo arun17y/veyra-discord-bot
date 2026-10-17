@@ -449,6 +449,15 @@ def _ensure_sqlite_schema(conn):
                 expires_at TEXT,
                 created_at TEXT
             );
+            CREATE TABLE IF NOT EXISTS guild_bot_profiles (
+                guild_id TEXT PRIMARY KEY,
+                nickname TEXT,
+                bio TEXT,
+                website TEXT,
+                support TEXT,
+                avatar TEXT,
+                banner TEXT
+            );
         """)
         conn.commit()
         _sqlite_initialized = True

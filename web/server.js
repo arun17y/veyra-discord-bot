@@ -938,7 +938,7 @@ app.get('/api/guild/plan/:guild_id', (req, res) => {
     });
 });
 
-async function syncDiscordGuildMemberProfile(guildId, payload, token) {
+async function syncDiscordGuildMemberNickname(guildId, nickname, token) {
     if (!token || !guildId) return null;
     try {
         const response = await fetch(`https://discord.com/api/v10/guilds/${guildId}/members/@me`, {
@@ -948,18 +948,100 @@ async function syncDiscordGuildMemberProfile(guildId, payload, token) {
                 'Content-Type': 'application/json',
                 'User-Agent': 'DiscordBot (https://veyrabot.vercel.app, 2.0.0)'
             },
-            body: JSON.stringify(payload)
+            body: JSON.stringify({ nick: nickname ? nickname.trim() : null })
         });
         const data = await response.json().catch(() => ({}));
         if (!response.ok) {
-            console.error(`[DISCORD PROFILE PATCH ERR] Guild: ${guildId}, Status ${response.status}:`, data);
+            console.error(`[DISCORD NICK PATCH ERR] Guild: ${guildId}, Status ${response.status}:`, data);
             return null;
         }
+        console.log(`[DISCORD NICK PATCH OK] Updated bot nickname in guild ${guildId} to: "${nickname}"`);
         return data;
     } catch (err) {
-        console.error('[DISCORD PROFILE PATCH NET ERR]:', err.message);
+        console.error('[DISCORD NICK PATCH NET ERR]:', err.message);
         return null;
     }
+}
+
+async function syncDiscordBotUser(avatar, banner, token) {
+    if (!token) return null;
+    const body = {};
+    if (avatar && avatar.startsWith('data:image')) {
+        body.avatar = avatar;
+    } else if (avatar === '__REMOVE__') {
+        body.avatar = null;
+    }
+    if (banner && banner.startsWith('data:image')) {
+        body.banner = banner;
+    } else if (banner === '__REMOVE__') {
+        body.banner = null;
+    }
+    if (Object.keys(body).length === 0) return null;
+
+    try {
+        const response = await fetch(`https://discord.com/api/v10/users/@me`, {
+            method: 'PATCH',
+            headers: {
+                'Authorization': `Bot ${token}`,
+                'Content-Type': 'application/json',
+                'User-Agent': 'DiscordBot (https://veyrabot.vercel.app, 2.0.0)'
+            },
+            body: JSON.stringify(body)
+        });
+        const data = await response.json().catch(() => ({}));
+        if (!response.ok) {
+            console.error(`[DISCORD USER PATCH ERR] Status ${response.status}:`, data);
+            return null;
+        }
+        console.log(`[DISCORD USER PATCH OK] Updated global bot avatar/banner successfully!`);
+        return data;
+    } catch (err) {
+        console.error('[DISCORD USER PATCH NET ERR]:', err.message);
+        return null;
+    }
+}
+
+async function syncDiscordBotBio(bioText, website, support, token) {
+    if (!token) return null;
+    let fullBio = (bioText || '').trim();
+    if (website && !fullBio.includes(website)) {
+        fullBio += (fullBio ? '\n' : '') + `🌐 ${website}`;
+    }
+    if (support && !fullBio.includes(support)) {
+        fullBio += (fullBio ? '\n' : '') + `💬 ${support}`;
+    }
+    fullBio = fullBio.slice(0, 400);
+    if (!fullBio) return null;
+
+    try {
+        const response = await fetch(`https://discord.com/api/v10/applications/@me`, {
+            method: 'PATCH',
+            headers: {
+                'Authorization': `Bot ${token}`,
+                'Content-Type': 'application/json',
+                'User-Agent': 'DiscordBot (https://veyrabot.vercel.app, 2.0.0)'
+            },
+            body: JSON.stringify({ description: fullBio })
+        });
+        const data = await response.json().catch(() => ({}));
+        if (!response.ok) {
+            console.error(`[DISCORD APP BIO PATCH ERR] Status ${response.status}:`, data);
+            return null;
+        }
+        console.log(`[DISCORD APP BIO PATCH OK] Updated bot About Me bio description successfully!`);
+        return data;
+    } catch (err) {
+        console.error('[DISCORD APP BIO PATCH NET ERR]:', err.message);
+        return null;
+    }
+}
+
+// Backward-compatible alias
+async function syncDiscordGuildMemberProfile(guildId, payload, token) {
+    if (payload && payload.nick !== undefined) {
+        return await syncDiscordGuildMemberNickname(guildId, payload.nick, token);
+    }
+    return null;
 }
 
 // Internal endpoint to trigger instant bot profile sync on Render
@@ -970,11 +1052,13 @@ app.post('/api/internal/sync-bot-profile', async (req, res) => {
     db.get("SELECT * FROM guild_bot_profiles WHERE guild_id = ?", [guildId], async (err, row) => {
         if (!err && row) {
             const token = process.env.DISCORD_BOT_TOKEN;
-            const patchPayload = { nick: row.nickname ? row.nickname.trim() : null };
-            if (row.bio) patchPayload.bio = row.bio.slice(0, 190);
-            if (row.avatar && row.avatar.startsWith('data:image')) patchPayload.avatar = row.avatar;
-            if (row.banner && row.banner.startsWith('data:image')) patchPayload.banner = row.banner;
-            await syncDiscordGuildMemberProfile(guildId, patchPayload, token);
+            if (token) {
+                if (row.nickname) await syncDiscordGuildMemberNickname(guildId, row.nickname, token);
+                if (row.bio || row.website || row.support) await syncDiscordBotBio(row.bio, row.website, row.support, token);
+                if ((row.avatar && row.avatar.startsWith('data:image')) || (row.banner && row.banner.startsWith('data:image'))) {
+                    await syncDiscordBotUser(row.avatar, row.banner, token);
+                }
+            }
         }
         res.json({ success: true });
     });
@@ -1047,24 +1131,21 @@ app.post('/api/settings/bot-profile/:guild_id', async (req, res) => {
                 try {
                     const token = process.env.DISCORD_BOT_TOKEN;
                     if (token && guildId) {
-                        // 1. Update nickname and bio first (never rate-limited by avatar limits)
-                        const nickPayload = { nick: nickVal || null };
-                        if (bioVal) nickPayload.bio = bioVal.slice(0, 190);
-                        const patchedNick = await syncDiscordGuildMemberProfile(guildId, nickPayload, token);
-                        if (patchedNick) discordSyncSuccess = true;
-                        
-                        // 2. If new avatar provided, send avatar
-                        if (avatar && avatar.startsWith('data:image')) {
-                            await syncDiscordGuildMemberProfile(guildId, { avatar: avatar }, token);
-                        } else if (avatar === '__REMOVE__') {
-                            await syncDiscordGuildMemberProfile(guildId, { avatar: null }, token);
+                        // 1. Update nickname in this guild
+                        const nickRes = await syncDiscordGuildMemberNickname(guildId, nickVal, token);
+                        if (nickRes) discordSyncSuccess = true;
+
+                        // 2. Update bio / About Me on Discord application
+                        if (bioVal || webVal || suppVal) {
+                            const bioRes = await syncDiscordBotBio(bioVal, webVal, suppVal, token);
+                            if (bioRes) discordSyncSuccess = true;
                         }
-                        
-                        // 3. If new banner provided, send banner
-                        if (banner && banner.startsWith('data:image')) {
-                            await syncDiscordGuildMemberProfile(guildId, { banner: banner }, token);
-                        } else if (banner === '__REMOVE__') {
-                            await syncDiscordGuildMemberProfile(guildId, { banner: null }, token);
+
+                        // 3. Update global bot avatar / banner if newly uploaded or removed
+                        if ((avatar && avatar.startsWith('data:image')) || avatar === '__REMOVE__' ||
+                            (banner && banner.startsWith('data:image')) || banner === '__REMOVE__') {
+                            const userRes = await syncDiscordBotUser(avatar, banner, token);
+                            if (userRes) discordSyncSuccess = true;
                         }
                     }
                 } catch (syncErr) {
