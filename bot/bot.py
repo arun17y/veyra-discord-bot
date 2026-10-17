@@ -4363,17 +4363,41 @@ async def on_member_join(member):
             except Exception as e:
                 print(f"Failed to send bot join announcement: {e}")
 
+        # Log bot addition to bot_logs
+        try:
+            from logging_suite import resolve_guild_log_channel, COLOR_CREATE, get_actor_footer
+            bot_ch = resolve_guild_log_channel(guild, "bot_logs")
+            if bot_ch:
+                actor = await get_audit_executor(guild, discord.AuditLogAction.bot_add)
+                footer_text, footer_icon = get_actor_footer(actor)
+                b_log_emb = discord.Embed(title="Bot added to server", color=COLOR_CREATE)
+                b_user_tag = f"{member.name}#{member.discriminator}" if getattr(member, 'discriminator', '0') != "0" else member.name
+                b_log_emb.description = (
+                    f"**Bot:** {b_user_tag} ({member.mention})\n"
+                    f"**ID:** `{member.id}`\n"
+                    f"**Added By:** {actor.mention if actor else 'Unknown'}"
+                )
+                if member.display_avatar:
+                    b_log_emb.set_thumbnail(url=member.display_avatar.url)
+                b_log_emb.set_footer(text=footer_text, icon_url=footer_icon)
+                await bot_ch.send(embed=b_log_emb)
+        except Exception as bot_log_ex:
+            print(f"Failed to log bot addition: {bot_log_ex}")
+
         # Real-time OAuth join announcement for bot additions
         try:
-            it_settings = fetch_invitetracker_settings(guild.id)
-            if it_settings and str(it_settings.get('enabled', 1)).lower() in ('1', 'true', 'yes'):
-                it_channel_name = str(it_settings.get('channel') or 'welcome').replace('#', '').strip()
-                it_target = get_fallback_channel(guild, it_channel_name) or guild.system_channel
-                if it_target:
-                    member_tag = f"{member.name}#{member.discriminator}" if member.discriminator != "0" else member.name
-                    bot_oauth_msg = f"{member_tag} joined using OAuth."
-                    await it_target.send(content=bot_oauth_msg)
-                    print(f"✅ Sent bot OAuth join track to #{it_target.name}: {bot_oauth_msg}")
+            from logging_suite import resolve_guild_log_channel
+            it_target = resolve_guild_log_channel(guild, "invite_tracker_logs")
+            if not it_target:
+                it_settings = fetch_invitetracker_settings(guild.id)
+                if it_settings and str(it_settings.get('enabled', 1)).lower() in ('1', 'true', 'yes'):
+                    it_channel_name = str(it_settings.get('channel') or 'welcome').replace('#', '').strip()
+                    it_target = get_fallback_channel(guild, it_channel_name) or guild.system_channel
+            if it_target:
+                member_tag = f"{member.name}#{member.discriminator}" if member.discriminator != "0" else member.name
+                bot_oauth_msg = f"{member_tag} joined using OAuth."
+                await it_target.send(content=bot_oauth_msg)
+                print(f"✅ Sent bot OAuth join track to #{it_target.name}: {bot_oauth_msg}")
         except Exception as it_ex:
             print(f"Failed to post bot OAuth join in invite tracker: {it_ex}")
         return
@@ -4504,6 +4528,21 @@ async def on_member_join(member):
         how_joined_msg = f"{member.mention} joined through Server Discovery."
     else:
         how_joined_msg = f"{member.mention} joined directly or invite could not be determined."
+
+    # Real-time invite tracker announcement dispatch (matches Valtrix Cheats in screenshots)
+    try:
+        from logging_suite import resolve_guild_log_channel
+        it_ch = resolve_guild_log_channel(guild, "invite_tracker_logs")
+        if not it_ch:
+            it_settings = fetch_invitetracker_settings(guild.id)
+            if it_settings and str(it_settings.get('enabled', 1)).lower() in ('1', 'true', 'yes'):
+                it_channel_name = str(it_settings.get('channel') or 'welcome').replace('#', '').strip()
+                it_ch = get_fallback_channel(guild, it_channel_name)
+        if it_ch:
+            await it_ch.send(content=how_joined_msg)
+            print(f"✅ [Invite Tracker] Sent real-time join notice to #{it_ch.name}: {how_joined_msg}")
+    except Exception as it_dispatch_err:
+        print(f"⚠️ [Invite Tracker] Error dispatching join message: {it_dispatch_err}")
 
     log_system_event(guild.id, member.name, "Member Join", f"User joined. Method: {how_joined_msg} | Code: {invite_code_str}")
 
@@ -4938,6 +4977,39 @@ async def on_member_remove(member):
         conn.close()
     except Exception as e:
         print(f"Database error on member leave invites decrement: {e}")
+
+    # Real-time invite tracker leave announcement dispatch
+    try:
+        from logging_suite import resolve_guild_log_channel
+        it_ch = resolve_guild_log_channel(guild, "invite_tracker_logs")
+        if not it_ch:
+            it_settings = fetch_invitetracker_settings(guild.id)
+            if it_settings and str(it_settings.get('enabled', 1)).lower() in ('1', 'true', 'yes'):
+                it_channel_name = str(it_settings.get('channel') or 'welcome').replace('#', '').strip()
+                it_ch = get_fallback_channel(guild, it_channel_name)
+        if it_ch:
+            net_inv = None
+            if inviter_id:
+                try:
+                    conn_it = get_db()
+                    cur_it = conn_it.cursor()
+                    cur_it.execute("SELECT invites, bonus, leaves FROM invites_stats WHERE guild_id = ? AND user_id = ?", (str(guild.id), str(inviter_id)))
+                    s_row = cur_it.fetchone()
+                    conn_it.close()
+                    if s_row:
+                        net_inv = s_row[0] + s_row[1] - s_row[2]
+                except Exception:
+                    pass
+
+            member_tag = f"{member.name}#{member.discriminator}" if getattr(member, 'discriminator', '0') != "0" else member.name
+            if inviter_str and inviter_str != "Unknown" and net_inv is not None:
+                leave_track_msg = f"{member_tag} left the server, invited by {inviter_str} and has now {net_inv} invites."
+            else:
+                leave_track_msg = f"{member_tag} left the server."
+            await it_ch.send(content=leave_track_msg)
+            print(f"✅ [Invite Tracker] Sent real-time leave notice to #{it_ch.name}: {leave_track_msg}")
+    except Exception as it_leave_err:
+        print(f"⚠️ [Invite Tracker] Error dispatching leave message: {it_leave_err}")
 
     # Deliver Leave DM
     try:
@@ -11088,10 +11160,9 @@ class SetupLeaveGroup(SetupExitGroup):
 
 class RootSetupGroup(app_commands.Group):
     def __init__(self):
-        super().__init__(name="setup", description="Configure VEYRA server modules (Welcome, Exit, etc.)")
+        super().__init__(name="setup", description="Configure VEYRA server modules (Welcome, Exit, Logs, Invites)")
         self.add_command(SetupWelcomeGroup())
         self.add_command(SetupExitGroup())
-        self.add_command(SetupLeaveGroup())
 
     @app_commands.command(name="auto", description="Automatically create server security log channels, roles, and categories")
     @app_commands.checks.has_permissions(administrator=True)
@@ -11110,11 +11181,6 @@ class RootSetupGroup(app_commands.Group):
         embed.set_footer(text="Powered By Veyra Development™ | Designed By Arun")
         embed.timestamp = datetime.now(timezone.utc)
         await interaction.followup.send(embed=embed)
-
-    @app_commands.command(name="automatic", description="Automatically create server security log channels, roles, and categories")
-    @app_commands.checks.has_permissions(administrator=True)
-    async def automatic_cmd(self, interaction: discord.Interaction):
-        await self.auto_cmd.callback(self, interaction)
 
     @app_commands.command(name="view", description="View current Welcome, Exit, and server configuration overview")
     @app_commands.checks.has_permissions(administrator=True)
@@ -11737,6 +11803,7 @@ async def leave_prefix_standalone_test(ctx):
 
 def register_discord_command_tree():
     perm_grp = PermissionGroup()
+    root_setup = RootSetupGroup()
     groups = [
         WhitelistGroup(),
         perm_grp,
@@ -11747,7 +11814,7 @@ def register_discord_command_tree():
         StickyroleGroup(),
         SlowmodeGroup(),
         TicketGroup(),
-        RootSetupGroup(),
+        root_setup,
         WelcomeStandaloneGroup(),
         ExitStandaloneGroup()
     ]
@@ -11768,6 +11835,11 @@ def register_discord_command_tree():
         setup_veyra_2_features(bot)
     except Exception as e:
         print("Veyra 2 registration notice:", e)
+    try:
+        from logging_suite import register_logging_suite
+        register_logging_suite(bot, root_setup)
+    except Exception as e:
+        print("Logging suite registration notice:", e)
 
 register_discord_command_tree()
 

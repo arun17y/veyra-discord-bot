@@ -157,13 +157,7 @@ class ServerCustomizationGroup(app_commands.Group):
         except Exception as e:
             await interaction.followup.send(f"❌ Failed to update server avatar: `{e}`")
 
-    # 4. Server Icon (Alias)
-    @app_commands.command(name="icon", description="Alias for /server avatar: Update server icon")
-    @app_commands.describe(url="Direct image URL", image="Direct image attachment upload")
-    async def server_icon(self, interaction: discord.Interaction, url: typing.Optional[str] = None, image: typing.Optional[discord.Attachment] = None):
-        await self.server_avatar.callback(self, interaction, url=url, image=image)
-
-    # 5. Server Banner
+    # 4. Server Banner
     @app_commands.command(name="banner", description="Change server banner via URL or upload (Requires Boost Level 2)")
     @app_commands.describe(url="Direct image URL", image="Direct image attachment upload")
     async def server_banner(self, interaction: discord.Interaction, url: typing.Optional[str] = None, image: typing.Optional[discord.Attachment] = None):
