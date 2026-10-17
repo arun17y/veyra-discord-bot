@@ -734,6 +734,149 @@ class ChannelManagerGroup(app_commands.Group):
         embed.set_footer(text=f"Guild: {interaction.guild.name}")
         await interaction.response.send_message(embed=embed)
 
+    @app_commands.command(name="lockmsg", description="Lock channel: everyone can view & read history, but cannot send messages")
+    @app_commands.describe(channel="The channel to lock (default: current)", reason="Optional reason for the lock")
+    async def lockmsg_cmd(self, interaction: discord.Interaction, channel: discord.TextChannel = None, reason: str = None):
+        return await execute_lockmsg(interaction, channel, reason, is_unlock=False)
+
+    @app_commands.command(name="unlockmsg", description="Unlock channel: restore standard messaging permissions for @everyone")
+    @app_commands.describe(channel="The channel to unlock (default: current)", reason="Optional reason for the unlock")
+    async def unlockmsg_cmd(self, interaction: discord.Interaction, channel: discord.TextChannel = None, reason: str = None):
+        return await execute_lockmsg(interaction, channel, reason, is_unlock=True)
+
+
+async def execute_lockmsg(target, channel: typing.Optional[discord.TextChannel] = None, reason: typing.Optional[str] = None, is_unlock: bool = False):
+    is_interaction = isinstance(target, discord.Interaction)
+    guild = target.guild
+    user = target.user if is_interaction else target.author
+
+    if not guild:
+        return
+
+    # 1. Authorization check
+    if is_interaction:
+        if not await is_authorized_manager(target, "channel"):
+            return
+        if not target.response.is_done():
+            await target.response.defer()
+    else:
+        author = target.author
+        is_auth = (
+            author.id == guild.owner_id
+            or author.id in (1256986886631854080, 1538041381132697610)
+            or (isinstance(author, discord.Member) and (author.guild_permissions.administrator or author.guild_permissions.manage_channels))
+        )
+        if not is_auth:
+            return await target.send("❌ You require `Manage Channels` permission to use this command.")
+
+    async def send_reply(msg_or_embed):
+        if isinstance(msg_or_embed, str):
+            if is_interaction:
+                await target.followup.send(msg_or_embed, ephemeral=True)
+            else:
+                await target.send(msg_or_embed)
+        else:
+            if is_interaction:
+                await target.followup.send(embed=msg_or_embed)
+            else:
+                await target.send(embed=msg_or_embed)
+
+    # 2. Target channel resolution
+    target_ch = channel or target.channel
+    if not hasattr(target_ch, 'set_permissions') or not hasattr(target_ch, 'overwrites_for'):
+        return await send_reply("❌ This command must be executed on a valid text or announcement channel.")
+
+    # 3. Bot permissions validation
+    bot_member = guild.me
+    if not target_ch.permissions_for(bot_member).manage_channels:
+        return await send_reply(f"❌ I lack the **Manage Channels** permission in {target_ch.mention}. Please grant it to my bot role.")
+
+    try:
+        ow = target_ch.overwrites_for(guild.default_role)
+        clean_reason = reason.strip()[:256] if reason else None
+        audit_note = f"{'Lockmsg' if not is_unlock else 'Unlockmsg'} by {user} (ID: {user.id})" + (f": {clean_reason}" if clean_reason else "")
+
+        if not is_unlock:
+            # Everyone can view channel & read history, but CANNOT send messages / create threads / react
+            ow.view_channel = True
+            ow.read_message_history = True
+            ow.send_messages = False
+            ow.send_messages_in_threads = False
+            ow.create_public_threads = False
+            ow.create_private_threads = False
+            ow.add_reactions = False
+
+            await target_ch.set_permissions(guild.default_role, overwrite=ow, reason=audit_note[:512])
+
+            desc = (
+                f"{target_ch.mention} has been locked to **Read-Only**.\n\n"
+                f"• **View Channel:** `Allowed` (Everyone can view)\n"
+                f"• **Read History:** `Allowed` (View history is ON)\n"
+                f"• **Send Messages:** `Disabled` (Members cannot message)\n"
+                f"• **Threads & Reactions:** `Disabled`\n"
+            )
+            if clean_reason:
+                desc += f"• **Reason:** {clean_reason}\n"
+            desc += f"• **Moderator:** {user.mention}"
+
+            embed = discord.Embed(
+                title="🔒 Channel Locked (Read-Only)",
+                description=desc,
+                color=discord.Color.from_rgb(239, 68, 68)
+            )
+            embed.set_footer(text="Powered by VEYRA 2.0 • Channel Control")
+            embed.timestamp = datetime.now(timezone.utc)
+
+            await send_reply(embed)
+            if target.channel.id != target_ch.id:
+                try:
+                    await target_ch.send(embed=embed)
+                except Exception:
+                    pass
+
+            await dispatch_discord_log(guild, "audit", "Channel Message-Locked", f"{target_ch.mention} set to read-only with view history by {user.mention}.", 0xef4444)
+        else:
+            # Revert message denial overwrites to normal
+            ow.send_messages = None
+            ow.send_messages_in_threads = None
+            ow.create_public_threads = None
+            ow.create_private_threads = None
+            ow.add_reactions = None
+
+            await target_ch.set_permissions(guild.default_role, overwrite=ow, reason=audit_note[:512])
+
+            desc = (
+                f"{target_ch.mention} has been restored to **Standard** mode.\n\n"
+                f"• **Send Messages:** `Allowed` (Default)\n"
+                f"• **View Channel:** `Allowed`\n"
+                f"• **Read History:** `Allowed`\n"
+            )
+            if clean_reason:
+                desc += f"• **Reason:** {clean_reason}\n"
+            desc += f"• **Moderator:** {user.mention}"
+
+            embed = discord.Embed(
+                title="🔓 Channel Unlocked",
+                description=desc,
+                color=discord.Color.from_rgb(34, 197, 94)
+            )
+            embed.set_footer(text="Powered by VEYRA 2.0 • Channel Control")
+            embed.timestamp = datetime.now(timezone.utc)
+
+            await send_reply(embed)
+            if target.channel.id != target_ch.id:
+                try:
+                    await target_ch.send(embed=embed)
+                except Exception:
+                    pass
+
+            await dispatch_discord_log(guild, "audit", "Channel Message-Unlocked", f"{target_ch.mention} messaging restored by {user.mention}.", 0x22c55e)
+    except Exception as e:
+        await send_reply(f"❌ Failed to {'lock' if not is_unlock else 'unlock'} channel: `{e}`")
+
+
+
+
 
 # ── 7. CATEGORY MANAGER GROUP ────────────────────────────────────────────────
 class CategoryManagerGroup(app_commands.Group):
@@ -1518,6 +1661,26 @@ def setup_server_control_system(bot: commands.Bot, perm_group: app_commands.Grou
     @commands.has_permissions(manage_roles=True)
     async def prefix_rolecancel_direct(ctx: commands.Context):
         return await cancel_bulk_role(ctx)
+
+    @bot.tree.command(name="lockmsg", description="Lock channel: view & history allowed, messaging disabled for @everyone")
+    @app_commands.describe(channel="The channel to lock (default: current channel)", reason="Optional reason for the lock")
+    async def tree_lockmsg(interaction: discord.Interaction, channel: discord.TextChannel = None, reason: str = None):
+        return await execute_lockmsg(interaction, channel, reason, is_unlock=False)
+
+    @bot.tree.command(name="unlockmsg", description="Unlock channel: restore normal messaging permissions for @everyone")
+    @app_commands.describe(channel="The channel to unlock (default: current channel)", reason="Optional reason for the unlock")
+    async def tree_unlockmsg(interaction: discord.Interaction, channel: discord.TextChannel = None, reason: str = None):
+        return await execute_lockmsg(interaction, channel, reason, is_unlock=True)
+
+    @bot.command(name="lockmsg", aliases=["msglock"], description="Lock channel: view & history allowed, messaging disabled for @everyone")
+    @commands.has_permissions(manage_channels=True)
+    async def prefix_lockmsg(ctx: commands.Context, channel: typing.Optional[discord.TextChannel] = None, *, reason: str = None):
+        return await execute_lockmsg(ctx, channel, reason, is_unlock=False)
+
+    @bot.command(name="unlockmsg", aliases=["msgunlock"], description="Unlock channel: restore normal messaging permissions for @everyone")
+    @commands.has_permissions(manage_channels=True)
+    async def prefix_unlockmsg(ctx: commands.Context, channel: typing.Optional[discord.TextChannel] = None, *, reason: str = None):
+        return await execute_lockmsg(ctx, channel, reason, is_unlock=True)
 
     if not bot.get_command("set247"):
         @bot.command(name="set247", aliases=["voice247"], description="Connect bot 24/7 to a voice channel")
