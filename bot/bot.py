@@ -880,6 +880,105 @@ def fetch_embedmessages_settings(guild_id):
         'embed_json': '[]'
     }
 
+EMOJI_NAME_REGEX = re.compile(r'(?<!<)(?<!<a):([a-zA-Z0-9_]{2,36}):(?!\d+>)')
+
+UNICODE_EMOJI_FALLBACK = {
+    "crown": "👑", "king": "👑", "queen": "👸", "prince": "🤴", "princess": "👸",
+    "fire": "🔥", "star": "⭐", "star2": "🌟", "sparkles": "✨", "sparkle": "✨",
+    "check": "✅", "white_check_mark": "✅", "cross": "❌", "x": "❌",
+    "heart": "❤️", "rainbow_heart": "💖", "sparkling_heart": "💖", "broken_heart": "💔",
+    "tada": "🎉", "party": "🎉", "partybolt": "⚡", "partying_face": "🥳",
+    "wave": "👋", "warning": "⚠️", "attention": "⚠️", "no_entry_sign": "🚫", "no_entry": "⛔",
+    "shield": "🛡️", "lock": "🔒", "unlock": "🔓", "bell": "🔔", "gear": "⚙️",
+    "tools": "🛠️", "robot": "🤖", "zap": "⚡", "lightning": "⚡", "rocket": "🚀",
+    "trophy": "🏆", "medal": "🏅", "gem": "💎", "diamond": "💎", "eyes": "👀",
+    "skull": "💀", "100": "💯", "bulb": "💡", "info": "ℹ️", "link": "🔗",
+    "pin": "📌", "loudspeaker": "📢", "mega": "📣", "envelope": "✉️", "mail": "✉️",
+    "door": "🚪", "boom": "💥", "gift": "🎁", "money": "💰", "coin": "🪙",
+    "dollar": "💵", "hammer": "🔨", "wrench": "🔧", "key": "🔑", "sword": "⚔️",
+    "swords": "⚔️", "books": "📚", "chart": "📊", "target": "🎯", "crystal_ball": "🔮",
+    "hourglass": "⌛", "clock": "⏰", "satellite": "📡", "desktop": "🖥️", "laptop": "💻",
+    "alert": "🚨", "sound": "🔊", "muted": "🔇", "verified": "☑️"
+}
+
+def resolve_custom_emojis(text: str, guild: discord.Guild = None) -> str:
+    if not text or ":" not in text:
+        return text if text is not None else ""
+        
+    def _repl(match):
+        raw_name = match.group(1)
+        name_lower = raw_name.lower()
+        norm = name_lower.replace('_', '').replace('-', '')
+        
+        # 1. First priority: Check current guild custom emojis (case-insensitive + normalized)
+        if guild and hasattr(guild, 'emojis'):
+            for em in guild.emojis:
+                if em.name:
+                    em_lower = em.name.lower()
+                    if em_lower == name_lower or em_lower.replace('_', '').replace('-', '') == norm:
+                        return str(em)
+                    
+        # 2. Second priority: Check all bot cached emojis across connected servers
+        if 'bot' in globals() and hasattr(bot, 'emojis'):
+            for em in bot.emojis:
+                if em.name:
+                    em_lower = em.name.lower()
+                    if em_lower == name_lower or em_lower.replace('_', '').replace('-', '') == norm:
+                        return str(em)
+                    
+        # 3. Third priority: Common unicode emoji fallback
+        if name_lower in UNICODE_EMOJI_FALLBACK:
+            return UNICODE_EMOJI_FALLBACK[name_lower]
+        if norm in UNICODE_EMOJI_FALLBACK:
+            return UNICODE_EMOJI_FALLBACK[norm]
+            
+        # 4. Fourth priority: Snowflake numeric ID (:1551561322158760006webp: or :1551561322158760006:)
+        id_m = re.match(r'^(\d{15,22})(?:webp|png|gif)?$', raw_name, re.IGNORECASE)
+        if id_m:
+            num_id = int(id_m.group(1))
+            if 'bot' in globals() and hasattr(bot, 'get_emoji'):
+                em = bot.get_emoji(num_id)
+                if em:
+                    return str(em)
+            return f"<:e:{num_id}>"
+
+        return match.group(0)
+
+    try:
+        return EMOJI_NAME_REGEX.sub(_repl, str(text))
+    except Exception as ex:
+        print(f"Error resolving emojis in text: {ex}")
+        return text
+
+def resolve_embed_emojis(embed: discord.Embed, guild: discord.Guild = None) -> discord.Embed:
+    if not embed:
+        return embed
+    if embed.title:
+        embed.title = resolve_custom_emojis(embed.title, guild)
+    if embed.description:
+        embed.description = resolve_custom_emojis(embed.description, guild)
+    if embed.author and embed.author.name:
+        embed.set_author(
+            name=resolve_custom_emojis(embed.author.name, guild),
+            icon_url=embed.author.icon_url,
+            url=embed.author.url
+        )
+    if embed.footer and embed.footer.text:
+        embed.set_footer(
+            text=resolve_custom_emojis(embed.footer.text, guild),
+            icon_url=embed.footer.icon_url
+        )
+    if embed.fields:
+        orig_fields = list(embed.fields)
+        embed.clear_fields()
+        for f in orig_fields:
+            embed.add_field(
+                name=resolve_custom_emojis(f.name, guild) if f.name else "\u200b",
+                value=resolve_custom_emojis(f.value, guild) if f.value else "\u200b",
+                inline=f.inline
+            )
+    return embed
+
 def build_embeds_from_json(embed_json_str, member, guild, inviter_str="Unknown"):
     embeds = []
     if not embed_json_str:
@@ -945,7 +1044,7 @@ def build_embeds_from_json(embed_json_str, member, guild, inviter_str="Unknown")
                         if f_name or f_value:
                             embed.add_field(name=f_name if f_name else "\u200b", value=f_value if f_value else "\u200b", inline=f_inline)
 
-            embeds.append(embed)
+            embeds.append(resolve_embed_emojis(embed, guild))
     except Exception as err:
         print(f"Error parsing multi-embed JSON: {err}")
         
@@ -1036,6 +1135,17 @@ def format_discord_message_placeholders(txt, member, guild, inviter_str="Unknown
     txt = ci_replace(txt, '{total_invites}', str(total_invites))
     txt = ci_replace(txt, '%invites%', str(invites_count))
     txt = ci_replace(txt, '%total_invites%', str(total_invites))
+
+    if inviter_id_to_query:
+        joined_method_str = f"{member.mention} has been invited by {inviter_str} and has now {invites_count} invites."
+    elif member and getattr(member, 'bot', False):
+        joined_method_str = f"{member.name} joined using OAuth."
+    else:
+        joined_method_str = f"{member.mention} joined directly or invite could not be determined."
+
+    txt = ci_replace(txt, '{how_joined}', joined_method_str)
+    txt = ci_replace(txt, '{join_method}', joined_method_str)
+    txt = resolve_custom_emojis(txt, guild)
     return txt
 
 def is_whitelisted(guild_id, user_id, action_type="all", channel_id=None, roles=None):
@@ -2948,11 +3058,13 @@ def create_veyra_embed(
     **kwargs
 ):
     import datetime
+    guild = kwargs.get('guild')
+    title = resolve_custom_emojis(title, guild) if title else title
     desc_content = ""
     if status:
         desc_content += f"```\nSTATUS: {status}\n```\n"
     if description:
-        desc_content += description
+        desc_content += resolve_custom_emojis(description, guild)
         
     embed = discord.Embed(
         title=title,
@@ -2971,11 +3083,13 @@ def create_veyra_embed(
                 inline = False
             else:
                 continue
+            name = resolve_custom_emojis(str(name), guild)
+            value = resolve_custom_emojis(str(value), guild)
             embed.add_field(name=name, value=value, inline=inline)
             
     footer_icon = icon_url or (bot.user.avatar.url if bot.user and bot.user.avatar else None)
     embed.set_footer(
-        text=footer,
+        text=resolve_custom_emojis(footer, guild) if footer else "",
         icon_url=footer_icon
     )
     embed.timestamp = datetime.datetime.now(datetime.timezone.utc)
@@ -3295,15 +3409,41 @@ async def remove_user(ctx, member: discord.Member, *, reason: str = "best UI"):
     log_system_event(ctx.guild.id, ctx.author.name, 'Remove Command', f"Removed user {member.name} with reason: '{reason}'")
 
 # Invite tracker storage cache
-bot.invites = {}
+bot.invites = {} # guild_id -> {code: uses}
+bot.vanity_invites = {} # guild_id -> uses
 
 async def cache_invites(guild):
     try:
         # Check permissions before attempting to query guild invites
         if guild.me.guild_permissions.manage_guild:
-            bot.invites[guild.id] = await guild.invites()
+            invs = await guild.invites()
+            bot.invites[guild.id] = {inv.code: inv.uses for inv in invs}
+            if "VANITY_URL" in guild.features:
+                try:
+                    vanity = await guild.vanity_invite()
+                    if vanity:
+                        bot.vanity_invites[guild.id] = vanity.uses
+                except Exception:
+                    pass
     except Exception as e:
         print(f"Failed to cache invites for guild {guild.name}: {e}")
+
+@bot.event
+async def on_invite_create(invite):
+    try:
+        if invite.guild.id not in bot.invites:
+            bot.invites[invite.guild.id] = {}
+        bot.invites[invite.guild.id][invite.code] = invite.uses
+    except Exception as e:
+        print(f"Failed to update invite cache on create: {e}")
+
+@bot.event
+async def on_invite_delete(invite):
+    try:
+        if invite.guild.id in bot.invites and invite.code in bot.invites[invite.guild.id]:
+            bot.invites[invite.guild.id].pop(invite.code, None)
+    except Exception as e:
+        print(f"Failed to update invite cache on delete: {e}")
 
 def update_db_bot_guilds():
     try:
@@ -3532,6 +3672,7 @@ async def process_pending_embeds_task():
                         t = ci_rep(t, '{member_count}', str(guild.member_count if guild.member_count is not None else len(guild.members)))
                         t = ci_rep(t, '{count}', str(guild.member_count if guild.member_count is not None else len(guild.members)))
                         t = ci_rep(t, '%count%', str(guild.member_count if guild.member_count is not None else len(guild.members)))
+                        t = resolve_custom_emojis(t, guild)
                         return t
 
                     embeds = []
@@ -4126,34 +4267,70 @@ async def on_member_join(member):
                 await b_ch.send(embed=b_emb)
             except Exception as e:
                 print(f"Failed to send bot join announcement: {e}")
+
+        # Real-time OAuth join announcement for bot additions
+        try:
+            it_settings = fetch_invitetracker_settings(guild.id)
+            if it_settings and str(it_settings.get('enabled', 1)).lower() in ('1', 'true', 'yes'):
+                it_channel_name = str(it_settings.get('channel') or 'welcome').replace('#', '').strip()
+                it_target = get_fallback_channel(guild, it_channel_name) or guild.system_channel
+                if it_target:
+                    member_tag = f"{member.name}#{member.discriminator}" if member.discriminator != "0" else member.name
+                    bot_oauth_msg = f"{member_tag} joined using OAuth."
+                    await it_target.send(content=bot_oauth_msg)
+                    print(f"✅ Sent bot OAuth join track to #{it_target.name}: {bot_oauth_msg}")
+        except Exception as it_ex:
+            print(f"Failed to post bot OAuth join in invite tracker: {it_ex}")
         return
 
     # 2. Invite Tracking & Audit Logging
-    cached = bot.invites.get(guild.id, [])
-    inviter_str = "Unknown (Direct Join or Custom Link)"
+    cached_map = bot.invites.get(guild.id, {})
+    inviter_str = "Unknown"
     invite_code_str = "N/A"
     inviter_obj = None
-    
+    join_type = "unknown"
+    net_invites = 0
+
     try:
         if guild.me.guild_permissions.manage_guild:
             current_invites = await guild.invites()
             for invite in current_invites:
-                match = next((x for x in cached if x.code == invite.code), None)
-                if match:
-                    if invite.uses > match.uses:
-                        inviter_str = f"{invite.inviter.name}#{invite.inviter.discriminator}" if invite.inviter.discriminator != "0" else f"{invite.inviter.name}"
-                        invite_code_str = invite.code
-                        inviter_obj = invite.inviter
-                        break
-                elif invite.uses > 0:
+                prev_uses = cached_map.get(invite.code)
+                if prev_uses is not None and invite.uses > prev_uses:
                     inviter_str = f"{invite.inviter.name}#{invite.inviter.discriminator}" if invite.inviter.discriminator != "0" else f"{invite.inviter.name}"
                     invite_code_str = invite.code
                     inviter_obj = invite.inviter
+                    join_type = "invite"
                     break
-            bot.invites[guild.id] = current_invites
+                elif prev_uses is None and invite.uses > 0:
+                    inviter_str = f"{invite.inviter.name}#{invite.inviter.discriminator}" if invite.inviter.discriminator != "0" else f"{invite.inviter.name}"
+                    invite_code_str = invite.code
+                    inviter_obj = invite.inviter
+                    join_type = "invite"
+                    break
+            bot.invites[guild.id] = {inv.code: inv.uses for inv in current_invites}
     except Exception as e:
         print(f"Failed to check invite code uses: {e}")
-        
+
+    # Check Vanity Invite if no regular invite was matched
+    if not inviter_obj and "VANITY_URL" in guild.features:
+        try:
+            vanity = await guild.vanity_invite()
+            if vanity:
+                prev_vanity = bot.vanity_invites.get(guild.id, 0)
+                if vanity.uses > prev_vanity:
+                    bot.vanity_invites[guild.id] = vanity.uses
+                    join_type = "vanity"
+                    invite_code_str = vanity.code
+        except Exception:
+            pass
+
+    if not inviter_obj and join_type == "unknown":
+        if "DISCOVERABLE" in guild.features:
+            join_type = "discovery"
+        else:
+            join_type = "oauth"
+
     if inviter_obj:
         try:
             conn = get_db()
@@ -4207,13 +4384,33 @@ async def on_member_join(member):
                             VALUES (?, ?, 1)
                             ON CONFLICT(guild_id, user_id) DO UPDATE SET invites = invites + 1
                         """, (str(guild.id), str(inviter_obj.id)))
+
+            # Fetch updated net invites count
+            cursor.execute("SELECT invites, bonus, leaves, fake FROM invites_stats WHERE guild_id = ? AND user_id = ?", (str(guild.id), str(inviter_obj.id)))
+            stats_row = cursor.fetchone()
+            if stats_row:
+                invites, bonus, leaves, fake = stats_row
+                net_invites = invites + bonus - leaves
                     
             conn.commit()
             conn.close()
         except Exception as e:
             print(f"Database error saving invite stats on join: {e}")
-            
-    log_system_event(guild.id, member.name, "Member Join", f"User joined. Invite used: {invite_code_str} | Created by: {inviter_str}")
+
+    # Build real-time join tracking string (matches Valtrix Cheats in screenshots)
+    member_tag = f"{member.name}#{member.discriminator}" if member.discriminator != "0" else member.name
+    if join_type == "invite" and inviter_obj:
+        how_joined_msg = f"{member.mention} has been invited by {inviter_str} and has now {net_invites} invites."
+    elif join_type == "oauth":
+        how_joined_msg = f"{member_tag} joined using OAuth."
+    elif join_type == "vanity":
+        how_joined_msg = f"{member.mention} joined using the vanity URL."
+    elif join_type == "discovery":
+        how_joined_msg = f"{member.mention} joined through Server Discovery."
+    else:
+        how_joined_msg = f"{member.mention} joined directly or invite could not be determined."
+
+    log_system_event(guild.id, member.name, "Member Join", f"User joined. Method: {how_joined_msg} | Code: {invite_code_str}")
 
     # 3. Welcome Message & Embed Delivery
     w_settings = fetch_welcome_settings(guild.id)
@@ -4230,7 +4427,7 @@ async def on_member_join(member):
         if target_channel:
             # Build embeds list from JSON if configured (allowing multiple embeds!)
             embeds = build_embeds_from_json(w_settings.get('embed_json') if w_settings else None, member, guild, inviter_str)
-            raw_msg = w_settings['message'] if (w_settings and 'message' in w_settings.keys() and w_settings['message']) else "Welcome {user} to {server}!"
+            raw_msg = w_settings.get('message') if (w_settings and w_settings.get('message')) else "Welcome {user} To **{server}**"
             outer_msg = format_discord_message_placeholders(raw_msg, member, guild, inviter_str)
             
             if embeds:
@@ -4244,7 +4441,7 @@ async def on_member_join(member):
             if not embeds:
                 raw_desc = (w_settings.get('description') if w_settings else '')
                 if not raw_desc or raw_desc.startswith("Hey **{user}**") or raw_desc.startswith("Hey {user}"):
-                    raw_desc = "Welcome {user} To {server}\n\n**WELCOME TO {server_upper}**"
+                    raw_desc = "Welcome {user} To **{server}**\n\n**WELCOME TO {server}**"
                 
                 fmt_desc = format_discord_message_placeholders(raw_desc, member, guild, inviter_str)
                 
@@ -4259,38 +4456,51 @@ async def on_member_join(member):
                     color=embed_color
                 )
                 
+                # Custom title only if explicitly specified
+                raw_custom_title = (w_settings.get('title') if w_settings else '') or ''
+                if raw_custom_title:
+                    embed.title = format_discord_message_placeholders(raw_custom_title, member, guild, inviter_str)
+                
+                # Author header only if explicitly specified
                 author_name = format_discord_message_placeholders((w_settings.get('author_name') if w_settings else '') or '', member, guild, inviter_str)
                 if author_name:
                     author_icon = format_discord_message_placeholders((w_settings.get('author_icon') if w_settings else '') or '', member, guild, inviter_str)
                     embed.set_author(name=author_name, icon_url=author_icon if author_icon.startswith('http') else None)
 
+                # Footer only if explicitly configured
                 custom_footer = (w_settings.get('footer') if w_settings else '') or ''
                 if custom_footer:
                     fmt_footer = format_discord_message_placeholders(custom_footer, member, guild, inviter_str)
                     footer_icon = format_discord_message_placeholders((w_settings.get('footer_icon') if w_settings else '') or '', member, guild, inviter_str)
                     embed.set_footer(text=fmt_footer, icon_url=footer_icon if footer_icon.startswith('http') else None)
                 
-                thumb_input = format_discord_message_placeholders((w_settings.get('thumbnail') if w_settings else '') or '', member, guild, inviter_str)
-                if thumb_input and thumb_input.startswith('http'):
-                    embed.set_thumbnail(url=thumb_input)
+                # Thumbnail only if explicitly set (omitted by default for full-width clean banner)
+                custom_thumb = (w_settings.get('thumbnail') if w_settings else '') or ''
+                if custom_thumb and custom_thumb.startswith('http'):
+                    embed.set_thumbnail(url=custom_thumb)
                 
+                # Large banner image (JPG, PNG, WEBP, GIF, Tenor, Giphy, Discord CDN)
                 image_input = format_discord_message_placeholders((w_settings.get('image') if w_settings else '') or '', member, guild, inviter_str)
                 if image_input and image_input.startswith('http'):
                     embed.set_image(url=image_input)
+                elif guild.banner:
+                    embed.set_image(url=str(guild.banner.url))
+                
+                resolve_embed_emojis(embed, guild)
                 
                 try:
-                    await target_channel.send(embed=embed)
-                    print(f"✅ Sent welcome embed to #{target_channel.name} in {guild.name}")
+                    await target_channel.send(content=outer_msg, embed=embed)
+                    print(f"✅ Sent welcome embed with top text to #{target_channel.name} in {guild.name}")
                 except Exception as e:
                     print(f"Failed to send welcome embed ({e}), falling back to simple clean embed")
                     try:
                         clean_embed = discord.Embed(
-                            description=f"Welcome {member.mention} To **{guild.name}**\n\n**WELCOME TO {guild.name.upper()}**",
+                            description=f"Welcome {member.mention} To **{guild.name}**\n\n**WELCOME TO {guild.name}**",
                             color=embed_color
                         )
                         if image_input and image_input.startswith('http'):
                             clean_embed.set_image(url=image_input)
-                        await target_channel.send(embed=clean_embed)
+                        await target_channel.send(content=outer_msg, embed=clean_embed)
                         print(f"✅ Sent clean fallback welcome embed to #{target_channel.name}")
                     except Exception as e2:
                         print(f"Clean embed failed ({e2}), falling back to text mention")
@@ -4366,69 +4576,85 @@ async def on_member_join(member):
                 print(f"⚠️ Could not send Join DM to {member.name}: {dm_err}")
 
     # 3c. Invite Tracker Messages Delivery
-    it_settings = fetch_invitetracker_settings(guild.id)
-    if it_settings and it_settings['enabled'] == 1:
-        channel_name = str(it_settings['channel'] or '').replace('#', '').strip()
-        target_channel = get_fallback_channel(guild, channel_name)
-            
-        if target_channel:
-            embeds = build_embeds_from_json(it_settings.get('embed_json'), member, guild, inviter_str)
-            raw_msg = it_settings['message'] or ''
-            outer_msg = format_discord_message_placeholders(raw_msg, member, guild, inviter_str)
-            
-            if embeds:
-                try:
-                    await target_channel.send(content=outer_msg if outer_msg else None, embeds=embeds)
-                    print(f"✅ Sent Invite Tracker multi-embeds to #{target_channel.name} in {guild.name}")
-                except Exception as e:
-                    print(f"Failed to send Invite Tracker multi-embeds: {e}")
-            else:
-                # Fallback to single embed
-                raw_title = it_settings['title'] or ''
-                raw_desc = it_settings['description'] or ''
-                raw_footer = it_settings['footer'] or ''
+    try:
+        it_settings = fetch_invitetracker_settings(guild.id)
+        if it_settings and str(it_settings.get('enabled', 1)).lower() in ('1', 'true', 'yes'):
+            channel_name = str(it_settings.get('channel') or 'welcome').replace('#', '').strip()
+            target_channel = get_fallback_channel(guild, channel_name) or guild.system_channel
                 
-                fmt_title = format_discord_message_placeholders(raw_title, member, guild, inviter_str)
-                fmt_desc = format_discord_message_placeholders(raw_desc, member, guild, inviter_str)
-                fmt_footer = format_discord_message_placeholders(raw_footer, member, guild, inviter_str)
+            if target_channel:
+                embeds = build_embeds_from_json(it_settings.get('embed_json'), member, guild, inviter_str)
+                raw_msg = it_settings.get('message') or ''
+                outer_msg = format_discord_message_placeholders(raw_msg, member, guild, inviter_str) if raw_msg else how_joined_msg
                 
-                try:
-                    hex_color = str(it_settings['color'] or '#a855f7').replace('#', '')
-                    embed_color = discord.Color(int(hex_color, 16))
-                except Exception:
-                    embed_color = discord.Color(0xa855f7)
-                    
-                it_embed = discord.Embed(
-                    title=fmt_title if fmt_title else None,
-                    description=fmt_desc if fmt_desc else None,
-                    color=embed_color
-                )
-                
-                author_name = format_discord_message_placeholders(it_settings['author_name'] if 'author_name' in it_settings.keys() else '', member, guild, inviter_str)
-                author_icon = format_discord_message_placeholders(it_settings['author_icon'] if 'author_icon' in it_settings.keys() else '', member, guild, inviter_str)
-                if author_name:
-                    it_embed.set_author(name=author_name, icon_url=author_icon if author_icon.startswith('http') else str(member.display_avatar.url))
-
-                footer_icon = format_discord_message_placeholders(it_settings['footer_icon'] if 'footer_icon' in it_settings.keys() else '', member, guild, inviter_str)
-                if fmt_footer:
-                    it_embed.set_footer(text=fmt_footer, icon_url=footer_icon if footer_icon.startswith('http') else str(bot.user.display_avatar.url) if bot.user else str(member.display_avatar.url))
-                    it_embed.timestamp = datetime.now(timezone.utc)
-                
-                thumb_input = format_discord_message_placeholders(it_settings['thumbnail'] if 'thumbnail' in it_settings.keys() else '', member, guild, inviter_str)
-                if thumb_input and thumb_input.startswith('http'):
-                    it_embed.set_thumbnail(url=thumb_input)
+                if embeds:
+                    try:
+                        for emb in embeds:
+                            resolve_embed_emojis(emb, guild)
+                        await target_channel.send(content=outer_msg if outer_msg else how_joined_msg, embeds=embeds)
+                        print(f"✅ Sent Invite Tracker multi-embeds to #{target_channel.name} in {guild.name}")
+                    except Exception as e:
+                        print(f"Failed to send Invite Tracker multi-embeds: {e}")
+                        await target_channel.send(content=how_joined_msg)
                 else:
-                    it_embed.set_thumbnail(url=str(member.display_avatar.url))
-                
-                image_input = format_discord_message_placeholders(it_settings['image'] if 'image' in it_settings.keys() else '', member, guild, inviter_str)
-                if image_input and image_input.startswith('http'):
-                    it_embed.set_image(url=image_input)
+                    raw_title = it_settings.get('title') or ''
+                    raw_desc = it_settings.get('description') or ''
+                    raw_footer = it_settings.get('footer') or ''
                     
-                try:
-                    await target_channel.send(content=outer_msg if outer_msg else None, embed=it_embed if (fmt_title or fmt_desc) else None)
-                    print(f"✅ Sent Invite Tracker message to #{target_channel.name} in {guild.name}")
-                except Exception as e:
-                    print(f"Failed to send Invite Tracker message to #{channel_name}: {e}")
+                    # If customized embed exists, deliver it with how_joined_msg as content
+                    if raw_title or raw_desc:
+                        fmt_title = format_discord_message_placeholders(raw_title, member, guild, inviter_str)
+                        fmt_desc = format_discord_message_placeholders(raw_desc, member, guild, inviter_str)
+                        fmt_footer = format_discord_message_placeholders(raw_footer, member, guild, inviter_str)
+                        
+                        try:
+                            hex_color = str(it_settings.get('color') or '#a855f7').replace('#', '')
+                            embed_color = discord.Color(int(hex_color, 16))
+                        except Exception:
+                            embed_color = discord.Color(0xa855f7)
+                            
+                        it_embed = discord.Embed(
+                            title=fmt_title if fmt_title else None,
+                            description=fmt_desc if fmt_desc else None,
+                            color=embed_color
+                        )
+                        
+                        author_name = format_discord_message_placeholders(it_settings.get('author_name') or '', member, guild, inviter_str)
+                        author_icon = format_discord_message_placeholders(it_settings.get('author_icon') or '', member, guild, inviter_str)
+                        if author_name:
+                            it_embed.set_author(name=author_name, icon_url=author_icon if author_icon.startswith('http') else str(member.display_avatar.url))
+
+                        footer_icon = format_discord_message_placeholders(it_settings.get('footer_icon') or '', member, guild, inviter_str)
+                        if fmt_footer:
+                            it_embed.set_footer(text=fmt_footer, icon_url=footer_icon if footer_icon.startswith('http') else str(bot.user.display_avatar.url) if bot.user else str(member.display_avatar.url))
+                            it_embed.timestamp = datetime.now(timezone.utc)
+                        
+                        thumb_input = format_discord_message_placeholders(it_settings.get('thumbnail') or '', member, guild, inviter_str)
+                        if thumb_input and thumb_input.startswith('http'):
+                            it_embed.set_thumbnail(url=thumb_input)
+                        else:
+                            it_embed.set_thumbnail(url=str(member.display_avatar.url))
+                        
+                        image_input = format_discord_message_placeholders(it_settings.get('image') or '', member, guild, inviter_str)
+                        if image_input and image_input.startswith('http'):
+                            it_embed.set_image(url=image_input)
+                        
+                        resolve_embed_emojis(it_embed, guild)
+                        try:
+                            await target_channel.send(content=outer_msg if outer_msg else how_joined_msg, embed=it_embed)
+                            print(f"✅ Sent Invite Tracker message to #{target_channel.name} in {guild.name}")
+                        except Exception as e:
+                            print(f"Failed to send Invite Tracker embed ({e}), falling back to direct message")
+                            await target_channel.send(content=how_joined_msg)
+                    else:
+                        # Direct clean message (Valtrix Cheats style: @user has been invited by inviter and has now X invites.)
+                        try:
+                            await target_channel.send(content=how_joined_msg)
+                            print(f"✅ Sent real-time invite track to #{target_channel.name} in {guild.name}: {how_joined_msg}")
+                        except Exception as e:
+                            print(f"Failed to send real-time invite track: {e}")
+    except Exception as it_delivery_err:
+        print(f"Error in invite tracker delivery: {it_delivery_err}")
 
     # 3d. Embed Messages Delivery (New Section)
     try:
@@ -4675,7 +4901,7 @@ async def on_member_remove(member):
         if target_channel:
             # Build embeds list from JSON if configured (allowing multiple embeds!)
             embeds = build_embeds_from_json(l_settings.get('embed_json') if l_settings else None, member, guild)
-            raw_msg = l_settings['message'] if (l_settings and 'message' in l_settings.keys() and l_settings['message']) else "Goodbye {user}!"
+            raw_msg = l_settings.get('message') if (l_settings and l_settings.get('message')) else "Goodbye **{username}** From **{server}**"
             outer_msg = format_discord_message_placeholders(raw_msg, member, guild)
             
             if embeds:
@@ -4689,7 +4915,7 @@ async def on_member_remove(member):
             if not embeds:
                 raw_desc = (l_settings.get('description') if l_settings else '')
                 if not raw_desc or raw_desc.startswith("**{username}** has left") or raw_desc.startswith("{user} has left") or raw_desc.startswith("**{user}** has left"):
-                    raw_desc = "Goodbye **{username}** From {server}\n\n**GOODBYE FROM {server_upper}**"
+                    raw_desc = "Goodbye **{username}** From **{server}**\n\n**GOODBYE FROM {server_upper}**"
                 
                 fmt_desc = format_discord_message_placeholders(raw_desc, member, guild)
                 
@@ -4700,6 +4926,7 @@ async def on_member_remove(member):
                     embed_color = discord.Color.from_rgb(239, 68, 68)
                     
                 embed = discord.Embed(
+                    title=f"**Goodbye From {guild.name}**",
                     description=fmt_desc if fmt_desc else None,
                     color=embed_color
                 )
@@ -4709,28 +4936,30 @@ async def on_member_remove(member):
                     fmt_footer = format_discord_message_placeholders(custom_footer, member, guild)
                     footer_icon = format_discord_message_placeholders((l_settings.get('footer_icon') if l_settings else '') or '', member, guild)
                     embed.set_footer(text=fmt_footer, icon_url=footer_icon if footer_icon.startswith('http') else None)
+                else:
+                    embed.set_footer(text=f"Total Members: {guild.member_count or len(guild.members)}", icon_url=str(member.display_avatar.url))
                     
-                thumb_input = format_discord_message_placeholders((l_settings.get('thumbnail') if l_settings else '') or '', member, guild)
-                if thumb_input and thumb_input.startswith('http'):
-                    embed.set_thumbnail(url=thumb_input)
+                embed.set_thumbnail(url=str(member.display_avatar.url))
                 
                 image_input = format_discord_message_placeholders((l_settings.get('image') if l_settings else '') or '', member, guild)
                 if image_input and image_input.startswith('http'):
                     embed.set_image(url=image_input)
 
                 try:
-                    await target_channel.send(embed=embed)
-                    print(f"✅ Sent leave embed to #{target_channel.name} in {guild.name}")
+                    await target_channel.send(content=outer_msg, embed=embed)
+                    print(f"✅ Sent leave embed with top text to #{target_channel.name} in {guild.name}")
                 except Exception as e:
                     print(f"Failed to send leave embed ({e}), falling back to clean embed")
                     try:
                         clean_embed = discord.Embed(
+                            title=f"**Goodbye From {guild.name}**",
                             description=f"Goodbye **{member.name}** From **{guild.name}**\n\n**GOODBYE FROM {guild.name.upper()}**",
                             color=embed_color
                         )
+                        clean_embed.set_thumbnail(url=str(member.display_avatar.url))
                         if image_input and image_input.startswith('http'):
                             clean_embed.set_image(url=image_input)
-                        await target_channel.send(embed=clean_embed)
+                        await target_channel.send(content=outer_msg, embed=clean_embed)
                     except Exception:
                         await target_channel.send(content=f"👋 **{member.name}** has left **{guild.name}**.")
 
@@ -8326,89 +8555,27 @@ async def prefix_role_group(ctx: commands.Context):
 
 @prefix_role_group.command(name="all")
 @commands.has_permissions(manage_roles=True)
-async def prefix_role_all(ctx: commands.Context, role: discord.Role, action: str = "add"):
-    act = action.lower().strip()
-    if act not in ("add", "remove"):
-        act = "add"
-    act_name = "added" if act == "add" else "removed"
-    
-    if role >= ctx.guild.me.top_role:
-        return await ctx.send(f"❌ Role {role.mention} is higher than or equal to my highest role ({ctx.guild.me.top_role.mention}). Move my bot role above {role.name} in Server Settings -> Roles.")
+async def prefix_role_all(ctx: commands.Context, *, args: str = None):
+    if not args:
+        embed = discord.Embed(
+            title="🛡️ VEYRA Role All Command",
+            description="**Usage:**\n• `.role all <@Role | ID | Name>` — Assign role to all humans\n• `.role all <@Role | ID | Name> remove` — Remove role from all humans\n• `.role cancel` — Stop active role operation",
+            color=0x2B2D31
+        )
+        embed.set_footer(text="Powered by VEYRA 2.0 Management Suite")
+        return await ctx.send(embed=embed)
 
-    if not ctx.guild.chunked:
-        try:
-            await ctx.guild.chunk()
-        except Exception:
-            pass
-
-    human_members = [m for m in ctx.guild.members if not m.bot]
-    total_humans = len(human_members)
-    
-    if total_humans == 0:
-        return await ctx.send("⚠️ No human members found in this server.")
-        
-    _role_group_tasks[ctx.guild.id] = True
-    prog_msg = await ctx.send(f"⏳ **Bulk Role ({act.upper()}):** Processing **{total_humans}** human members for role {role.mention} (excluding bots)...\nUse `.role cancel` to stop.")
-    
-    count = 0
-    failed = 0
-    last_edit = time.time()
-    
-    for idx, member in enumerate(human_members, start=1):
-        if not _role_group_tasks.get(ctx.guild.id):
-            return await ctx.send("⏹️ Bulk role task was cancelled.")
-            
-        try:
-            if act == "add" and role not in member.roles:
-                await member.add_roles(role, reason=f"Bulk .role all executed by {ctx.author}")
-                count += 1
-            elif act == "remove" and role in member.roles:
-                await member.remove_roles(role, reason=f"Bulk .role all executed by {ctx.author}")
-                count += 1
-        except discord.HTTPException as http_ex:
-            if http_ex.status == 429:
-                retry_after = getattr(http_ex, 'retry_after', 2.0) or 2.0
-                await asyncio.sleep(float(retry_after) + 0.5)
-                try:
-                    if act == "add" and role not in member.roles:
-                        await member.add_roles(role)
-                        count += 1
-                    elif act == "remove" and role in member.roles:
-                        await member.remove_roles(role)
-                        count += 1
-                except Exception:
-                    failed += 1
-            else:
-                failed += 1
-        except Exception:
-            failed += 1
-            
-        if time.time() - last_edit > 4 or idx == total_humans:
-            last_edit = time.time()
-            try:
-                await prog_msg.edit(content=f"⏳ **Bulk Role ({act.upper()}):** Processing... `{count}/{total_humans}` members updated (Processed: {idx}/{total_humans})")
-            except Exception:
-                pass
-                
-        await asyncio.sleep(0.35)
-        
-    _role_group_tasks.pop(ctx.guild.id, None)
-    embed = discord.Embed(
-        title="✅ Bulk Role Operation Completed",
-        description=f"Role {role.mention} was successfully **{act_name}** for **{count}** human members.\n(Excluded all bots and applications. Failed: `{failed}`).",
-        color=discord.Color.from_rgb(16, 185, 129)
-    )
-    embed.set_footer(text="Powered by VEYRA 2.0 Management Suite")
-    await ctx.send(embed=embed)
+    from server_control import parse_role_and_action, execute_bulk_role
+    role, action = parse_role_and_action(ctx.guild, args)
+    if not role:
+        return await ctx.send("❌ Target role not found. Please mention the role, provide its numerical ID, or write its exact name.")
+    return await execute_bulk_role(ctx, role, action)
 
 @prefix_role_group.command(name="cancel")
 @commands.has_permissions(manage_roles=True)
 async def prefix_role_cancel(ctx: commands.Context):
-    if ctx.guild.id in _role_group_tasks:
-        _role_group_tasks[ctx.guild.id] = False
-        await ctx.send("✅ Cancel signal sent for active bulk role tasks.")
-    else:
-        await ctx.send("ℹ️ No active bulk role tasks running on this server.")
+    from server_control import cancel_bulk_role
+    return await cancel_bulk_role(ctx)
 
 
 
@@ -10469,11 +10636,11 @@ class SetupWelcomeGroup(app_commands.Group):
         cursor = conn.cursor()
         cursor.execute("SELECT 1 FROM welcome_settings WHERE guild_id = ?", (str(interaction.guild.id),))
         if cursor.fetchone():
-            cursor.execute("UPDATE welcome_settings SET description = ?, enabled = 1 WHERE guild_id = ?", (message, str(interaction.guild.id)))
+            cursor.execute("UPDATE welcome_settings SET description = ?, message = 'Welcome {user} To **{server}**', enabled = 1 WHERE guild_id = ?", (message, str(interaction.guild.id)))
         else:
             cursor.execute("""
-                INSERT INTO welcome_settings (guild_id, enabled, channel, color, title, description, footer)
-                VALUES (?, 1, 'general', '#ef4444', '', ?, '')
+                INSERT INTO welcome_settings (guild_id, enabled, channel, color, title, description, footer, message)
+                VALUES (?, 1, 'general', '#ef4444', '', ?, '', 'Welcome {user} To **{server}**')
             """, (str(interaction.guild.id), message))
         conn.commit()
         conn.close()
@@ -10591,7 +10758,9 @@ class SetupWelcomeGroup(app_commands.Group):
         target_channel = get_fallback_channel(interaction.guild, channel_name) or interaction.channel
 
         try:
-            raw_desc = w_settings.get('description') or "Welcome {user} To **{server}**\n\n**WELCOME TO {server_upper}**"
+            raw_msg = w_settings.get('message') or "Welcome {user} To **{server}**"
+            outer_msg = format_discord_message_placeholders(raw_msg, interaction.user, interaction.guild, "Direct Join")
+            raw_desc = w_settings.get('description') or "Welcome {user} To **{server}**\n\n**WELCOME TO {server}**"
             fmt_desc = format_discord_message_placeholders(raw_desc, interaction.user, interaction.guild, "Direct Join")
             
             hex_color = str(w_settings.get('color') or '#ef4444').replace('#', '')
@@ -10604,12 +10773,22 @@ class SetupWelcomeGroup(app_commands.Group):
                 description=fmt_desc,
                 color=embed_color
             )
+            raw_custom_title = (w_settings.get('title') if w_settings else '') or ''
+            if raw_custom_title:
+                embed.title = format_discord_message_placeholders(raw_custom_title, interaction.user, interaction.guild, "Direct Join")
             
+            custom_thumb = (w_settings.get('thumbnail') if w_settings else '') or ''
+            if custom_thumb and custom_thumb.startswith('http'):
+                embed.set_thumbnail(url=custom_thumb)
+                
             img_url = w_settings.get('image')
             if img_url and str(img_url).strip().startswith('http'):
                 embed.set_image(url=str(img_url).strip())
+            elif interaction.guild.banner:
+                embed.set_image(url=str(interaction.guild.banner.url))
 
-            await target_channel.send(embed=embed)
+            resolve_embed_emojis(embed, interaction.guild)
+            await target_channel.send(content=outer_msg, embed=embed)
             await interaction.followup.send(f"✅ Live test welcome message posted in {target_channel.mention}!", ephemeral=True)
         except Exception as e:
             await interaction.followup.send(f"❌ Failed to send test welcome message: {e}", ephemeral=True)
@@ -10656,11 +10835,11 @@ class SetupExitGroup(app_commands.Group):
         cursor = conn.cursor()
         cursor.execute("SELECT 1 FROM leave_settings WHERE guild_id = ?", (str(interaction.guild.id),))
         if cursor.fetchone():
-            cursor.execute("UPDATE leave_settings SET description = ?, enabled = 1 WHERE guild_id = ?", (message, str(interaction.guild.id)))
+            cursor.execute("UPDATE leave_settings SET description = ?, message = 'Goodbye **{username}** From **{server}**', enabled = 1 WHERE guild_id = ?", (message, str(interaction.guild.id)))
         else:
             cursor.execute("""
-                INSERT INTO leave_settings (guild_id, enabled, channel, color, title, description, footer)
-                VALUES (?, 1, 'general', '#ef4444', '', ?, '')
+                INSERT INTO leave_settings (guild_id, enabled, channel, color, title, description, footer, message)
+                VALUES (?, 1, 'general', '#ef4444', '', ?, '', 'Goodbye **{username}** From **{server}**')
             """, (str(interaction.guild.id), message))
         conn.commit()
         conn.close()
@@ -10778,6 +10957,8 @@ class SetupExitGroup(app_commands.Group):
         target_channel = get_fallback_channel(interaction.guild, channel_name) or interaction.channel
 
         try:
+            raw_msg = l_settings.get('message') or "Goodbye **{username}** From **{server}**"
+            outer_msg = format_discord_message_placeholders(raw_msg, interaction.user, interaction.guild)
             raw_desc = l_settings.get('description') or "Goodbye **{username}** From **{server}**\n\n**GOODBYE FROM {server_upper}**"
             fmt_desc = format_discord_message_placeholders(raw_desc, interaction.user, interaction.guild)
             
@@ -10788,15 +10969,18 @@ class SetupExitGroup(app_commands.Group):
                 embed_color = discord.Color.from_rgb(239, 68, 68)
                 
             embed = discord.Embed(
+                title=f"**Goodbye From {interaction.guild.name}**",
                 description=fmt_desc,
                 color=embed_color
             )
+            embed.set_thumbnail(url=str(interaction.user.display_avatar.url))
+            embed.set_footer(text=f"Total Members: {interaction.guild.member_count or len(interaction.guild.members)}", icon_url=str(interaction.user.display_avatar.url))
             
             img_url = l_settings.get('image')
             if img_url and str(img_url).strip().startswith('http'):
                 embed.set_image(url=str(img_url).strip())
 
-            await target_channel.send(embed=embed)
+            await target_channel.send(content=outer_msg, embed=embed)
             await interaction.followup.send(f"✅ Live test exit message posted in {target_channel.mention}!", ephemeral=True)
         except Exception as e:
             await interaction.followup.send(f"❌ Failed to send test exit message: {e}", ephemeral=True)
@@ -11053,11 +11237,11 @@ async def setup_welcome_prefix_msg(ctx, *, message: str):
     cursor = conn.cursor()
     cursor.execute("SELECT 1 FROM welcome_settings WHERE guild_id = ?", (str(ctx.guild.id),))
     if cursor.fetchone():
-        cursor.execute("UPDATE welcome_settings SET description = ?, enabled = 1 WHERE guild_id = ?", (message, str(ctx.guild.id)))
+        cursor.execute("UPDATE welcome_settings SET description = ?, message = 'Welcome {user} To **{server}**', enabled = 1 WHERE guild_id = ?", (message, str(ctx.guild.id)))
     else:
         cursor.execute("""
-            INSERT INTO welcome_settings (guild_id, enabled, channel, color, title, description, footer)
-            VALUES (?, 1, 'general', '#ef4444', '', ?, '')
+            INSERT INTO welcome_settings (guild_id, enabled, channel, color, title, description, footer, message)
+            VALUES (?, 1, 'general', '#ef4444', '', ?, '', 'Welcome {user} To **{server}**')
         """, (str(ctx.guild.id), message))
     conn.commit()
     conn.close()
@@ -11138,7 +11322,9 @@ async def setup_welcome_prefix_test(ctx):
     channel_name = str(w_settings.get('channel') or '').replace('#', '').strip()
     target_channel = get_fallback_channel(ctx.guild, channel_name) or ctx.channel
 
-    raw_desc = w_settings.get('description') or "Welcome {user} To **{server}**\n\n**WELCOME TO {server_upper}**"
+    raw_msg = w_settings.get('message') or "Welcome {user} To **{server}**"
+    outer_msg = format_discord_message_placeholders(raw_msg, ctx.author, ctx.guild, "Direct Join")
+    raw_desc = w_settings.get('description') or "Welcome {user} To **{server}**\n\n**WELCOME TO {server}**"
     fmt_desc = format_discord_message_placeholders(raw_desc, ctx.author, ctx.guild, "Direct Join")
     
     hex_color = str(w_settings.get('color') or '#ef4444').replace('#', '')
@@ -11147,12 +11333,26 @@ async def setup_welcome_prefix_test(ctx):
     except Exception:
         embed_color = discord.Color.from_rgb(239, 68, 68)
         
-    embed = discord.Embed(description=fmt_desc, color=embed_color)
+    embed = discord.Embed(
+        description=fmt_desc,
+        color=embed_color
+    )
+    raw_custom_title = (w_settings.get('title') if w_settings else '') or ''
+    if raw_custom_title:
+        embed.title = format_discord_message_placeholders(raw_custom_title, ctx.author, ctx.guild, "Direct Join")
+        
+    custom_thumb = (w_settings.get('thumbnail') if w_settings else '') or ''
+    if custom_thumb and custom_thumb.startswith('http'):
+        embed.set_thumbnail(url=custom_thumb)
+        
     img_url = w_settings.get('image')
     if img_url and str(img_url).strip().startswith('http'):
         embed.set_image(url=str(img_url).strip())
+    elif ctx.guild.banner:
+        embed.set_image(url=str(ctx.guild.banner.url))
         
-    await target_channel.send(embed=embed)
+    resolve_embed_emojis(embed, ctx.guild)
+    await target_channel.send(content=outer_msg, embed=embed)
     await ctx.send(f"✅ Test welcome message sent to {target_channel.mention}!")
 
 @setup_prefix_group.group(name="exit", aliases=["leave"], invoke_without_command=True)
@@ -11191,11 +11391,11 @@ async def setup_exit_prefix_msg(ctx, *, message: str):
     cursor = conn.cursor()
     cursor.execute("SELECT 1 FROM leave_settings WHERE guild_id = ?", (str(ctx.guild.id),))
     if cursor.fetchone():
-        cursor.execute("UPDATE leave_settings SET description = ?, enabled = 1 WHERE guild_id = ?", (message, str(ctx.guild.id)))
+        cursor.execute("UPDATE leave_settings SET description = ?, message = 'Goodbye **{username}** From **{server}**', enabled = 1 WHERE guild_id = ?", (message, str(ctx.guild.id)))
     else:
         cursor.execute("""
-            INSERT INTO leave_settings (guild_id, enabled, channel, color, title, description, footer)
-            VALUES (?, 1, 'general', '#ef4444', '', ?, '')
+            INSERT INTO leave_settings (guild_id, enabled, channel, color, title, description, footer, message)
+            VALUES (?, 1, 'general', '#ef4444', '', ?, '', 'Goodbye **{username}** From **{server}**')
         """, (str(ctx.guild.id), message))
     conn.commit()
     conn.close()
@@ -11276,6 +11476,8 @@ async def setup_exit_prefix_test(ctx):
     channel_name = str(l_settings.get('channel') or '').replace('#', '').strip()
     target_channel = get_fallback_channel(ctx.guild, channel_name) or ctx.channel
 
+    raw_msg = l_settings.get('message') or "Goodbye **{username}** From **{server}**"
+    outer_msg = format_discord_message_placeholders(raw_msg, ctx.author, ctx.guild)
     raw_desc = l_settings.get('description') or "Goodbye **{username}** From **{server}**\n\n**GOODBYE FROM {server_upper}**"
     fmt_desc = format_discord_message_placeholders(raw_desc, ctx.author, ctx.guild)
     
@@ -11285,19 +11487,66 @@ async def setup_exit_prefix_test(ctx):
     except Exception:
         embed_color = discord.Color.from_rgb(239, 68, 68)
         
-    embed = discord.Embed(description=fmt_desc, color=embed_color)
+    embed = discord.Embed(
+        title=f"**Goodbye From {ctx.guild.name}**",
+        description=fmt_desc,
+        color=embed_color
+    )
+    embed.set_thumbnail(url=str(ctx.author.display_avatar.url))
+    embed.set_footer(text=f"Total Members: {ctx.guild.member_count or len(ctx.guild.members)}", icon_url=str(ctx.author.display_avatar.url))
     img_url = l_settings.get('image')
     if img_url and str(img_url).strip().startswith('http'):
         embed.set_image(url=str(img_url).strip())
         
-    await target_channel.send(embed=embed)
+    await target_channel.send(content=outer_msg, embed=embed)
     await ctx.send(f"✅ Test exit message sent to {target_channel.mention}!")
+
+@setup_prefix_group.group(name="invite", aliases=["invites", "invitetracker"], invoke_without_command=True)
+@commands.has_permissions(administrator=True)
+async def setup_invite_prefix_group(ctx):
+    await ctx.send("Usage: `,setup invite channel <#channel>` or `,setup invite test`")
+
+@setup_invite_prefix_group.command(name="channel")
+@commands.has_permissions(administrator=True)
+async def setup_invite_prefix_channel(ctx, channel: discord.TextChannel = None):
+    target_ch = channel or ctx.channel
+    conn = get_db()
+    cursor = conn.cursor()
+    cursor.execute("SELECT 1 FROM invitetracker_settings WHERE guild_id = ?", (str(ctx.guild.id),))
+    if cursor.fetchone():
+        cursor.execute("UPDATE invitetracker_settings SET channel = ?, enabled = 1 WHERE guild_id = ?", (str(target_ch.id), str(ctx.guild.id)))
+    else:
+        cursor.execute("""
+            INSERT INTO invitetracker_settings (guild_id, enabled, channel, color, title, description, footer)
+            VALUES (?, 1, ?, '#a855f7', '', '', 'VEYRA Invite Tracker')
+        """, (str(ctx.guild.id), str(target_ch.id)))
+    conn.commit()
+    conn.close()
+
+    embed = discord.Embed(
+        title="✅ Invite Tracker Channel Configured",
+        description=f"Real-time invite tracking join announcements will be sent to {target_ch.mention}.",
+        color=discord.Color.from_rgb(168, 85, 247)
+    )
+    embed.set_footer(text="Powered By Veyra Development™ | Designed By Arun")
+    await ctx.send(embed=embed)
+
+@setup_invite_prefix_group.command(name="test")
+@commands.has_permissions(administrator=True)
+async def setup_invite_prefix_test(ctx):
+    it_settings = fetch_invitetracker_settings(ctx.guild.id)
+    ch_name = str(it_settings.get('channel') or 'welcome').replace('#', '').strip()
+    target_channel = get_fallback_channel(ctx.guild, ch_name) or ctx.channel
+    test_msg = f"{ctx.author.mention} has been invited by {ctx.bot.user.name} and has now 1 invites."
+    await target_channel.send(content=test_msg)
+    await ctx.send(f"✅ Real-time test invite notification sent to {target_channel.mention}!")
 
 @setup_prefix_group.command(name="view")
 @commands.has_permissions(administrator=True)
 async def setup_prefix_view(ctx):
     w_settings = fetch_welcome_settings(ctx.guild.id)
     l_settings = fetch_leave_settings(ctx.guild.id)
+    it_settings = fetch_invitetracker_settings(ctx.guild.id)
     w_ch_str = str(w_settings.get('channel') or 'Not configured')
     if w_ch_str.isdigit():
         ch = ctx.guild.get_channel(int(w_ch_str))
@@ -11312,6 +11561,13 @@ async def setup_prefix_view(ctx):
     else:
         l_ch_str = f"#{l_ch_str}"
 
+    it_ch_str = str(it_settings.get('channel') or 'Not configured')
+    if it_ch_str.isdigit():
+        ch = ctx.guild.get_channel(int(it_ch_str))
+        it_ch_str = ch.mention if ch else f"`{it_ch_str}`"
+    else:
+        it_ch_str = f"#{it_ch_str}"
+
     embed = discord.Embed(
         title="⚙️ VEYRA Server Modules Setup",
         description=f"Overview of configured channels for **{ctx.guild.name}**:",
@@ -11319,6 +11575,7 @@ async def setup_prefix_view(ctx):
     )
     embed.add_field(name="👋 Welcome System", value=f"• Channel: {w_ch_str}\n• Status: {'🟢 Enabled' if w_settings.get('enabled') == 1 else '🔴 Disabled'}\n• Commands: `,setup welcome msg`, `,setup welcome image`, `,setup welcome color`", inline=False)
     embed.add_field(name="🚪 Exit System", value=f"• Channel: {l_ch_str}\n• Status: {'🟢 Enabled' if l_settings.get('enabled') == 1 else '🔴 Disabled'}\n• Commands: `,setup exit msg`, `,setup exit image`, `,setup exit color`", inline=False)
+    embed.add_field(name="📈 Invite Tracker System", value=f"• Channel: {it_ch_str}\n• Status: {'🟢 Enabled' if it_settings.get('enabled') == 1 else '🔴 Disabled'}\n• Commands: `,setup invite channel`, `,setup invite test`", inline=False)
     embed.set_footer(text="Powered By Veyra Development™ | Designed By Arun")
     await ctx.send(embed=embed)
 

@@ -3990,19 +3990,82 @@ window.deleteHiddenUser = function(userId) {
     .catch(err => console.error("Error removing hidden user:", err));
 }
 
-// --- DISCORD EMOJI PARSER & WELCOME / LEAVE LIVE PREVIEWS ---
+// --- DISCORD EMOJI & MARKDOWN PARSER FOR LIVE PREVIEWS ---
+
+const DASHBOARD_UNICODE_EMOJIS = {
+    crown: '👑', king: '👑', queen: '👸', prince: '🤴', princess: '👸',
+    fire: '🔥', star: '⭐', star2: '🌟', sparkles: '✨', sparkle: '✨',
+    check: '✅', white_check_mark: '✅', cross: '❌', x: '❌',
+    heart: '❤️', rainbow_heart: '💖', sparkling_heart: '💖', broken_heart: '💔',
+    tada: '🎉', party: '🎉', partybolt: '⚡', partying_face: '🥳',
+    wave: '👋', warning: '⚠️', attention: '⚠️', no_entry_sign: '🚫', no_entry: '⛔',
+    shield: '🛡️', lock: '🔒', unlock: '🔓', bell: '🔔', gear: '⚙️',
+    tools: '🛠️', robot: '🤖', zap: '⚡', lightning: '⚡', rocket: '🚀',
+    trophy: '🏆', medal: '🏅', gem: '💎', diamond: '💎', eyes: '👀',
+    skull: '💀', '100': '💯', bulb: '💡', info: 'ℹ️', link: '🔗',
+    pin: '📌', loudspeaker: '📢', mega: '📣', envelope: '✉️', mail: '✉️',
+    door: '🚪', boom: '💥', gift: '🎁', money: '💰', coin: '🪙',
+    dollar: '💵', hammer: '🔨', wrench: '🔧', key: '🔑', sword: '⚔️',
+    swords: '⚔️', books: '📚', chart: '📊', target: '🎯', crystal_ball: '🔮',
+    hourglass: '⌛', clock: '⏰', satellite: '📡', desktop: '🖥️', laptop: '💻',
+    alert: '🚨', sound: '🔊', muted: '🔇', verified: '☑️'
+};
 
 function parseDiscordEmojis(text) {
     if (!text) return '';
-    let parsed = text
+    let parsed = String(text);
+
+    // 1. Full Discord emojis: <:name:id> or <a:name:id> (both raw and HTML-escaped)
+    parsed = parsed
         .replace(/&lt;a?:([a-zA-Z0-9_]+):([0-9]+)&gt;/g, (match, name, id) => {
             const ext = match.includes('&lt;a:') ? 'gif' : 'png';
-            return `<img src="https://cdn.discordapp.com/emojis/${id}.${ext}" alt=":${name}:" title=":${name}:" style="width: 1.35em; height: 1.35em; vertical-align: -0.2em; display: inline-block; object-fit: contain;">`;
+            return `<img src="https://cdn.discordapp.com/emojis/${id}.${ext}" alt="${name}" title="${name}" class="discord-emoji-img" style="width: 1.35em; height: 1.35em; vertical-align: -0.2em; display: inline-block; object-fit: contain;">`;
         })
         .replace(/<a?:([a-zA-Z0-9_]+):([0-9]+)>/g, (match, name, id) => {
             const ext = match.startsWith('<a:') ? 'gif' : 'png';
-            return `<img src="https://cdn.discordapp.com/emojis/${id}.${ext}" alt=":${name}:" title=":${name}:" style="width: 1.35em; height: 1.35em; vertical-align: -0.2em; display: inline-block; object-fit: contain;">`;
+            return `<img src="https://cdn.discordapp.com/emojis/${id}.${ext}" alt="${name}" title="${name}" class="discord-emoji-img" style="width: 1.35em; height: 1.35em; vertical-align: -0.2em; display: inline-block; object-fit: contain;">`;
         });
+
+    // 2. Custom name resolution :name: or :1551561322158760006webp:
+    parsed = parsed.replace(/(?<!<)(?<!<a):([a-zA-Z0-9_]{2,36}):(?!\d+>)/g, (match, rawName) => {
+        const lower = rawName.toLowerCase();
+        const norm = lower.replace(/[-_]/g, '');
+
+        // 2a. Check live guild emojis
+        if (Array.isArray(window.guildEmojis)) {
+            const found = window.guildEmojis.find(e => e.name && (e.name.toLowerCase() === lower || e.name.toLowerCase().replace(/[-_]/g, '') === norm));
+            if (found) {
+                const ext = found.animated ? 'gif' : 'png';
+                return `<img src="https://cdn.discordapp.com/emojis/${found.id}.${ext}" alt="${found.name}" title="${found.name}" class="discord-emoji-img" style="width: 1.35em; height: 1.35em; vertical-align: -0.2em; display: inline-block; object-fit: contain;">`;
+            }
+        }
+
+        // 2b. Check unicode fallback
+        if (DASHBOARD_UNICODE_EMOJIS[lower]) {
+            return DASHBOARD_UNICODE_EMOJIS[lower];
+        }
+        if (DASHBOARD_UNICODE_EMOJIS[norm]) {
+            return DASHBOARD_UNICODE_EMOJIS[norm];
+        }
+
+        // 2c. Check snowflake numeric ID (:1551561322158760006webp: or :1551561322158760006:)
+        const numMatch = rawName.match(/^(\d{15,22})(?:webp|png|gif)?$/i);
+        if (numMatch) {
+            const numId = numMatch[1];
+            return `<img src="https://cdn.discordapp.com/emojis/${numId}.png" alt="${numId}" title="${numId}" class="discord-emoji-img" style="width: 1.35em; height: 1.35em; vertical-align: -0.2em; display: inline-block; object-fit: contain;" onerror="this.style.display='none'">`;
+        }
+
+        return match;
+    });
+
+    // 3. Discord Markdown formatting for preview
+    parsed = parsed
+        .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+        .replace(/(?<!\*)\*([^*]+)\*(?!\*)/g, '<em>$1</em>')
+        .replace(/__(.+?)__/g, '<u>$1</u>')
+        .replace(/~~(.+?)~~/g, '<s>$1</s>')
+        .replace(/`([^`]+)`/g, '<code style="background: rgba(0,0,0,0.3); padding: 1px 4px; border-radius: 3px; font-family: monospace; font-size: 0.88em;">$1</code>');
+
     return parsed;
 }
 
@@ -5083,6 +5146,11 @@ function populateServerRolesAndChannels(guildId) {
             if (Array.isArray(emojis)) {
                 window.guildEmojis = emojis;
                 console.log(`[EMOJIS LOADED] ${emojis.length} live server custom emojis loaded.`);
+                if (typeof updateMultiEmbedPreview === 'function') updateMultiEmbedPreview();
+                if (typeof updateWelcomeLivePreview === 'function') updateWelcomeLivePreview();
+                if (typeof updateLeaveLivePreview === 'function') updateLeaveLivePreview();
+                if (typeof updateInviteTrackerLivePreview === 'function') updateInviteTrackerLivePreview();
+                if (typeof updateSimEmbedPreview === 'function') updateSimEmbedPreview();
             }
         })
         .catch(err => console.error("Error fetching live emojis:", err));

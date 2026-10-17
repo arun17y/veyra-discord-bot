@@ -3318,6 +3318,49 @@ app.get('/api/auth/invite', (req, res) => {
     `);
 });
 
+// Emoji Name Resolution (:name: -> <:name:id> or <a:name:id> or unicode)
+const UNICODE_EMOJI_FALLBACK = {
+    crown: '👑', king: '👑', queen: '👸', prince: '🤴', princess: '👸',
+    fire: '🔥', star: '⭐', star2: '🌟', sparkles: '✨', sparkle: '✨',
+    check: '✅', white_check_mark: '✅', cross: '❌', x: '❌',
+    heart: '❤️', rainbow_heart: '💖', sparkling_heart: '💖', broken_heart: '💔',
+    tada: '🎉', party: '🎉', partybolt: '⚡', partying_face: '🥳',
+    wave: '👋', warning: '⚠️', attention: '⚠️', no_entry_sign: '🚫', no_entry: '⛔',
+    shield: '🛡️', lock: '🔒', unlock: '🔓', bell: '🔔', gear: '⚙️',
+    tools: '🛠️', robot: '🤖', zap: '⚡', lightning: '⚡', rocket: '🚀',
+    trophy: '🏆', medal: '🏅', gem: '💎', diamond: '💎', eyes: '👀',
+    skull: '💀', '100': '💯', bulb: '💡', info: 'ℹ️', link: '🔗',
+    pin: '📌', loudspeaker: '📢', mega: '📣', envelope: '✉️', mail: '✉️',
+    door: '🚪', boom: '💥', gift: '🎁', money: '💰', coin: '🪙',
+    dollar: '💵', hammer: '🔨', wrench: '🔧', key: '🔑', sword: '⚔️',
+    swords: '⚔️', books: '📚', chart: '📊', target: '🎯', crystal_ball: '🔮',
+    hourglass: '⌛', clock: '⏰', satellite: '📡', desktop: '🖥️', laptop: '💻',
+    alert: '🚨', sound: '🔊', muted: '🔇', verified: '☑️'
+};
+
+function resolveCustomEmojis(text, guildEmojis = []) {
+    if (!text || typeof text !== 'string' || !text.includes(':')) return text;
+    return text.replace(/(?<!<)(?<!<a):([a-zA-Z0-9_]{2,36}):(?!\d+>)/g, (match, emojiName) => {
+        const lower = emojiName.toLowerCase();
+        const norm = lower.replace(/[-_]/g, '');
+        const found = guildEmojis.find(e => e.name && (e.name.toLowerCase() === lower || e.name.toLowerCase().replace(/[-_]/g, '') === norm));
+        if (found) {
+            return `<${found.animated ? 'a:' : ':'}${found.name}:${found.id}>`;
+        }
+        if (UNICODE_EMOJI_FALLBACK[lower]) {
+            return UNICODE_EMOJI_FALLBACK[lower];
+        }
+        if (UNICODE_EMOJI_FALLBACK[norm]) {
+            return UNICODE_EMOJI_FALLBACK[norm];
+        }
+        const idMatch = emojiName.match(/^(\d{15,22})(?:webp|png|gif)?$/i);
+        if (idMatch) {
+            return `<:e:${idMatch[1]}>`;
+        }
+        return match;
+    });
+}
+
 // POST /api/embed/post endpoint - Real-time direct posting into Discord channels via Bot Token
 app.post('/api/embed/post', async (req, res) => {
     const { guild_id, channel, normalText, embedData } = req.body;
@@ -3327,6 +3370,15 @@ app.post('/api/embed/post', async (req, res) => {
 
     try {
         let targetChannelId = channel;
+
+        // Fetch guild emojis for name resolution (:name: -> custom Discord emoji)
+        let guildEmojis = [];
+        try {
+            const emojiRes = await discordRequest('GET', `/guilds/${guild_id}/emojis`);
+            if (emojiRes.status === 200 && Array.isArray(emojiRes.body)) {
+                guildEmojis = emojiRes.body;
+            }
+        } catch (_) {}
 
         // If channel is not a snowflake ID, resolve it via live channels list
         if (!targetChannelId || !/^\d{17,21}$/.test(String(targetChannelId).trim())) {
@@ -3355,10 +3407,10 @@ app.post('/api/embed/post', async (req, res) => {
         function formatEmbed(e) {
             if (!e || typeof e !== 'object') return null;
             const embed = {};
-            if (e.title && String(e.title).trim()) embed.title = String(e.title).trim();
+            if (e.title && String(e.title).trim()) embed.title = resolveCustomEmojis(String(e.title).trim(), guildEmojis);
             const titleUrl = String(e.url || e.title_url || '').trim();
             if (titleUrl) embed.url = titleUrl;
-            if (e.description && String(e.description).trim()) embed.description = String(e.description).trim();
+            if (e.description && String(e.description).trim()) embed.description = resolveCustomEmojis(String(e.description).trim(), guildEmojis);
             
             // Color conversion (hex string -> integer)
             if (e.color) {
@@ -3380,7 +3432,7 @@ app.post('/api/embed/post', async (req, res) => {
             // Footer
             const footerText = (typeof e.footer === 'string' ? e.footer : e.footer?.text) || '';
             if (footerText.trim()) {
-                embed.footer = { text: footerText.trim() };
+                embed.footer = { text: resolveCustomEmojis(footerText.trim(), guildEmojis) };
                 const footerIcon = (typeof e.footer === 'object' ? e.footer?.icon_url : e.footer_icon) || '';
                 if (footerIcon.trim()) embed.footer.icon_url = footerIcon.trim();
             }
@@ -3388,7 +3440,7 @@ app.post('/api/embed/post', async (req, res) => {
             // Author
             const authorName = (typeof e.author === 'string' ? e.author : (typeof e.author === 'object' ? e.author?.name : e.author_name)) || '';
             if (authorName.trim()) {
-                embed.author = { name: authorName.trim() };
+                embed.author = { name: resolveCustomEmojis(authorName.trim(), guildEmojis) };
                 const authorIcon = (typeof e.author === 'object' ? e.author?.icon_url : e.author_icon) || '';
                 if (authorIcon.trim()) embed.author.icon_url = authorIcon.trim();
                 const authorUrl = (typeof e.author === 'object' ? e.author?.url : e.author_url) || '';
@@ -3408,8 +3460,8 @@ app.post('/api/embed/post', async (req, res) => {
                 embed.fields = e.fields
                     .filter(f => f && (f.name || f.title) && (f.value || f.desc))
                     .map(f => ({
-                        name: String(f.name || f.title).trim().slice(0, 256),
-                        value: String(f.value || f.desc).trim().slice(0, 1024),
+                        name: resolveCustomEmojis(String(f.name || f.title).trim().slice(0, 256), guildEmojis),
+                        value: resolveCustomEmojis(String(f.value || f.desc).trim().slice(0, 1024), guildEmojis),
                         inline: !!f.inline
                     }));
             }
@@ -3431,7 +3483,7 @@ app.post('/api/embed/post', async (req, res) => {
 
         const discordPayload = {};
         if (normalText && String(normalText).trim()) {
-            discordPayload.content = String(normalText).trim();
+            discordPayload.content = resolveCustomEmojis(String(normalText).trim(), guildEmojis);
         }
         if (formattedEmbeds.length > 0) {
             discordPayload.embeds = formattedEmbeds;

@@ -8,6 +8,8 @@ import asyncio
 import io
 import os
 import typing
+import re
+import time
 from datetime import datetime, timezone, timedelta
 
 DB_PATH_VEYRA = os.path.abspath(os.path.join(os.path.dirname(__file__), "../database/VEYRA.db"))
@@ -895,79 +897,8 @@ class RoleManagerGroup(app_commands.Group):
     async def all_cmd(self, interaction: discord.Interaction, role: discord.Role, action: app_commands.Choice[str] = None):
         if not await is_authorized_manager(interaction, "role"):
             return
-        await interaction.response.defer()
-        guild = interaction.guild
         act = action.value if action else "add"
-        act_name = "added" if act == "add" else "removed"
-
-        if role >= guild.me.top_role:
-            return await interaction.followup.send(f"❌ Role {role.mention} is higher than or equal to my highest role ({guild.me.top_role.mention}). Drag my bot role above {role.name} in Server Settings -> Roles.")
-
-        if not guild.chunked:
-            try:
-                await guild.chunk()
-            except Exception:
-                pass
-
-        human_members = [m for m in guild.members if not m.bot]
-        total_humans = len(human_members)
-        if total_humans == 0:
-            return await interaction.followup.send("⚠️ No human members found in this server.")
-
-        self.active_tasks[guild.id] = True
-        prog_msg = await interaction.followup.send(f"⏳ **Bulk Role ({act.upper()}):** Processing **{total_humans}** human members for role {role.mention} (excluding bots)...\nUse `/role cancel` or `.role cancel` to stop.")
-
-        count = 0
-        failed = 0
-        last_edit = asyncio.get_event_loop().time()
-
-        for idx, member in enumerate(human_members, start=1):
-            if not self.active_tasks.get(guild.id):
-                return await interaction.channel.send("⏹️ Bulk role task was cancelled.")
-
-            try:
-                if act == "add" and role not in member.roles:
-                    await member.add_roles(role, reason=f"Bulk /role all executed by {interaction.user}")
-                    count += 1
-                elif act == "remove" and role in member.roles:
-                    await member.remove_roles(role, reason=f"Bulk /role all executed by {interaction.user}")
-                    count += 1
-            except discord.HTTPException as http_ex:
-                if http_ex.status == 429:
-                    retry_after = getattr(http_ex, 'retry_after', 2.0) or 2.0
-                    await asyncio.sleep(float(retry_after) + 0.5)
-                    try:
-                        if act == "add" and role not in member.roles:
-                            await member.add_roles(role)
-                            count += 1
-                        elif act == "remove" and role in member.roles:
-                            await member.remove_roles(role)
-                            count += 1
-                    except Exception:
-                        failed += 1
-                else:
-                    failed += 1
-            except Exception:
-                failed += 1
-
-            now = asyncio.get_event_loop().time()
-            if now - last_edit > 4 or idx == total_humans:
-                last_edit = now
-                try:
-                    await prog_msg.edit(content=f"⏳ **Bulk Role ({act.upper()}):** Processing... `{count}/{total_humans}` members updated (Processed: {idx}/{total_humans})")
-                except Exception:
-                    pass
-
-            await asyncio.sleep(0.35)
-
-        self.active_tasks.pop(guild.id, None)
-        embed = discord.Embed(
-            title="✅ Bulk Role Operation Completed",
-            description=f"Role {role.mention} was successfully **{act_name}** for **{count}** human members.\n(Excluded all bots and applications. Failed: `{failed}`).",
-            color=discord.Color.from_rgb(16, 185, 129)
-        )
-        embed.set_footer(text="Powered by VEYRA 2.0 Management Suite")
-        await interaction.channel.send(embed=embed)
+        return await execute_bulk_role(interaction, role, act)
 
     @app_commands.command(name="bots", description="Toggle a role for all bots")
     @app_commands.choices(action=[
@@ -1000,11 +931,279 @@ class RoleManagerGroup(app_commands.Group):
 
     @app_commands.command(name="cancel", description="Cancel current role assignment")
     async def cancel_cmd(self, interaction: discord.Interaction):
-        if interaction.guild.id in self.active_tasks:
-            self.active_tasks[interaction.guild.id] = False
-            await interaction.response.send_message("✅ Cancel signal sent for active bulk role tasks.")
+        return await cancel_bulk_role(interaction)
+
+
+_bulk_role_active = {}
+
+def resolve_target_role(guild: discord.Guild, query: str) -> typing.Optional[discord.Role]:
+    if not query or not guild:
+        return None
+    query = query.strip()
+    mention_match = re.search(r"<@&(\d{17,20})>", query)
+    if mention_match:
+        r = guild.get_role(int(mention_match.group(1)))
+        if r:
+            return r
+    id_match = re.search(r"\b(\d{17,20})\b", query)
+    if id_match:
+        r = guild.get_role(int(id_match.group(1)))
+        if r:
+            return r
+    q_lower = query.lower()
+    for r in guild.roles:
+        if r.name.lower() == q_lower:
+            return r
+    for r in guild.roles:
+        if q_lower in r.name.lower() and not r.is_default():
+            return r
+    return None
+
+def parse_role_and_action(guild: discord.Guild, raw_args: str) -> tuple[typing.Optional[discord.Role], str]:
+    if not raw_args:
+        return (None, "add")
+    parts = raw_args.strip().split()
+    action = "add"
+    if parts[-1].lower() in ("remove", "delete", "strip", "rem"):
+        action = "remove"
+        role_str = " ".join(parts[:-1]).strip()
+    elif parts[-1].lower() in ("add", "give", "grant"):
+        action = "add"
+        role_str = " ".join(parts[:-1]).strip()
+    else:
+        role_str = " ".join(parts).strip()
+    
+    role = resolve_target_role(guild, role_str)
+    return (role, action)
+
+async def cancel_bulk_role(target):
+    is_interaction = isinstance(target, discord.Interaction)
+    guild = target.guild
+    if guild and guild.id in _bulk_role_active:
+        _bulk_role_active[guild.id] = False
+        msg = "✅ Cancel signal sent for active bulk role tasks on this server."
+        if is_interaction:
+            if not target.response.is_done():
+                await target.response.send_message(msg)
+            else:
+                await target.followup.send(msg)
         else:
-            await interaction.response.send_message("ℹ️ No active bulk role tasks running on this server.", ephemeral=True)
+            await target.send(msg)
+    else:
+        msg = "ℹ️ No active bulk role tasks running on this server."
+        if is_interaction:
+            if not target.response.is_done():
+                await target.response.send_message(msg, ephemeral=True)
+            else:
+                await target.followup.send(msg, ephemeral=True)
+        else:
+            await target.send(msg)
+
+async def execute_bulk_role(target, role: discord.Role, action: str = "add"):
+    is_interaction = isinstance(target, discord.Interaction)
+    guild = target.guild
+    user = target.user if is_interaction else target.author
+    channel = target.channel
+
+    act = action.lower().strip() if action else "add"
+    if act not in ("add", "remove"):
+        act = "add"
+    act_name = "added" if act == "add" else "removed"
+
+    async def reply_error(text: str):
+        if is_interaction:
+            if not target.response.is_done():
+                await target.response.send_message(text, ephemeral=True)
+            else:
+                await target.followup.send(text, ephemeral=True)
+        else:
+            await channel.send(text)
+
+    # 1. Permission and hierarchy validations
+    if not guild.me.guild_permissions.manage_roles:
+        return await reply_error("❌ I lack the **Manage Roles** permission. Please grant it in Server Settings.")
+
+    if role.is_default() or role.managed:
+        return await reply_error(f"❌ Role {role.mention} is managed by an integration or is `@everyone` and cannot be assigned manually.")
+
+    if role >= guild.me.top_role:
+        return await reply_error(f"❌ Role {role.mention} is higher than or equal to my highest role ({guild.me.top_role.mention}). Drag my bot role above {role.name} in Server Settings -> Roles.")
+
+    if is_interaction and not target.response.is_done():
+        await target.response.defer()
+
+    # 2. Comprehensive 5k-10k member retrieval
+    status_embed = discord.Embed(
+        title=f"⏳ Bulk Role ({act.upper()}): Fetching Members",
+        description=f"Retrieving all members from Discord gateway for **{guild.name}**...\n*This ensures every single member in large (5k-10k+) servers is loaded.*",
+        color=discord.Color.from_rgb(24, 24, 27)
+    )
+    status_embed.set_footer(text="Powered by VEYRA 2.0 Management Suite")
+    
+    prog_msg = None
+    try:
+        prog_msg = await channel.send(embed=status_embed)
+    except Exception:
+        pass
+
+    target_count = guild.member_count or len(guild.members)
+    all_members = []
+    
+    if len(guild.members) < target_count:
+        try:
+            async for m in guild.fetch_members(limit=None):
+                all_members.append(m)
+        except Exception as e:
+            print(f"Notice: fetch_members exception: {e}")
+            if not guild.chunked:
+                try:
+                    await guild.chunk()
+                except Exception:
+                    pass
+            all_members = list(guild.members)
+    else:
+        all_members = list(guild.members)
+
+    human_members = [m for m in all_members if not m.bot]
+    total_humans = len(human_members)
+
+    if total_humans == 0:
+        err_emb = discord.Embed(title="⚠️ No Human Members Found", description="No non-bot human members were found to process.", color=discord.Color.gold())
+        if prog_msg:
+            try: await prog_msg.edit(embed=err_emb)
+            except Exception: pass
+        else:
+            await reply_error("⚠️ No human members found in this server.")
+        return
+
+    # 3. Pre-filter target members who actually need the change
+    if act == "add":
+        targets = [m for m in human_members if role not in m.roles]
+    else:
+        targets = [m for m in human_members if role in m.roles]
+
+    total_targets = len(targets)
+    if total_targets == 0:
+        already_desc = f"All **{total_humans}** human members already {'have' if act == 'add' else 'do not have'} role {role.mention}!"
+        ok_emb = discord.Embed(title="ℹ️ Nothing to Update", description=already_desc, color=discord.Color.from_rgb(34, 197, 94))
+        ok_emb.set_footer(text="Powered by VEYRA 2.0 Management Suite")
+        if prog_msg:
+            try: await prog_msg.edit(embed=ok_emb)
+            except Exception: pass
+        else:
+            await channel.send(embed=ok_emb)
+        return
+
+    # 4. Activate task and begin real-time adaptive worker loop
+    _bulk_role_active[guild.id] = True
+    start_time = time.time()
+    count = 0
+    failed = 0
+    last_ui_edit = time.time()
+
+    async def update_ui(processed, force=False):
+        nonlocal last_ui_edit
+        now = time.time()
+        if not force and now - last_ui_edit < 3.0:
+            return
+        last_ui_edit = now
+        elapsed = max(1.0, now - start_time)
+        rate = processed / elapsed if elapsed > 0 else 0
+        remaining_members = total_targets - processed
+        eta_secs = int(remaining_members / rate) if rate > 0 else 0
+        eta_str = f"{eta_secs // 60}m {eta_secs % 60}s" if eta_secs > 0 else "Finishing..."
+        pct = int((processed / total_targets) * 100) if total_targets > 0 else 100
+
+        ui_emb = discord.Embed(
+            title=f"⚡ Bulk Role ({act.upper()}): Real-Time Processing",
+            description=(
+                f"**Role:** {role.mention} (`{role.name}`)\n"
+                f"**Progress:** `{count}/{total_targets}` members updated (`{pct}%`)\n"
+                f"**Processed:** `{processed}/{total_targets}` human members\n"
+                f"**Speed:** `{rate:.1f}` members/sec (ETA: `{eta_str}`)\n"
+                f"**Failed / Rate-limited:** `{failed}`\n\n"
+                f"*(Excluded all bots & apps. Type `.role cancel` or `/rolecancel` to stop immediately)*"
+            ),
+            color=discord.Color.from_rgb(59, 130, 246)
+        )
+        ui_emb.set_footer(text=f"Server: {guild.name} • Total Humans: {total_humans}")
+        if prog_msg:
+            try:
+                await prog_msg.edit(embed=ui_emb)
+            except Exception:
+                pass
+
+    await update_ui(0, force=True)
+
+    # 5. Process targets with adaptive rate-limiting
+    for idx, member in enumerate(targets, start=1):
+        if not _bulk_role_active.get(guild.id, False):
+            cancel_emb = discord.Embed(
+                title="⏹️ Bulk Role Task Cancelled",
+                description=f"Cancelled by user. Updated **{count}** members before stopping.\n(Processed: `{idx-1}/{total_targets}`).",
+                color=discord.Color.gold()
+            )
+            cancel_emb.set_footer(text="Powered by VEYRA 2.0 Management Suite")
+            if prog_msg:
+                try: await prog_msg.edit(embed=cancel_emb)
+                except Exception: pass
+            else:
+                await channel.send(embed=cancel_emb)
+            return
+
+        success = False
+        for attempt in range(3):
+            try:
+                if act == "add":
+                    await member.add_roles(role, reason=f"Bulk roleall by {user} (Real-time)")
+                else:
+                    await member.remove_roles(role, reason=f"Bulk roleall by {user} (Real-time)")
+                count += 1
+                success = True
+                break
+            except discord.HTTPException as http_ex:
+                if http_ex.status == 429:
+                    retry_after = getattr(http_ex, 'retry_after', 2.0) or 2.0
+                    await asyncio.sleep(float(retry_after) + 0.3)
+                elif http_ex.status in (403, 404):
+                    break
+                else:
+                    await asyncio.sleep(0.5)
+            except Exception:
+                break
+
+        if not success:
+            failed += 1
+
+        await update_ui(idx)
+        await asyncio.sleep(0.08)
+
+    _bulk_role_active.pop(guild.id, None)
+    elapsed_total = int(time.time() - start_time)
+    minutes, seconds = divmod(elapsed_total, 60)
+    time_str = f"{minutes}m {seconds}s" if minutes > 0 else f"{seconds}s"
+
+    done_emb = discord.Embed(
+        title="✅ Bulk Role Operation Completed",
+        description=(
+            f"Successfully **{act_name}** {role.mention} for **{count}** human members!\n\n"
+            f"• **Target Role:** {role.mention} (`{role.id}`)\n"
+            f"• **Action:** `{act.upper()}`\n"
+            f"• **Members Updated:** `{count}/{total_targets}`\n"
+            f"• **Failed / Skipped:** `{failed}`\n"
+            f"• **Time Taken:** `{time_str}`\n"
+            f"*(Completely excluded all bots and application accounts)*"
+        ),
+        color=discord.Color.from_rgb(16, 185, 129)
+    )
+    done_emb.set_footer(text=f"Executed by {user} • Powered by VEYRA 2.0")
+    if prog_msg:
+        try:
+            await prog_msg.edit(embed=done_emb)
+        except Exception:
+            await channel.send(embed=done_emb)
+    else:
+        await channel.send(embed=done_emb)
 
 
 # ── 9. EMERGENCY SERVER LOCKDOWN SYSTEM ─────────────────────────────────────
@@ -1272,25 +1471,34 @@ def setup_server_control_system(bot: commands.Bot, perm_group: app_commands.Grou
         app_commands.Choice(name="Remove (Remove role from all human members)", value="remove")
     ])
     async def tree_roleall(interaction: discord.Interaction, role: discord.Role, action: app_commands.Choice[str] = None):
-        return await role_grp.all_cmd(interaction, role, action)
+        act = action.value if action else "add"
+        return await execute_bulk_role(interaction, role, act)
 
     @bot.tree.command(name="rolecancel", description="Cancel active bulk role assignment")
     async def tree_rolecancel(interaction: discord.Interaction):
-        return await role_grp.cancel_cmd(interaction)
+        return await cancel_bulk_role(interaction)
 
     @bot.command(name="roleall", description="Assign or remove a role to all human members (excludes bots & apps)")
     @commands.has_permissions(manage_roles=True)
-    async def prefix_roleall_direct(ctx: commands.Context, role: discord.Role, action: str = "add"):
-        cmd = bot.get_command("role all")
-        if cmd:
-            return await ctx.invoke(cmd, role=role, action=action)
+    async def prefix_roleall_direct(ctx: commands.Context, *, args: str = None):
+        if not args:
+            embed = discord.Embed(
+                title="🛡️ VEYRA Role All Command",
+                description="**Usage:**\n• `.roleall <@Role | ID | Name>` — Assign role to all humans\n• `.roleall <@Role | ID | Name> remove` — Remove role from all humans\n• `.rolecancel` — Stop active role operation",
+                color=0x2B2D31
+            )
+            embed.set_footer(text="Powered by VEYRA 2.0 Management Suite")
+            return await ctx.send(embed=embed)
+        
+        role, action = parse_role_and_action(ctx.guild, args)
+        if not role:
+            return await ctx.send("❌ Target role not found. Please mention the role, provide its numerical ID, or write its name.")
+        return await execute_bulk_role(ctx, role, action)
 
     @bot.command(name="rolecancel", description="Cancel active bulk role assignment")
     @commands.has_permissions(manage_roles=True)
     async def prefix_rolecancel_direct(ctx: commands.Context):
-        cmd = bot.get_command("role cancel")
-        if cmd:
-            return await ctx.invoke(cmd)
+        return await cancel_bulk_role(ctx)
 
     if not bot.get_command("set247"):
         @bot.command(name="set247", aliases=["voice247"], description="Connect bot 24/7 to a voice channel")
