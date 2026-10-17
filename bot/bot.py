@@ -40,22 +40,30 @@ def _acquire_pid_lock():
         try:
             old_pid = int(open(_PID_FILE).read().strip())
             if old_pid != os.getpid():
-                # Windows-compatible alive check via OpenProcess
                 try:
-                    import ctypes
-                    SYNCHRONIZE = 0x00100000
-                    handle = ctypes.windll.kernel32.OpenProcess(SYNCHRONIZE, False, old_pid)
-                    if handle:
-                        ctypes.windll.kernel32.CloseHandle(handle)
+                    if os.name == 'nt':
+                        import ctypes
+                        SYNCHRONIZE = 0x00100000
+                        handle = ctypes.windll.kernel32.OpenProcess(SYNCHRONIZE, False, old_pid)
+                        if handle:
+                            ctypes.windll.kernel32.CloseHandle(handle)
+                            print(f"[PID LOCK] Another bot instance (PID {old_pid}) is already running. Killing it...")
+                            import subprocess
+                            subprocess.call(['taskkill', '/F', '/PID', str(old_pid)],
+                                            stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+                            import time; time.sleep(1)
+                    else:
+                        import signal
+                        os.kill(old_pid, 0)
                         print(f"[PID LOCK] Another bot instance (PID {old_pid}) is already running. Killing it...")
-                        import subprocess
-                        subprocess.call(['taskkill', '/F', '/PID', str(old_pid)],
-                                        stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-                        import time; time.sleep(2)
+                        os.kill(old_pid, signal.SIGKILL)
+                        import time; time.sleep(1)
+                except (OSError, ProcessLookupError):
+                    pass
                 except Exception:
-                    pass  # Can't check — just overwrite
+                    pass
         except (ValueError, IOError):
-            pass  # Bad/missing PID file — safe to overwrite
+            pass
     with open(_PID_FILE, 'w') as f:
         f.write(str(os.getpid()))
     atexit.register(lambda: os.path.exists(_PID_FILE) and os.remove(_PID_FILE))
@@ -4189,21 +4197,21 @@ From raids and nukes to spam and unwanted users, I'll protect your community wit
         
     print(f"📡 Cached invite links for {len(bot.guilds)} guilds.")
     
-    # 1. Sync single global command tree cleanly (no duplicates)
+    # 1. Clean up duplicate guild-scoped commands so only single global commands exist
+    for g in bot.guilds:
+        try:
+            bot.tree.clear_commands(guild=g)
+            await bot.tree.sync(guild=g)
+            print(f"🧹 Cleared duplicate guild commands for: {g.name} ({g.id})")
+        except Exception as ge:
+            print(f"⚠️ Guild command cleanup notice for {g.id}: {ge}")
+
+    # 2. Sync single global command tree cleanly (no duplicates)
     try:
         synced_global = await bot.tree.sync()
         print(f"📡 Cleanly synced {len(synced_global)} global slash commands (zero duplicates).")
     except Exception as e:
         print(f"❌ Global command tree sync notice: {e}")
-
-    # 2. Instantly push all commands to current guilds so Discord UI renders them with ZERO propagation delay
-    for g in bot.guilds:
-        try:
-            bot.tree.copy_global_to(guild=g)
-            synced_guild = await bot.tree.sync(guild=g)
-            print(f"⚡ Instantly rendered {len(synced_guild)} slash commands for: {g.name} ({g.id})")
-        except Exception as ge:
-            print(f"⚠️ Guild command sync notice for {g.id}: {ge}")
         
     print(f"📡 Waiting for audit log event logs...")
     print(f"=============================================\n")
