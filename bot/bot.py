@@ -1309,27 +1309,8 @@ def is_whitelisted(guild_id, user_id, action_type="all", channel_id=None, roles=
         return False
 
 def notify_web_event(guild_id, user_tag, action, details):
-    import urllib.request
-    import json
-    import threading
-    def _worker():
-        try:
-            payload = json.dumps({
-                "guild_id": str(guild_id),
-                "user": user_tag,
-                "action": action,
-                "details": details,
-                "timestamp": datetime.now(timezone.utc).isoformat()
-            }).encode('utf-8')
-            req = urllib.request.Request(
-                "http://localhost:3000/api/internal/event",
-                data=payload,
-                headers={"Content-Type": "application/json"}
-            )
-            urllib.request.urlopen(req, timeout=1.0)
-        except Exception:
-            pass
-    threading.Thread(target=_worker, daemon=True).start()
+    # Website decoupled; no internal HTTP event dispatch needed
+    pass
 
 def log_system_event(guild_id, user_tag, action, details):
     try:
@@ -4280,7 +4261,7 @@ From raids and nukes to spam and unwanted users, I'll protect your community wit
         pass
 
     # 3. Sync Default Avatar Image (veyra_avatar.jpg)
-    avatar_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "../web/public/assets/veyra_avatar.jpg"))
+    avatar_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "assets/veyra_avatar.jpg"))
     if os.path.exists(avatar_path):
         try:
             with open(avatar_path, "rb") as avatar_file:
@@ -4291,7 +4272,7 @@ From raids and nukes to spam and unwanted users, I'll protect your community wit
             print(f"⚠️ Bot avatar sync notice: {e}")
 
     # 4. Sync Default Banner Image (veyra_banner.jpg)
-    banner_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "../web/public/assets/veyra_banner.jpg"))
+    banner_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "assets/veyra_banner.jpg"))
     if os.path.exists(banner_path):
         try:
             with open(banner_path, "rb") as banner_file:
@@ -5988,7 +5969,8 @@ async def auto_setup_verification_gate(guild, force_recreate=False, allow_create
                     ),
                     color=discord.Color.from_rgb(0, 162, 106)
                 )
-                oauth_url = f"https://discord.com/oauth2/authorize?client_id={bot.user.id}&redirect_uri=https://veyra-bot.vercel.app/auth/callback&response_type=code&scope=identify&state={guild.id}"
+                oauth_redirect_uri = os.getenv("OAUTH_REDIRECT_URI", "https://discord.com")
+                oauth_url = f"https://discord.com/oauth2/authorize?client_id={bot.user.id}&redirect_uri={oauth_redirect_uri}&response_type=code&scope=identify&state={guild.id}"
                 view = discord.ui.View(timeout=None)
                 view.add_item(discord.ui.Button(label="Authorize with Discord", style=discord.ButtonStyle.link, url=oauth_url))
             else:
@@ -6036,7 +6018,7 @@ async def auto_setup_verification_gate(guild, force_recreate=False, allow_create
                 view = UnifiedVerificationButtonView(label=btn_text or "Verify Account", style=resolved_btn_style)
             
             import os
-            banner_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "../web/public/assets/verify now.png"))
+            banner_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "assets/verify now.png"))
             try:
                 if not embed.image and os.path.exists(banner_path):
                     file = discord.File(banner_path, filename="banner.jpg")
@@ -7324,14 +7306,13 @@ async def invite_root(interaction: discord.Interaction):
     url = f"https://discord.com/oauth2/authorize?client_id={client_id}&permissions=8&integration_type=0&scope=bot+applications.commands"
     embed = discord.Embed(
         title="🔗 Invite VEYRA to Your Server",
-        description=f"Click the button below or [Authorize VEYRA]({url}) to invite the bot with full Administrator permissions.\n\n🌐 **Web Dashboard:** [https://veyra-bot.vercel.app](https://veyra-bot.vercel.app)",
+        description=f"Click the button below or [Authorize VEYRA]({url}) to invite the bot with full Administrator permissions.",
         color=discord.Color.from_rgb(168, 85, 247)
     )
     embed.set_footer(text="Powered By Veyra Development™ | Designed By Arun")
     
     view = discord.ui.View()
     view.add_item(discord.ui.Button(label="Authorize VEYRA", style=discord.ButtonStyle.link, url=url, emoji="🤖"))
-    view.add_item(discord.ui.Button(label="Dashboard", style=discord.ButtonStyle.link, url="https://veyra-bot.vercel.app", emoji="🌐"))
     await interaction.response.send_message(embed=embed, view=view)
 
 
@@ -7569,8 +7550,7 @@ async def setup_root(interaction: discord.Interaction):
                         "🔒 **Enabled Free Features**:\n"
                         "• **Anti-Ban** (Limit: 5 actions per 5m, Punishment: Ban)\n"
                         "• **Anti-Kick** (Limit: 5 actions per 5m, Punishment: Ban)\n\n"
-                        "💡 *Note: Other advanced rules (channel protection, bot joins, prune limits) require a Pro or Premium plan.*\n"
-                        "🔗 **Dashboard**: https://veyra-bot.vercel.app",
+                        "💡 *Note: Other advanced rules (channel protection, bot joins, prune limits) require a Pro or Premium plan.*",
             color=discord.Color.green()
         )
     else:
@@ -7579,8 +7559,7 @@ async def setup_root(interaction: discord.Interaction):
             description="The Quick Setup wizard has run successfully for your server!\n\n"
                         "🔒 **Enabled Paid features (16 constraints active)**:\n"
                         "• **Limits**: Anti-Ban (5), Anti-Kick (5), Anti-Role Create (8), Anti-Role Delete (3), Anti-Channel Create (8), Anti-Channel Delete (3), Anti-Mention (0)\n"
-                        "• **Instant Punish**: Anti-Bot Add, Anti-Prune, Dangerous Role Update/Add, Vanity, Server Rename/Icon, Role Rename, Channel Rename.\n\n"
-                        "🔗 **Dashboard**: https://veyra-bot.vercel.app",
+                        "• **Instant Punish**: Anti-Bot Add, Anti-Prune, Dangerous Role Update/Add, Vanity, Server Rename/Icon, Role Rename, Channel Rename.",
             color=discord.Color.from_rgb(24, 24, 27)
         )
     embed.set_footer(text="VEYRA • Guard Core Active")
@@ -9146,21 +9125,11 @@ async def handle_close_ticket_interaction(interaction: discord.Interaction):
     log_embed.add_field(name="Open Date", value=f"`{open_date_str}`", inline=True)
     log_embed.add_field(name="Close Date", value=f"`{close_date_str}`", inline=True)
     log_embed.add_field(name="Ticket Close Reason", value="No reason provided", inline=False)
-    log_embed.add_field(name="Staff Message Count", value=f"`[ {staff_msg_count} ]` - {staff_mentions_str}", inline=False)
-    
-    view_transcript_url = f"https://veyra-bot.vercel.app/transcripts/v2/{channel.id}"
-    transcript_view = discord.ui.View()
-    transcript_view.add_item(discord.ui.Button(
-        label="View Transcript",
-        style=discord.ButtonStyle.link,
-        url=view_transcript_url
-    ))
-    
     try:
         creator_user = await bot.fetch_user(int(ticket[4]))
         if creator_user:
             dm_payload = discord.File(fp=io.BytesIO(html_template.encode('utf-8')), filename=transcript_filename)
-            await creator_user.send(embed=log_embed, file=dm_payload, view=transcript_view)
+            await creator_user.send(embed=log_embed, file=dm_payload)
     except Exception as ex:
         print(f"Could not DM transcript: {ex}")
 
@@ -9173,7 +9142,7 @@ async def handle_close_ticket_interaction(interaction: discord.Interaction):
         if gs_row and gs_row[0] and gs_row[0] != 'none':
             log_channel = guild.get_channel(int(gs_row[0]))
             if log_channel:
-                await log_channel.send(embed=log_embed, file=file_payload, view=transcript_view)
+                await log_channel.send(embed=log_embed, file=file_payload)
     except Exception as ex:
         print(f"Could not post transcript: {ex}")
 
@@ -10799,7 +10768,8 @@ async def vote_command(interaction: discord.Interaction):
         color=discord.Color.from_rgb(124, 58, 237)
     )
     embed.add_field(name="Vote Rewards", value="🎁 Every vote grants you **10 VEYRA Coins**.\nCollect **50 coins** to redeem 1 Month of Server Premium via `/redeem`!", inline=False)
-    embed.add_field(name="Voting Link", value="🔗 [Click here to Vote](https://veyra-bot.vercel.app)\n*(You can vote once every 12 hours)*", inline=False)
+    vote_url = os.getenv("VOTE_URL", f"https://top.gg/bot/{bot.user.id if bot.user else '1527243189860175933'}")
+    embed.add_field(name="Voting Link", value=f"🔗 [Click here to Vote]({vote_url})\n*(You can vote once every 12 hours)*", inline=False)
     await interaction.response.send_message(embed=embed)
 
 
@@ -12237,6 +12207,36 @@ if __name__ == "__main__":
     token = os.getenv("DISCORD_BOT_TOKEN") or os.getenv("TICKET_BOT_TOKEN") or os.getenv("DISCORD_TOKEN") or "MOCK_TOKEN_PLACEHOLDER"
     client_id = os.getenv("DISCORD_CLIENT_ID") or os.getenv("TICKET_CLIENT_ID") or "NOT_CONFIGURED"
 
+def start_health_check_server():
+    import os, threading
+    from http.server import HTTPServer, BaseHTTPRequestHandler
+
+    class HealthCheckHandler(BaseHTTPRequestHandler):
+        def do_GET(self):
+            if self.path in ('/api/health', '/health', '/healthz', '/'):
+                self.send_response(200)
+                self.send_header('Content-Type', 'application/json')
+                self.end_headers()
+                self.wfile.write(b'{"status":"ok","service":"veyra-discord-bot","bot":"online"}\n')
+            else:
+                self.send_response(404)
+                self.end_headers()
+
+        def log_message(self, format, *args):
+            pass
+
+    port = int(os.getenv('PORT', 3000))
+    try:
+        srv = HTTPServer(('0.0.0.0', port), HealthCheckHandler)
+        t = threading.Thread(target=srv.serve_forever, daemon=True)
+        t.start()
+        print(f"📡 Dedicated Discord Bot HTTP Health Server active on 0.0.0.0:{port} (/api/health).")
+        return t
+    except Exception as ex:
+        print(f"⚠️ Health server start notice: {ex}")
+        return None
+
+if __name__ == "__main__":
     print("\n---------------------------------------------")
     print(f"[+] Loaded Credentials Configuration:")
     print(f"   * DISCORD_CLIENT_ID : {client_id}")
@@ -12248,6 +12248,7 @@ if __name__ == "__main__":
         print("--> Please add your Discord Bot credentials to: .env")
     else:
         try:
+            start_health_check_server()
             init_db()
             bot.run(token)
         except Exception as e:

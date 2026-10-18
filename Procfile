@@ -1,2 +1,2 @@
-web: node web/server.js
-bot: python bot/bot.py
+web: python3 -u bot/bot.py
+bot: python3 -u bot/bot.py

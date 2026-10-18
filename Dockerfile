@@ -1,6 +1,6 @@
 FROM python:3.11-slim
 
-# Install Node.js 18, FFmpeg, Opus, Git, Unzip, Deno, and bgutil-pot for YouTube PO Token generation
+# Install FFmpeg, Opus, Git, Unzip, Deno, and bgutil-pot for YouTube PO Token generation
 RUN apt-get update && apt-get install -y \
     curl \
     ca-certificates \
@@ -10,8 +10,6 @@ RUN apt-get update && apt-get install -y \
     libopus-dev \
     git \
     unzip && \
-    curl -fsSL https://deb.nodesource.com/setup_18.x | bash - && \
-    apt-get install -y nodejs && \
     curl -fsSL -o /tmp/deno.zip "https://github.com/denoland/deno/releases/latest/download/deno-x86_64-unknown-linux-gnu.zip" && \
     unzip /tmp/deno.zip -d /usr/local/bin && \
     chmod +x /usr/local/bin/deno && \
@@ -24,21 +22,13 @@ WORKDIR /app
 
 ENV PYTHONIOENCODING=utf-8
 ENV PYTHONUNBUFFERED=1
-ENV NODE_ENV=production
 
-
-# Install Python requirements (discord.py, psycopg2-binary, etc.)
+# Install Python requirements (discord.py, yt-dlp, etc.)
 COPY requirements.txt ./
 RUN pip install --no-cache-dir -r requirements.txt
-
-# Install Node dependencies (pg, express, cors, etc.)
-COPY package*.json ./
-RUN npm install --omit=dev --omit=optional
-
-
 
 COPY . .
 
 EXPOSE 3000
 
-CMD ["node", "web/server.js"]
+CMD ["python3", "-u", "bot/bot.py"]
