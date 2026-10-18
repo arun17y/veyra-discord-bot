@@ -9322,8 +9322,41 @@ async def post_guild_ticket_panel(target_channel, guild, panel_id: str = None):
         color_int = 0x22c55e
 
     guild_name = guild.name if guild else "Server"
-    p_title = _pv(panel, 'panel_title') or f"***{guild_name} Support Store***"
-    p_desc = _pv(panel, 'panel_description') or f"Welcome to the official {guild_name} Ticket Centre."
+
+    default_store_desc = (
+        f"Welcome to the official **{guild_name} Store** — your destination for premium products, secure licensing, and dedicated customer support.\n\n"
+        "━━━━━━━━━━━━━━━━━━━━\n\n"
+        "### 💳 How to Purchase\n"
+        "• Click **🛒 Buy** to open a private purchase ticket.\n"
+        "• Our team will help you explore available products, pricing, payment methods, and delivery.\n"
+        "• Keep all purchase discussions inside your private ticket.\n\n"
+        "### 🎫 Customer Support\n"
+        "• Click **🎧 Support** to create a separate support ticket.\n"
+        "• Describe your issue clearly and provide any relevant details.\n"
+        "• For existing orders, include your order ID or purchase information when available.\n\n"
+        "### 🛡️ Ticket Guidelines\n"
+        "• Select the correct button to create your ticket in the appropriate category.\n"
+        "• Do not open duplicate tickets for the same issue.\n"
+        "• Spam, trolling, fake claims, and ticket abuse may result in restrictions.\n"
+        "• Treat staff respectfully and wait for a response.\n"
+        "• Never share passwords, payment PINs, or other sensitive credentials.\n"
+        "• Do not close your ticket until your issue has been addressed.\n\n"
+        "━━━━━━━━━━━━━━━━━━━━\n\n"
+        "**𝐒𝐄𝐂𝐔𝐑𝐄 • 𝐑𝐄𝐋𝐈𝐀𝐁𝐋𝐄 • 𝐃𝐄𝐃𝐈𝐂𝐀𝐓𝐄𝐃**\n\n"
+        f"Powered by **{guild_name}**"
+    )
+
+    raw_title = _pv(panel, 'panel_title')
+    if not raw_title or raw_title in ["Open a Ticket", "Support", f"***{guild_name} Support Store***", "Support Store"]:
+        p_title = f"👑 {guild_name}"
+    else:
+        p_title = raw_title.replace("@servername", guild_name).replace("{guild_name}", guild_name).replace("Shadow Xiters", guild_name).replace("Shadow Cheats", guild_name)
+
+    raw_desc = _pv(panel, 'panel_description')
+    if not raw_desc or "Click below to begin support" in raw_desc or "Ticket Centre" in raw_desc or "Shadow Xiters" in raw_desc:
+        p_desc = default_store_desc
+    else:
+        p_desc = raw_desc.replace("@servername", guild_name).replace("{guild_name}", guild_name).replace("Shadow Xiters", guild_name).replace("Shadow Cheats", guild_name)
 
     embed = discord.Embed(
         title=p_title,
@@ -9331,7 +9364,7 @@ async def post_guild_ticket_panel(target_channel, guild, panel_id: str = None):
         color=discord.Color(color_int)
     )
     bot_avatar_url = guild.me.display_avatar.url if (guild and guild.me) else None
-    embed.set_footer(text=f"Powered by {guild.me.display_name if (guild and guild.me) else 'VEYRA Support'}", icon_url=bot_avatar_url)
+    embed.set_footer(text=f"Powered by {guild_name}", icon_url=bot_avatar_url)
     embed.timestamp = datetime.utcnow()
 
     categories_list = []
@@ -9346,12 +9379,20 @@ async def post_guild_ticket_panel(target_channel, guild, panel_id: str = None):
         def __init__(self):
             super().__init__(timeout=None)
             
-            # Green Create Ticket Button (Success style)
-            btn_label = _pv(panel, 'panel_button_text') or "📩 Create Ticket"
+            # Button 1: Green Buy / Purchase Button
             self.add_item(discord.ui.Button(
-                label=btn_label,
+                label="Buy",
+                emoji="🛒",
                 style=discord.ButtonStyle.success, # Green Button
-                custom_id=f"ticket_create_btn:{pid}"
+                custom_id=f"ticket_create_buy:{pid}"
+            ))
+
+            # Button 2: Blurple Support Button
+            self.add_item(discord.ui.Button(
+                label="Support",
+                emoji="🎧",
+                style=discord.ButtonStyle.primary, # Blurple / Primary Button
+                custom_id=f"ticket_create_support:{pid}"
             ))
 
             if categories_list and isinstance(categories_list, list):
@@ -10687,7 +10728,7 @@ async def vote_command(interaction: discord.Interaction):
 
 
 
-async def handle_create_ticket_interaction(interaction: discord.Interaction, panel_id: str, topic: str = None):
+async def handle_create_ticket_interaction(interaction: discord.Interaction, panel_id: str, topic: str = None, ticket_type: str = "buy"):
     # Prevent duplicated rapid interaction dispatches
     if is_interaction_already_handled(interaction.id):
         return
@@ -10766,18 +10807,36 @@ async def handle_create_ticket_interaction(interaction: discord.Interaction, pan
         cursor.execute("SELECT ticket_count FROM ticket_panels WHERE id = ?", (panel['id'],))
         c_row = cursor.fetchone()
         new_ticket_num = c_row['ticket_count'] if c_row else 1
+
+        is_support = (ticket_type == "support") or (topic and "support" in topic.lower())
         
-        # 4. Determine category and overwrites
-        category_id = panel['category_id'] if ('category_id' in panel.keys() and panel['category_id'] and panel['category_id'] != 'none') else None
+        # 4. Determine category and overwrites (Purchase Tickets vs Support Tickets)
         category = None
-        if category_id:
-            try:
-                ch = guild.get_channel(int(category_id))
-                if isinstance(ch, discord.CategoryChannel):
-                    category = ch
-            except Exception:
-                category = None
-                
+        if is_support:
+            category = discord.utils.find(lambda c: any(k in c.name.lower() for k in ["support tickets", "support-tickets", "support"]), guild.categories)
+            if not category:
+                try:
+                    category = await guild.create_category("🎧 Support Tickets")
+                except Exception:
+                    category = None
+        else:
+            category = discord.utils.find(lambda c: any(k in c.name.lower() for k in ["purchase tickets", "purchase-tickets", "purchases", "buy tickets"]), guild.categories)
+            if not category:
+                try:
+                    category = await guild.create_category("🛒 Purchase Tickets")
+                except Exception:
+                    category = None
+
+        if not category:
+            category_id = panel['category_id'] if ('category_id' in panel.keys() and panel['category_id'] and panel['category_id'] != 'none') else None
+            if category_id:
+                try:
+                    ch = guild.get_channel(int(category_id))
+                    if isinstance(ch, discord.CategoryChannel):
+                        category = ch
+                except Exception:
+                    category = None
+
         if not category:
             category = discord.utils.get(guild.categories, name="TICKETS") or discord.utils.get(guild.categories, name="Tickets")
             if not category:
@@ -10792,6 +10851,7 @@ async def handle_create_ticket_interaction(interaction: discord.Interaction, pan
             guild.me: discord.PermissionOverwrite(view_channel=True, read_messages=True, send_messages=True, embed_links=True, attach_files=True, read_message_history=True, manage_channels=True, manage_roles=True)
         }
         
+        staff_pings = []
         if 'support_roles' in panel.keys() and panel['support_roles']:
             try:
                 s_roles = json.loads(panel['support_roles'])
@@ -10800,16 +10860,19 @@ async def handle_create_ticket_interaction(interaction: discord.Interaction, pan
                 for r_id in s_roles:
                     role = guild.get_role(int(r_id))
                     if role:
+                        staff_pings.append(role.mention)
                         overwrites[role] = discord.PermissionOverwrite(view_channel=True, read_messages=True, send_messages=True, embed_links=True, attach_files=True, read_message_history=True)
             except Exception:
                 pass
 
         # 5. Create ticket channel
-        ch_name = f"ticket-{new_ticket_num:04d}"
+        ch_prefix = "support" if is_support else "buy"
+        ch_name = f"{ch_prefix}-{new_ticket_num:04d}"
         try:
             new_channel = await guild.create_text_channel(
                 name=ch_name,
                 category=category,
+                topic=f"{'Support' if is_support else 'Purchase'} Ticket | Owner: {interaction.user.name}",
                 overwrites=overwrites
             )
         except Exception as e:
@@ -10819,11 +10882,12 @@ async def handle_create_ticket_interaction(interaction: discord.Interaction, pan
 
         # 6. Save ticket to DB
         now_ts = int(datetime.utcnow().timestamp())
+        ticket_topic = topic or ("Support Ticket" if is_support else "Purchase Ticket")
         try:
             cursor.execute("""
                 INSERT INTO tickets (guild_id, panel_id, channel_id, user_id, username, ticket_number, status, open_time, topic)
                 VALUES (?, ?, ?, ?, ?, ?, 'open', ?, ?)
-            """, (str(guild.id), str(panel['id']), str(new_channel.id), str(interaction.user.id), interaction.user.name, new_ticket_num, now_ts, topic or 'General Support'))
+            """, (str(guild.id), str(panel['id']), str(new_channel.id), str(interaction.user.id), interaction.user.name, new_ticket_num, now_ts, ticket_topic))
             conn.commit()
         except Exception as dberr:
             print(f"Error saving ticket to DB: {dberr}")
@@ -10833,35 +10897,51 @@ async def handle_create_ticket_interaction(interaction: discord.Interaction, pan
             except Exception:
                 pass
 
-        # 7. Post welcome embed inside ticket channel
-        welcome_title = f"🎫 {panel['ticket_title'] or 'Support Ticket'}"
-        
-        topic_str = f"\n📌 **Selected Category:** `{topic}`" if topic else ""
-        welcome_desc = (
-            f"Welcome to your private support ticket, {interaction.user.mention}!{topic_str}\n\n"
-            f"**{panel['ticket_description'] or 'Our support team has been notified and will assist you shortly.'}**\n\n"
-            "⏳ **Please provide details about your inquiry below while waiting for staff.**"
-        )
+        # 7. Post welcome embed inside ticket channel matching exact requested templates
+        guild_name = guild.name
+        bot_avatar_url = guild.me.display_avatar.url if guild.me else None
+        staff_ping_text = " ".join(staff_pings) if staff_pings else ""
+
+        if is_support:
+            welcome_title = "🎧 Support Ticket"
+            welcome_desc = (
+                f"Welcome, {interaction.user.mention}!\n\n"
+                "Please explain your issue in detail so our support team can help you as quickly as possible.\n\n"
+                "• **Issue:**\n"
+                "• **Order ID (if applicable):**\n"
+                "• **Additional details:**\n\n"
+                "⏳ **Please avoid opening duplicate tickets.**"
+            )
+            embed_color = discord.Color.from_rgb(88, 101, 242) # Blurple
+        else:
+            welcome_title = "🛒 Purchase Ticket"
+            welcome_desc = (
+                f"Welcome, {interaction.user.mention}!\n\n"
+                "Please provide the product you're interested in and any questions regarding pricing, payment, or delivery. Our staff will assist you shortly.\n\n"
+                "⏳ **Please wait patiently and keep all purchase details in this ticket.**"
+            )
+            embed_color = discord.Color.from_rgb(34, 197, 94) # Green
 
         welcome_embed = discord.Embed(
             title=welcome_title,
             description=welcome_desc,
-            color=discord.Color.from_rgb(34, 197, 94)
+            color=embed_color
         )
-        welcome_embed.set_footer(text="Powered By Veyra Development™ | Designed By Arun", icon_url=guild.me.display_avatar.url if guild.me else None)
+        welcome_embed.set_footer(text=f"Powered by {guild_name}", icon_url=bot_avatar_url)
         welcome_embed.timestamp = datetime.utcnow()
 
+        content_ping = f"{interaction.user.mention} {staff_ping_text}".strip()
         try:
-            await new_channel.send(content=f"{interaction.user.mention}", embed=welcome_embed, view=TicketWelcomeView())
+            await new_channel.send(content=content_ping, embed=welcome_embed, view=TicketWelcomeView())
         except Exception as send_err:
             print(f"Error sending ticket welcome embed: {send_err}")
             try:
-                await new_channel.send(f"Welcome to your support ticket {interaction.user.mention}! Support staff will assist you shortly.", view=TicketWelcomeView())
+                await new_channel.send(content=content_ping, view=TicketWelcomeView())
             except Exception:
                 pass
 
         try:
-            await interaction.followup.send(f"✅ Your ticket has been opened in {new_channel.mention}!", ephemeral=True)
+            await interaction.followup.send(f"✅ Your {welcome_title} has been opened in {new_channel.mention}!", ephemeral=True)
         except Exception:
             pass
 
@@ -10884,7 +10964,7 @@ async def handle_create_ticket_interaction(interaction: discord.Interaction, pan
                     open_log_embed.add_field(name="Ticket Name", value=f"`{new_channel.name}`", inline=True)
                     open_log_embed.add_field(name="Created By", value=f"{interaction.user.mention}", inline=True)
                     open_log_embed.add_field(name="Opened Date", value=f"`{open_date_str}`", inline=True)
-                    open_log_embed.add_field(name="Ticket Type", value=f"🔒 {topic or 'Support'}", inline=False)
+                    open_log_embed.add_field(name="Ticket Type", value=f"{'🎧 Support' if is_support else '🛒 Purchase'}", inline=False)
                     await log_channel.send(embed=open_log_embed)
         except Exception as ex:
             print(f"Error posting Ticket Opened log: {ex}")
@@ -10899,13 +10979,20 @@ async def on_interaction(interaction: discord.Interaction):
         custom_id = interaction.data.get('custom_id') if (interaction.data and 'custom_id' in interaction.data) else None
         if custom_id:
             print(f"📥 Ticket Interaction: {custom_id} by {interaction.user}")
-            if custom_id.startswith('ticket_create_btn:') or custom_id in ['create_ticket', 'create_ticket_btn', 'buy_ticket_btn', 'ticket_create']:
+            if custom_id.startswith('ticket_create_buy:') or custom_id in ['ticket_create_buy', 'buy_ticket_btn', 'buy_ticket']:
                 panel_id = custom_id.split(':')[1] if ':' in custom_id else 'default'
-                await handle_create_ticket_interaction(interaction, panel_id)
+                await handle_create_ticket_interaction(interaction, panel_id, ticket_type="buy")
+            elif custom_id.startswith('ticket_create_support:') or custom_id in ['ticket_create_support', 'support_ticket_btn', 'support_ticket']:
+                panel_id = custom_id.split(':')[1] if ':' in custom_id else 'default'
+                await handle_create_ticket_interaction(interaction, panel_id, ticket_type="support")
+            elif custom_id.startswith('ticket_create_btn:') or custom_id in ['create_ticket', 'create_ticket_btn', 'ticket_create']:
+                panel_id = custom_id.split(':')[1] if ':' in custom_id else 'default'
+                await handle_create_ticket_interaction(interaction, panel_id, ticket_type="buy")
             elif custom_id.startswith('ticket_select_category:'):
                 panel_id = custom_id.split(':')[1] if ':' in custom_id else 'default'
                 selected_val = interaction.data.get('values', [None])[0]
-                await handle_create_ticket_interaction(interaction, panel_id, topic=selected_val)
+                t_type = "support" if (selected_val and "support" in selected_val.lower()) else "buy"
+                await handle_create_ticket_interaction(interaction, panel_id, topic=selected_val, ticket_type=t_type)
             elif custom_id == 'ticket_action_close':
                 await handle_close_ticket_interaction(interaction)
             elif custom_id == 'ticket_action_claim':
