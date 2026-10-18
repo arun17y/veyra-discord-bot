@@ -1540,41 +1540,72 @@ async def on_guild_role_delete(role):
             except Exception as e:
                 print(f"Revert delete role failed: {e}")
 
+def is_ticket_or_temporary_channel(channel: discord.abc.GuildChannel) -> bool:
+    """Detects whether a channel is a support ticket, closed ticket, or ephemeral channel."""
+    try:
+        ch_name = (getattr(channel, 'name', '') or '').lower()
+        if ch_name.startswith(('ticket', 'closed-', 'transcript-')) or ch_name == 'tickets':
+            return True
+        category = getattr(channel, 'category', None)
+        if category:
+            cat_name = (category.name or '').lower()
+            if any(k in cat_name for k in ['ticket', 'tickets', 'support']):
+                return True
+        conn = get_db()
+        cur = conn.cursor()
+        cur.execute("SELECT 1 FROM tickets WHERE channel_id = ? LIMIT 1", (str(channel.id),))
+        row = cur.fetchone()
+        conn.close()
+        if row:
+            return True
+    except Exception:
+        pass
+    return False
+
 # Event 5: Anti Channel Create (Rate-Limited)
 @bot.event
 async def on_guild_channel_create(channel):
-    guild = channel.guild
+    guild = getattr(channel, 'guild', None)
+    if not guild or is_ticket_or_temporary_channel(channel):
+        return
+
     executor = await get_audit_executor(guild, discord.AuditLogAction.channel_create)
-    
-    is_deleted = False
-    if executor:
-        await process_rate_limit(guild, executor, 'channel_create', 'Anti-Channel Create', 1, f"creating channel {channel.name}")
-        # Revert channel creation
-        settings = fetch_security_settings(guild.id)
-        if settings and settings['anti_channel_create_enabled'] and not is_whitelisted(guild.id, executor.id):
-            try:
-                await channel.delete(reason="VEYRA Auto-Revert: Unauthorized channel creation")
-                is_deleted = True
-            except Exception as e:
-                print(f"Revert create channel failed: {e}")
+    if not executor or executor.id == bot.user.id or executor.id == guild.owner_id:
+        return
+    if getattr(getattr(executor, 'guild_permissions', None), 'administrator', False):
+        return
+
+    await process_rate_limit(guild, executor, 'channel_create', 'Anti-Channel Create', 1, f"creating channel {channel.name}")
+    settings = fetch_security_settings(guild.id)
+    if settings and settings['anti_channel_create_enabled'] and not is_whitelisted(guild.id, executor.id):
+        try:
+            await channel.delete(reason="VEYRA Auto-Revert: Unauthorized channel creation")
+        except Exception as e:
+            print(f"Revert create channel failed: {e}")
 
 # Event 6: Anti Channel Delete (Rate-Limited)
 @bot.event
 async def on_guild_channel_delete(channel):
-    guild = channel.guild
+    guild = getattr(channel, 'guild', None)
+    if not guild or is_ticket_or_temporary_channel(channel):
+        return
+
     executor = await get_audit_executor(guild, discord.AuditLogAction.channel_delete)
-    if executor:
-        await process_rate_limit(guild, executor, 'channel_delete', 'Anti-Channel Delete', 1, f"deleting channel {channel.name}")
-        # Recreate channel
-        settings = fetch_security_settings(guild.id)
-        if settings and settings['anti_channel_delete_enabled'] and not is_whitelisted(guild.id, executor.id):
-            try:
-                if isinstance(channel, discord.TextChannel):
-                    await guild.create_text_channel(name=channel.name, category=channel.category, topic=channel.topic)
-                elif isinstance(channel, discord.VoiceChannel):
-                    await guild.create_voice_channel(name=channel.name, category=channel.category)
-            except Exception as e:
-                print(f"Revert delete channel failed: {e}")
+    if not executor or executor.id == bot.user.id or executor.id == guild.owner_id:
+        return
+    if getattr(getattr(executor, 'guild_permissions', None), 'administrator', False):
+        return
+
+    await process_rate_limit(guild, executor, 'channel_delete', 'Anti-Channel Delete', 1, f"deleting channel {channel.name}")
+    settings = fetch_security_settings(guild.id)
+    if settings and settings['anti_channel_delete_enabled'] and not is_whitelisted(guild.id, executor.id):
+        try:
+            if isinstance(channel, discord.TextChannel):
+                await guild.create_text_channel(name=channel.name, category=channel.category, topic=channel.topic)
+            elif isinstance(channel, discord.VoiceChannel):
+                await guild.create_voice_channel(name=channel.name, category=channel.category)
+        except Exception as e:
+            print(f"Revert delete channel failed: {e}")
 
 
 
@@ -10193,6 +10224,43 @@ class TicketGroup(app_commands.Group):
         embed.set_footer(text=f"Added by {interaction.user.display_name}", icon_url=interaction.user.display_avatar.url)
         await interaction.followup.send(embed=embed)
 
+    @app_commands.command(name="cleanup", description="Clean up orphaned, closed, or glitch-duplicated ticket channels")
+    @app_commands.checks.has_permissions(manage_channels=True)
+    async def cleanup_cmd(self, interaction: discord.Interaction):
+        await interaction.response.defer(ephemeral=True)
+        guild = interaction.guild
+        deleted_count = 0
+        preserved_count = 0
+
+        for ch in list(guild.text_channels):
+            name_low = ch.name.lower()
+            is_ticket_name = name_low.startswith(("ticket-", "ticket_", "closed-"))
+            in_ticket_cat = ch.category and any(t in ch.category.name.lower() for t in ["ticket", "tickets"])
+            
+            if is_ticket_name or in_ticket_cat:
+                conn = get_db()
+                cur = conn.cursor()
+                cur.execute("SELECT status FROM tickets WHERE channel_id = ? LIMIT 1", (str(ch.id),))
+                t_row = cur.fetchone()
+                conn.close()
+                
+                if not t_row or t_row[0] == 'closed':
+                    try:
+                        await ch.delete(reason=f"VEYRA Ticket Cleanup by {interaction.user}")
+                        deleted_count += 1
+                        await asyncio.sleep(0.4)
+                    except Exception as e:
+                        print(f"Error deleting ticket channel in cleanup: {e}")
+                else:
+                    preserved_count += 1
+
+        embed = discord.Embed(
+            title="🧹 Ticket Channels Cleaned",
+            description=f"✅ Successfully cleaned up `{deleted_count}` closed/orphaned ticket channels.\n🛡️ Kept `{preserved_count}` active open tickets intact.",
+            color=discord.Color.green()
+        )
+        await interaction.followup.send(embed=embed, ephemeral=True)
+
     @app_commands.command(name="help", description="Displays the ticket help menu.")
     async def help_cmd(self, interaction: discord.Interaction):
         embed = discord.Embed(
@@ -10245,7 +10313,9 @@ class TicketGroup(app_commands.Group):
             
         conn.close()
         embed = discord.Embed(title="🎫 Ticket Configurations Updated", color=discord.Color.green(), description="The ticket settings have been updated successfully!")
-        await interaction.followup.send(embed=embed)@has_ticket_plan()
+        await interaction.followup.send(embed=embed)
+
+@has_ticket_plan()
 async def createticket_command(interaction: discord.Interaction, reason: str = "No reason provided"):
     await interaction.response.defer(ephemeral=True)
     guild = interaction.guild
@@ -10618,182 +10688,208 @@ async def vote_command(interaction: discord.Interaction):
 
 
 async def handle_create_ticket_interaction(interaction: discord.Interaction, panel_id: str, topic: str = None):
-    if not interaction.response.is_done():
-        try:
-            await interaction.response.defer(ephemeral=True)
-        except Exception:
-            pass
-            
+    # Prevent duplicated rapid interaction dispatches
+    if is_interaction_already_handled(interaction.id):
+        return
+
+    # Per-user ticket creation concurrency lock
+    if not hasattr(bot, "_ticket_creation_locks"):
+        bot._ticket_creation_locks = set()
+
     guild = interaction.guild
     if not guild:
-        return await interaction.followup.send("❌ Tickets can only be created inside a server channel.", ephemeral=True)
-        
-    conn = get_db()
-    if hasattr(conn, "row_factory"):
-        try:
-            import sqlite3
-            conn.row_factory = sqlite3.Row
-        except Exception:
-            pass
-    cursor = conn.cursor()
-    
-    # 1. Fetch ticket panel
-    panel = None
-    if panel_id and str(panel_id).isdigit():
-        try:
-            cursor.execute("SELECT * FROM ticket_panels WHERE id = ? AND guild_id = ?", (int(panel_id), str(guild.id)))
-            panel = cursor.fetchone()
-        except Exception:
-            panel = None
-    
-    if not panel:
-        cursor.execute("SELECT * FROM ticket_panels WHERE guild_id = ? ORDER BY id ASC LIMIT 1", (str(guild.id),))
-        panel = cursor.fetchone()
-        
-    if not panel:
-        panel = get_or_create_guild_ticket_panel(guild)
-        
-    # 2. Check max ticket limit
-    cursor.execute("SELECT max_tickets FROM ticket_settings WHERE guild_id = ?", (str(guild.id),))
-    ts_row = cursor.fetchone()
-    max_tickets = ts_row['max_tickets'] if (ts_row and ts_row['max_tickets']) else 3
-
-    cursor.execute("SELECT COUNT(*) FROM tickets WHERE guild_id = ? AND user_id = ? AND status = 'open'", (str(guild.id), str(interaction.user.id)))
-    open_count = cursor.fetchone()[0]
-
-    if open_count >= max_tickets:
-        conn.close()
-        return await interaction.followup.send(f"❌ You have reached the maximum open ticket limit ({max_tickets}) on this server.", ephemeral=True)
-
-    # 3. Increment ticket number
-    cursor.execute("UPDATE ticket_panels SET ticket_count = COALESCE(ticket_count, 0) + 1 WHERE id = ?", (panel['id'],))
-    conn.commit()
-    
-    cursor.execute("SELECT ticket_count FROM ticket_panels WHERE id = ?", (panel['id'],))
-    c_row = cursor.fetchone()
-    new_ticket_num = c_row['ticket_count'] if c_row else 1
-    
-    # 4. Determine category and overwrites
-    category_id = panel['category_id'] if ('category_id' in panel.keys() and panel['category_id'] and panel['category_id'] != 'none') else None
-    category = None
-    if category_id:
-        try:
-            ch = guild.get_channel(int(category_id))
-            if isinstance(ch, discord.CategoryChannel):
-                category = ch
-        except Exception:
-            category = None
-            
-    if not category:
-        category = discord.utils.get(guild.categories, name="TICKETS") or discord.utils.get(guild.categories, name="Tickets")
-        if not category:
+        if not interaction.response.is_done():
             try:
-                category = await guild.create_category("TICKETS")
+                await interaction.response.send_message("❌ Tickets can only be created inside a server channel.", ephemeral=True)
+            except Exception:
+                pass
+        return
+
+    user_lock_key = f"{guild.id}_{interaction.user.id}"
+    if user_lock_key in bot._ticket_creation_locks:
+        if not interaction.response.is_done():
+            try:
+                await interaction.response.send_message("⏳ Please wait! A ticket is already being opened for you...", ephemeral=True)
+            except Exception:
+                pass
+        return
+
+    bot._ticket_creation_locks.add(user_lock_key)
+    try:
+        if not interaction.response.is_done():
+            try:
+                await interaction.response.defer(ephemeral=True)
+            except Exception:
+                pass
+
+        conn = get_db()
+        if hasattr(conn, "row_factory"):
+            try:
+                import sqlite3
+                conn.row_factory = sqlite3.Row
+            except Exception:
+                pass
+        cursor = conn.cursor()
+        
+        # 1. Fetch ticket panel
+        panel = None
+        if panel_id and str(panel_id).isdigit():
+            try:
+                cursor.execute("SELECT * FROM ticket_panels WHERE id = ? AND guild_id = ?", (int(panel_id), str(guild.id)))
+                panel = cursor.fetchone()
+            except Exception:
+                panel = None
+        
+        if not panel:
+            cursor.execute("SELECT * FROM ticket_panels WHERE guild_id = ? ORDER BY id ASC LIMIT 1", (str(guild.id),))
+            panel = cursor.fetchone()
+            
+        if not panel:
+            panel = get_or_create_guild_ticket_panel(guild)
+            
+        # 2. Check max ticket limit
+        cursor.execute("SELECT max_tickets FROM ticket_settings WHERE guild_id = ?", (str(guild.id),))
+        ts_row = cursor.fetchone()
+        max_tickets = ts_row['max_tickets'] if (ts_row and ts_row['max_tickets']) else 3
+
+        cursor.execute("SELECT COUNT(*) FROM tickets WHERE guild_id = ? AND user_id = ? AND status = 'open'", (str(guild.id), str(interaction.user.id)))
+        open_count = cursor.fetchone()[0]
+
+        if open_count >= max_tickets:
+            conn.close()
+            return await interaction.followup.send(f"❌ You have reached the maximum open ticket limit ({max_tickets}) on this server.", ephemeral=True)
+
+        # 3. Increment ticket number
+        cursor.execute("UPDATE ticket_panels SET ticket_count = COALESCE(ticket_count, 0) + 1 WHERE id = ?", (panel['id'],))
+        conn.commit()
+        
+        cursor.execute("SELECT ticket_count FROM ticket_panels WHERE id = ?", (panel['id'],))
+        c_row = cursor.fetchone()
+        new_ticket_num = c_row['ticket_count'] if c_row else 1
+        
+        # 4. Determine category and overwrites
+        category_id = panel['category_id'] if ('category_id' in panel.keys() and panel['category_id'] and panel['category_id'] != 'none') else None
+        category = None
+        if category_id:
+            try:
+                ch = guild.get_channel(int(category_id))
+                if isinstance(ch, discord.CategoryChannel):
+                    category = ch
             except Exception:
                 category = None
-    
-    overwrites = {
-        guild.default_role: discord.PermissionOverwrite(view_channel=False, read_messages=False, send_messages=False),
-        interaction.user: discord.PermissionOverwrite(view_channel=True, read_messages=True, send_messages=True, embed_links=True, attach_files=True, read_message_history=True),
-        guild.me: discord.PermissionOverwrite(view_channel=True, read_messages=True, send_messages=True, embed_links=True, attach_files=True, read_message_history=True, manage_channels=True, manage_roles=True)
-    }
-    
-    if 'support_roles' in panel.keys() and panel['support_roles']:
-        try:
-            s_roles = json.loads(panel['support_roles'])
-            if isinstance(s_roles, str) and s_roles:
-                s_roles = [s_roles]
-            for r_id in s_roles:
-                role = guild.get_role(int(r_id))
-                if role:
-                    overwrites[role] = discord.PermissionOverwrite(view_channel=True, read_messages=True, send_messages=True, embed_links=True, attach_files=True, read_message_history=True)
-        except Exception:
-            pass
-
-    # 5. Create ticket channel
-    ch_name = f"ticket-{new_ticket_num:04d}"
-    try:
-        new_channel = await guild.create_text_channel(
-            name=ch_name,
-            category=category,
-            overwrites=overwrites
-        )
-    except Exception as e:
-        conn.close()
-        print(f"Error creating ticket channel: {e}")
-        return await interaction.followup.send(f"❌ Failed to create ticket channel: {e}", ephemeral=True)
-
-    # 6. Save ticket to DB
-    now_ts = int(datetime.utcnow().timestamp())
-    try:
-        cursor.execute("""
-            INSERT INTO tickets (guild_id, panel_id, channel_id, user_id, username, ticket_number, status, open_time, topic)
-            VALUES (?, ?, ?, ?, ?, ?, 'open', ?, ?)
-        """, (str(guild.id), str(panel['id']), str(new_channel.id), str(interaction.user.id), interaction.user.name, new_ticket_num, now_ts, topic or 'General Support'))
-        conn.commit()
-    except Exception as dberr:
-        print(f"Error saving ticket to DB: {dberr}")
-    finally:
-        try:
-            conn.close()
-        except Exception:
-            pass
-
-    # 7. Post welcome embed inside ticket channel
-    welcome_title = f"🎫 {panel['ticket_title'] or 'Support Ticket'}"
-    
-    topic_str = f"\n📌 **Selected Category:** `{topic}`" if topic else ""
-    welcome_desc = (
-        f"Welcome to your private support ticket, {interaction.user.mention}!{topic_str}\n\n"
-        f"**{panel['ticket_description'] or 'Our support team has been notified and will assist you shortly.'}**\n\n"
-        "⏳ **Please provide details about your inquiry below while waiting for staff.**"
-    )
-
-    welcome_embed = discord.Embed(
-        title=welcome_title,
-        description=welcome_desc,
-        color=discord.Color.from_rgb(34, 197, 94)
-    )
-    welcome_embed.set_footer(text="Powered By Veyra Development™ | Designed By Arun", icon_url=guild.me.display_avatar.url if guild.me else None)
-    welcome_embed.timestamp = datetime.utcnow()
-
-    try:
-        await new_channel.send(content=f"{interaction.user.mention}", embed=welcome_embed, view=TicketWelcomeView())
-    except Exception as send_err:
-        print(f"Error sending ticket welcome embed: {send_err}")
-        try:
-            await new_channel.send(f"Welcome to your support ticket {interaction.user.mention}! Support staff will assist you shortly.", view=TicketWelcomeView())
-        except Exception:
-            pass
-
-    try:
-        await interaction.followup.send(f"✅ Your ticket has been opened in {new_channel.mention}!", ephemeral=True)
-    except Exception:
-        pass
-
-    # Dispatch "Ticket Opened" log embed to moderation/logs channel
-    try:
-        conn_gs = get_db()
-        cursor_gs = conn_gs.cursor()
-        cursor_gs.execute("SELECT moderation_logs FROM guild_settings WHERE guild_id = ?", (str(guild.id),))
-        gs_row = cursor_gs.fetchone()
-        conn_gs.close()
+                
+        if not category:
+            category = discord.utils.get(guild.categories, name="TICKETS") or discord.utils.get(guild.categories, name="Tickets")
+            if not category:
+                try:
+                    category = await guild.create_category("TICKETS")
+                except Exception:
+                    category = None
         
-        if gs_row and gs_row[0] and gs_row[0] != 'none':
-            log_channel = guild.get_channel(int(gs_row[0]))
-            if log_channel:
-                open_date_str = datetime.utcnow().strftime('%d %B %Y %H:%M')
-                open_log_embed = discord.Embed(
-                    title="Ticket Opened",
-                    color=discord.Color.from_rgb(239, 68, 68)
-                )
-                open_log_embed.add_field(name="Ticket Name", value=f"`{new_channel.name}`", inline=True)
-                open_log_embed.add_field(name="Created By", value=f"{interaction.user.mention}", inline=True)
-                open_log_embed.add_field(name="Opened Date", value=f"`{open_date_str}`", inline=True)
-                open_log_embed.add_field(name="Ticket Type", value=f"🔒 {topic or 'Support'}", inline=False)
-                await log_channel.send(embed=open_log_embed)
-    except Exception as ex:
-        print(f"Error posting Ticket Opened log: {ex}")
+        overwrites = {
+            guild.default_role: discord.PermissionOverwrite(view_channel=False, read_messages=False, send_messages=False),
+            interaction.user: discord.PermissionOverwrite(view_channel=True, read_messages=True, send_messages=True, embed_links=True, attach_files=True, read_message_history=True),
+            guild.me: discord.PermissionOverwrite(view_channel=True, read_messages=True, send_messages=True, embed_links=True, attach_files=True, read_message_history=True, manage_channels=True, manage_roles=True)
+        }
+        
+        if 'support_roles' in panel.keys() and panel['support_roles']:
+            try:
+                s_roles = json.loads(panel['support_roles'])
+                if isinstance(s_roles, str) and s_roles:
+                    s_roles = [s_roles]
+                for r_id in s_roles:
+                    role = guild.get_role(int(r_id))
+                    if role:
+                        overwrites[role] = discord.PermissionOverwrite(view_channel=True, read_messages=True, send_messages=True, embed_links=True, attach_files=True, read_message_history=True)
+            except Exception:
+                pass
+
+        # 5. Create ticket channel
+        ch_name = f"ticket-{new_ticket_num:04d}"
+        try:
+            new_channel = await guild.create_text_channel(
+                name=ch_name,
+                category=category,
+                overwrites=overwrites
+            )
+        except Exception as e:
+            conn.close()
+            print(f"Error creating ticket channel: {e}")
+            return await interaction.followup.send(f"❌ Failed to create ticket channel: {e}", ephemeral=True)
+
+        # 6. Save ticket to DB
+        now_ts = int(datetime.utcnow().timestamp())
+        try:
+            cursor.execute("""
+                INSERT INTO tickets (guild_id, panel_id, channel_id, user_id, username, ticket_number, status, open_time, topic)
+                VALUES (?, ?, ?, ?, ?, ?, 'open', ?, ?)
+            """, (str(guild.id), str(panel['id']), str(new_channel.id), str(interaction.user.id), interaction.user.name, new_ticket_num, now_ts, topic or 'General Support'))
+            conn.commit()
+        except Exception as dberr:
+            print(f"Error saving ticket to DB: {dberr}")
+        finally:
+            try:
+                conn.close()
+            except Exception:
+                pass
+
+        # 7. Post welcome embed inside ticket channel
+        welcome_title = f"🎫 {panel['ticket_title'] or 'Support Ticket'}"
+        
+        topic_str = f"\n📌 **Selected Category:** `{topic}`" if topic else ""
+        welcome_desc = (
+            f"Welcome to your private support ticket, {interaction.user.mention}!{topic_str}\n\n"
+            f"**{panel['ticket_description'] or 'Our support team has been notified and will assist you shortly.'}**\n\n"
+            "⏳ **Please provide details about your inquiry below while waiting for staff.**"
+        )
+
+        welcome_embed = discord.Embed(
+            title=welcome_title,
+            description=welcome_desc,
+            color=discord.Color.from_rgb(34, 197, 94)
+        )
+        welcome_embed.set_footer(text="Powered By Veyra Development™ | Designed By Arun", icon_url=guild.me.display_avatar.url if guild.me else None)
+        welcome_embed.timestamp = datetime.utcnow()
+
+        try:
+            await new_channel.send(content=f"{interaction.user.mention}", embed=welcome_embed, view=TicketWelcomeView())
+        except Exception as send_err:
+            print(f"Error sending ticket welcome embed: {send_err}")
+            try:
+                await new_channel.send(f"Welcome to your support ticket {interaction.user.mention}! Support staff will assist you shortly.", view=TicketWelcomeView())
+            except Exception:
+                pass
+
+        try:
+            await interaction.followup.send(f"✅ Your ticket has been opened in {new_channel.mention}!", ephemeral=True)
+        except Exception:
+            pass
+
+        # Dispatch "Ticket Opened" log embed to moderation/logs channel
+        try:
+            conn_gs = get_db()
+            cursor_gs = conn_gs.cursor()
+            cursor_gs.execute("SELECT moderation_logs FROM guild_settings WHERE guild_id = ?", (str(guild.id),))
+            gs_row = cursor_gs.fetchone()
+            conn_gs.close()
+            
+            if gs_row and gs_row[0] and gs_row[0] != 'none':
+                log_channel = guild.get_channel(int(gs_row[0]))
+                if log_channel:
+                    open_date_str = datetime.utcnow().strftime('%d %B %Y %H:%M')
+                    open_log_embed = discord.Embed(
+                        title="Ticket Opened",
+                        color=discord.Color.from_rgb(239, 68, 68)
+                    )
+                    open_log_embed.add_field(name="Ticket Name", value=f"`{new_channel.name}`", inline=True)
+                    open_log_embed.add_field(name="Created By", value=f"{interaction.user.mention}", inline=True)
+                    open_log_embed.add_field(name="Opened Date", value=f"`{open_date_str}`", inline=True)
+                    open_log_embed.add_field(name="Ticket Type", value=f"🔒 {topic or 'Support'}", inline=False)
+                    await log_channel.send(embed=open_log_embed)
+        except Exception as ex:
+            print(f"Error posting Ticket Opened log: {ex}")
+    finally:
+        bot._ticket_creation_locks.discard(user_lock_key)
 
 @bot.event
 async def on_interaction(interaction: discord.Interaction):
