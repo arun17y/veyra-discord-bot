@@ -239,7 +239,65 @@ def ensure_antinuke_schema():
         """)
         conn.commit()
         cursor.execute("CREATE TABLE IF NOT EXISTS leveling_ignored_channels (guild_id TEXT, channel_id TEXT, PRIMARY KEY (guild_id, channel_id))")
-        cursor.execute("CREATE TABLE IF NOT EXISTS sticky_messages (channel_id TEXT PRIMARY KEY, message_id TEXT, content TEXT, embed_data TEXT)")
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS leveling_settings (
+                guild_id TEXT PRIMARY KEY,
+                enabled INTEGER DEFAULT 1,
+                channel TEXT,
+                message TEXT,
+                level_modulo INTEGER DEFAULT 1,
+                min_level INTEGER DEFAULT 1,
+                color TEXT,
+                title TEXT,
+                description TEXT,
+                image TEXT,
+                thumbnail TEXT,
+                footer TEXT,
+                author_name TEXT,
+                author_icon TEXT,
+                footer_icon TEXT
+            )
+        """)
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS leveling_rewards (
+                guild_id TEXT,
+                role_id TEXT,
+                level INTEGER,
+                PRIMARY KEY (guild_id, role_id)
+            )
+        """)
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS sticky_messages (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                guild_id TEXT,
+                channel TEXT,
+                message TEXT,
+                last_message_id TEXT
+            )
+        """)
+        cursor.execute("PRAGMA table_info(sticky_messages)")
+        sticky_cols = {row['name'] for row in cursor.fetchall()}
+        if "id" not in sticky_cols:
+            try:
+                cursor.execute("DROP TABLE IF EXISTS sticky_messages")
+                cursor.execute("""
+                    CREATE TABLE sticky_messages (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        guild_id TEXT,
+                        channel TEXT,
+                        message TEXT,
+                        last_message_id TEXT
+                    )
+                """)
+            except Exception:
+                pass
+        else:
+            for s_col, s_type in [("guild_id", "TEXT"), ("channel", "TEXT"), ("message", "TEXT"), ("last_message_id", "TEXT")]:
+                if s_col not in sticky_cols:
+                    try:
+                        cursor.execute(f"ALTER TABLE sticky_messages ADD COLUMN {s_col} {s_type}")
+                    except Exception:
+                        pass
         conn.commit()
 
         cursor.execute("PRAGMA table_info(antinuke_settings)")
