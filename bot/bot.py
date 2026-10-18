@@ -6297,7 +6297,22 @@ class VerificationGroup(app_commands.Group):
         cursor.execute("UPDATE verification_settings SET enabled = 0 WHERE guild_id = ?", (str(interaction.guild.id),))
         conn.commit()
         conn.close()
-        await interaction.response.send_message("✅ Member verification has been **disabled**.")
+    @app_commands.command(name="setup", description="Deploy the verification gate in a designated channel")
+    @app_commands.checks.has_permissions(administrator=True)
+    async def setup(self, interaction: discord.Interaction, channel: Optional[discord.TextChannel] = None):
+        await interaction.response.defer()
+        target_ch = channel or interaction.channel
+        conn = get_db()
+        cursor = conn.cursor()
+        cursor.execute("INSERT OR IGNORE INTO verification_settings (guild_id) VALUES (?)", (str(interaction.guild.id),))
+        cursor.execute("UPDATE verification_settings SET channel = ?, enabled = 1 WHERE guild_id = ?", (str(target_ch.id), str(interaction.guild.id)))
+        conn.commit()
+        conn.close()
+        try:
+            await auto_setup_verification_gate(interaction.guild, force_recreate=True, allow_create=True)
+            await interaction.followup.send(f"✅ Verification gate deployed successfully in {target_ch.mention}!")
+        except Exception as e:
+            await interaction.followup.send(f"❌ Failed to deploy verification gate: {e}")
 
     @app_commands.command(name="setup_channel", description="Setup verification channel on your server")
     @app_commands.checks.has_permissions(administrator=True)
@@ -7086,6 +7101,33 @@ async def unlockall_root(interaction: discord.Interaction):
             except Exception:
                 pass
     await interaction.followup.send(f"🔓 Successfully unlocked **{unlocked}** channels.")
+
+
+@bot.tree.command(name="mute", description="Mute a member in the server with a timeout")
+@app_commands.checks.has_permissions(moderate_members=True)
+async def mute_root(interaction: discord.Interaction, member: discord.Member, minutes: Optional[int] = 1440, reason: str = "No reason provided"):
+    can_mod, mod_error = check_bot_can_moderate_interaction(interaction, member)
+    if not can_mod:
+        return await interaction.response.send_message(f"❌ Cannot mute this member: {mod_error}", ephemeral=True)
+    try:
+        duration = timedelta(minutes=minutes)
+        await member.timeout(duration, reason=reason)
+        expire_time = datetime.now(timezone.utc) + duration
+        expire_str = expire_time.strftime("%A, %B %d, %Y at %I:%M %p")
+        embed = create_modern_moderation_embed(
+            title="Member Silenced",
+            target=member,
+            moderator=interaction.user,
+            action="Active Timeout",
+            reason=reason,
+            duration=f"{minutes} minutes",
+            expires_at=expire_str,
+            color=discord.Color.from_rgb(24, 24, 27)
+        )
+        await interaction.response.send_message(embed=embed)
+        log_system_event(interaction.guild.id, interaction.user.name, 'Mute Command', f"Muted {member.name} for {minutes}m. Reason: {reason}")
+    except Exception as e:
+        await interaction.response.send_message(f"❌ Failed to mute member: {e}", ephemeral=True)
 
 
 @bot.tree.command(name="unmute", description="Unmute a user")
@@ -12134,6 +12176,7 @@ def register_discord_command_tree():
         StickyroleGroup(),
         SlowmodeGroup(),
         TicketGroup(),
+        VerificationGroup(),
         root_setup,
         WelcomeStandaloneGroup(),
         ExitStandaloneGroup()

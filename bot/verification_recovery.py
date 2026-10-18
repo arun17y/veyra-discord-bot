@@ -496,9 +496,7 @@ class InteractiveSetupWizardView(discord.ui.View):
         await interaction.response.edit_message(embed=embed, view=self)
 
 
-# ── 6. REGISTRATION FUNCTION ────────────────────────────────────────────────
 def setup_verification_and_recovery(bot: commands.Bot):
-    bot.tree.add_command(VerificationSystemGroup(bot))
     bot.tree.add_command(DisasterRecoveryGroup(bot))
     bot.tree.add_command(AntiNukeGroup(bot))
-    print("✅ Registered Verification, Disaster Recovery & AntiNuke Systems.")
+    print("✅ Registered Disaster Recovery & AntiNuke Systems.")
