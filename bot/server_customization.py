@@ -676,9 +676,9 @@ def setup_server_customization(bot: commands.Bot):
             await ctx.send(f"❌ Failed: `{e}`")
 
     # 2. Server Icon
-    @bot.command(name="servericon", aliases=["seticon"])
+    @bot.command(name="setservericon", aliases=["seticon", "changeicon"])
     @commands.has_permissions(manage_guild=True)
-    async def p_servericon(ctx: commands.Context, url: typing.Optional[str] = None):
+    async def p_setservericon(ctx: commands.Context, url: typing.Optional[str] = None):
         att = ctx.message.attachments[0] if ctx.message.attachments else None
         try:
             raw = await fetch_asset_bytes(url=url, attachment=att)

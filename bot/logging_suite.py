@@ -909,7 +909,17 @@ class SetupInviteSlashGroup(app_commands.Group):
 
 def register_logging_suite(bot: commands.Bot, setup_group: app_commands.Group):
     cog = LoggingSuiteCog(bot)
-    bot.add_cog(cog)
+    try:
+        loop = asyncio.get_event_loop()
+        if loop.is_running():
+            asyncio.create_task(bot.add_cog(cog))
+        else:
+            loop.run_until_complete(bot.add_cog(cog))
+    except Exception:
+        try:
+            asyncio.create_task(bot.add_cog(cog))
+        except Exception:
+            pass
 
     setup_logs = SetupLogsGroup()
     setup_invite = SetupInviteSlashGroup()
