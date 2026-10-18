@@ -8,7 +8,10 @@ import discord
 from discord.ext import commands
 from discord import app_commands
 
-from bot.db_adapter import get_db
+try:
+    from bot.db_adapter import get_db
+except ImportError:
+    from db_adapter import get_db
 
 COLOR_CREATE = discord.Color.from_rgb(34, 197, 94)    # Green 0x22c55e
 COLOR_DELETE = discord.Color.from_rgb(239, 68, 68)    # Red 0xef4444
