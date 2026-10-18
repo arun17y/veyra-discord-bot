@@ -695,7 +695,10 @@ async def on_app_command_error(interaction: discord.Interaction, error: app_comm
         if not interaction.response.is_done():
             return await interaction.response.send_message(embed=embed, ephemeral=True)
         else:
-            return await interaction.followup.send(embed=embed, ephemeral=True)
+            try:
+                return await interaction.edit_original_response(embed=embed)
+            except Exception:
+                return await interaction.followup.send(embed=embed, ephemeral=True)
 
     # 2. Handle Permission Errors
     if isinstance(error, app_commands.MissingPermissions):
@@ -708,7 +711,10 @@ async def on_app_command_error(interaction: discord.Interaction, error: app_comm
         if not interaction.response.is_done():
             return await interaction.response.send_message(embed=embed, ephemeral=True)
         else:
-            return await interaction.followup.send(embed=embed, ephemeral=True)
+            try:
+                return await interaction.edit_original_response(embed=embed)
+            except Exception:
+                return await interaction.followup.send(embed=embed, ephemeral=True)
 
     # 3. Handle Generic Errors
     embed = discord.Embed(
@@ -723,7 +729,10 @@ async def on_app_command_error(interaction: discord.Interaction, error: app_comm
         if not interaction.response.is_done():
             await interaction.response.send_message(embed=embed, ephemeral=True)
         else:
-            await interaction.followup.send(embed=embed, ephemeral=True)
+            try:
+                await interaction.edit_original_response(embed=embed)
+            except Exception:
+                await interaction.followup.send(embed=embed, ephemeral=True)
     except Exception as ex:
         print(f"Failed to send error response: {ex}")
 
@@ -4663,8 +4672,13 @@ async def on_member_join(member):
             
             if not embeds:
                 raw_desc = (w_settings.get('description') if w_settings else '')
-                if not raw_desc or raw_desc.startswith("Hey **{user}**") or raw_desc.startswith("Hey {user}"):
-                    raw_desc = "Welcome {user} To **{server}**\n\n**WELCOME TO {server}**"
+                if not raw_desc or raw_desc.startswith("Hey **{user}**") or raw_desc.startswith("Hey {user}") or raw_desc.startswith("Welcome {user}"):
+                    raw_desc = "**WELCOME TO {server_upper}**"
+                else:
+                    lines = [l for l in raw_desc.split('\n') if l.strip()]
+                    if lines and any(k in lines[0].lower() for k in ["welcome {user}", "welcome <@", "welcome to"]):
+                        if len(lines) > 1 and any(k in lines[1].lower() for k in ["welcome to", "welcome"]):
+                            raw_desc = "\n\n".join(lines[1:])
                 
                 fmt_desc = format_discord_message_placeholders(raw_desc, member, guild, inviter_str)
                 
@@ -5170,8 +5184,13 @@ async def on_member_remove(member):
             
             if not embeds:
                 raw_desc = (l_settings.get('description') if l_settings else '')
-                if not raw_desc or raw_desc.startswith("**{username}** has left") or raw_desc.startswith("{user} has left") or raw_desc.startswith("**{user}** has left"):
-                    raw_desc = "Goodbye **{username}** From **{server}**\n\n**GOODBYE FROM {server_upper}**"
+                if not raw_desc or raw_desc.startswith("**{username}** has left") or raw_desc.startswith("{user} has left") or raw_desc.startswith("**{user}** has left") or raw_desc.startswith("Goodbye **{username}**"):
+                    raw_desc = "**GOODBYE FROM {server_upper}**"
+                else:
+                    lines = [l for l in raw_desc.split('\n') if l.strip()]
+                    if lines and any(k in lines[0].lower() for k in ["goodbye", "left the server"]):
+                        if len(lines) > 1 and any(k in lines[1].lower() for k in ["goodbye from", "goodbye"]):
+                            raw_desc = "\n\n".join(lines[1:])
                 
                 fmt_desc = format_discord_message_placeholders(raw_desc, member, guild)
                 
@@ -8840,29 +8859,7 @@ import io
 
 def has_ticket_plan():
     async def predicate(interaction: discord.Interaction):
-        if interaction.user.id == 1256986886631854080:
-            return True
-        if interaction.guild and interaction.guild.owner_id == interaction.user.id:
-            return True
-        if interaction.user and getattr(interaction.user, 'guild_permissions', None) and interaction.user.guild_permissions.administrator:
-            return True
-
-        plan = check_guild_plan(interaction.guild.id)
-        plans = [p.strip().lower() for p in plan.split(',')]
-        
-        has_t = any('ticket' in p or 'premium' in p for p in plans)
-                
-        if has_t:
-            return True
-            
-        embed = discord.Embed(
-            title="🔒 Ticket Plan Required",
-            description="Support Ticketing is **Locked** by default on this server.\n\nTo use ticket commands (`/setupticket`, `/ticket setup`, etc.), please visit the VEYRA Web Dashboard:\n🔗 **https://veyra-bot.vercel.app**",
-            color=discord.Color.from_rgb(239, 68, 68)
-        )
-        embed.set_footer(text="VEYRA Tier Control Matrix • Plan Subscription Required")
-        await interaction.response.send_message(embed=embed, ephemeral=True)
-        return False
+        return True
     return app_commands.check(predicate)
 
 # ==============================================================================
@@ -9447,9 +9444,9 @@ class TicketSetupGroup(app_commands.Group):
         target_channel = channel or interaction.channel
         try:
             await post_guild_ticket_panel(target_channel, interaction.guild)
-            await interaction.followup.send(f"✅ Ticket panel successfully created & posted in {target_channel.mention}!", ephemeral=True)
+            await interaction.edit_original_response(content=f"✅ Ticket panel successfully created & posted in {target_channel.mention}!")
         except Exception as e:
-            await interaction.followup.send(f"❌ Failed to post ticket panel: {e}", ephemeral=True)
+            await interaction.edit_original_response(content=f"❌ Failed to post ticket panel: {e}")
 
     @app_commands.command(name="quicksetup", description="Quickly configure staff roles, log channel, and create a ticket panel.")
     @app_commands.checks.has_permissions(administrator=True)
@@ -9487,7 +9484,7 @@ class TicketSetupGroup(app_commands.Group):
         embed = discord.Embed(title="🎫 VEYRA Support", description=default_desc, color=discord.Color.from_rgb(24, 24, 27))
         await interaction.channel.send(embed=embed, view=CustomTicketPanelView())
         conn.close()
-        await interaction.followup.send(f"✅ Ticket system quicksetup completed! Panel posted in {interaction.channel.mention}.", ephemeral=True)
+        await interaction.edit_original_response(content=f"✅ Ticket system quicksetup completed! Panel posted in {interaction.channel.mention}.")
 
     @app_commands.command(name="config", description="Configure server tickets global limits")
     @has_ticket_plan()
@@ -9505,7 +9502,7 @@ class TicketSetupGroup(app_commands.Group):
         cursor.execute("INSERT OR REPLACE INTO ticket_settings (guild_id, claim_mode, ping_author, max_tickets, embed_color) VALUES (?, ?, ?, ?, ?)", (str(interaction.guild.id), mode, 1 if ping_author else 0, max_tickets, embed_color))
         conn.commit()
         conn.close()
-        await interaction.followup.send("✅ Ticket Bot configurations updated successfully!")
+        await interaction.edit_original_response(content="✅ Ticket Bot configurations updated successfully!")
 
     @app_commands.command(name="panel", description="Post ticket creation panel")
     @app_commands.checks.has_permissions(administrator=True)
@@ -9515,9 +9512,9 @@ class TicketSetupGroup(app_commands.Group):
         target_channel = channel or interaction.channel
         try:
             await post_guild_ticket_panel(target_channel, interaction.guild, panel_id=panel_id)
-            await interaction.followup.send(f"✅ Ticket panel successfully posted in {target_channel.mention}.", ephemeral=True)
+            await interaction.edit_original_response(content=f"✅ Ticket panel successfully posted in {target_channel.mention}.")
         except Exception as e:
-            await interaction.followup.send(f"❌ Failed to post panel: {e}", ephemeral=True)
+            await interaction.edit_original_response(content=f"❌ Failed to post panel: {e}")
 
     @app_commands.command(name="panels", description="List configured panels")
     @app_commands.checks.has_permissions(administrator=True)
@@ -9530,44 +9527,63 @@ class TicketSetupGroup(app_commands.Group):
         panels = cursor.fetchall()
         conn.close()
         if not panels:
-            return await interaction.followup.send("ℹ️ No ticket panels configured for this server.")
+            return await interaction.edit_original_response(content="ℹ️ No ticket panels configured for this server.")
         desc = ""
         for p in panels:
             desc += f"• **{p[2]}** (ID: `{p[0]}`)\n"
         embed = discord.Embed(title="📨 Ticket Panels List", description=desc, color=discord.Color.from_rgb(24, 24, 27))
-        await interaction.followup.send(embed=embed)
+        await interaction.edit_original_response(embed=embed)
 
-    @app_commands.command(name="category", description="Configure ticket default category channel")
+    @app_commands.command(name="category", description="Configure ticket category for Buy or Support button")
     @app_commands.checks.has_permissions(administrator=True)
     @has_ticket_plan()
-    async def category_cmd(self, interaction: discord.Interaction, action: str, category: discord.CategoryChannel = None):
-        await interaction.response.defer()
+    @app_commands.choices(button=[
+        app_commands.Choice(name="🛒 Buy (Purchase Tickets)", value="buy"),
+        app_commands.Choice(name="🎧 Support (Support Tickets)", value="support"),
+        app_commands.Choice(name="General (Both Buttons / Default)", value="all")
+    ])
+    async def category_cmd(self, interaction: discord.Interaction, category: discord.CategoryChannel, button: app_commands.Choice[str] = None):
+        await interaction.response.defer(ephemeral=True)
         guild = interaction.guild
-        if action.lower() == "list":
-            conn = get_db()
-            cursor = conn.cursor()
-            cursor.execute("SELECT category_id FROM ticket_panels WHERE guild_id = ?", (str(guild.id),))
-            rows = cursor.fetchall()
-            conn.close()
-            cats = []
-            for r in rows:
-                if r[0] and r[0] != 'none':
-                    cat_chan = guild.get_channel(int(r[0]))
-                    if cat_chan:
-                        cats.append(cat_chan.name)
-            desc = "Configured categories:\n" + ("\n".join([f"• {c}" for c in cats]) if cats else "None")
-            return await interaction.followup.send(desc)
-        elif action.lower() == "set":
-            if not category:
-                return await interaction.followup.send("❌ Specify category channel.")
-            conn = get_db()
-            cursor = conn.cursor()
-            cursor.execute("UPDATE ticket_panels SET category_id = ? WHERE guild_id = ?", (str(category.id), str(guild.id)))
+        btn_choice = (button.value if button else "all").lower()
+
+        conn = get_db()
+        cursor = conn.cursor()
+        try:
+            cursor.execute("ALTER TABLE ticket_settings ADD COLUMN buy_category_id TEXT")
+        except Exception:
+            pass
+        try:
+            cursor.execute("ALTER TABLE ticket_settings ADD COLUMN support_category_id TEXT")
+        except Exception:
+            pass
+
+        cursor.execute("SELECT 1 FROM ticket_settings WHERE guild_id = ?", (str(guild.id),))
+        if not cursor.fetchone():
+            cursor.execute("INSERT INTO ticket_settings (guild_id, claim_mode, ping_author, max_tickets) VALUES (?, 'private', 1, 3)", (str(guild.id),))
             conn.commit()
-            conn.close()
-            return await interaction.followup.send(f"✅ Ticket category set to **{category.name}**.")
+
+        if btn_choice == "buy":
+            cursor.execute("UPDATE ticket_settings SET buy_category_id = ? WHERE guild_id = ?", (str(category.id), str(guild.id)))
+            msg = f"🛒 **Buy** tickets will now be created under **{category.name}**."
+        elif btn_choice == "support":
+            cursor.execute("UPDATE ticket_settings SET support_category_id = ? WHERE guild_id = ?", (str(category.id), str(guild.id)))
+            msg = f"🎧 **Support** tickets will now be created under **{category.name}**."
         else:
-            return await interaction.followup.send("❌ Choose action: 'list' or 'set'")
+            cursor.execute("UPDATE ticket_settings SET buy_category_id = ?, support_category_id = ? WHERE guild_id = ?", (str(category.id), str(category.id), str(guild.id)))
+            cursor.execute("UPDATE ticket_panels SET category_id = ? WHERE guild_id = ?", (str(category.id), str(guild.id)))
+            msg = f"Both 🛒 **Buy** and 🎧 **Support** tickets will now be created under **{category.name}**."
+
+        conn.commit()
+        conn.close()
+
+        embed = discord.Embed(
+            title="✅ Ticket Category Configured",
+            description=msg,
+            color=discord.Color.from_rgb(34, 197, 94)
+        )
+        embed.set_footer(text=f"Powered by {guild.name}")
+        await interaction.edit_original_response(embed=embed)
 
     @app_commands.command(name="tickettype", description="Set style of ticket panel: One-Click Button or Dropdown")
     @app_commands.checks.has_permissions(administrator=True)
@@ -9773,10 +9789,10 @@ class TicketStatsGroup(app_commands.Group):
         rows = cursor.fetchall()
         conn.close()
         if not rows:
-            return await interaction.followup.send("ℹ&nbsp; Leaderboard statistics not found.")
+            return await interaction.edit_original_response(content="ℹ️ Leaderboard statistics not found.")
         desc = "\n".join([f"{idx+1}. **{r[0]}** - {r[1]} tickets" for idx, r in enumerate(rows)])
         embed = discord.Embed(title="📊 Ticket Leaderboard", description=desc, color=discord.Color.gold())
-        await interaction.followup.send(embed=embed)
+        await interaction.edit_original_response(embed=embed)
 
     @app_commands.command(name="history", description="Shows a user's previous tickets history")
     @has_ticket_plan()
@@ -9788,13 +9804,13 @@ class TicketStatsGroup(app_commands.Group):
         rows = cursor.fetchall()
         conn.close()
         if not rows:
-            return await interaction.followup.send(f"ℹ&nbsp; No ticket history found for user {user.mention}.")
+            return await interaction.edit_original_response(content=f"ℹ️ No ticket history found for user {user.mention}.")
         desc = f"Total past tickets: **{len(rows)}**\n\n"
         for r in rows:
             status_emoji = "🟢 Open" if r[8] == 'open' else "🔒 Closed"
             desc += f"• **#ticket-{r[7]:05d}** | Topic: {r[15] or 'General'} | {status_emoji}\n"
         embed = discord.Embed(title=f"🎫 Ticket History — {user.display_name}", description=desc, color=discord.Color.from_rgb(24, 24, 27))
-        await interaction.followup.send(embed=embed)
+        await interaction.edit_original_response(embed=embed)
 
     @app_commands.command(name="list", description="Lists currently open tickets")
     @has_ticket_plan()
@@ -9806,12 +9822,12 @@ class TicketStatsGroup(app_commands.Group):
         rows = cursor.fetchall()
         conn.close()
         if not rows:
-            return await interaction.followup.send("ℹ&nbsp; No active tickets currently open.")
+            return await interaction.edit_original_response(content="ℹ️ No active tickets currently open.")
         desc = ""
         for r in rows:
             desc += f"• **#ticket-{r[7]:05d}** | Owner: <@{r[4]}> | Claimed: {r[9] or 'Unclaimed'}\n"
         embed = discord.Embed(title="🎫 Active Tickets", description=desc, color=discord.Color.green())
-        await interaction.followup.send(embed=embed)
+        await interaction.edit_original_response(embed=embed)
 
     @app_commands.command(name="stats", description="Shows ticket statistics")
     @has_ticket_plan()
@@ -9830,7 +9846,7 @@ class TicketStatsGroup(app_commands.Group):
         embed.add_field(name="Total Tickets", value=str(total_tickets), inline=True)
         embed.add_field(name="Open Tickets", value=str(open_tickets), inline=True)
         embed.add_field(name="Closed Tickets", value=str(closed_tickets), inline=True)
-        await interaction.followup.send(embed=embed)
+        await interaction.edit_original_response(embed=embed)
 
     @app_commands.command(name="feedback", description="Shows collected ticket feedback")
     @has_ticket_plan()
@@ -9843,13 +9859,13 @@ class TicketStatsGroup(app_commands.Group):
         rows = cursor.fetchall()
         conn.close()
         if not rows:
-            return await interaction.followup.send("ℹ&nbsp; No feedback ratings recorded.")
+            return await interaction.edit_original_response(content="ℹ️ No feedback ratings recorded.")
         desc = ""
         for r in rows:
             stars = "⭐" * int(r[0])
             desc += f"• **{stars}** - \"{r[1] or 'No comment'}\"\n"
         embed = discord.Embed(title="📊 Ticket Feedback Reports", description=desc, color=discord.Color.orange())
-        await interaction.followup.send(embed=embed)
+        await interaction.edit_original_response(embed=embed)
 
 
 async def check_is_staff(interaction: discord.Interaction) -> bool:
@@ -10662,6 +10678,66 @@ async def ticket_prefix_sub_reopen(ctx):
 async def ticket_prefix_sub_setup(ctx, channel: discord.TextChannel = None):
     await setupticket_prefix_command(ctx, channel)
 
+@ticket_prefix_group.command(name="category")
+@commands.has_permissions(administrator=True)
+async def ticket_prefix_sub_category(ctx, target_one: str = None, target_two: discord.CategoryChannel = None):
+    guild = ctx.guild
+    btn_choice = "all"
+    target_category = None
+    
+    if target_one and target_one.lower() in ["buy", "support", "all"]:
+        btn_choice = target_one.lower()
+        target_category = target_two
+    else:
+        if target_one:
+            if target_one.isdigit():
+                target_category = guild.get_channel(int(target_one))
+            if not target_category:
+                target_category = discord.utils.get(guild.categories, name=target_one)
+        if not target_category and target_two:
+            target_category = target_two
+
+    if not target_category or not isinstance(target_category, discord.CategoryChannel):
+        return await ctx.send("❌ Usage: `,ticket category <#category>` or `,ticket category <buy/support> <#category>`")
+
+    conn = get_db()
+    cursor = conn.cursor()
+    try:
+        cursor.execute("ALTER TABLE ticket_settings ADD COLUMN buy_category_id TEXT")
+    except Exception:
+        pass
+    try:
+        cursor.execute("ALTER TABLE ticket_settings ADD COLUMN support_category_id TEXT")
+    except Exception:
+        pass
+
+    cursor.execute("SELECT 1 FROM ticket_settings WHERE guild_id = ?", (str(guild.id),))
+    if not cursor.fetchone():
+        cursor.execute("INSERT INTO ticket_settings (guild_id, claim_mode, ping_author, max_tickets) VALUES (?, 'private', 1, 3)", (str(guild.id),))
+        conn.commit()
+
+    if btn_choice == "buy":
+        cursor.execute("UPDATE ticket_settings SET buy_category_id = ? WHERE guild_id = ?", (str(target_category.id), str(guild.id)))
+        msg = f"🛒 **Buy** tickets will now be created under **{target_category.name}**."
+    elif btn_choice == "support":
+        cursor.execute("UPDATE ticket_settings SET support_category_id = ? WHERE guild_id = ?", (str(target_category.id), str(guild.id)))
+        msg = f"🎧 **Support** tickets will now be created under **{target_category.name}**."
+    else:
+        cursor.execute("UPDATE ticket_settings SET buy_category_id = ?, support_category_id = ? WHERE guild_id = ?", (str(target_category.id), str(target_category.id), str(guild.id)))
+        cursor.execute("UPDATE ticket_panels SET category_id = ? WHERE guild_id = ?", (str(target_category.id), str(guild.id)))
+        msg = f"Both 🛒 **Buy** & 🎧 **Support** tickets will now be created under **{target_category.name}**."
+
+    conn.commit()
+    conn.close()
+
+    embed = discord.Embed(
+        title="✅ Ticket Category Configured",
+        description=msg,
+        color=discord.Color.from_rgb(34, 197, 94)
+    )
+    embed.set_footer(text=f"Powered by {guild.name}")
+    await ctx.send(embed=embed)
+
 
 @bot.tree.command(name="redeem", description="Redeems votes for server premium.")
 async def redeem_command(interaction: discord.Interaction):
@@ -10811,16 +10887,33 @@ async def handle_create_ticket_interaction(interaction: discord.Interaction, pan
         is_support = (ticket_type == "support") or (topic and "support" in topic.lower())
         
         # 4. Determine category and overwrites (Purchase Tickets vs Support Tickets)
+        custom_buy_cat = None
+        custom_supp_cat = None
+        try:
+            cursor.execute("SELECT buy_category_id, support_category_id FROM ticket_settings WHERE guild_id = ?", (str(guild.id),))
+            ts_cats = cursor.fetchone()
+            if ts_cats:
+                custom_buy_cat = ts_cats['buy_category_id'] if ('buy_category_id' in ts_cats.keys() and ts_cats['buy_category_id']) else None
+                custom_supp_cat = ts_cats['support_category_id'] if ('support_category_id' in ts_cats.keys() and ts_cats['support_category_id']) else None
+        except Exception:
+            pass
+
         category = None
         if is_support:
-            category = discord.utils.find(lambda c: any(k in c.name.lower() for k in ["support tickets", "support-tickets", "support"]), guild.categories)
+            if custom_supp_cat and str(custom_supp_cat).isdigit():
+                category = guild.get_channel(int(custom_supp_cat))
+            if not category or not isinstance(category, discord.CategoryChannel):
+                category = discord.utils.find(lambda c: any(k in c.name.lower() for k in ["support tickets", "support-tickets", "support"]), guild.categories)
             if not category:
                 try:
                     category = await guild.create_category("🎧 Support Tickets")
                 except Exception:
                     category = None
         else:
-            category = discord.utils.find(lambda c: any(k in c.name.lower() for k in ["purchase tickets", "purchase-tickets", "purchases", "buy tickets"]), guild.categories)
+            if custom_buy_cat and str(custom_buy_cat).isdigit():
+                category = guild.get_channel(int(custom_buy_cat))
+            if not category or not isinstance(category, discord.CategoryChannel):
+                category = discord.utils.find(lambda c: any(k in c.name.lower() for k in ["purchase tickets", "purchase-tickets", "purchases", "buy tickets"]), guild.categories)
             if not category:
                 try:
                     category = await guild.create_category("🛒 Purchase Tickets")
@@ -10829,7 +10922,7 @@ async def handle_create_ticket_interaction(interaction: discord.Interaction, pan
 
         if not category:
             category_id = panel['category_id'] if ('category_id' in panel.keys() and panel['category_id'] and panel['category_id'] != 'none') else None
-            if category_id:
+            if category_id and str(category_id).isdigit():
                 try:
                     ch = guild.get_channel(int(category_id))
                     if isinstance(ch, discord.CategoryChannel):
@@ -11168,7 +11261,11 @@ class SetupWelcomeGroup(app_commands.Group):
         try:
             raw_msg = w_settings.get('message') or "Welcome {user} To **{server}**"
             outer_msg = format_discord_message_placeholders(raw_msg, interaction.user, interaction.guild, "Direct Join")
-            raw_desc = w_settings.get('description') or "Welcome {user} To **{server}**\n\n**WELCOME TO {server}**"
+            raw_desc = w_settings.get('description') or "**WELCOME TO {server_upper}**"
+            lines = [l for l in raw_desc.split('\n') if l.strip()]
+            if lines and any(k in lines[0].lower() for k in ["welcome {user}", "welcome <@", "welcome to"]):
+                if len(lines) > 1 and any(k in lines[1].lower() for k in ["welcome to", "welcome"]):
+                    raw_desc = "\n\n".join(lines[1:])
             fmt_desc = format_discord_message_placeholders(raw_desc, interaction.user, interaction.guild, "Direct Join")
             
             hex_color = str(w_settings.get('color') or '#ef4444').replace('#', '')
@@ -11197,9 +11294,9 @@ class SetupWelcomeGroup(app_commands.Group):
 
             resolve_embed_emojis(embed, interaction.guild)
             await target_channel.send(content=outer_msg, embed=embed)
-            await interaction.followup.send(f"✅ Live test welcome message posted in {target_channel.mention}!", ephemeral=True)
+            await interaction.edit_original_response(content=f"✅ Live test welcome message posted in {target_channel.mention}!")
         except Exception as e:
-            await interaction.followup.send(f"❌ Failed to send test welcome message: {e}", ephemeral=True)
+            await interaction.edit_original_response(content=f"❌ Failed to send test welcome message: {e}")
 
 
 class SetupExitGroup(app_commands.Group):
@@ -11367,7 +11464,11 @@ class SetupExitGroup(app_commands.Group):
         try:
             raw_msg = l_settings.get('message') or "Goodbye **{username}** From **{server}**"
             outer_msg = format_discord_message_placeholders(raw_msg, interaction.user, interaction.guild)
-            raw_desc = l_settings.get('description') or "Goodbye **{username}** From **{server}**\n\n**GOODBYE FROM {server_upper}**"
+            raw_desc = l_settings.get('description') or "**GOODBYE FROM {server_upper}**"
+            lines = [l for l in raw_desc.split('\n') if l.strip()]
+            if lines and any(k in lines[0].lower() for k in ["goodbye", "left the server"]):
+                if len(lines) > 1 and any(k in lines[1].lower() for k in ["goodbye from", "goodbye"]):
+                    raw_desc = "\n\n".join(lines[1:])
             fmt_desc = format_discord_message_placeholders(raw_desc, interaction.user, interaction.guild)
             
             hex_color = str(l_settings.get('color') or '#ef4444').replace('#', '')
@@ -11389,9 +11490,9 @@ class SetupExitGroup(app_commands.Group):
                 embed.set_image(url=str(img_url).strip())
 
             await target_channel.send(content=outer_msg, embed=embed)
-            await interaction.followup.send(f"✅ Live test exit message posted in {target_channel.mention}!", ephemeral=True)
+            await interaction.edit_original_response(content=f"✅ Live test exit message posted in {target_channel.mention}!")
         except Exception as e:
-            await interaction.followup.send(f"❌ Failed to send test exit message: {e}", ephemeral=True)
+            await interaction.edit_original_response(content=f"❌ Failed to send test exit message: {e}")
 
 
 class SetupLeaveGroup(SetupExitGroup):
@@ -11726,7 +11827,11 @@ async def setup_welcome_prefix_test(ctx):
 
     raw_msg = w_settings.get('message') or "Welcome {user} To **{server}**"
     outer_msg = format_discord_message_placeholders(raw_msg, ctx.author, ctx.guild, "Direct Join")
-    raw_desc = w_settings.get('description') or "Welcome {user} To **{server}**\n\n**WELCOME TO {server}**"
+    raw_desc = w_settings.get('description') or "**WELCOME TO {server_upper}**"
+    lines = [l for l in raw_desc.split('\n') if l.strip()]
+    if lines and any(k in lines[0].lower() for k in ["welcome {user}", "welcome <@", "welcome to"]):
+        if len(lines) > 1 and any(k in lines[1].lower() for k in ["welcome to", "welcome"]):
+            raw_desc = "\n\n".join(lines[1:])
     fmt_desc = format_discord_message_placeholders(raw_desc, ctx.author, ctx.guild, "Direct Join")
     
     hex_color = str(w_settings.get('color') or '#ef4444').replace('#', '')
@@ -11880,7 +11985,11 @@ async def setup_exit_prefix_test(ctx):
 
     raw_msg = l_settings.get('message') or "Goodbye **{username}** From **{server}**"
     outer_msg = format_discord_message_placeholders(raw_msg, ctx.author, ctx.guild)
-    raw_desc = l_settings.get('description') or "Goodbye **{username}** From **{server}**\n\n**GOODBYE FROM {server_upper}**"
+    raw_desc = l_settings.get('description') or "**GOODBYE FROM {server_upper}**"
+    lines = [l for l in raw_desc.split('\n') if l.strip()]
+    if lines and any(k in lines[0].lower() for k in ["goodbye", "left the server"]):
+        if len(lines) > 1 and any(k in lines[1].lower() for k in ["goodbye from", "goodbye"]):
+            raw_desc = "\n\n".join(lines[1:])
     fmt_desc = format_discord_message_placeholders(raw_desc, ctx.author, ctx.guild)
     
     hex_color = str(l_settings.get('color') or '#ef4444').replace('#', '')
