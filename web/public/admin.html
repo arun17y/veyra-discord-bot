@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VEYRA - Sovereign Admin Panel</title>
+    
+    <!-- Modern typography and FontAwesome icons -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Outfit:wght@300;400;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Import Maps for Modern ES Modules -->
+    <script type="importmap">
+      {
+        "imports": {
+          "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+          "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/",
+          "gsap": "https://esm.sh/gsap@3.12.5",
+          "ogl": "https://unpkg.com/ogl@1.0.11/dist/ogl.mjs"
+        }
+      }
+    </script>
+    
+    <!-- Local styles -->
+    <link rel="stylesheet" href="css/themes.css">
+    <link rel="stylesheet" href="css/dashboard.css">
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+</head>
+<body class="theme-slate">
+    <canvas id="smokey-fluid-canvas" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: 100000; mix-blend-mode: screen;"></canvas>
+    <canvas id="bg-violet-particles" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: -1;"></canvas>
+
+    <!-- Custom Cursor Glow -->
+    <div id="custom-cursor"></div>
+
+    <!-- Background mesh overlays -->
+    <div class="ambient-mesh"></div>
+    <div class="grid-mask"></div>
+    <div class="scanlines"></div>
+    <div id="lightpillar-container" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -2; pointer-events: none; opacity: 0.55; mix-blend-mode: screen;"></div>
+
+    <!-- Header Navigation Bar -->
+    <nav class="navbar" id="main-nav">
+        <div class="nav-logo" onclick="window.location.href='/'" style="cursor: pointer;">
+            <img src="assets/bypass_logs_avatar.webp" alt="VEYRA Logo" style="width: 24px; height: 24px; border-radius: 50%; object-fit: cover; border: 1.5px solid rgba(255,255,255,0.2); vertical-align: middle; margin-right: 6px; display: inline-block;">
+            <span>VEYRA</span>
+        </div>
+        <ul class="nav-links" style="display: flex; gap: 28px; list-style: none; align-items: center;">
+            <li class="nav-item" id="nav-home">
+                <button class="gen-btn" onclick="window.location.href='/'">
+                    <div class="gen-txt-wrapper">
+                        <span class="gen-btn-letter">H</span>
+                        <span class="gen-btn-letter">o</span>
+                        <span class="gen-btn-letter">m</span>
+                        <span class="gen-btn-letter">e</span>
+                    </div>
+                </button>
+            </li>
+            <li class="nav-item" id="nav-manage-servers">
+                <button class="gen-btn" onclick="window.location.href='/manage'">
+                    <div class="gen-txt-wrapper">
+                        <span class="gen-btn-letter">M</span>
+                        <span class="gen-btn-letter">a</span>
+                        <span class="gen-btn-letter">n</span>
+                        <span class="gen-btn-letter">a</span>
+                        <span class="gen-btn-letter">g</span>
+                        <span class="gen-btn-letter">e</span>
+                        <span class="gen-btn-letter">&nbsp;</span>
+                        <span class="gen-btn-letter">S</span>
+                        <span class="gen-btn-letter">e</span>
+                        <span class="gen-btn-letter">r</span>
+                        <span class="gen-btn-letter">v</span>
+                        <span class="gen-btn-letter">e</span>
+                        <span class="gen-btn-letter">r</span>
+                        <span class="gen-btn-letter">s</span>
+                    </div>
+                </button>
+            </li>
+            <li class="nav-item" id="nav-features">
+                <button class="gen-btn" onclick="window.location.href='/#features'">
+                    <div class="gen-txt-wrapper">
+                        <span class="gen-btn-letter">F</span>
+                        <span class="gen-btn-letter">e</span>
+                        <span class="gen-btn-letter">a</span>
+                        <span class="gen-btn-letter">t</span>
+                        <span class="gen-btn-letter">u</span>
+                        <span class="gen-btn-letter">r</span>
+                        <span class="gen-btn-letter">e</span>
+                        <span class="gen-btn-letter">s</span>
+                    </div>
+                </button>
+            </li>
+            <li class="nav-item" id="nav-tickets">
+                <button class="gen-btn" onclick="window.location.href='/ticket'">
+                    <div class="gen-txt-wrapper">
+                        <span class="gen-btn-letter">T</span>
+                        <span class="gen-btn-letter">i</span>
+                        <span class="gen-btn-letter">c</span>
+                        <span class="gen-btn-letter">k</span>
+                        <span class="gen-btn-letter">e</span>
+                        <span class="gen-btn-letter">t</span>
+                        <span class="gen-btn-letter">s</span>
+                    </div>
+                </button>
+            </li>
+            <li class="nav-item" id="nav-pricing">
+                <button class="gen-btn" onclick="window.location.href='/#pricing'">
+                    <div class="gen-txt-wrapper">
+                        <span class="gen-btn-letter">P</span>
+                        <span class="gen-btn-letter">r</span>
+                        <span class="gen-btn-letter">i</span>
+                        <span class="gen-btn-letter">c</span>
+                        <span class="gen-btn-letter">i</span>
+                        <span class="gen-btn-letter">n</span>
+                        <span class="gen-btn-letter">g</span>
+                    </div>
+                </button>
+            </li>
+            <li class="nav-item" id="nav-faq">
+                <button class="gen-btn" onclick="window.location.href='/#faq'">
+                    <div class="gen-txt-wrapper">
+                        <span class="gen-btn-letter">F</span>
+                        <span class="gen-btn-letter">a</span>
+                        <span class="gen-btn-letter">q</span>
+                    </div>
+                </button>
+            </li>
+            <li class="nav-item active" id="nav-admin">
+                <button class="gen-btn active" onclick="window.location.href='/admin'">
+                    <div class="gen-txt-wrapper" style="color: #f59e0b;">
+                        <i class="fas fa-crown" style="margin-right: 4px;"></i>
+                        <span class="gen-btn-letter">A</span>
+                        <span class="gen-btn-letter">d</span>
+                        <span class="gen-btn-letter">m</span>
+                        <span class="gen-btn-letter">i</span>
+                        <span class="gen-btn-letter">n</span>
+                    </div>
+                </button>
+            </li>
+        </ul>
+        <div class="nav-auth" style="display: flex; align-items: center; gap: 12px; position: relative;">
+            <button class="liquid-metal-btn" onclick="simulateLogin()" id="login-btn">
+                <div class="liquid-metal-btn-inner">
+                    <i class="fab fa-discord" style="color: #a855f7;"></i>
+                    <span>Login with Discord</span>
+                </div>
+            </button>
+
+            <!-- Logged-in Header Dropdown Buttons -->
+            <div id="header-user-widgets" style="display: none; align-items: center; gap: 12px; position: relative;">
+                <!-- Server Avatar Dropdown Trigger -->
+                <div id="header-server-dropdown-trigger-container" style="position: relative; display: none;">
+                    <div onclick="toggleHeaderDropdown('header-server-dropdown')" style="display: flex; align-items: center; gap: 6px; cursor: pointer; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); padding: 4px 10px 4px 6px; border-radius: 20px; transition: background 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.1)'" onmouseout="this.style.background='rgba(255,255,255,0.05)'">
+                        <div style="width: 28px; height: 28px; border-radius: 50%; background: #a855f7; overflow: hidden; display: flex; align-items: center; justify-content: center; border: 1px solid rgba(255,255,255,0.2);" id="header-server-avatar-img">
+                            <img src="assets/bypass_logs_avatar.webp" style="width: 100%; height: 100%; object-fit: cover;">
+                        </div>
+                        <i class="fas fa-caret-down" style="color: #94a3b8; font-size: 0.75rem;"></i>
+                    </div>
+
+                    <!-- Server Dropdown Menu Popover -->
+                    <div id="header-server-dropdown" style="display: none; position: absolute; right: 0; top: 42px; width: 240px; background: #2f3136; border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; box-shadow: 0 15px 35px rgba(0,0,0,0.7); z-index: 9999; overflow: hidden; font-family: sans-serif;">
+                        <div style="border-left: 4px solid #7c3aed; background: #202225; padding: 12px 14px; display: flex; align-items: center; gap: 10px;">
+                            <div style="width: 32px; height: 32px; border-radius: 50%; overflow: hidden; background: #7c3aed; display: flex; align-items: center; justify-content: center;" id="header-server-dropdown-icon">
+                                <img src="assets/bypass_logs_avatar.webp" style="width: 100%; height: 100%; object-fit: cover;">
+                            </div>
+                            <div>
+                                <div style="font-size: 0.65rem; font-weight: 800; color: #a855f7; letter-spacing: 0.08em; text-transform: uppercase;">CURRENT SERVER</div>
+                                <div style="font-size: 0.88rem; font-weight: 700; color: #fff;" id="header-server-dropdown-name">SERVER PORTAL</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- User Avatar Dropdown Trigger -->
+                <div style="position: relative;">
+                    <div onclick="toggleHeaderDropdown('header-user-dropdown')" style="display: flex; align-items: center; gap: 6px; cursor: pointer; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); padding: 4px 10px 4px 6px; border-radius: 20px; transition: background 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.1)'" onmouseout="this.style.background='rgba(255,255,255,0.05)'">
+                        <div style="width: 28px; height: 28px; border-radius: 50%; background: #9333ea; overflow: hidden; display: flex; align-items: center; justify-content: center; font-weight: 700; color: #fff; font-size: 0.85rem; border: 1px solid rgba(255,255,255,0.2);" id="header-user-avatar-img-top">
+                            D
+                        </div>
+                        <i class="fas fa-caret-down" style="color: #94a3b8; font-size: 0.75rem;"></i>
+                    </div>
+
+                    <!-- User Dropdown Menu Popover -->
+                    <div id="header-user-dropdown" style="display: none; position: absolute; right: 0; top: 42px; width: 220px; background: #2f3136; border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; box-shadow: 0 15px 35px rgba(0,0,0,0.7); z-index: 9999; overflow: hidden; font-family: sans-serif;">
+                        <div style="border-left: 4px solid #7c3aed; background: #202225; padding: 12px 14px; display: flex; align-items: center; gap: 10px;">
+                            <div style="width: 32px; height: 32px; border-radius: 50%; overflow: hidden; background: #9333ea; display: flex; align-items: center; justify-content: center; font-weight: 700; color: #fff; font-size: 0.9rem;" id="header-user-dropdown-avatar">
+                                D
+                            </div>
+                            <div>
+                                <div style="font-size: 0.88rem; font-weight: 700; color: #fff;" id="header-user-dropdown-name">! DADDY</div>
+                                <div style="font-size: 0.72rem; color: #94a3b8; margin-top: 2px;">Administrator</div>
+                            </div>
+                        </div>
+                        <div style="padding: 6px 0; background: #2f3136;">
+                            <a href="/manage" style="display: flex; align-items: center; gap: 10px; padding: 10px 16px; color: #e2e8f0; text-decoration: none; font-size: 0.85rem; transition: background 0.15s;" onmouseover="this.style.background='#36393f'" onmouseout="this.style.background='transparent'">
+                                <i class="fas fa-server" style="color: #94a3b8; width: 16px;"></i> Manage Servers
+                            </a>
+                            <a href="/admin" id="header-user-dropdown-admin-link" style="display: none; align-items: center; gap: 10px; padding: 10px 16px; color: #f59e0b; text-decoration: none; font-size: 0.85rem; transition: background 0.15s;" onmouseover="this.style.background='#36393f'" onmouseout="this.style.background='transparent'">
+                                <i class="fas fa-crown" style="color: #f59e0b; width: 16px;"></i> Sovereign Admin
+                            </a>
+                            <div style="border-top: 1px solid rgba(255,255,255,0.06); margin: 6px 0;"></div>
+                            <a href="#" onclick="logout()" style="display: flex; align-items: center; gap: 10px; padding: 10px 16px; color: #f87171; text-decoration: none; font-size: 0.85rem; transition: background 0.15s;" onmouseover="this.style.background='#36393f'" onmouseout="this.style.background='transparent'">
+                                <i class="fas fa-arrow-right-from-bracket" style="color: #f87171; width: 16px;"></i> Logout Session
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content Area -->
+    <div style="padding-top: 120px; min-height: 70vh; display: flex; flex-direction: column; align-items: center; box-sizing: border-box; width: 100%;">
+        <!-- Loading Indicator -->
+        <div id="admin-loading-indicator" style="padding: 40px; text-align: center; color: var(--text-secondary);">
+            <i class="fas fa-spinner fa-spin" style="font-size: 2rem; color: #a855f7; margin-bottom: 12px;"></i>
+            <p>Verifying Sovereign Credentials...</p>
+        </div>
+
+        <!-- Access Denied Card -->
+        <div id="admin-access-denied" style="display: none; flex-direction: column; align-items: center; justify-content: center; min-height: 50vh; width: 100%; max-width: 460px; padding: 20px;">
+            <div class="glass-card" style="width: 100%; background: rgba(220, 38, 38, 0.05); border: 1.5px solid rgba(220, 38, 38, 0.25); border-radius: 20px; padding: 40px 30px; text-align: center; box-shadow: 0 30px 60px rgba(0,0,0,0.8); backdrop-filter: blur(10px);">
+                <div style="width: 70px; height: 70px; border-radius: 50%; background: rgba(220, 38, 38, 0.1); border: 1.5px solid rgba(220, 38, 38, 0.3); display: flex; align-items: center; justify-content: center; margin: 0 auto 20px auto;">
+                    <i class="fas fa-ban" style="color: #ef4444; font-size: 1.8rem;"></i>
+                </div>
+                <div style="background: rgba(220, 38, 38, 0.15); color: #f87171; border: 1px solid rgba(220, 38, 38, 0.3); border-radius: 4px; padding: 4px 10px; font-family: var(--font-mono); font-size: 0.65rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; display: inline-block; margin-bottom: 12px;">
+                    ACCESS DENIED (403)
+                </div>
+                <h2 style="font-size: 1.4rem; font-weight: 800; color: #fff; margin: 0 0 12px 0; font-family: var(--font-display);">Sovereign Override Required</h2>
+                <p style="font-size: 0.85rem; color: var(--text-secondary); line-height: 1.6; margin: 0 0 25px 0; font-family: var(--font-display);">
+                    This control dashboard is protected by biometric and cryptographic signatures. Only authorized developer client sessions are permitted to modify active VEYRA nodes.
+                </p>
+                <button class="liquid-metal-btn" onclick="window.location.href='/'" style="width: 100%; font-size: 0.95rem; border-radius: 10px; cursor: pointer;">
+                    <div class="liquid-metal-btn-inner" style="padding: 12px 0; border-radius: 10px;">
+                        <span>RETURN TO HOMEPAGE</span>
+                    </div>
+                </button>
+            </div>
+        </div>
+
+        <!-- [SCREEN 5: ADMIN CONTROL CENTER (SOVEREIGN PANEL)] -->
+        <section id="screen-admin" class="content-area" style="display:none; max-width:1100px; margin: 0 auto 60px auto; padding: 20px; width: 100%;">
+            <div style="background: rgba(15, 17, 26, 0.6); border: 1px solid rgba(245, 158, 11, 0.25); border-radius: 16px; padding: 28px; margin-bottom: 30px; box-shadow: 0 20px 40px rgba(0,0,0,0.6);">
+                <div style="display: flex; align-items: center; justify-content: space-between; gap: 20px; flex-wrap: wrap; margin-bottom: 24px;">
+                    <div>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <i class="fas fa-crown" style="color: #f59e0b; font-size: 1.6rem;"></i>
+                            <h2 style="font-size: 1.6rem; color: #fff; font-weight: 800; font-family: var(--font-display); margin: 0;">VEYRA Sovereign Panel</h2>
+                        </div>
+                        <p style="font-size: 0.82rem; color: #94a3b8; margin: 4px 0 0 0; font-family: var(--font-mono);">
+                            Authorized Admin ID: <code style="color: #f59e0b; background: rgba(245,158,11,0.15); padding: 2px 6px; border-radius: 4px;">1256986886631854080</code>
+                        </p>
+                    </div>
+                    <div>
+                        <button onclick="loadAdminGuilds()" class="btn-primary" style="background: linear-gradient(90deg, #d97706, #f59e0b); border: none; padding: 10px 18px; border-radius: 8px; font-weight: 700; color: #fff; cursor: pointer;">
+                            <i class="fas fa-rotate"></i> Refresh Guild Subscriptions
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Admin Quick Plan Grant Box -->
+                <div style="background: rgba(0,0,0,0.25); border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; padding: 20px; margin-bottom: 24px;">
+                    <h3 style="font-size: 1.05rem; font-weight: 700; color: #fff; margin: 0 0 14px 0; display: flex; align-items: center; gap: 8px;">
+                        <i class="fas fa-gift" style="color: #a855f7;"></i> Direct Subscription
+                    </h3>
+                    <div style="display: grid; grid-template-columns: 1.1fr 1.9fr 1.4fr 1.1fr 2.1fr; gap: 12px; align-items: flex-end;">
+                        <div>
+                            <label style="display: block; font-size: 0.75rem; color: #94a3b8; margin-bottom: 6px; font-weight: 600;">Target Type</label>
+                            <select id="admin-target-type" class="form-control" style="background: rgba(0,0,0,0.3); font-size: 0.85rem; color:#fff; border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; padding: 8px; width: 100%;">
+                                <option value="server">Server (Guild)</option>
+                                <option value="user">User ID</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label style="display: block; font-size: 0.75rem; color: #94a3b8; margin-bottom: 6px; font-weight: 600;">Target ID</label>
+                            <input type="text" id="admin-target-guild-id" placeholder="e.g. Server ID or User ID" class="form-control" style="background: rgba(0,0,0,0.3); font-size: 0.85rem; border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; padding: 8px; width: 100%; color: #fff; box-sizing: border-box;">
+                        </div>
+                        <div>
+                            <label style="display: block; font-size: 0.75rem; color: #94a3b8; margin-bottom: 6px; font-weight: 600;">Plan Type</label>
+                            <select id="admin-plan-select" class="form-control" style="background: rgba(0,0,0,0.3); font-size: 0.85rem; border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; padding: 8px; width: 100%; color: #fff;">
+                                <option value="Pro">⚡ PRO PLAN</option>
+                                <option value="Premium">👑 PREMIUM PLAN</option>
+                                <option value="Ticket Pro">🎫 TICKET PRO PLAN</option>
+                                <option value="Ticket Premium">🎟️ TICKET PREMIUM PLAN</option>
+                                <option value="Free">FREE PLAN</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label style="display: block; font-size: 0.75rem; color: #94a3b8; margin-bottom: 6px; font-weight: 600;">Duration</label>
+                            <select id="admin-duration-select" class="form-control" style="background: rgba(0,0,0,0.3); font-size: 0.85rem; border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; padding: 8px; width: 100%; color: #fff;">
+                                <option value="0">Infinity / Lifetime</option>
+                                <option value="30">30 Days</option>
+                                <option value="90">90 Days</option>
+                                <option value="365">1 Year (365 Days)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <button onclick="adminGrantPlan()" class="btn-primary" style="width: 100%; background: #9333ea; border: none; padding: 6px 8px; border-radius: 6px; font-weight: 700; font-size: 0.82rem; color: #fff; cursor: pointer; box-sizing: border-box; min-height: 38px; height: auto; display: flex; align-items: center; justify-content: center; line-height: 1.2; text-align: center;">
+                                Grant Subscription
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+
+                <!-- Guilds Table -->
+                <div style="overflow-x: auto;">
+                    <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.88rem;">
+                        <thead>
+                            <tr style="border-bottom: 1px solid rgba(255,255,255,0.08); color: #94a3b8;">
+                                <th style="padding: 12px; font-weight: 600;">Server</th>
+                                <th style="padding: 12px; font-weight: 600;">Guild ID</th>
+                                <th style="padding: 12px; font-weight: 600;">Active Plan</th>
+                                <th style="padding: 12px; font-weight: 600;">Ticket Plan</th>
+                                <th style="padding: 12px; font-weight: 600;">Expires At</th>
+                                <th style="padding: 12px; font-weight: 600; text-align: right;">Admin Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="admin-guilds-table-body">
+                            <tr>
+                                <td colspan="6" style="padding: 24px; text-align: center; color: #64748b;">Loading server subscriptions...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+
+                <!-- Separator line -->
+                <div style="border-top: 1.5px dashed rgba(255,255,255,0.06); margin: 35px 0;"></div>
+
+                <!-- Subscription Override History Table -->
+                <h3 style="font-size: 1.1rem; font-weight: 700; color: #fff; margin: 0 0 16px 0; display: flex; align-items: center; gap: 8px;">
+                    <i class="fas fa-history" style="color: #a855f7;"></i> Subscription Grant & Revoke History
+                </h3>
+                <div style="overflow-x: auto;">
+                    <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.88rem;">
+                        <thead>
+                            <tr style="border-bottom: 1px solid rgba(255,255,255,0.08); color: #94a3b8;">
+                                <th style="padding: 12px; font-weight: 600; width: 22%;">Timestamp</th>
+                                <th style="padding: 12px; font-weight: 600; width: 18%;">Action</th>
+                                <th style="padding: 12px; font-weight: 600; width: 25%;">Target</th>
+                                <th style="padding: 12px; font-weight: 600;">Details</th>
+                            </tr>
+                        </thead>
+                        <tbody id="admin-subscription-history-table-body">
+                            <tr>
+                                <td colspan="4" style="padding: 24px; text-align: center; color: #64748b;">Loading subscription history...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Infinite Logo Loop Above Footer -->
+    <div class="logo-loop-section" id="logo-loop-footer" style="margin-top: 80px; margin-bottom: 20px; border-top: 1px solid rgba(255,255,255,0.02); border-bottom: 1px solid rgba(255,255,255,0.02); padding: 30px 0;">
+        <div class="loop-title" style="font-size: 0.72rem; letter-spacing: 0.25em; text-align: center; color: var(--text-secondary); margin-bottom: 15px; font-weight: 600; text-transform: uppercase;">POWERED WITH</div>
+        <div class="logo-marquee" style="mask-image: linear-gradient(to right, transparent, #000 10%, #000 90%, transparent); -webkit-mask-image: linear-gradient(to right, transparent, #000 10%, #000 90%, transparent);">
+            <div class="logo-track" style="width: max-content; flex-shrink: 0;">
+                <span><i class="fab fa-react" style="color: #61dafb;"></i> React</span>
+                <span><i class="fab fa-node-js" style="color: #68a063;"></i> NodeJS</span>
+                <span><i class="fab fa-js" style="color: #3178c6;"></i> TypeScript</span>
+                <span><i class="fab fa-discord" style="color: #5865f2;"></i> Discord.js</span>
+                <span><i class="fab fa-github" style="color: #fff;"></i> GitHub</span>
+                <span><i class="fab fa-cloudflare" style="color: #f38020;"></i> Cloudflare</span>
+                <span><i class="fab fa-docker" style="color: #2496ed;"></i> Docker</span>
+                <span><i class="fas fa-database" style="color: #003b57;"></i> SQLite</span>
+                <span><i class="fas fa-server" style="color: #d82c20;"></i> Redis</span>
+                <!-- Repeat loop for infinite marquee -->
+                <span><i class="fab fa-react" style="color: #61dafb;"></i> React</span>
+                <span><i class="fab fa-node-js" style="color: #68a063;"></i> NodeJS</span>
+                <span><i class="fab fa-js" style="color: #3178c6;"></i> TypeScript</span>
+                <span><i class="fab fa-discord" style="color: #5865f2;"></i> Discord.js</span>
+                <span><i class="fab fa-github" style="color: #fff;"></i> GitHub</span>
+                <span><i class="fab fa-cloudflare" style="color: #f38020;"></i> Cloudflare</span>
+                <span><i class="fab fa-docker" style="color: #2496ed;"></i> Docker</span>
+                <span><i class="fas fa-database" style="color: #003b57;"></i> SQLite</span>
+                <span><i class="fas fa-server" style="color: #d82c20;"></i> Redis</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- VengeanceUI Style Cinematic Animated Reveal Footer -->
+    <!-- Realtime Professional Default Footer -->
+            <footer id="animated-reveal-footer" style="background: rgba(4, 7, 13, 0.95); border-top: 1px solid rgba(255, 255, 255, 0.06); padding: 60px 20px 30px 20px; box-sizing: border-box; width: 100%; position: relative; margin-top: 80px;">
+                <!-- Top Glowing Gradient Divider Line -->
+                <div style="position: absolute; top: 0; left: 0; right: 0; height: 1.5px; background: linear-gradient(90deg, transparent, #FF6E42, #a855f7, #10b981, transparent);"></div>
+
+                <div style="max-width: 1150px; margin: 0 auto; width: 100%;">
+                    
+                    <!-- Top Brand Header & Live System Status -->
+                    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255, 255, 255, 0.06); padding-bottom: 30px; margin-bottom: 40px; flex-wrap: wrap; gap: 20px;">
+                        <div>
+                            <div style="font-family: var(--font-display); font-size: 2.2rem; font-weight: 900; letter-spacing: 0.12em; color: #fff; text-shadow: 0 0 25px rgba(255, 110, 66, 0.35);">
+                                VEYRA
+                            </div>
+                            <div style="font-family: var(--font-mono); font-size: 0.75rem; color: rgba(255, 255, 255, 0.5); letter-spacing: 0.18em; text-transform: uppercase; margin-top: 2px;">
+                                ALL-IN-ONE DISCORD BOT & SECURITY INFRASTRUCTURE
+                            </div>
+                        </div>
+
+                        <!-- Live Real-Time Telemetry Badge -->
+                        <div style="display: flex; align-items: center; gap: 12px; background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.25); padding: 8px 16px; border-radius: 30px;">
+                            <span style="width: 8px; height: 8px; border-radius: 50%; background: #10b981; animation: pulse 1s infinite; box-shadow: 0 0 10px #10b981;"></span>
+                            <span style="font-family: var(--font-mono); font-size: 0.72rem; font-weight: 800; color: #10b981; letter-spacing: 0.05em; text-transform: uppercase;">
+                                SYSTEM OPERATIONAL — 99.99% UPTIME
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- 4 Column Main Links Grid -->
+                    <div style="display: grid; grid-template-columns: 1.4fr 1fr 1fr 1fr; gap: 40px; margin-bottom: 50px;">
+                        
+                        <!-- Col 1: About & Socials -->
+                        <div>
+                            <h4 style="color: #fff; font-size: 0.95rem; font-weight: 800; font-family: var(--font-display); letter-spacing: 0.05em; margin: 0 0 16px 0; text-transform: uppercase;">About Veyra</h4>
+                            <p style="font-size: 0.82rem; color: rgba(255,255,255,0.55); line-height: 1.6; margin-bottom: 20px;">
+                                Ultra-fast, all-in-one Discord bot built for high-security community protection, real-time ticket stores, custom invite tracking, and whitelisting.
+                            </p>
+                            <div style="display: flex; gap: 10px;">
+                                <a href="https://veyra-bot.vercel.app" target="_blank" style="width: 36px; height: 36px; border-radius: 10px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); display: flex; align-items: center; justify-content: center; color: #fff; transition: all 0.25s ease;" onmouseover="this.style.background='#5865F2'; this.style.borderColor='#5865F2';" onmouseout="this.style.background='rgba(255,255,255,0.04)'; this.style.borderColor='rgba(255,255,255,0.08)';"><i class="fab fa-discord"></i></a>
+                                <a href="#" style="width: 36px; height: 36px; border-radius: 10px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); display: flex; align-items: center; justify-content: center; color: #fff; transition: all 0.25s ease;" onmouseover="this.style.background='#1DA1F2'; this.style.borderColor='#1DA1F2';" onmouseout="this.style.background='rgba(255,255,255,0.04)'; this.style.borderColor='rgba(255,255,255,0.08)';"><i class="fab fa-twitter"></i></a>
+                                <a href="#" style="width: 36px; height: 36px; border-radius: 10px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); display: flex; align-items: center; justify-content: center; color: #fff; transition: all 0.25s ease;" onmouseover="this.style.background='#333'; this.style.borderColor='#555';" onmouseout="this.style.background='rgba(255,255,255,0.04)'; this.style.borderColor='rgba(255,255,255,0.08)';"><i class="fab fa-github"></i></a>
+                            </div>
+                        </div>
+
+                        <!-- Col 2: Navigation -->
+                        <div>
+                            <h4 style="color: #fff; font-size: 0.95rem; font-weight: 800; font-family: var(--font-display); letter-spacing: 0.05em; margin: 0 0 16px 0; text-transform: uppercase;">Navigation</h4>
+                            <ul style="list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 10px; font-size: 0.83rem;">
+                                <li><a href="/" style="color: rgba(255,255,255,0.6); text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='#FF6E42'" onmouseout="this.style.color='rgba(255,255,255,0.6)'">Home Page</a></li>
+                                <li><a href="/manage" style="color: rgba(255,255,255,0.6); text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='#FF6E42'" onmouseout="this.style.color='rgba(255,255,255,0.6)'">Dashboard Workspace</a></li>
+                                <li><a href="/about" style="color: rgba(255,255,255,0.6); text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='#FF6E42'" onmouseout="this.style.color='rgba(255,255,255,0.6)'">About Veyra</a></li>
+                                <li><a href="/ticket" style="color: rgba(255,255,255,0.6); text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='#FF6E42'" onmouseout="this.style.color='rgba(255,255,255,0.6)'">Support & Tickets</a></li>
+                            </ul>
+                        </div>
+
+                        <!-- Col 3: Modules -->
+                        <div>
+                            <h4 style="color: #fff; font-size: 0.95rem; font-weight: 800; font-family: var(--font-display); letter-spacing: 0.05em; margin: 0 0 16px 0; text-transform: uppercase;">Bot Modules</h4>
+                            <ul style="list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 10px; font-size: 0.83rem;">
+                                <li><a href="/#security" style="color: rgba(255,255,255,0.6); text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='#10b981'" onmouseout="this.style.color='rgba(255,255,255,0.6)'">Anti-Nuke & Protection</a></li>
+                                <li><a href="/ticket" style="color: rgba(255,255,255,0.6); text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='#a855f7'" onmouseout="this.style.color='rgba(255,255,255,0.6)'">Store & Ticket Panels</a></li>
+                                <li><a href="/#invites" style="color: rgba(255,255,255,0.6); text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='#3b82f6'" onmouseout="this.style.color='rgba(255,255,255,0.6)'">Invite Tracker & Alt Gate</a></li>
+                                <li><a href="/#levels" style="color: rgba(255,255,255,0.6); text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='#f59e0b'" onmouseout="this.style.color='rgba(255,255,255,0.6)'">Leveling & XP System</a></li>
+                            </ul>
+                        </div>
+
+                        <!-- Col 4: Performance & Network -->
+                        <div>
+                            <h4 style="color: #fff; font-size: 0.95rem; font-weight: 800; font-family: var(--font-display); letter-spacing: 0.05em; margin: 0 0 16px 0; text-transform: uppercase;">System Metrics</h4>
+                            <div style="display: flex; flex-direction: column; gap: 8px; font-family: var(--font-mono); font-size: 0.75rem; color: rgba(255,255,255,0.6);">
+                                <div style="display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.04); padding-bottom: 6px;">
+                                    <span>Latency:</span> <span style="color: #10b981; font-weight: 700;">0.04ms</span>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.04); padding-bottom: 6px;">
+                                    <span>Gateway Shards:</span> <span style="color: #FF6E42; font-weight: 700;">Active</span>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.04); padding-bottom: 6px;">
+                                    <span>Cluster Region:</span> <span style="color: #a855f7; font-weight: 700;">Asia-South</span>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <!-- Bottom Copyright Bar -->
+                    <div style="border-top: 1px solid rgba(255, 255, 255, 0.06); padding-top: 24px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; font-size: 0.78rem; color: rgba(255,255,255,0.45);">
+                        <div>&copy; 2026 VEYRA Systems. All rights reserved. Precision. Power. Performance.</div>
+                        <div style="display: flex; gap: 20px;">
+                            <a href="#" style="color: rgba(255,255,255,0.45); text-decoration: none;">Privacy Policy</a>
+                            <a href="#" style="color: rgba(255,255,255,0.45); text-decoration: none;">Terms of Service</a>
+                            <a href="https://veyra-bot.vercel.app" target="_blank" style="color: rgba(255,255,255,0.45); text-decoration: none;">Main Website</a>
+                        </div>
+                    </div>
+
+                </div>
+            </footer>
+
+    <!-- Background Smokey Fluid Animations & scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <script src="js/smokey-fluid-cursor.js"></script>
+    <script src="js/dashboard.js?v=2"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Enforce admin check
+            fetch('/api/admin/check?t=' + Date.now(), { cache: 'no-store' })
+                .then(res => res.json())
+                .then(adm => {
+                    if (!adm.isAdmin) {
+                        document.getElementById('admin-loading-indicator').style.display = 'none';
+                        document.getElementById('admin-access-denied').style.display = 'flex';
+                    } else {
+                        document.getElementById('admin-loading-indicator').style.display = 'none';
+                        document.getElementById('screen-admin').style.display = 'block';
+                        // Wait for dashboard.js to fully load first, then run initial load
+                        setTimeout(() => {
+                            if (typeof loadAdminGuilds === 'function') loadAdminGuilds();
+                        }, 200);
+                    }
+                })
+                .catch(() => {
+                    document.getElementById('admin-loading-indicator').style.display = 'none';
+                    document.getElementById('admin-access-denied').style.display = 'flex';
+                });
+
+            // Initialize footer
+            try {
+                if (typeof window.initAnimatedRevealFooter === 'function') {
+                    window.initAnimatedRevealFooter();
+                }
+            } catch (e) {
+                console.error("Footer init fail:", e);
+            }
+        });
+    </script>
+</body>
+</html>

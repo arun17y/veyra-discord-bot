@@ -1,0 +1,234 @@
+body.theme-slate {
+    --bg-primary: #050505;
+    --bg-secondary: #0c0c0c;
+    --bg-tertiary: #121212;
+    --accent-primary: #ffffff;
+    --accent-secondary: #e2e8f0;
+    --accent-rgb: 255, 255, 255;
+    --accent-blue-rgb: 226, 232, 240;
+    --text-primary: #ffffff;
+    --text-secondary: #a3a3a3;
+    --text-muted: #555555;
+    --border-color: rgba(255, 255, 255, 0.12);
+    --border-glow: rgba(255, 255, 255, 0.2);
+    --glass-bg: rgba(5, 5, 5, 0.85);
+    --glass-blur: blur(20px);
+    --font-display: 'Space Grotesk', sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+    --theme-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.85), 0 0 0 1px rgba(255, 255, 255, 0.08) inset;
+    --body-bg-gradient: #050505;
+    --grid-opacity: 0;
+    --scanline-opacity: 0;
+    --highlight-color-hue: 0deg;
+    --theme-highlight-hue: 0deg;
+    --theme-highlight-sat: 0%;
+    --theme-highlight-light: 95%;
+}
+
+/* 2. THEME: Gold Matte Luxury (.theme-gold) */
+body.theme-gold {
+    --bg-primary: #050505;
+    --bg-secondary: #0c0c0c;
+    --bg-tertiary: #141414;
+    --accent-primary: #FFC400;
+    --accent-secondary: #FF8A00;
+    --accent-rgb: 255, 196, 0;
+    --text-primary: #fdfdfd;
+    --text-secondary: #bcbbba;
+    --text-muted: #575655;
+    --border-color: rgba(255, 196, 0, 0.1);
+    --border-glow: rgba(255, 196, 0, 0.18);
+    --glass-bg: rgba(10, 10, 10, 0.85);
+    --glass-blur: blur(20px);
+    --font-display: 'Space Grotesk', sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+    --theme-shadow: 0 10px 40px 0 rgba(0, 0, 0, 0.8), 0 0 1px 1px rgba(255, 196, 0, 0.08) inset;
+    --body-bg-gradient: radial-gradient(circle at 50% 0%, #1a150c 0%, #030303 100%);
+    --grid-opacity: 0.02;
+    --scanline-opacity: 0;
+}
+
+/* 3. THEME: Cobalt Cyberpunk (.theme-cobalt) */
+body.theme-cobalt {
+    --bg-primary: #020617;
+    --bg-secondary: #0f172a;
+    --bg-tertiary: #1e293b;
+    --accent-primary: #38bdf8;
+    --accent-secondary: #3b82f6;
+    --accent-rgb: 56, 189, 248;
+    --text-primary: #f8fafc;
+    --text-secondary: #94a3b8;
+    --text-muted: #475569;
+    --border-color: rgba(56, 189, 248, 0.15);
+    --border-glow: rgba(56, 189, 248, 0.3);
+    --glass-bg: rgba(15, 23, 42, 0.75);
+    --glass-blur: blur(10px);
+    --font-display: 'Space Grotesk', sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+    --theme-shadow: 0 0 20px rgba(56, 189, 248, 0.1);
+    --body-bg-gradient: linear-gradient(135deg, #020617 0%, #090d16 100%);
+    --grid-opacity: 0.08;
+    --scanline-opacity: 0.02;
+}
+
+/* 4. THEME: Crimson Threat Monitor (.theme-crimson) */
+body.theme-crimson {
+    --bg-primary: #0c0204;
+    --bg-secondary: #16070a;
+    --bg-tertiary: #250b10;
+    --accent-primary: #ef4444;
+    --accent-secondary: #991b1b;
+    --accent-rgb: 239, 68, 68;
+    --text-primary: #fef2f2;
+    --text-secondary: #fca5a5;
+    --text-muted: #7f1d1d;
+    --border-color: rgba(239, 68, 68, 0.15);
+    --border-glow: rgba(239, 68, 68, 0.25);
+    --glass-bg: rgba(22, 7, 10, 0.85);
+    --glass-blur: blur(15px);
+    --font-display: 'Space Grotesk', sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+    --theme-shadow: 0 8px 30px rgba(239, 68, 68, 0.05);
+    --body-bg-gradient: radial-gradient(circle at 50% 50%, #200408 0%, #080102 100%);
+    --grid-opacity: 0.06;
+    --scanline-opacity: 0.04;
+}
+
+/* 5. THEME: Emerald Matrix (.theme-emerald) */
+body.theme-emerald {
+    --bg-primary: #000000;
+    --bg-secondary: #050d06;
+    --bg-tertiary: #0b1a0d;
+    --accent-primary: #10b981;
+    --accent-secondary: #047857;
+    --accent-rgb: 16, 185, 129;
+    --text-primary: #ecfdf5;
+    --text-secondary: #a7f3d0;
+    --text-muted: #064e3b;
+    --border-color: rgba(16, 185, 129, 0.2);
+    --border-glow: rgba(16, 185, 129, 0.35);
+    --glass-bg: rgba(5, 13, 6, 0.9);
+    --glass-blur: blur(8px);
+    --font-display: 'Space Grotesk', sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+    --theme-shadow: 0 0 15px rgba(16, 185, 129, 0.15);
+    --body-bg-gradient: radial-gradient(circle at 50% 50%, #051408 0%, #000000 100%);
+    --grid-opacity: 0.04;
+    --scanline-opacity: 0.06;
+}
+
+/* 6. THEME: Cosmic Nebula (.theme-nebula) */
+body.theme-nebula {
+    --bg-primary: #060212;
+    --bg-secondary: #0c0524;
+    --bg-tertiary: #190c42;
+    --accent-primary: #d946ef;
+    --accent-secondary: #8b5cf6;
+    --accent-rgb: 217, 70, 239;
+    --text-primary: #fae8ff;
+    --text-secondary: #d8b4fe;
+    --text-muted: #5b21b6;
+    --border-color: rgba(217, 70, 239, 0.12);
+    --border-glow: rgba(217, 70, 239, 0.2);
+    --glass-bg: rgba(12, 5, 36, 0.7);
+    --glass-blur: blur(18px);
+    --font-display: 'Space Grotesk', sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+    --theme-shadow: 0 10px 40px rgba(139, 92, 246, 0.15);
+    --body-bg-gradient: radial-gradient(circle at 50% 50%, #1f0b48 0%, #03010b 100%);
+    --grid-opacity: 0.03;
+    --scanline-opacity: 0;
+}
+
+/* 7. THEME: Minimalist Light Tech (.theme-light) */
+body.theme-light {
+    --bg-primary: #f8fafc;
+    --bg-secondary: #ffffff;
+    --bg-tertiary: #f1f5f9;
+    --accent-primary: #2563eb;
+    --accent-secondary: #1d4ed8;
+    --accent-rgb: 37, 99, 235;
+    --text-primary: #0f172a;
+    --text-secondary: #475569;
+    --text-muted: #94a3b8;
+    --border-color: rgba(15, 23, 42, 0.08);
+    --border-glow: rgba(37, 99, 235, 0.1);
+    --glass-bg: rgba(255, 255, 255, 0.85);
+    --glass-blur: blur(12px);
+    --font-display: 'Space Grotesk', sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+    --theme-shadow: 0 4px 20px rgba(15, 23, 42, 0.04);
+    --body-bg-gradient: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+    --grid-opacity: 0.02;
+    --scanline-opacity: 0;
+}
+
+/* Theme Switching Animation Smoothness */
+body {
+    transition: background 0.8s ease, color 0.5s ease, border-color 0.5s ease, box-shadow 0.8s ease;
+    background: var(--bg-primary);
+    font-family: var(--font-display);
+    color: var(--text-primary);
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+}
+
+/* Ambient Visual Grids & Masks */
+.ambient-mesh {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: var(--body-bg-gradient);
+    z-index: -3;
+    pointer-events: none;
+}
+
+.grid-mask {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: 
+        linear-gradient(to right, rgba(255,255,255, var(--grid-opacity)) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(255,255,255, var(--grid-opacity)) 1px, transparent 1px);
+    background-size: 40px 40px;
+    z-index: -2;
+    pointer-events: none;
+}
+
+.scanlines {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+    background-size: 100% 4px, 6px 100%;
+    opacity: var(--scanline-opacity);
+    z-index: -1;
+    pointer-events: none;
+}
+
+body.theme-gold .ambient-mesh::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(255, 196, 0, 0.05) 0%, transparent 60%);
+    animation: rotateMesh 30s linear infinite;
+}
+
+@keyframes rotateMesh {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+#bg-violet-particles {
+    display: none !important;
+}
