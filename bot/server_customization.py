@@ -688,9 +688,9 @@ def setup_server_customization(bot: commands.Bot):
             await ctx.send(f"❌ Failed: `{e}`")
 
     # 3. Server Banner
-    @bot.command(name="serverbanner", aliases=["setbanner"])
+    @bot.command(name="setserverbanner", aliases=["setbanner", "changebanner"])
     @commands.has_permissions(manage_guild=True)
-    async def p_serverbanner(ctx: commands.Context, url: typing.Optional[str] = None):
+    async def p_setserverbanner(ctx: commands.Context, url: typing.Optional[str] = None):
         att = ctx.message.attachments[0] if ctx.message.attachments else None
         try:
             raw = await fetch_asset_bytes(url=url, attachment=att)
@@ -868,7 +868,7 @@ def setup_server_customization(bot: commands.Bot):
             await ctx.send(f"❌ Failed: `{e}`")
 
     # 17. Voice User Limit
-    @bot.command(name="vcuserlimit", aliases=["setlimit"])
+    @bot.command(name="vcuserlimit", aliases=["setvclimit", "vclimit"])
     @commands.has_permissions(manage_channels=True)
     async def p_vcuserlimit(ctx: commands.Context, limit: int, channel: typing.Optional[discord.VoiceChannel] = None):
         target = channel or (ctx.author.voice.channel if ctx.author.voice else None)
@@ -1033,9 +1033,9 @@ def setup_server_customization(bot: commands.Bot):
             await ctx.send(f"✅ Announcement sent to {target.mention}!")
 
     # 30. Reaction Poll
-    @bot.command(name="poll")
+    @bot.command(name="quickpoll", aliases=["rpoll", "reactionpoll"])
     @commands.has_permissions(manage_messages=True)
-    async def p_poll(ctx: commands.Context, *, question_and_options: str):
+    async def p_quickpoll(ctx: commands.Context, *, question_and_options: str):
         parts = [p.strip() for p in re.split(r'[\|\n]', question_and_options) if p.strip()]
         if not parts:
             return await ctx.send("❌ Usage: `.poll What game tonight? | CS2 | Valorant | GTA`")

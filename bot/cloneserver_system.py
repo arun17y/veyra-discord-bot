@@ -718,18 +718,7 @@ def setup_cloneserver_system(bot: commands.Bot):
         else:
             await target_inter_or_ctx.send(embed=embed, view=view)
 
-    # ── Slash Command /cloneserver (Full Wipe & Clone) ──
-    @bot.tree.command(name="cloneserver", description="Completely wipe current server and clone everything 1:1 from source server")
-    @app_commands.describe(source_server_id="The numeric Guild ID of the source server to clone from")
-    async def slash_cloneserver(interaction: discord.Interaction, source_server_id: str):
-        if not interaction.response.is_done():
-            try:
-                await interaction.response.defer(ephemeral=False)
-            except Exception:
-                pass
-        await handle_clone_full(interaction, source_server_id, is_slash=True)
-
-    # ── Slash Group /clone (Modular & Single-Item Cloning) ──
+    # ── Slash Group /clone (Deep 1:1 & Modular Component Replicator) ──
     class CloneSlashGroup(app_commands.Group):
         def __init__(self):
             super().__init__(name="clone", description="Deep 1:1 Server Cloning & Modular Component Replicator")
