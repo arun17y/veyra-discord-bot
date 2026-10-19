@@ -676,6 +676,8 @@
         .faq-item.active .faq-answer {
             max-height: 250px !important;
             padding: 0 22px 18px 22px !important;
+        }
+
         /* =========================================================================
            TOP BAR (DESKTOP ORDER & DROPDOWN MEGA-MENU) & VEYRA FOOTER (5-COL)
         ========================================================================= */
@@ -709,9 +711,12 @@
         .nav-logo img {
             width: 32px !important;
             height: 32px !important;
+            max-width: 32px !important;
+            max-height: 32px !important;
             border-radius: 50% !important;
             border: 1.5px solid #FF6E42 !important;
             box-shadow: 0 0 14px rgba(255, 110, 66, 0.4) !important;
+            object-fit: cover !important;
         }
         .nav-logo span {
             font-family: var(--font-display) !important;
@@ -1251,7 +1256,7 @@
     <nav class="navbar" id="main-nav">
         <!-- 1. VEYRA Logo -->
         <a href="/" onclick="showScreen('landing'); return false;" class="nav-logo" title="VEYRA Homepage">
-            <img src="assets/bypass_logs_avatar.webp" alt="VEYRA Logo">
+            <img src="assets/bypass_logs_avatar.webp" alt="VEYRA Logo" style="width: 32px; height: 32px; max-width: 32px; max-height: 32px; border-radius: 50%; object-fit: cover;">
             <span>VEYRA</span>
         </a>
 
