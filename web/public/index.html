@@ -524,7 +524,428 @@
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 
     <style>
-        /* Sleek High-End FAQ Accordion & Section Sizing */
+        /* =========================================================================
+           TOP BAR NAVIGATION (IMAGE 2 PILL-STYLE REPLICA)
+        ========================================================================= */
+        .navbar {
+            display: flex !important;
+            align-items: center !important;
+            justify-content: space-between !important;
+            padding: 0 36px !important;
+            height: 72px !important;
+            background: rgba(3, 7, 13, 0.95) !important;
+            backdrop-filter: blur(20px) !important;
+            -webkit-backdrop-filter: blur(20px) !important;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.7) !important;
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            right: 0 !important;
+            z-index: 1000 !important;
+            transition: all 0.25s ease !important;
+        }
+        .navbar.compact {
+            height: 60px !important;
+            background: rgba(3, 7, 13, 0.98) !important;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.9) !important;
+        }
+        .nav-logo-box {
+            display: flex !important;
+            align-items: center !important;
+            gap: 12px !important;
+            cursor: pointer !important;
+            text-decoration: none !important;
+            flex-shrink: 0 !important;
+        }
+        .nav-logo-box img {
+            width: 32px !important;
+            height: 32px !important;
+            border-radius: 50% !important;
+            border: 1.5px solid rgba(255, 110, 66, 0.6) !important;
+            box-shadow: 0 0 15px rgba(255, 110, 66, 0.4) !important;
+        }
+        .nav-logo-box span {
+            font-family: var(--font-display) !important;
+            font-weight: 800 !important;
+            font-size: 1.3rem !important;
+            letter-spacing: 0.12em !important;
+            color: #ffffff !important;
+        }
+
+        /* Center Nav Pill Cluster */
+        .nav-links-center {
+            display: flex !important;
+            align-items: center !important;
+            gap: 8px !important;
+            list-style: none !important;
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+        .nav-pill-btn {
+            background: rgba(255, 255, 255, 0.04) !important;
+            border: 1px solid rgba(255, 255, 255, 0.08) !important;
+            color: rgba(249, 249, 249, 0.85) !important;
+            font-family: var(--font-display) !important;
+            font-size: 0.86rem !important;
+            font-weight: 700 !important;
+            cursor: pointer !important;
+            padding: 8px 18px !important;
+            border-radius: 50px !important;
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            gap: 7px !important;
+            text-decoration: none !important;
+            outline: none !important;
+        }
+        .nav-pill-btn:hover {
+            color: #fff !important;
+            background: rgba(255, 255, 255, 0.1) !important;
+            border-color: rgba(255, 255, 255, 0.2) !important;
+            transform: translateY(-1px) !important;
+        }
+        .nav-pill-btn.active {
+            color: #fff !important;
+            background: rgba(255, 255, 255, 0.12) !important;
+            border-color: rgba(255, 255, 255, 0.25) !important;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4) !important;
+        }
+        .nav-arrow {
+            font-size: 0.65rem !important;
+            transition: transform 0.2s ease !important;
+            color: rgba(255, 255, 255, 0.5) !important;
+        }
+        .nav-has-dropdown {
+            position: relative !important;
+        }
+        .nav-has-dropdown:hover .nav-arrow,
+        .nav-has-dropdown.open .nav-arrow {
+            transform: rotate(180deg) !important;
+            color: #FF6E42 !important;
+        }
+
+        /* Dropdown Mega Menu for Features */
+        .nav-mega-dropdown {
+            position: absolute !important;
+            top: calc(100% + 8px) !important;
+            left: 50% !important;
+            transform: translateX(-50%) translateY(8px) !important;
+            width: 520px !important;
+            background: rgba(8, 14, 22, 0.98) !important;
+            border: 1.5px solid rgba(255, 110, 66, 0.3) !important;
+            border-radius: 18px !important;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.9), 0 0 40px rgba(255, 110, 66, 0.12) !important;
+            backdrop-filter: blur(25px) !important;
+            -webkit-backdrop-filter: blur(25px) !important;
+            padding: 18px !important;
+            opacity: 0 !important;
+            visibility: hidden !important;
+            pointer-events: none !important;
+            transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1) !important;
+            z-index: 1010 !important;
+        }
+        .nav-has-dropdown:hover .nav-mega-dropdown,
+        .nav-has-dropdown.open .nav-mega-dropdown {
+            opacity: 1 !important;
+            visibility: visible !important;
+            pointer-events: auto !important;
+            transform: translateX(-50%) translateY(0) !important;
+        }
+        .mega-grid {
+            display: grid !important;
+            grid-template-columns: 1fr 1fr !important;
+            gap: 12px !important;
+        }
+        .mega-item {
+            display: flex !important;
+            align-items: flex-start !important;
+            gap: 12px !important;
+            padding: 12px 14px !important;
+            border-radius: 12px !important;
+            text-decoration: none !important;
+            background: rgba(255, 255, 255, 0.02) !important;
+            border: 1px solid rgba(255, 255, 255, 0.04) !important;
+            transition: all 0.18s ease !important;
+        }
+        .mega-item:hover {
+            background: rgba(255, 110, 66, 0.08) !important;
+            border-color: rgba(255, 110, 66, 0.3) !important;
+            transform: translateY(-2px) !important;
+        }
+        .mega-icon {
+            width: 36px !important;
+            height: 36px !important;
+            border-radius: 10px !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            font-size: 1.05rem !important;
+            flex-shrink: 0 !important;
+        }
+        .mega-title {
+            color: #fff !important;
+            font-family: var(--font-display) !important;
+            font-weight: 700 !important;
+            font-size: 0.9rem !important;
+            margin-bottom: 2px !important;
+        }
+        .mega-desc {
+            color: rgba(249, 249, 249, 0.6) !important;
+            font-size: 0.74rem !important;
+            line-height: 1.35 !important;
+        }
+        .mega-footer {
+            margin-top: 14px !important;
+            padding-top: 12px !important;
+            border-top: 1px solid rgba(255, 255, 255, 0.06) !important;
+            display: flex !important;
+            justify-content: flex-end !important;
+        }
+        .mega-explore-link {
+            font-family: var(--font-display) !important;
+            font-size: 0.82rem !important;
+            font-weight: 800 !important;
+            color: #FF6E42 !important;
+            text-decoration: none !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            gap: 6px !important;
+            transition: gap 0.2s ease !important;
+        }
+        .mega-explore-link:hover {
+            gap: 10px !important;
+            color: #ffa082 !important;
+        }
+
+        /* 1-Column Docs Dropdown */
+        .nav-dropdown-menu {
+            position: absolute !important;
+            top: calc(100% + 8px) !important;
+            left: 50% !important;
+            transform: translateX(-50%) translateY(8px) !important;
+            width: 220px !important;
+            background: rgba(8, 14, 22, 0.98) !important;
+            border: 1.5px solid rgba(0, 194, 255, 0.3) !important;
+            border-radius: 16px !important;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.9) !important;
+            backdrop-filter: blur(25px) !important;
+            -webkit-backdrop-filter: blur(25px) !important;
+            padding: 8px !important;
+            opacity: 0 !important;
+            visibility: hidden !important;
+            pointer-events: none !important;
+            transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1) !important;
+            z-index: 1010 !important;
+            display: flex !important;
+            flex-direction: column !important;
+            gap: 4px !important;
+        }
+        .nav-has-dropdown:hover .nav-dropdown-menu,
+        .nav-has-dropdown.open .nav-dropdown-menu {
+            opacity: 1 !important;
+            visibility: visible !important;
+            pointer-events: auto !important;
+            transform: translateX(-50%) translateY(0) !important;
+        }
+        .dropdown-link {
+            display: flex !important;
+            align-items: center !important;
+            gap: 10px !important;
+            padding: 9px 12px !important;
+            border-radius: 8px !important;
+            color: rgba(249, 249, 249, 0.8) !important;
+            text-decoration: none !important;
+            font-size: 0.85rem !important;
+            font-weight: 600 !important;
+            transition: all 0.15s ease !important;
+        }
+        .dropdown-link:hover {
+            background: rgba(0, 194, 255, 0.12) !important;
+            color: #fff !important;
+        }
+        .dropdown-link i {
+            color: #00c2ff !important;
+            font-size: 0.8rem !important;
+            width: 16px !important;
+            text-align: center !important;
+        }
+
+        /* Right Nav CTAs (Image 2 Replica) */
+        .nav-actions-right {
+            display: flex !important;
+            align-items: center !important;
+            gap: 12px !important;
+            flex-shrink: 0 !important;
+        }
+        .nav-dashboard-pill {
+            background: rgba(255, 255, 255, 0.05) !important;
+            border: 1px solid rgba(255, 255, 255, 0.14) !important;
+            color: #fff !important;
+            padding: 9px 20px !important;
+            border-radius: 50px !important;
+            font-family: var(--font-display) !important;
+            font-size: 0.86rem !important;
+            font-weight: 700 !important;
+            cursor: pointer !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            gap: 8px !important;
+            transition: all 0.2s ease !important;
+            text-decoration: none !important;
+        }
+        .nav-dashboard-pill:hover {
+            background: rgba(255, 255, 255, 0.12) !important;
+            border-color: rgba(255, 255, 255, 0.28) !important;
+            transform: translateY(-1px) !important;
+        }
+        .nav-cta-pill {
+            background: linear-gradient(135deg, #FF6E42 0%, #ff8f6b 100%) !important;
+            border: none !important;
+            color: #000000 !important;
+            padding: 10px 22px !important;
+            border-radius: 50px !important;
+            font-family: var(--font-display) !important;
+            font-size: 0.86rem !important;
+            font-weight: 800 !important;
+            letter-spacing: 0.02em !important;
+            text-decoration: none !important;
+            cursor: pointer !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            gap: 8px !important;
+            box-shadow: 0 4px 20px rgba(255, 110, 66, 0.45) !important;
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+        }
+        .nav-cta-pill:hover {
+            box-shadow: 0 6px 30px rgba(255, 110, 66, 0.65) !important;
+            transform: translateY(-1px) scale(1.02) !important;
+        }
+
+        /* =========================================================================
+           DISCORD BOT SIMULATOR CARD (HERO RIGHT OVERHAUL)
+        ========================================================================= */
+        .discord-sim-window {
+            width: 100% !important;
+            max-width: 580px !important;
+            background: #202225 !important;
+            border: 1.5px solid rgba(255, 110, 66, 0.3) !important;
+            border-radius: 18px !important;
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.95), 0 0 40px rgba(255, 110, 66, 0.1) !important;
+            overflow: hidden !important;
+            display: flex !important;
+            flex-direction: column !important;
+            position: relative !important;
+            box-sizing: border-box !important;
+        }
+        .discord-sim-topbar {
+            background: #18191c !important;
+            padding: 12px 18px !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: space-between !important;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06) !important;
+        }
+        .discord-sim-dots {
+            display: flex !important;
+            gap: 6px !important;
+        }
+        .discord-sim-dots span {
+            width: 10px !important;
+            height: 10px !important;
+            border-radius: 50% !important;
+            display: inline-block !important;
+        }
+        .discord-sim-tabs {
+            display: flex !important;
+            background: #2b2d31 !important;
+            padding: 6px 10px !important;
+            gap: 6px !important;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
+            overflow-x: auto !important;
+        }
+        .discord-sim-tab {
+            background: transparent !important;
+            border: none !important;
+            color: #94a3b8 !important;
+            font-size: 0.78rem !important;
+            font-weight: 700 !important;
+            padding: 6px 12px !important;
+            border-radius: 6px !important;
+            cursor: pointer !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            gap: 6px !important;
+            transition: all 0.18s ease !important;
+            white-space: nowrap !important;
+        }
+        .discord-sim-tab:hover {
+            color: #fff !important;
+            background: rgba(255, 255, 255, 0.06) !important;
+        }
+        .discord-sim-tab.active {
+            color: #fff !important;
+            background: #5865F2 !important;
+            box-shadow: 0 2px 10px rgba(88, 101, 242, 0.4) !important;
+        }
+        .discord-sim-body {
+            padding: 20px 22px !important;
+            background: #313338 !important;
+            display: flex !important;
+            flex-direction: column !important;
+            gap: 14px !important;
+            min-height: 290px !important;
+        }
+        .discord-bot-badge {
+            background: #5865F2 !important;
+            color: #fff !important;
+            font-size: 0.6rem !important;
+            font-weight: 800 !important;
+            padding: 2px 5px !important;
+            border-radius: 4px !important;
+            letter-spacing: 0.05em !important;
+        }
+        .discord-embed-card {
+            background: #2b2d31 !important;
+            border-left: 4px solid #FF6E42 !important;
+            border-radius: 4px 8px 8px 4px !important;
+            padding: 14px 16px !important;
+            display: flex !important;
+            flex-direction: column !important;
+            gap: 10px !important;
+            transition: border-color 0.3s ease !important;
+        }
+        .discord-btn-action {
+            background: #4e5058 !important;
+            color: #fff !important;
+            border: none !important;
+            border-radius: 4px !important;
+            padding: 7px 14px !important;
+            font-size: 0.78rem !important;
+            font-weight: 600 !important;
+            cursor: pointer !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            gap: 6px !important;
+            transition: background 0.15s ease !important;
+        }
+        .discord-btn-action:hover {
+            background: #6d6f78 !important;
+        }
+        .discord-btn-action.primary {
+            background: #5865F2 !important;
+        }
+        .discord-btn-action.primary:hover {
+            background: #4752c4 !important;
+        }
+        .discord-btn-action.success {
+            background: #248046 !important;
+        }
+        .discord-btn-action.success:hover {
+            background: #1a6334 !important;
+        }
+
+        /* FAQ Styling */
         .faq-section {
             max-width: 840px !important;
             margin: 70px auto 40px auto !important;
@@ -658,116 +1079,113 @@
         </div>
     </div>
 
-    <!-- Header Navigation Bar -->
+    <!-- Header Navigation Bar (Image 2 Replica) -->
     <nav class="navbar" id="main-nav">
-        <div class="nav-logo" onclick="showScreen('landing')">
-            <img src="assets/bypass_logs_avatar.webp" alt="VEYRA Logo" style="width: 24px; height: 24px; border-radius: 50%; object-fit: cover; border: 1.5px solid rgba(255,255,255,0.2); vertical-align: middle; margin-right: 6px; display: inline-block;">
+        <!-- 1. VEYRA Logo Left -->
+        <a href="/" onclick="showScreen('landing'); return false;" class="nav-logo-box" title="VEYRA Homepage">
+            <img src="assets/bypass_logs_avatar.webp" alt="VEYRA Logo" onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png'">
             <span>VEYRA</span>
-        </div>
-        <ul class="nav-links" style="display: flex; gap: 28px; list-style: none; align-items: center;">
-            <li class="nav-item" id="nav-home">
-                <button class="gen-btn active" onclick="showScreen('landing')">
-                    <div class="gen-txt-wrapper">
-                        <span class="gen-btn-letter">H</span>
-                        <span class="gen-btn-letter">o</span>
-                        <span class="gen-btn-letter">m</span>
-                        <span class="gen-btn-letter">e</span>
-                    </div>
-                </button>
+        </a>
+
+        <!-- 2. Center Nav Pill Cluster -->
+        <ul class="nav-links-center" id="desktop-nav-links">
+            <li>
+                <a href="/" onclick="showScreen('landing'); return false;" class="nav-pill-btn active">Home</a>
             </li>
-            <li class="nav-item" id="nav-manage-servers">
-                <button class="gen-btn" onclick="clickManageServers()">
-                    <div class="gen-txt-wrapper">
-                        <span class="gen-btn-letter">M</span>
-                        <span class="gen-btn-letter">a</span>
-                        <span class="gen-btn-letter">n</span>
-                        <span class="gen-btn-letter">a</span>
-                        <span class="gen-btn-letter">g</span>
-                        <span class="gen-btn-letter">e</span>
-                        <span class="gen-btn-letter">&nbsp;</span>
-                        <span class="gen-btn-letter">S</span>
-                        <span class="gen-btn-letter">e</span>
-                        <span class="gen-btn-letter">r</span>
-                        <span class="gen-btn-letter">v</span>
-                        <span class="gen-btn-letter">e</span>
-                        <span class="gen-btn-letter">r</span>
-                        <span class="gen-btn-letter">s</span>
-                    </div>
+
+            <li class="nav-has-dropdown" id="nav-dropdown-features">
+                <button class="nav-pill-btn" onclick="toggleNavDropdown('nav-dropdown-features', event)">
+                    <span>Features</span>
+                    <i class="fas fa-chevron-down nav-arrow"></i>
                 </button>
-            </li>
-            <li class="nav-item" id="nav-features">
-                <button class="gen-btn" onclick="clickNavSection('features')">
-                    <div class="gen-txt-wrapper">
-                        <span class="gen-btn-letter">F</span>
-                        <span class="gen-btn-letter">e</span>
-                        <span class="gen-btn-letter">a</span>
-                        <span class="gen-btn-letter">t</span>
-                        <span class="gen-btn-letter">u</span>
-                        <span class="gen-btn-letter">r</span>
-                        <span class="gen-btn-letter">e</span>
-                        <span class="gen-btn-letter">s</span>
+                <div class="nav-mega-dropdown" id="features-mega-menu">
+                    <div class="mega-grid">
+                        <a href="/#security" onclick="closeNavDropdowns(); clickNavSection('features');" class="mega-item">
+                            <div class="mega-icon" style="color: #ef4444; background: rgba(239,68,68,0.12);"><i class="fas fa-shield-halved"></i></div>
+                            <div>
+                                <div class="mega-title">Moderation</div>
+                                <div class="mega-desc">Warnings, anti-raid & protection features</div>
+                            </div>
+                        </a>
+                        <a href="/#features" onclick="closeNavDropdowns(); clickNavSection('features');" class="mega-item">
+                            <div class="mega-icon" style="color: #00c2ff; background: rgba(0,194,255,0.12);"><i class="fas fa-music"></i></div>
+                            <div>
+                                <div class="mega-title">Music</div>
+                                <div class="mega-desc">Playback controls, queue & 24/7 integrations</div>
+                            </div>
+                        </a>
+                        <a href="/manage.html" class="mega-item">
+                            <div class="mega-icon" style="color: #10b981; background: rgba(16,185,129,0.12);"><i class="fas fa-sliders"></i></div>
+                            <div>
+                                <div class="mega-title">Server Management</div>
+                                <div class="mega-desc">Channels, categories, roles & permissions</div>
+                            </div>
+                        </a>
+                        <a href="/ticket.html" class="mega-item">
+                            <div class="mega-icon" style="color: #FF6E42; background: rgba(255,110,66,0.12);"><i class="fas fa-bolt"></i></div>
+                            <div>
+                                <div class="mega-title">Automation &amp; Utilities</div>
+                                <div class="mega-desc">Supported workflows, ticket panels & tools</div>
+                            </div>
+                        </a>
                     </div>
+                    <div class="mega-footer">
+                        <a href="/#features" onclick="closeNavDropdowns(); clickNavSection('features');" class="mega-explore-link">
+                            <span>Explore All Features</span>
+                            <i class="fas fa-arrow-right"></i>
+                        </a>
+                    </div>
+                </div>
+            </li>
+
+            <li>
+                <a href="/#features" onclick="clickNavSection('features');" class="nav-pill-btn">Commands</a>
+            </li>
+
+            <li>
+                <a href="/#pricing" onclick="clickNavSection('pricing');" class="nav-pill-btn">Premium</a>
+            </li>
+
+            <li class="nav-has-dropdown" id="nav-dropdown-docs">
+                <button class="nav-pill-btn" onclick="toggleNavDropdown('nav-dropdown-docs', event)">
+                    <span>Docs</span>
+                    <i class="fas fa-chevron-down nav-arrow"></i>
                 </button>
-            </li>
-            <li class="nav-item" id="nav-tickets">
-                <button class="gen-btn" onclick="window.location.href='/ticket'">
-                    <div class="gen-txt-wrapper">
-                        <span class="gen-btn-letter">T</span>
-                        <span class="gen-btn-letter">i</span>
-                        <span class="gen-btn-letter">c</span>
-                        <span class="gen-btn-letter">k</span>
-                        <span class="gen-btn-letter">e</span>
-                        <span class="gen-btn-letter">t</span>
-                        <span class="gen-btn-letter">s</span>
-                    </div>
-                </button>
-            </li>
-            <li class="nav-item" id="nav-pricing">
-                <button class="gen-btn" onclick="clickNavSection('pricing')">
-                    <div class="gen-txt-wrapper">
-                        <span class="gen-btn-letter">P</span>
-                        <span class="gen-btn-letter">r</span>
-                        <span class="gen-btn-letter">i</span>
-                        <span class="gen-btn-letter">c</span>
-                        <span class="gen-btn-letter">i</span>
-                        <span class="gen-btn-letter">n</span>
-                        <span class="gen-btn-letter">g</span>
-                    </div>
-                </button>
-            </li>
-            <li class="nav-item" id="nav-faq">
-                <button class="gen-btn" onclick="clickNavSection('faq')">
-                    <div class="gen-txt-wrapper">
-                        <span class="gen-btn-letter">F</span>
-                        <span class="gen-btn-letter">a</span>
-                        <span class="gen-btn-letter">q</span>
-                    </div>
+                <div class="nav-dropdown-menu" id="docs-dropdown-menu">
+                    <a href="/about.html" class="dropdown-link"><i class="fas fa-book-open"></i> Getting Started</a>
+                    <a href="/about.html#setup" class="dropdown-link"><i class="fas fa-wrench"></i> Setup Guide</a>
+                    <a href="/about.html#permissions" class="dropdown-link"><i class="fas fa-lock"></i> Permissions</a>
+                    <a href="/about.html#api" class="dropdown-link"><i class="fas fa-code"></i> API &amp; Dev Docs</a>
+                    <a href="/#faq" onclick="closeNavDropdowns(); clickNavSection('faq');" class="dropdown-link"><i class="fas fa-circle-question"></i> FAQ</a>
+                </div>
             </li>
         </ul>
-        <div class="nav-auth" style="display: flex; align-items: center; gap: 12px; position: relative;">
-            <button class="liquid-metal-btn" onclick="simulateLogin()" id="login-btn">
-                <div class="liquid-metal-btn-inner">
-                    <i class="fab fa-discord" style="color: #a855f7;"></i>
-                    <span>Login with Discord</span>
-                </div>
+
+        <!-- 3. Right Action Pills + User Widget (Preserved for Login) -->
+        <div class="nav-actions-right">
+            <button class="nav-dashboard-pill" onclick="clickManageServers()" id="nav-dashboard-button" title="Open Server Dashboard">
+                <i class="fas fa-table-cells-large" style="color: #00c2ff;"></i>
+                <span>Dashboard</span>
             </button>
 
+            <a href="https://discord.com/oauth2/authorize?client_id=1527243189860175933&permissions=8&integration_type=0&scope=bot+applications.commands" target="_blank" rel="noreferrer" class="nav-cta-pill">
+                <i class="fab fa-discord"></i>
+                <span>Add to Discord</span>
+            </a>
+
             <!-- Logged-in Header Dropdown Buttons -->
-            <div id="header-user-widgets" style="display: none; align-items: center; gap: 12px; position: relative;">
-                
+            <div id="header-user-widgets" style="display: none; align-items: center; gap: 10px; position: relative;">
                 <!-- Server Avatar Dropdown Trigger -->
                 <div id="header-server-dropdown-trigger-container" style="position: relative; display: none;">
-                    <div onclick="toggleHeaderDropdown('header-server-dropdown')" style="display: flex; align-items: center; gap: 6px; cursor: pointer; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); padding: 4px 10px 4px 6px; border-radius: 20px; transition: background 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.1)'" onmouseout="this.style.background='rgba(255,255,255,0.05)'">
-                        <div style="width: 28px; height: 28px; border-radius: 50%; background: #a855f7; overflow: hidden; display: flex; align-items: center; justify-content: center; border: 1px solid rgba(255,255,255,0.2);" id="header-server-avatar-img">
+                    <div onclick="toggleHeaderDropdown('header-server-dropdown')" style="display: flex; align-items: center; gap: 6px; cursor: pointer; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); padding: 4px 10px 4px 6px; border-radius: 20px;">
+                        <div style="width: 28px; height: 28px; border-radius: 50%; background: #a855f7; overflow: hidden; display: flex; align-items: center; justify-content: center;" id="header-server-avatar-img">
                             <img src="assets/bypass_logs_avatar.webp" style="width: 100%; height: 100%; object-fit: cover;">
                         </div>
                         <i class="fas fa-caret-down" style="color: #94a3b8; font-size: 0.75rem;"></i>
                     </div>
-
-                    <!-- Server Dropdown Menu Popover -->
                     <div id="header-server-dropdown" style="display: none; position: absolute; right: 0; top: 42px; width: 240px; background: #2f3136; border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; box-shadow: 0 15px 35px rgba(0,0,0,0.7); z-index: 9999; overflow: hidden; font-family: sans-serif;">
                         <div style="border-left: 4px solid #7c3aed; background: #202225; padding: 12px 14px; display: flex; align-items: center; gap: 10px;">
-                            <div style="width: 32px; height: 32px; border-radius: 50%; overflow: hidden; background: #7c3aed; display: flex; align-items: center; justify-content: center;" id="header-server-dropdown-icon">
+                            <div style="width: 32px; height: 32px; border-radius: 50%; overflow: hidden; background: #7c3aed;" id="header-server-dropdown-icon">
                                 <img src="assets/bypass_logs_avatar.webp" style="width: 100%; height: 100%; object-fit: cover;">
                             </div>
                             <div>
@@ -780,14 +1198,12 @@
 
                 <!-- User Avatar Dropdown Trigger -->
                 <div style="position: relative;">
-                    <div onclick="toggleHeaderDropdown('header-user-dropdown')" style="display: flex; align-items: center; gap: 6px; cursor: pointer; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); padding: 4px 10px 4px 6px; border-radius: 20px; transition: background 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.1)'" onmouseout="this.style.background='rgba(255,255,255,0.05)'">
-                        <div style="width: 28px; height: 28px; border-radius: 50%; background: #9333ea; overflow: hidden; display: flex; align-items: center; justify-content: center; font-weight: 700; color: #fff; font-size: 0.85rem; border: 1px solid rgba(255,255,255,0.2);" id="header-user-avatar-img">
+                    <div onclick="toggleHeaderDropdown('header-user-dropdown')" style="display: flex; align-items: center; gap: 6px; cursor: pointer; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); padding: 4px 10px 4px 6px; border-radius: 20px;">
+                        <div style="width: 28px; height: 28px; border-radius: 50%; background: #9333ea; overflow: hidden; display: flex; align-items: center; justify-content: center; font-weight: 700; color: #fff; font-size: 0.85rem;" id="header-user-avatar-img">
                             D
                         </div>
                         <i class="fas fa-caret-down" style="color: #94a3b8; font-size: 0.75rem;"></i>
                     </div>
-
-                    <!-- User Dropdown Menu Popover -->
                     <div id="header-user-dropdown" style="display: none; position: absolute; right: 0; top: 42px; width: 220px; background: #2f3136; border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; box-shadow: 0 15px 35px rgba(0,0,0,0.7); z-index: 9999; overflow: hidden; font-family: sans-serif;">
                         <div style="border-left: 4px solid #7c3aed; background: #202225; padding: 12px 14px; display: flex; align-items: center; gap: 10px;">
                             <div style="width: 32px; height: 32px; border-radius: 50%; overflow: hidden; background: #9333ea; display: flex; align-items: center; justify-content: center; font-weight: 700; color: #fff; font-size: 0.9rem;" id="header-user-dropdown-avatar">
@@ -798,8 +1214,6 @@
                                 <div style="font-size: 0.88rem; font-weight: 700; color: #fff;" id="header-user-dropdown-name">!! DADDY</div>
                             </div>
                         </div>
-
-                        <!-- Menu Button 11: ONLY Log out button as requested -->
                         <div style="padding: 6px;">
                             <button onclick="logout()" style="width: 100%; text-align: left; background: transparent; border: none; padding: 10px 12px; border-radius: 4px; color: #dcddde; font-size: 0.88rem; font-weight: 600; display: flex; align-items: center; gap: 10px; cursor: pointer; transition: background 0.15s, color 0.15s;" onmouseover="this.style.background='#36393f'; this.style.color='#ef4444';" onmouseout="this.style.background='transparent'; this.style.color='#dcddde';">
                                 <i class="fas fa-right-from-bracket" style="font-size: 0.95rem; color: #8e9297;"></i>
@@ -808,7 +1222,6 @@
                         </div>
                     </div>
                 </div>
-
             </div>
         </div>
     </nav>
@@ -824,144 +1237,145 @@
                 
                 <!-- LEFT: Brand Typography & Call to Actions -->
                 <div style="display: flex; flex-direction: column; align-items: flex-start; justify-content: center; width: 100%;">
-                    <div class="badge-glow" style="margin-bottom: 28px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.12); color: var(--accent-primary); font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: 0.12em; padding: 8px 16px; border-radius: 20px; align-self: flex-start;">
-                        <i class="fas fa-cubes" style="margin-right: 6px;"></i> EASY DISCORD MANAGEMENT, ENGAGEMENT &amp; SECURITY
+                    <div style="margin-bottom: 24px; background: rgba(255, 110, 66, 0.08); border: 1px solid rgba(255, 110, 66, 0.25); color: #FF6E42; font-family: var(--font-mono); font-size: 0.72rem; font-weight: 700; letter-spacing: 0.12em; padding: 7px 18px; border-radius: 50px; display: inline-flex; align-items: center; gap: 8px;">
+                        <i class="fas fa-shield-halved"></i>
+                        <span>EASY DISCORD MANAGEMENT, ENGAGEMENT &amp; SECURITY</span>
                     </div>
                     
-                    <h1 style="font-size: clamp(2.8rem, 5vw, 4.5rem); line-height: 1.08; font-weight: 800; font-family: var(--font-display); letter-spacing: -0.03em; color: #F9F9F9; margin: 0 0 10px 0; text-align: left; width: 100%;">The Ultimate Discord</h1>
-                    <h1 style="font-size: clamp(2.8rem, 5vw, 4.5rem); line-height: 1.08; font-weight: 800; font-family: var(--font-display); letter-spacing: -0.03em; background: linear-gradient(135deg, var(--accent-primary) 0%, #a3a3a3 60%, #444444 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin: 0 0 28px 0; text-align: left; width: 100%;">VEYRA BOT</h1>
+                    <h1 style="font-size: clamp(2.8rem, 5vw, 4.4rem); line-height: 1.08; font-weight: 900; font-family: var(--font-display); letter-spacing: -0.02em; color: #FFFFFF; margin: 0 0 10px 0; text-align: left; width: 100%;">The Ultimate Discord</h1>
+                    <h1 style="font-size: clamp(2.8rem, 5vw, 4.4rem); line-height: 1.08; font-weight: 900; font-family: var(--font-display); letter-spacing: -0.02em; background: linear-gradient(135deg, #ffffff 0%, #FF6E42 50%, #ff8f6b 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin: 0 0 24px 0; text-align: left; width: 100%;">VEYRA BOT</h1>
                     
-                    <p style="font-size: 1.1rem; line-height: 1.7; color: rgba(249,249,249,0.7); max-width: 600px; margin: 0 0 35px 0; text-align: left;">Manage and protect your Discord server with ease. VEYRA handles invites tracking, welcome greetings, custom embeds, moderation, leveling XP, giveaways, tickets, and anti-nuke security 24/7.</p>
+                    <p style="font-size: 1.08rem; line-height: 1.7; color: rgba(249, 249, 249, 0.75); max-width: 580px; margin: 0 0 35px 0; text-align: left;">Manage and protect your Discord server with ease. VEYRA handles invites tracking, welcome greetings, custom embeds, moderation, leveling XP, giveaways, tickets, and anti-nuke security 24/7.</p>
                     
-                    <div class="btn-row" style="display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 50px; justify-content: flex-start; align-items: center; width: 100%;">
-                        <button class="btn-primary btn-magnetic" onclick="simulateAddBot()" style="background: linear-gradient(135deg, var(--accent-primary), #a3a3a3); border: none; box-shadow: 0 8px 30px rgba(255,255,255,0.2); padding: 16px 36px; border-radius: 50px; font-weight: 700; font-size: 0.95rem; color: #000; cursor: pointer; display: flex; align-items: center; gap: 10px; transition: all 0.3s ease;">
+                    <div style="display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 45px; justify-content: flex-start; align-items: center; width: 100%;">
+                        <a href="https://discord.com/oauth2/authorize?client_id=1527243189860175933&permissions=8&integration_type=0&scope=bot+applications.commands" target="_blank" style="background: linear-gradient(135deg, #FF6E42, #ff8f6b); color: #000; padding: 14px 34px; border-radius: 50px; font-weight: 800; font-size: 0.95rem; text-decoration: none; display: inline-flex; align-items: center; gap: 10px; box-shadow: 0 6px 25px rgba(255, 110, 66, 0.45); transition: all 0.25s ease;" onmouseover="this.style.transform='translateY(-2px) scale(1.02)'; this.style.boxShadow='0 10px 30px rgba(255,110,66,0.6)';" onmouseout="this.style.transform='none'; this.style.boxShadow='0 6px 25px rgba(255, 110, 66, 0.45)';">
                             <span>INVITE VEYRA BOT</span> <i class="fas fa-arrow-right"></i>
-                        </button>
-                        <button class="btn-secondary btn-magnetic" onclick="clickManageServers()" style="background: rgba(255, 255, 255, 0.05); border: 1.5px solid rgba(255, 255, 255, 0.15); padding: 16px 36px; border-radius: 50px; font-weight: 700; font-size: 0.95rem; color: #F9F9F9; cursor: pointer; transition: all 0.3s ease;">
+                        </a>
+                        <button onclick="clickManageServers()" style="background: rgba(255, 255, 255, 0.05); border: 1.5px solid rgba(255, 255, 255, 0.15); color: #fff; padding: 14px 32px; border-radius: 50px; font-weight: 700; font-size: 0.95rem; cursor: pointer; transition: all 0.25s ease;" onmouseover="this.style.background='rgba(255,255,255,0.12)'; this.style.borderColor='rgba(255,255,255,0.3)';" onmouseout="this.style.background='rgba(255, 255, 255, 0.05)'; this.style.borderColor='rgba(255, 255, 255, 0.15)';">
                             Open Dashboard
                         </button>
                     </div>
                     
                     <!-- 4-stat row -->
-                    <div class="stats-row" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; width: 100%; max-width: 620px; margin-top: auto; border-top: 1px solid rgba(255,255,255,0.04); padding-top: 30px;">
+                    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; width: 100%; max-width: 620px; margin-top: auto; border-top: 1px solid rgba(255,255,255,0.06); padding-top: 26px;">
                         <div>
-                            <div style="font-size: 1.8rem; font-weight: 800; color: #F9F9F9; font-family: var(--font-display);">28,491</div>
+                            <div style="font-size: 1.8rem; font-weight: 800; color: #FFFFFF; font-family: var(--font-display);">28,491</div>
                             <div style="font-size: 0.68rem; color: rgba(249,249,249,0.5); margin-top: 4px; font-family: var(--font-mono); letter-spacing: 0.05em; text-transform: uppercase;">Servers Guarded</div>
                         </div>
                         <div>
-                            <div style="font-size: 1.8rem; font-weight: 800; color: var(--accent-primary); font-family: var(--font-display);">14.8M</div>
+                            <div style="font-size: 1.8rem; font-weight: 800; color: #FF6E42; font-family: var(--font-display);">14.8M</div>
                             <div style="font-size: 0.68rem; color: rgba(249,249,249,0.5); margin-top: 4px; font-family: var(--font-mono); letter-spacing: 0.05em; text-transform: uppercase;">Users Protected</div>
                         </div>
                         <div>
-                            <div style="font-size: 1.8rem; font-weight: 800; color: #F9F9F9; font-family: var(--font-display);">0.04ms</div>
+                            <div style="font-size: 1.8rem; font-weight: 800; color: #10b981; font-family: var(--font-display);">0.04ms</div>
                             <div style="font-size: 0.68rem; color: rgba(249,249,249,0.5); margin-top: 4px; font-family: var(--font-mono); letter-spacing: 0.05em; text-transform: uppercase;">Response Time</div>
                         </div>
                         <div>
-                            <div style="font-size: 1.8rem; font-weight: 800; color: #a3a3a3; font-family: var(--font-display);">99.99%</div>
+                            <div style="font-size: 1.8rem; font-weight: 800; color: #a855f7; font-family: var(--font-display);">99.99%</div>
                             <div style="font-size: 0.68rem; color: rgba(249,249,249,0.5); margin-top: 4px; font-family: var(--font-mono); letter-spacing: 0.05em; text-transform: uppercase;">Uptime</div>
                         </div>
                     </div>
                 </div>
                 
-                <!-- RIGHT: Sci-Fi Live Security Console Mockup -->
+                <!-- RIGHT: High-End Live Interactive Discord Bot Simulator Terminal -->
                 <div style="width: 100%; display: flex; justify-content: center; align-items: center; position: relative;">
-                    <!-- Main Dashboard Window -->
-                    <div class="glass-card" style="width: 100%; max-width: 560px; background: rgba(8, 12, 22, 0.92); border: 1.5px solid rgba(255, 110, 66, 0.25); border-radius: 20px; padding: 24px; box-shadow: 0 25px 60px rgba(0,0,0,0.9), 0 0 50px rgba(255, 110, 66, 0.08); backdrop-filter: blur(24px); position: relative; overflow: hidden; display: flex; flex-direction: column; gap: 18px; box-sizing: border-box;">
-                        
-                        <!-- Top Accent Glow Line -->
-                        <div style="position: absolute; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, #FF6E42, #a855f7, #10b981);"></div>
-
-                        <!-- Window Header Bar -->
-                        <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(255, 255, 255, 0.06); padding-bottom: 14px; width: 100%; box-sizing: border-box;">
-                            <div style="display: flex; align-items: center; gap: 8px;">
-                                <span style="width: 10px; height: 10px; border-radius: 50%; background: #fc5c57; display: inline-block; box-shadow: 0 0 8px rgba(252, 92, 87, 0.6);"></span>
-                                <span style="width: 10px; height: 10px; border-radius: 50%; background: #fdbb2d; display: inline-block; box-shadow: 0 0 8px rgba(253, 187, 45, 0.6);"></span>
-                                <span style="width: 10px; height: 10px; border-radius: 50%; background: #27c93f; display: inline-block; box-shadow: 0 0 8px rgba(39, 201, 63, 0.6);"></span>
-                                <span style="font-family: var(--font-mono); font-size: 0.65rem; color: #10b981; font-weight: 800; margin-left: 8px; letter-spacing: 0.08em; display: flex; align-items: center; gap: 5px;">
-                                    <span style="width: 6px; height: 6px; border-radius: 50%; background: #10b981; display: inline-block; animation: pulse 1s infinite;"></span>
-                                    SHIELD ARMED
-                                </span>
+                    <div class="discord-sim-window">
+                        <!-- Top macOS Bar -->
+                        <div class="discord-sim-topbar">
+                            <div class="discord-sim-dots">
+                                <span style="background: #fc5c57;"></span>
+                                <span style="background: #fdbb2d;"></span>
+                                <span style="background: #27c93f;"></span>
                             </div>
-                            <div style="font-family: var(--font-mono); font-size: 0.68rem; color: rgba(249, 249, 249, 0.85); font-weight: 700; letter-spacing: 0.08em; display: flex; align-items: center; gap: 6px;">
-                                <i class="fas fa-terminal" style="color: #FF6E42;"></i> 
-                                <span style="color: #F9F9F9; font-weight: 800;">SECURITY_ENGINE_CONSOLE</span>
+                            <div style="display: flex; align-items: center; gap: 7px; color: #f8fafc; font-family: var(--font-mono); font-size: 0.72rem; font-weight: 700;">
+                                <i class="fas fa-hashtag" style="color: #94a3b8;"></i>
+                                <span>veyra-command-feed</span>
                             </div>
-                            <div style="font-family: var(--font-mono); font-size: 0.6rem; color: #FF6E42; background: rgba(255, 110, 66, 0.1); border: 1px solid rgba(255, 110, 66, 0.3); padding: 4px 8px; border-radius: 6px; font-weight: 800; letter-spacing: 0.05em;">
-                                v2.5.0
+                            <div style="display: flex; align-items: center; gap: 6px; font-family: var(--font-mono); font-size: 0.62rem; color: #10b981; background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.25); padding: 3px 8px; border-radius: 4px; font-weight: 700;">
+                                <span style="width: 6px; height: 6px; border-radius: 50%; background: #10b981; display: inline-block; animation: pulse 1s infinite;"></span>
+                                0.04ms • ACTIVE
                             </div>
                         </div>
 
-                        <!-- Live Radar Scanner -->
-                        <div style="height: 180px; width: 100%; background: radial-gradient(circle at center, rgba(255, 110, 66, 0.12) 0%, rgba(9, 38, 52, 0.6) 70%, rgba(4, 14, 20, 0.95) 100%), linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px); background-size: 100%, 16px 16px, 16px 16px; border: 1px solid rgba(255, 255, 255, 0.06); border-radius: 14px; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; box-shadow: inset 0 0 30px rgba(0,0,0,0.6);">
-                            
-                            <!-- Pulsing radar rings -->
-                            <div style="position: absolute; width: 140px; height: 140px; border-radius: 50%; border: 1.5px dashed rgba(255, 110, 66, 0.25); animation: spin 20s linear infinite;"></div>
-                            <div style="position: absolute; width: 105px; height: 105px; border-radius: 50%; border: 1.5px solid rgba(168, 85, 247, 0.3); animation: pulse 2s infinite ease-in-out;"></div>
-                            <div style="position: absolute; width: 72px; height: 72px; border-radius: 50%; border: 2px solid #FF6E42; box-shadow: 0 0 35px rgba(255, 110, 66, 0.4), inset 0 0 20px rgba(255, 110, 66, 0.2); display: flex; align-items: center; justify-content: center; background: rgba(8, 12, 22, 0.85);">
-                                <i class="fas fa-shield-halved" style="font-size: 1.6rem; color: #FF6E42; text-shadow: 0 0 20px rgba(255, 110, 66, 0.8); animation: pulse 1.8s infinite;"></i>
-                            </div>
-                            
-                            <!-- Radar Sweep Line -->
-                            <div style="position: absolute; width: 70px; height: 2px; background: linear-gradient(to right, transparent, #FF6E42); transform-origin: left center; left: 50%; top: 50%; animation: spin 3.5s linear infinite; box-shadow: 0 0 10px #FF6E42;"></div>
-                            
-                            <!-- Live status label overlay -->
-                            <div style="position: absolute; bottom: 12px; font-family: var(--font-mono); font-size: 0.65rem; color: rgba(249, 249, 249, 0.7); letter-spacing: 0.12em; text-transform: uppercase; display: flex; align-items: center; gap: 8px; background: rgba(0,0,0,0.4); padding: 4px 12px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.05);">
-                                SCAN STATUS: <span id="hero-scan-status-text" style="color: #FF6E42; font-weight: 800; text-shadow: 0 0 10px rgba(255, 110, 66, 0.6);">SECURE_ACTIVE</span>
+                        <!-- Interactive Category Filter Tabs -->
+                        <div class="discord-sim-tabs">
+                            <button onclick="switchHeroFeed('security')" class="discord-sim-tab active" id="tab-security">
+                                <i class="fas fa-shield-halved" style="color: #FF6E42;"></i> Anti-Nuke
+                            </button>
+                            <button onclick="switchHeroFeed('tickets')" class="discord-sim-tab" id="tab-tickets">
+                                <i class="fas fa-ticket" style="color: #a855f7;"></i> Tickets
+                            </button>
+                            <button onclick="switchHeroFeed('music')" class="discord-sim-tab" id="tab-music">
+                                <i class="fas fa-music" style="color: #00c2ff;"></i> 24/7 Voice
+                            </button>
+                            <button onclick="switchHeroFeed('automod')" class="discord-sim-tab" id="tab-automod">
+                                <i class="fas fa-bolt" style="color: #10b981;"></i> Auto-Mod
+                            </button>
+                        </div>
+
+                        <!-- Discord Message Body -->
+                        <div class="discord-sim-body" id="hero-discord-body">
+                            <!-- User Command Header -->
+                            <div style="display: flex; align-items: center; gap: 8px; font-size: 0.74rem; color: #94a3b8; font-family: var(--font-mono);">
+                                <i class="fas fa-chevron-right" style="color: #5865F2; font-size: 0.68rem;"></i>
+                                <span style="color: #fff; font-weight: 700;">@Admin</span> used <code style="color: #00c2ff; background: rgba(0,194,255,0.1); padding: 2px 6px; border-radius: 4px;" id="hero-sim-command">/security shield-status: true</code>
                             </div>
 
-                            <div style="position: absolute; top: 12px; right: 12px; font-family: var(--font-mono); font-size: 0.6rem; color: #10b981; font-weight: 700; background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3); padding: 2px 8px; border-radius: 4px; display: flex; align-items: center; gap: 4px;">
-                                <i class="fas fa-bolt"></i> 0.04ms
+                            <!-- Bot Response Card -->
+                            <div style="display: flex; gap: 12px; align-items: flex-start;">
+                                <img src="assets/bypass_logs_avatar.webp" style="width: 38px; height: 38px; border-radius: 50%; object-fit: cover; border: 1.5px solid #FF6E42; flex-shrink: 0;" onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png'">
+                                <div style="display: flex; flex-direction: column; gap: 6px; width: 100%;">
+                                    <div style="display: flex; align-items: center; gap: 8px;">
+                                        <span style="font-weight: 800; color: #fff; font-size: 0.92rem;">VEYRA</span>
+                                        <span class="discord-bot-badge">APP</span>
+                                        <span style="font-size: 0.68rem; color: #94a3b8;">Today at 12:45 PM</span>
+                                    </div>
+
+                                    <!-- Embed Container -->
+                                    <div class="discord-embed-card" id="hero-embed-card">
+                                        <div style="display: flex; align-items: center; gap: 8px; font-weight: 800; font-size: 0.92rem; color: #fff;" id="hero-embed-title">
+                                            <i class="fas fa-shield-halved" style="color: #FF6E42;"></i>
+                                            <span>Anti-Nuke Sentinel System</span>
+                                        </div>
+                                        <div style="font-size: 0.8rem; color: #dcddde; line-height: 1.45;" id="hero-embed-desc">
+                                            Real-time audit log scanner is actively intercepting rogue admin modifications. Mass channel deletion, role stripping, and webhook creation traps are armed.
+                                        </div>
+                                        
+                                        <!-- Inline Embed Fields Grid -->
+                                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 4px;" id="hero-embed-fields">
+                                            <div style="background: rgba(0,0,0,0.25); padding: 6px 10px; border-radius: 6px;">
+                                                <div style="font-size: 0.62rem; color: #94a3b8; font-weight: 700; text-transform: uppercase;">Raid Defense</div>
+                                                <div style="font-size: 0.78rem; font-weight: 800; color: #10b981;">100% SECURE</div>
+                                            </div>
+                                            <div style="background: rgba(0,0,0,0.25); padding: 6px 10px; border-radius: 6px;">
+                                                <div style="font-size: 0.62rem; color: #94a3b8; font-weight: 700; text-transform: uppercase;">Action Threshold</div>
+                                                <div style="font-size: 0.78rem; font-weight: 800; color: #FF6E42;">3 Ops / 10s</div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Interactive Discord Action Button Row -->
+                                    <div style="display: flex; gap: 8px; margin-top: 4px; flex-wrap: wrap;" id="hero-embed-buttons">
+                                        <button onclick="handleHeroSimAction('scan')" class="discord-btn-action primary">
+                                            <i class="fas fa-radar"></i> Run Threat Scan
+                                        </button>
+                                        <button onclick="handleHeroSimAction('whitelist')" class="discord-btn-action">
+                                            <i class="fas fa-user-check"></i> Whitelist Admins
+                                        </button>
+                                        <button onclick="handleHeroSimAction('restore')" class="discord-btn-action success">
+                                            <i class="fas fa-rotate"></i> Auto-Repair
+                                        </button>
+                                    </div>
+                                </div>
                             </div>
                         </div>
 
-                        <!-- Security Modules Grid -->
-                        <div style="display: flex; flex-direction: column; gap: 10px; width: 100%;">
-                            <!-- Module 1: Anti-Nuke -->
-                            <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; padding: 12px 16px; transition: all 0.25s ease;" onmouseover="this.style.background='rgba(255,110,66,0.06)'; this.style.borderColor='rgba(255,110,66,0.2)';" onmouseout="this.style.background='rgba(255,255,255,0.03)'; this.style.borderColor='rgba(255,255,255,0.06)';">
-                                <div style="display: flex; align-items: center; gap: 12px;">
-                                    <div style="width: 34px; height: 34px; border-radius: 10px; background: rgba(255, 110, 66, 0.12); border: 1px solid rgba(255, 110, 66, 0.3); display: flex; align-items: center; justify-content: center; color: #FF6E42;">
-                                        <i class="fas fa-shield-cat"></i>
-                                    </div>
-                                    <div>
-                                        <div style="font-size: 0.86rem; font-weight: 700; color: #fff;">Anti-Nuke Protection</div>
-                                        <div style="font-size: 0.7rem; color: rgba(255,255,255,0.5);">Intercept rogue admin privileges</div>
-                                    </div>
-                                </div>
-                                <label class="switch" style="margin: 0;">
-                                    <input type="checkbox" checked onchange="heroToggleAntiNuke(this)">
-                                    <span class="slider"></span>
-                                </label>
-                            </div>
-
-                            <!-- Module 2: Invite Tracker -->
-                            <div onclick="heroClickModule('invites')" style="display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; padding: 12px 16px; transition: all 0.25s ease; cursor: pointer;" onmouseover="this.style.background='rgba(16,185,129,0.06)'; this.style.borderColor='rgba(16,185,129,0.2)';" onmouseout="this.style.background='rgba(255,255,255,0.03)'; this.style.borderColor='rgba(255,255,255,0.06)';">
-                                <div style="display: flex; align-items: center; gap: 12px;">
-                                    <div style="width: 34px; height: 34px; border-radius: 10px; background: rgba(16, 185, 129, 0.12); border: 1px solid rgba(16, 185, 129, 0.3); display: flex; align-items: center; justify-content: center; color: #10b981;">
-                                        <i class="fas fa-user-shield"></i>
-                                    </div>
-                                    <div>
-                                        <div style="font-size: 0.86rem; font-weight: 700; color: #fff;">Invite Tracker &amp; Guard</div>
-                                        <div style="font-size: 0.7rem; color: rgba(255,255,255,0.5);">Secure joining gates and track referrers</div>
-                                    </div>
-                                </div>
-                                <span id="hero-badge-invites" style="font-family: var(--font-mono); font-size: 0.65rem; color: #10b981; font-weight: 800; letter-spacing: 0.05em; background: rgba(16, 185, 129, 0.12); border: 1px solid rgba(16, 185, 129, 0.3); padding: 4px 10px; border-radius: 6px;">PROTECTED</span>
-                            </div>
-
-                            <!-- Module 3: Ticket Systems -->
-                            <div onclick="heroClickModule('tickets')" style="display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; padding: 12px 16px; transition: all 0.25s ease; cursor: pointer;" onmouseover="this.style.background='rgba(168,85,247,0.06)'; this.style.borderColor='rgba(168,85,247,0.2)';" onmouseout="this.style.background='rgba(255,255,255,0.03)'; this.style.borderColor='rgba(255,255,255,0.06)';">
-                                <div style="display: flex; align-items: center; gap: 12px;">
-                                    <div style="width: 34px; height: 34px; border-radius: 10px; background: rgba(168, 85, 247, 0.12); border: 1px solid rgba(168, 85, 247, 0.3); display: flex; align-items: center; justify-content: center; color: #a855f7;">
-                                        <i class="fas fa-ticket-simple"></i>
-                                    </div>
-                                    <div>
-                                        <div style="font-size: 0.86rem; font-weight: 700; color: #fff;">Advanced Support Tickets</div>
-                                        <div style="font-size: 0.7rem; color: rgba(255,255,255,0.5);">Instant store panels &amp; UID whitelisting</div>
-                                    </div>
-                                </div>
-                                <span id="hero-badge-tickets" style="font-family: var(--font-mono); font-size: 0.65rem; color: #a855f7; font-weight: 800; letter-spacing: 0.05em; background: rgba(168, 85, 247, 0.12); border: 1px solid rgba(168, 85, 247, 0.3); padding: 4px 10px; border-radius: 6px;">REALTIME</span>
-                            </div>
+                        <!-- Bottom Telemetry Bar -->
+                        <div style="background: #18191c; border-top: 1px solid rgba(255,255,255,0.06); padding: 8px 16px; display: flex; justify-content: space-between; align-items: center; font-family: var(--font-mono); font-size: 0.65rem; color: #94a3b8;">
+                            <span>Cluster: <strong style="color: #fff;">Asia-South</strong></span>
+                            <span>Memory: <strong style="color: #10b981;">28.4 MB</strong></span>
+                            <span>WebSocket: <strong style="color: #FF6E42;">0ms loss</strong></span>
                         </div>
-
                     </div>
                 </div>
 
@@ -9633,38 +10047,180 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 <script>
-function heroToggleAntiNuke(el) {
-    const statusText = document.getElementById('hero-scan-status-text');
-    if (el.checked) {
-        if (statusText) {
-            statusText.innerText = 'SECURE_ACTIVE';
-            statusText.style.color = '#FF6E42';
-        }
-        if (typeof showToast === 'function') showToast("Anti-Nuke Guard", "Anti-Nuke Protection System is ARMED & Active.");
-    } else {
-        if (statusText) {
-            statusText.innerText = 'STANDBY';
-            statusText.style.color = '#eab308';
-        }
-        if (typeof showToast === 'function') showToast("Anti-Nuke Warning", "Anti-Nuke Protection set to STANDBY mode.", "warning");
+// =========================================================================
+// INTERACTIVE DISCORD BOT SIMULATOR ENGINE (HERO RIGHT)
+// =========================================================================
+const heroFeedData = {
+    security: {
+        command: "/security shield-status: true",
+        color: "#FF6E42",
+        icon: "fa-shield-halved",
+        title: "Anti-Nuke Sentinel System",
+        desc: "Real-time audit log scanner is actively intercepting rogue admin modifications. Mass channel deletion, role stripping, and webhook creation traps are armed.",
+        fields: [
+            { label: "Raid Defense", val: "100% SECURE", color: "#10b981" },
+            { label: "Action Threshold", val: "3 Ops / 10s", color: "#FF6E42" }
+        ],
+        buttons: [
+            { id: "scan", label: "Run Threat Scan", icon: "fa-radar", type: "primary" },
+            { id: "whitelist", label: "Whitelist Admins", icon: "fa-user-check", type: "" },
+            { id: "restore", label: "Auto-Repair", icon: "fa-rotate", type: "success" }
+        ]
+    },
+    tickets: {
+        command: "/ticket setup category: Support",
+        color: "#a855f7",
+        icon: "fa-ticket",
+        title: "Instant Support & Store Ticket Hub",
+        desc: "Interactive dropdown panels allow your community members to open isolated, private ticket rooms with staff in less than 50ms.",
+        fields: [
+            { label: "Active Tickets", val: "14 OPEN", color: "#a855f7" },
+            { label: "Avg Response", val: "1.2 MINS", color: "#10b981" }
+        ],
+        buttons: [
+            { id: "buy", label: "Open Store Ticket", icon: "fa-cart-shopping", type: "primary" },
+            { id: "help", label: "Staff Support", icon: "fa-headset", type: "" },
+            { id: "close", label: "Close Ticket", icon: "fa-lock", type: "success" }
+        ]
+    },
+    music: {
+        command: "/play query: lofi hip hop 24/7",
+        color: "#00c2ff",
+        icon: "fa-music",
+        title: "24/7 Voice Channel Lo-Fi Radio",
+        desc: "Currently streaming 320kbps lossless audio in Voice Lounge. Auto-reconnect and 24/7 stay-in-channel mode active.",
+        fields: [
+            { label: "Bitrate", val: "320 KBPS", color: "#00c2ff" },
+            { label: "Connected VC", val: "🔊 Chill Lounge", color: "#10b981" }
+        ],
+        buttons: [
+            { id: "pause", label: "Pause / Resume", icon: "fa-play-pause", type: "primary" },
+            { id: "skip", label: "Skip Track", icon: "fa-forward", type: "" },
+            { id: "v247", label: "24/7 Locked", icon: "fa-infinity", type: "success" }
+        ]
+    },
+    automod: {
+        command: "/automod filter: strict",
+        color: "#10b981",
+        icon: "fa-bolt",
+        title: "Heuristic Auto-Moderation Engine",
+        desc: "Instant filtering for zero-day phishing domains, malicious invite spam, mass-mention raids, and toxic text patterns.",
+        fields: [
+            { label: "Phishing Shield", val: "ARMED & BLOCKING", color: "#10b981" },
+            { label: "Filtered Today", val: "1,248 THREATS", color: "#FF6E42" }
+        ],
+        buttons: [
+            { id: "rules", label: "Edit Auto-Rules", icon: "fa-sliders", type: "primary" },
+            { id: "logs", label: "Recent Intercepts", icon: "fa-list-check", type: "" },
+            { id: "quarantine", label: "Quarantine Role", icon: "fa-ban", type: "success" }
+        ]
+    }
+};
+
+function switchHeroFeed(type) {
+    const data = heroFeedData[type];
+    if (!data) return;
+
+    // Update active tab buttons
+    document.querySelectorAll('.discord-sim-tab').forEach(b => b.classList.remove('active'));
+    const activeBtn = document.getElementById('tab-' + type);
+    if (activeBtn) activeBtn.classList.add('active');
+
+    // Update command text
+    const cmdEl = document.getElementById('hero-sim-command');
+    if (cmdEl) cmdEl.textContent = data.command;
+
+    // Update embed border and content
+    const embedCard = document.getElementById('hero-embed-card');
+    if (embedCard) embedCard.style.borderLeftColor = data.color;
+
+    const titleEl = document.getElementById('hero-embed-title');
+    if (titleEl) {
+        titleEl.innerHTML = `<i class="fas ${data.icon}" style="color: ${data.color};"></i> <span>${data.title}</span>`;
+    }
+
+    const descEl = document.getElementById('hero-embed-desc');
+    if (descEl) descEl.textContent = data.desc;
+
+    // Update fields
+    const fieldsEl = document.getElementById('hero-embed-fields');
+    if (fieldsEl) {
+        fieldsEl.innerHTML = data.fields.map(f => `
+            <div style="background: rgba(0,0,0,0.25); padding: 6px 10px; border-radius: 6px;">
+                <div style="font-size: 0.62rem; color: #94a3b8; font-weight: 700; text-transform: uppercase;">${f.label}</div>
+                <div style="font-size: 0.78rem; font-weight: 800; color: ${f.color};">${f.val}</div>
+            </div>
+        `).join('');
+    }
+
+    // Update action buttons
+    const btnsEl = document.getElementById('hero-embed-buttons');
+    if (btnsEl) {
+        btnsEl.innerHTML = data.buttons.map(b => `
+            <button onclick="handleHeroSimAction('${b.id}')" class="discord-btn-action ${b.type}">
+                <i class="fas ${b.icon}"></i> ${b.label}
+            </button>
+        `).join('');
     }
 }
 
-function heroClickModule(type) {
-    if (type === 'invites') {
-        const badge = document.getElementById('hero-badge-invites');
-        if (badge) {
-            badge.innerText = badge.innerText === 'PROTECTED' ? 'ACTIVE_GATE' : 'PROTECTED';
-        }
-        if (typeof showToast === 'function') showToast("Invite Tracker", "Invite tracking gate & fake account protection synced.");
-    } else if (type === 'tickets') {
-        const badge = document.getElementById('hero-badge-tickets');
-        if (badge) {
-            badge.innerText = badge.innerText === 'REALTIME' ? 'LIVE_SYNC' : 'REALTIME';
-        }
-        if (typeof showToast === 'function') showToast("Support Tickets", "Realtime ticket store channels active.");
+function handleHeroSimAction(action) {
+    if (typeof showToast === 'function') {
+        const messages = {
+            scan: "Threat Scan complete. 0 vulnerabilities or rogue permissions detected.",
+            whitelist: "Admin Whitelist verified. 4 privileged accounts protected from traps.",
+            restore: "Auto-repair snapshot confirmed. All guild settings intact.",
+            buy: "Store ticket channel opened in Discord client (#ticket-1049).",
+            help: "Staff support ticket initialized. Ping dispatched to online moderators.",
+            close: "Ticket resolved and transcript backed up to SQLite database.",
+            pause: "Voice stream playback state toggled.",
+            skip: "Track skipped. Next queued song starting.",
+            v247: "24/7 Channel Lock confirmed. Bot will remain in voice after restarts.",
+            rules: "Auto-Mod heuristic rules updated with strict zero-tolerance filtering.",
+            logs: "Loaded 25 most recent security intercepts into live audit log.",
+            quarantine: "Quarantine role active on 0 untrusted accounts."
+        };
+        showToast("VEYRA Core Engine", messages[action] || "Action executed successfully in 0.04ms.");
     }
 }
+
+// Dropdown interactions for top bar
+function toggleNavDropdown(menuId, event) {
+    if (event) {
+        event.stopPropagation();
+        event.preventDefault();
+    }
+    const item = document.getElementById(menuId);
+    if (!item) return;
+    const wasOpen = item.classList.contains('open');
+    closeNavDropdowns();
+    if (!wasOpen) {
+        item.classList.add('open');
+    }
+}
+
+function closeNavDropdowns() {
+    document.querySelectorAll('.nav-has-dropdown.open').forEach(el => {
+        el.classList.remove('open');
+    });
+}
+
+document.addEventListener('click', (e) => {
+    if (!e.target.closest('.nav-has-dropdown')) {
+        closeNavDropdowns();
+    }
+});
+
+window.addEventListener('scroll', () => {
+    const nav = document.querySelector('.navbar');
+    if (nav) {
+        if (window.scrollY > 40) {
+            nav.classList.add('compact');
+        } else {
+            nav.classList.remove('compact');
+        }
+    }
+}, { passive: true });
 </script>
 
 </body>
