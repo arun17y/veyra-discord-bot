@@ -574,544 +574,6 @@
             transform: rotate(45deg);
             color: #ef4444;
         }
-
-        /* =========================================================================
-           TOP BAR (DESKTOP ORDER & DROPDOWN MEGA-MENU) & VEYRA FOOTER (5-COL)
-        ========================================================================= */
-        .navbar {
-            display: flex !important;
-            align-items: center !important;
-            justify-content: space-between !important;
-            padding: 0 32px !important;
-            height: 72px !important;
-            transition: all 0.25s ease !important;
-            z-index: 1000 !important;
-            background: rgba(4, 14, 20, 0.94) !important;
-            backdrop-filter: blur(20px) !important;
-            -webkit-backdrop-filter: blur(20px) !important;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
-            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.7) !important;
-        }
-        .navbar.compact {
-            height: 60px !important;
-            background: rgba(4, 14, 20, 0.98) !important;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.9) !important;
-        }
-        .nav-logo {
-            display: flex !important;
-            align-items: center !important;
-            gap: 10px !important;
-            cursor: pointer !important;
-            text-decoration: none !important;
-            flex-shrink: 0 !important;
-        }
-        .nav-logo img {
-            width: 32px !important;
-            height: 32px !important;
-            border-radius: 50% !important;
-            border: 1.5px solid #FF6E42 !important;
-            box-shadow: 0 0 14px rgba(255, 110, 66, 0.4) !important;
-        }
-        .nav-logo span {
-            font-family: var(--font-display) !important;
-            font-weight: 800 !important;
-            font-size: 1.35rem !important;
-            letter-spacing: 0.12em !important;
-            color: #fff !important;
-        }
-        .nav-links-center {
-            display: flex !important;
-            align-items: center !important;
-            gap: 10px !important;
-            list-style: none !important;
-            margin: 0 !important;
-            padding: 0 !important;
-        }
-        .nav-link-btn {
-            background: transparent !important;
-            border: none !important;
-            color: rgba(249, 249, 249, 0.8) !important;
-            font-family: var(--font-display) !important;
-            font-size: 0.88rem !important;
-            font-weight: 700 !important;
-            cursor: pointer !important;
-            padding: 8px 14px !important;
-            border-radius: 8px !important;
-            transition: all 0.2s ease !important;
-            display: inline-flex !important;
-            align-items: center !important;
-            gap: 6px !important;
-            text-decoration: none !important;
-            outline: none !important;
-        }
-        .nav-link-btn:hover, .nav-link-btn.active {
-            color: #fff !important;
-            background: rgba(255, 255, 255, 0.08) !important;
-        }
-        .nav-has-dropdown {
-            position: relative !important;
-        }
-        .nav-arrow {
-            font-size: 0.65rem !important;
-            transition: transform 0.25s ease !important;
-            color: rgba(255, 255, 255, 0.5) !important;
-        }
-        .nav-has-dropdown:hover .nav-arrow,
-        .nav-has-dropdown.open .nav-arrow {
-            transform: rotate(180deg) !important;
-            color: #FF6E42 !important;
-        }
-        
-        /* Two-Column Features Mega Menu */
-        .nav-mega-dropdown {
-            position: absolute !important;
-            top: 100% !important;
-            left: 50% !important;
-            transform: translateX(-50%) translateY(12px) !important;
-            width: 540px !important;
-            background: rgba(8, 16, 26, 0.98) !important;
-            border: 1.5px solid rgba(255, 110, 66, 0.3) !important;
-            border-radius: 18px !important;
-            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.9), 0 0 40px rgba(255, 110, 66, 0.1) !important;
-            backdrop-filter: blur(25px) !important;
-            -webkit-backdrop-filter: blur(25px) !important;
-            padding: 22px !important;
-            opacity: 0 !important;
-            visibility: hidden !important;
-            pointer-events: none !important;
-            transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1) !important;
-            z-index: 1010 !important;
-        }
-        .nav-has-dropdown:hover .nav-mega-dropdown,
-        .nav-has-dropdown.open .nav-mega-dropdown {
-            opacity: 1 !important;
-            visibility: visible !important;
-            pointer-events: auto !important;
-            transform: translateX(-50%) translateY(0) !important;
-        }
-        .mega-grid {
-            display: grid !important;
-            grid-template-columns: 1fr 1fr !important;
-            gap: 12px !important;
-        }
-        .mega-item {
-            display: flex !important;
-            align-items: flex-start !important;
-            gap: 12px !important;
-            padding: 12px !important;
-            border-radius: 12px !important;
-            background: rgba(255, 255, 255, 0.02) !important;
-            border: 1px solid rgba(255, 255, 255, 0.05) !important;
-            text-decoration: none !important;
-            transition: all 0.2s ease !important;
-        }
-        .mega-item:hover {
-            background: rgba(255, 110, 66, 0.08) !important;
-            border-color: rgba(255, 110, 66, 0.3) !important;
-            transform: translateY(-2px) !important;
-        }
-        .mega-icon {
-            width: 38px !important;
-            height: 38px !important;
-            border-radius: 10px !important;
-            display: flex !important;
-            align-items: center !important;
-            justify-content: center !important;
-            font-size: 1.05rem !important;
-            flex-shrink: 0 !important;
-        }
-        .mega-title {
-            color: #fff !important;
-            font-family: var(--font-display) !important;
-            font-weight: 700 !important;
-            font-size: 0.9rem !important;
-            margin-bottom: 2px !important;
-        }
-        .mega-desc {
-            color: rgba(249, 249, 249, 0.6) !important;
-            font-size: 0.74rem !important;
-            line-height: 1.35 !important;
-        }
-        .mega-footer {
-            margin-top: 16px !important;
-            padding-top: 14px !important;
-            border-top: 1px solid rgba(255, 255, 255, 0.06) !important;
-            display: flex !important;
-            justify-content: flex-end !important;
-        }
-        .mega-explore-link {
-            font-family: var(--font-display) !important;
-            font-size: 0.82rem !important;
-            font-weight: 800 !important;
-            color: #FF6E42 !important;
-            text-decoration: none !important;
-            display: inline-flex !important;
-            align-items: center !important;
-            gap: 6px !important;
-            transition: gap 0.2s ease !important;
-        }
-        .mega-explore-link:hover {
-            gap: 10px !important;
-            color: #ffa082 !important;
-        }
-
-        /* 1-Column Docs Dropdown */
-        .nav-dropdown-menu {
-            position: absolute !important;
-            top: 100% !important;
-            left: 50% !important;
-            transform: translateX(-50%) translateY(12px) !important;
-            width: 220px !important;
-            background: rgba(8, 16, 26, 0.98) !important;
-            border: 1.5px solid rgba(0, 194, 255, 0.3) !important;
-            border-radius: 16px !important;
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.9) !important;
-            backdrop-filter: blur(25px) !important;
-            -webkit-backdrop-filter: blur(25px) !important;
-            padding: 8px !important;
-            opacity: 0 !important;
-            visibility: hidden !important;
-            pointer-events: none !important;
-            transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1) !important;
-            z-index: 1010 !important;
-            display: flex !important;
-            flex-direction: column !important;
-            gap: 4px !important;
-        }
-        .nav-has-dropdown:hover .nav-dropdown-menu,
-        .nav-has-dropdown.open .nav-dropdown-menu {
-            opacity: 1 !important;
-            visibility: visible !important;
-            pointer-events: auto !important;
-            transform: translateX(-50%) translateY(0) !important;
-        }
-        .dropdown-link {
-            display: flex !important;
-            align-items: center !important;
-            gap: 10px !important;
-            padding: 9px 12px !important;
-            border-radius: 8px !important;
-            color: rgba(249, 249, 249, 0.8) !important;
-            text-decoration: none !important;
-            font-size: 0.85rem !important;
-            font-weight: 600 !important;
-            transition: all 0.15s ease !important;
-        }
-        .dropdown-link:hover {
-            background: rgba(0, 194, 255, 0.12) !important;
-            color: #fff !important;
-        }
-        .dropdown-link i {
-            color: #00c2ff !important;
-            font-size: 0.8rem !important;
-            width: 16px !important;
-            text-align: center !important;
-        }
-
-        /* Right Nav CTAs */
-        .nav-actions-right {
-            display: flex !important;
-            align-items: center !important;
-            gap: 12px !important;
-            flex-shrink: 0 !important;
-        }
-        .nav-dashboard-action {
-            background: rgba(255, 255, 255, 0.05) !important;
-            border: 1px solid rgba(255, 255, 255, 0.14) !important;
-            color: #fff !important;
-            padding: 9px 20px !important;
-            border-radius: 50px !important;
-            font-family: var(--font-display) !important;
-            font-size: 0.85rem !important;
-            font-weight: 700 !important;
-            cursor: pointer !important;
-            display: inline-flex !important;
-            align-items: center !important;
-            gap: 8px !important;
-            transition: all 0.2s ease !important;
-            text-decoration: none !important;
-        }
-        .nav-dashboard-action:hover {
-            background: rgba(255, 255, 255, 0.12) !important;
-            border-color: rgba(255, 255, 255, 0.28) !important;
-            transform: translateY(-1px) !important;
-        }
-        .nav-cta-action {
-            background: linear-gradient(135deg, #FF6E42 0%, #ff8f6b 100%) !important;
-            border: none !important;
-            color: #000 !important;
-            padding: 10px 22px !important;
-            border-radius: 50px !important;
-            font-family: var(--font-display) !important;
-            font-size: 0.85rem !important;
-            font-weight: 800 !important;
-            letter-spacing: 0.03em !important;
-            text-decoration: none !important;
-            cursor: pointer !important;
-            display: inline-flex !important;
-            align-items: center !important;
-            gap: 8px !important;
-            box-shadow: 0 4px 20px rgba(255, 110, 66, 0.4) !important;
-            transition: all 0.2s ease !important;
-        }
-        .nav-cta-action:hover {
-            box-shadow: 0 6px 30px rgba(255, 110, 66, 0.6) !important;
-            transform: translateY(-1px) scale(1.02) !important;
-        }
-        .nav-mobile-toggle {
-            display: none !important;
-            background: transparent !important;
-            border: none !important;
-            color: #fff !important;
-            font-size: 1.35rem !important;
-            cursor: pointer !important;
-            padding: 6px !important;
-        }
-
-        /* Mobile drawer */
-        .mobile-drawer {
-            position: fixed !important;
-            top: 72px !important;
-            left: 0 !important;
-            right: 0 !important;
-            bottom: 0 !important;
-            background: rgba(4, 14, 20, 0.98) !important;
-            backdrop-filter: blur(25px) !important;
-            -webkit-backdrop-filter: blur(25px) !important;
-            padding: 24px 20px 40px 20px !important;
-            display: none !important;
-            flex-direction: column !important;
-            gap: 10px !important;
-            overflow-y: auto !important;
-            z-index: 999 !important;
-            border-top: 1px solid rgba(255, 255, 255, 0.08) !important;
-        }
-        .mobile-drawer.open {
-            display: flex !important;
-        }
-        .mobile-nav-link {
-            display: flex !important;
-            justify-content: space-between !important;
-            align-items: center !important;
-            padding: 13px 16px !important;
-            background: rgba(255, 255, 255, 0.03) !important;
-            border: 1px solid rgba(255, 255, 255, 0.06) !important;
-            border-radius: 12px !important;
-            color: #fff !important;
-            text-decoration: none !important;
-            font-size: 0.92rem !important;
-            font-weight: 700 !important;
-            font-family: var(--font-display) !important;
-            cursor: pointer !important;
-        }
-        .mobile-accordion-content {
-            display: none !important;
-            flex-direction: column !important;
-            gap: 8px !important;
-            padding: 10px 14px !important;
-            background: rgba(0, 0, 0, 0.35) !important;
-            border-radius: 10px !important;
-        }
-        .mobile-accordion-content.open {
-            display: flex !important;
-        }
-        .mobile-sub-link {
-            display: flex !important;
-            align-items: center !important;
-            gap: 10px !important;
-            padding: 8px 10px !important;
-            color: rgba(249, 249, 249, 0.8) !important;
-            text-decoration: none !important;
-            font-size: 0.85rem !important;
-            font-weight: 600 !important;
-        }
-
-        @media (max-width: 1024px) {
-            #desktop-nav-links { display: none !important; }
-            .nav-mobile-toggle { display: block !important; }
-            .nav-dashboard-action { display: none !important; }
-            .nav-cta-action { padding: 8px 16px !important; font-size: 0.8rem !important; }
-            .navbar { padding: 0 18px !important; }
-        }
-
-        /* =========================================================================
-           VEYRA FOOTER (5 RESPONSIVE COLUMNS)
-        ========================================================================= */
-        .veyra-footer {
-            background: #03080e !important;
-            border-top: 1px solid rgba(255, 255, 255, 0.08) !important;
-            position: relative !important;
-            padding: 70px 24px 35px 24px !important;
-            box-sizing: border-box !important;
-            width: 100% !important;
-            font-family: var(--font-display) !important;
-        }
-        .footer-container {
-            max-width: 1200px !important;
-            margin: 0 auto !important;
-            width: 100% !important;
-        }
-        .footer-grid {
-            display: grid !important;
-            grid-template-columns: 2fr 1fr 1fr 1fr 1.2fr !important;
-            gap: 40px !important;
-            padding-bottom: 50px !important;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.06) !important;
-        }
-        @media (max-width: 992px) {
-            .footer-grid {
-                grid-template-columns: 1fr 1fr !important;
-                gap: 32px !important;
-            }
-            .footer-brand-col {
-                grid-column: span 2 !important;
-            }
-        }
-        @media (max-width: 560px) {
-            .footer-grid {
-                grid-template-columns: 1fr !important;
-            }
-            .footer-brand-col {
-                grid-column: span 1 !important;
-            }
-        }
-        .footer-logo {
-            display: flex !important;
-            align-items: center !important;
-            gap: 10px !important;
-            margin-bottom: 12px !important;
-        }
-        .footer-logo-img {
-            width: 32px !important;
-            height: 32px !important;
-            border-radius: 50% !important;
-            border: 1.5px solid #FF6E42 !important;
-        }
-        .footer-logo-text {
-            font-size: 1.5rem !important;
-            font-weight: 900 !important;
-            letter-spacing: 0.1em !important;
-            color: #fff !important;
-        }
-        .footer-tagline {
-            font-size: 0.95rem !important;
-            font-weight: 700 !important;
-            color: #FF6E42 !important;
-            margin-bottom: 8px !important;
-        }
-        .footer-description {
-            font-size: 0.85rem !important;
-            color: rgba(249, 249, 249, 0.65) !important;
-            line-height: 1.6 !important;
-            margin: 0 0 18px 0 !important;
-            max-width: 320px !important;
-        }
-        .footer-status-pill {
-            display: inline-flex !important;
-            align-items: center !important;
-            gap: 8px !important;
-            padding: 6px 14px !important;
-            border-radius: 50px !important;
-            background: rgba(16, 185, 129, 0.1) !important;
-            border: 1px solid rgba(16, 185, 129, 0.25) !important;
-            font-family: var(--font-mono) !important;
-            font-size: 0.72rem !important;
-            font-weight: 700 !important;
-            color: #10b981 !important;
-            margin-bottom: 12px !important;
-        }
-        .status-beacon {
-            width: 7px !important;
-            height: 7px !important;
-            border-radius: 50% !important;
-            background: #10b981 !important;
-            box-shadow: 0 0 8px #10b981 !important;
-            display: inline-block !important;
-            animation: pulse 1.2s infinite !important;
-        }
-        .footer-discord-badge {
-            display: inline-flex !important;
-            align-items: center !important;
-            gap: 8px !important;
-            padding: 8px 16px !important;
-            border-radius: 8px !important;
-            background: rgba(88, 101, 242, 0.12) !important;
-            border: 1px solid rgba(88, 101, 242, 0.3) !important;
-            color: #fff !important;
-            font-size: 0.78rem !important;
-            font-weight: 700 !important;
-            text-decoration: none !important;
-            transition: all 0.2s ease !important;
-        }
-        .footer-discord-badge:hover {
-            background: rgba(88, 101, 242, 0.25) !important;
-        }
-        .footer-col-title {
-            font-size: 0.88rem !important;
-            font-weight: 800 !important;
-            color: #fff !important;
-            letter-spacing: 0.05em !important;
-            text-transform: uppercase !important;
-            margin: 0 0 18px 0 !important;
-        }
-        .footer-links {
-            list-style: none !important;
-            padding: 0 !important;
-            margin: 0 !important;
-            display: flex !important;
-            flex-direction: column !important;
-            gap: 11px !important;
-        }
-        .footer-links a {
-            color: rgba(249, 249, 249, 0.65) !important;
-            text-decoration: none !important;
-            font-size: 0.84rem !important;
-            transition: all 0.18s ease !important;
-            display: inline-block !important;
-        }
-        .footer-links a:hover {
-            color: #fff !important;
-            transform: translateX(3px) !important;
-        }
-        .footer-bottom-bar {
-            padding-top: 26px !important;
-            display: flex !important;
-            align-items: center !important;
-            justify-content: space-between !important;
-            flex-wrap: wrap !important;
-            gap: 16px !important;
-            font-size: 0.8rem !important;
-            color: rgba(249, 249, 249, 0.5) !important;
-        }
-        .footer-bottom-left {
-            display: flex !important;
-            align-items: center !important;
-            gap: 10px !important;
-            flex-wrap: wrap !important;
-        }
-        .footer-sep {
-            color: rgba(255, 255, 255, 0.2) !important;
-        }
-        .back-to-top-btn {
-            background: rgba(255, 255, 255, 0.06) !important;
-            border: 1px solid rgba(255, 255, 255, 0.12) !important;
-            color: #fff !important;
-            padding: 8px 16px !important;
-            border-radius: 50px !important;
-            font-size: 0.76rem !important;
-            font-weight: 700 !important;
-            cursor: pointer !important;
-            display: inline-flex !important;
-            align-items: center !important;
-            gap: 6px !important;
-            transition: all 0.2s ease !important;
-        }
-        .back-to-top-btn:hover {
-            background: rgba(255, 110, 66, 0.15) !important;
-            border-color: #FF6E42 !important;
-            color: #FF6E42 !important;
-            transform: translateY(-2px) !important;
-        }
     </style>
 
     <script src="js/smokey-fluid-cursor.js"></script>
@@ -1149,196 +611,173 @@
         </div>
     </div>
 
-    <!-- Header Navigation Bar (Desktop & Mobile) -->
+    <!-- Header Navigation Bar -->
     <nav class="navbar" id="main-nav">
-        <!-- 1. VEYRA Logo -->
-        <a href="/" onclick="showScreen('landing'); return false;" class="nav-logo" title="VEYRA Homepage">
-            <img src="assets/bypass_logs_avatar.webp" alt="VEYRA Logo">
+        <div class="nav-logo" onclick="showScreen('landing')">
+            <img src="assets/bypass_logs_avatar.webp" alt="VEYRA Logo" style="width: 24px; height: 24px; border-radius: 50%; object-fit: cover; border: 1.5px solid rgba(255,255,255,0.2); vertical-align: middle; margin-right: 6px; display: inline-block;">
             <span>VEYRA</span>
-        </a>
-
-        <!-- Center Desktop Navigation Links -->
-        <ul class="nav-links-center" id="desktop-nav-links">
-            <!-- 2. Home -->
-            <li class="nav-item">
-                <a href="/" onclick="showScreen('landing'); return false;" class="nav-link-btn active">Home</a>
-            </li>
-
-            <!-- 3. Features ▾ (Two-Column Mega Menu) -->
-            <li class="nav-item nav-has-dropdown" id="nav-dropdown-features">
-                <button class="nav-link-btn" onclick="toggleNavDropdown('nav-dropdown-features', event)">
-                    <span>Features</span>
-                    <i class="fas fa-chevron-down nav-arrow"></i>
-                </button>
-                <div class="nav-mega-dropdown" id="features-mega-menu">
-                    <div class="mega-grid">
-                        <!-- Moderation -->
-                        <a href="/#security" onclick="closeNavDropdowns(); clickNavSection('features');" class="mega-item">
-                            <div class="mega-icon" style="color: #ef4444; background: rgba(239,68,68,0.12);"><i class="fas fa-shield-halved"></i></div>
-                            <div>
-                                <div class="mega-title">Moderation</div>
-                                <div class="mega-desc">Warnings, anti-raid & protection features</div>
-                            </div>
-                        </a>
-                        <!-- Music -->
-                        <a href="/#features" onclick="closeNavDropdowns(); clickNavSection('features');" class="mega-item">
-                            <div class="mega-icon" style="color: #00c2ff; background: rgba(0,194,255,0.12);"><i class="fas fa-music"></i></div>
-                            <div>
-                                <div class="mega-title">Music</div>
-                                <div class="mega-desc">Playback controls, queue & 24/7 integrations</div>
-                            </div>
-                        </a>
-                        <!-- Server Management -->
-                        <a href="/manage.html" class="mega-item">
-                            <div class="mega-icon" style="color: #10b981; background: rgba(16,185,129,0.12);"><i class="fas fa-sliders"></i></div>
-                            <div>
-                                <div class="mega-title">Server Management</div>
-                                <div class="mega-desc">Channels, categories, roles & permissions</div>
-                            </div>
-                        </a>
-                        <!-- Automation & Utilities -->
-                        <a href="/ticket.html" class="mega-item">
-                            <div class="mega-icon" style="color: #FF6E42; background: rgba(255,110,66,0.12);"><i class="fas fa-bolt"></i></div>
-                            <div>
-                                <div class="mega-title">Automation &amp; Utilities</div>
-                                <div class="mega-desc">Supported workflows, ticket panels & tools</div>
-                            </div>
-                        </a>
+        </div>
+        <ul class="nav-links" style="display: flex; gap: 28px; list-style: none; align-items: center;">
+            <li class="nav-item" id="nav-home">
+                <button class="gen-btn active" onclick="showScreen('landing')">
+                    <div class="gen-txt-wrapper">
+                        <span class="gen-btn-letter">H</span>
+                        <span class="gen-btn-letter">o</span>
+                        <span class="gen-btn-letter">m</span>
+                        <span class="gen-btn-letter">e</span>
                     </div>
-                    <div class="mega-footer">
-                        <a href="/#features" onclick="closeNavDropdowns(); clickNavSection('features');" class="mega-explore-link">
-                            <span>Explore All Features</span>
-                            <i class="fas fa-arrow-right"></i>
-                        </a>
-                    </div>
-                </div>
-            </li>
-
-            <!-- 4. Commands -->
-            <li class="nav-item">
-                <a href="/#features" onclick="clickNavSection('features');" class="nav-link-btn">Commands</a>
-            </li>
-
-            <!-- 5. Premium -->
-            <li class="nav-item">
-                <a href="/#pricing" onclick="clickNavSection('pricing');" class="nav-link-btn">Premium</a>
-            </li>
-
-            <!-- 6. Docs ▾ (1-Column Dropdown) -->
-            <li class="nav-item nav-has-dropdown" id="nav-dropdown-docs">
-                <button class="nav-link-btn" onclick="toggleNavDropdown('nav-dropdown-docs', event)">
-                    <span>Docs</span>
-                    <i class="fas fa-chevron-down nav-arrow"></i>
                 </button>
-                <div class="nav-dropdown-menu" id="docs-dropdown-menu">
-                    <a href="/about.html" class="dropdown-link"><i class="fas fa-book-open"></i> Getting Started</a>
-                    <a href="/about.html#setup" class="dropdown-link"><i class="fas fa-wrench"></i> Setup Guide</a>
-                    <a href="/about.html#permissions" class="dropdown-link"><i class="fas fa-lock"></i> Permissions</a>
-                    <a href="/about.html#api" class="dropdown-link"><i class="fas fa-code"></i> API &amp; Dev Docs</a>
-                    <a href="/#faq" onclick="closeNavDropdowns(); clickNavSection('faq');" class="dropdown-link"><i class="fas fa-circle-question"></i> FAQ</a>
-                </div>
+            </li>
+            <li class="nav-item" id="nav-manage-servers">
+                <button class="gen-btn" onclick="clickManageServers()">
+                    <div class="gen-txt-wrapper">
+                        <span class="gen-btn-letter">M</span>
+                        <span class="gen-btn-letter">a</span>
+                        <span class="gen-btn-letter">n</span>
+                        <span class="gen-btn-letter">a</span>
+                        <span class="gen-btn-letter">g</span>
+                        <span class="gen-btn-letter">e</span>
+                        <span class="gen-btn-letter">&nbsp;</span>
+                        <span class="gen-btn-letter">S</span>
+                        <span class="gen-btn-letter">e</span>
+                        <span class="gen-btn-letter">r</span>
+                        <span class="gen-btn-letter">v</span>
+                        <span class="gen-btn-letter">e</span>
+                        <span class="gen-btn-letter">r</span>
+                        <span class="gen-btn-letter">s</span>
+                    </div>
+                </button>
+            </li>
+            <li class="nav-item" id="nav-features">
+                <button class="gen-btn" onclick="clickNavSection('features')">
+                    <div class="gen-txt-wrapper">
+                        <span class="gen-btn-letter">F</span>
+                        <span class="gen-btn-letter">e</span>
+                        <span class="gen-btn-letter">a</span>
+                        <span class="gen-btn-letter">t</span>
+                        <span class="gen-btn-letter">u</span>
+                        <span class="gen-btn-letter">r</span>
+                        <span class="gen-btn-letter">e</span>
+                        <span class="gen-btn-letter">s</span>
+                    </div>
+                </button>
+            </li>
+            <li class="nav-item" id="nav-tickets">
+                <button class="gen-btn" onclick="window.location.href='/ticket'">
+                    <div class="gen-txt-wrapper">
+                        <span class="gen-btn-letter">T</span>
+                        <span class="gen-btn-letter">i</span>
+                        <span class="gen-btn-letter">c</span>
+                        <span class="gen-btn-letter">k</span>
+                        <span class="gen-btn-letter">e</span>
+                        <span class="gen-btn-letter">t</span>
+                        <span class="gen-btn-letter">s</span>
+                    </div>
+                </button>
+            </li>
+            <li class="nav-item" id="nav-pricing">
+                <button class="gen-btn" onclick="clickNavSection('pricing')">
+                    <div class="gen-txt-wrapper">
+                        <span class="gen-btn-letter">P</span>
+                        <span class="gen-btn-letter">r</span>
+                        <span class="gen-btn-letter">i</span>
+                        <span class="gen-btn-letter">c</span>
+                        <span class="gen-btn-letter">i</span>
+                        <span class="gen-btn-letter">n</span>
+                        <span class="gen-btn-letter">g</span>
+                    </div>
+                </button>
+            </li>
+            <li class="nav-item" id="nav-faq">
+                <button class="gen-btn" onclick="clickNavSection('faq')">
+                    <div class="gen-txt-wrapper">
+                        <span class="gen-btn-letter">F</span>
+                        <span class="gen-btn-letter">a</span>
+                        <span class="gen-btn-letter">q</span>
+                    </div>
+                </button>
+            </li>
+            <li class="nav-item" id="nav-admin" style="display: none;">
+                <button class="gen-btn" onclick="showScreen('admin')">
+                    <div class="gen-txt-wrapper" style="color: #f59e0b;">
+                        <i class="fas fa-crown" style="margin-right: 4px;"></i>
+                        <span class="gen-btn-letter">A</span>
+                        <span class="gen-btn-letter">d</span>
+                        <span class="gen-btn-letter">m</span>
+                        <span class="gen-btn-letter">i</span>
+                        <span class="gen-btn-letter">n</span>
+                    </div>
+                </button>
             </li>
         </ul>
-
-        <!-- Right Side: Dashboard + Add to Discord (Primary CTA) -->
-        <div class="nav-actions-right">
-            <!-- 7. Dashboard -->
-            <button class="nav-dashboard-action" onclick="clickManageServers()" id="nav-dashboard-button" title="Open Server Dashboard">
-                <i class="fas fa-table-cells-large" style="color: #00c2ff;"></i>
-                <span>Dashboard</span>
+        <div class="nav-auth" style="display: flex; align-items: center; gap: 12px; position: relative;">
+            <button class="liquid-metal-btn" onclick="simulateLogin()" id="login-btn">
+                <div class="liquid-metal-btn-inner">
+                    <i class="fab fa-discord" style="color: #a855f7;"></i>
+                    <span>Login with Discord</span>
+                </div>
             </button>
 
-            <!-- 8. Add to Discord (Primary CTA) -->
-            <a href="https://discord.com/oauth2/authorize?client_id=1527243189860175933&permissions=8&integration_type=0&scope=bot+applications.commands" target="_blank" rel="noreferrer" class="nav-cta-action">
-                <i class="fab fa-discord"></i>
-                <span>Add to Discord</span>
-            </a>
+            <!-- Logged-in Header Dropdown Buttons -->
+            <div id="header-user-widgets" style="display: none; align-items: center; gap: 12px; position: relative;">
+                
+                <!-- Server Avatar Dropdown Trigger -->
+                <div id="header-server-dropdown-trigger-container" style="position: relative; display: none;">
+                    <div onclick="toggleHeaderDropdown('header-server-dropdown')" style="display: flex; align-items: center; gap: 6px; cursor: pointer; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); padding: 4px 10px 4px 6px; border-radius: 20px; transition: background 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.1)'" onmouseout="this.style.background='rgba(255,255,255,0.05)'">
+                        <div style="width: 28px; height: 28px; border-radius: 50%; background: #a855f7; overflow: hidden; display: flex; align-items: center; justify-content: center; border: 1px solid rgba(255,255,255,0.2);" id="header-server-avatar-img">
+                            <img src="assets/bypass_logs_avatar.webp" style="width: 100%; height: 100%; object-fit: cover;">
+                        </div>
+                        <i class="fas fa-caret-down" style="color: #94a3b8; font-size: 0.75rem;"></i>
+                    </div>
 
-            <!-- Mobile Hamburger Toggle -->
-            <button class="nav-mobile-toggle" onclick="toggleMobileNav()" id="mobile-menu-toggle" aria-label="Open Navigation Menu">
-                <i class="fas fa-bars"></i>
-            </button>
+                    <!-- Server Dropdown Menu Popover -->
+                    <div id="header-server-dropdown" style="display: none; position: absolute; right: 0; top: 42px; width: 240px; background: #2f3136; border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; box-shadow: 0 15px 35px rgba(0,0,0,0.7); z-index: 9999; overflow: hidden; font-family: sans-serif;">
+                        <div style="border-left: 4px solid #7c3aed; background: #202225; padding: 12px 14px; display: flex; align-items: center; gap: 10px;">
+                            <div style="width: 32px; height: 32px; border-radius: 50%; overflow: hidden; background: #7c3aed; display: flex; align-items: center; justify-content: center;" id="header-server-dropdown-icon">
+                                <img src="assets/bypass_logs_avatar.webp" style="width: 100%; height: 100%; object-fit: cover;">
+                            </div>
+                            <div>
+                                <div style="font-size: 0.65rem; font-weight: 800; color: #a855f7; letter-spacing: 0.08em; text-transform: uppercase;">CURRENT SERVER</div>
+                                <div style="font-size: 0.88rem; font-weight: 700; color: #fff;" id="header-server-dropdown-name">SERVER PORTAL</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- User Avatar Dropdown Trigger -->
+                <div style="position: relative;">
+                    <div onclick="toggleHeaderDropdown('header-user-dropdown')" style="display: flex; align-items: center; gap: 6px; cursor: pointer; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); padding: 4px 10px 4px 6px; border-radius: 20px; transition: background 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.1)'" onmouseout="this.style.background='rgba(255,255,255,0.05)'">
+                        <div style="width: 28px; height: 28px; border-radius: 50%; background: #9333ea; overflow: hidden; display: flex; align-items: center; justify-content: center; font-weight: 700; color: #fff; font-size: 0.85rem; border: 1px solid rgba(255,255,255,0.2);" id="header-user-avatar-img">
+                            D
+                        </div>
+                        <i class="fas fa-caret-down" style="color: #94a3b8; font-size: 0.75rem;"></i>
+                    </div>
+
+                    <!-- User Dropdown Menu Popover -->
+                    <div id="header-user-dropdown" style="display: none; position: absolute; right: 0; top: 42px; width: 220px; background: #2f3136; border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; box-shadow: 0 15px 35px rgba(0,0,0,0.7); z-index: 9999; overflow: hidden; font-family: sans-serif;">
+                        <div style="border-left: 4px solid #7c3aed; background: #202225; padding: 12px 14px; display: flex; align-items: center; gap: 10px;">
+                            <div style="width: 32px; height: 32px; border-radius: 50%; overflow: hidden; background: #9333ea; display: flex; align-items: center; justify-content: center; font-weight: 700; color: #fff; font-size: 0.9rem;" id="header-user-dropdown-avatar">
+                                D
+                            </div>
+                            <div>
+                                <div style="font-size: 0.65rem; font-weight: 800; color: #a855f7; letter-spacing: 0.08em; text-transform: uppercase;">SIGNED IN AS</div>
+                                <div style="font-size: 0.88rem; font-weight: 700; color: #fff;" id="header-user-dropdown-name">!! DADDY</div>
+                            </div>
+                        </div>
+
+                        <!-- Menu Button 11: ONLY Log out button as requested -->
+                        <div style="padding: 6px;">
+                            <button onclick="logout()" style="width: 100%; text-align: left; background: transparent; border: none; padding: 10px 12px; border-radius: 4px; color: #dcddde; font-size: 0.88rem; font-weight: 600; display: flex; align-items: center; gap: 10px; cursor: pointer; transition: background 0.15s, color 0.15s;" onmouseover="this.style.background='#36393f'; this.style.color='#ef4444';" onmouseout="this.style.background='transparent'; this.style.color='#dcddde';">
+                                <i class="fas fa-right-from-bracket" style="font-size: 0.95rem; color: #8e9297;"></i>
+                                <span>Log out</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
         </div>
     </nav>
-
-    <!-- Mobile Drawer & Accordions -->
-    <div id="mobile-nav-drawer" class="mobile-drawer">
-        <!-- 1. Home -->
-        <a href="/" onclick="toggleMobileNav(); showScreen('landing'); return false;" class="mobile-nav-link">
-            <span>Home</span>
-            <i class="fas fa-house" style="color: #94a3b8; font-size: 0.85rem;"></i>
-        </a>
-
-        <!-- 2. Features Accordion -->
-        <div class="mobile-nav-link" onclick="toggleMobileAccordion('mobile-features-acc')">
-            <span>Features</span>
-            <i class="fas fa-chevron-down" id="mobile-features-acc-icon" style="color: #94a3b8; font-size: 0.85rem; transition: transform 0.2s;"></i>
-        </div>
-        <div id="mobile-features-acc" class="mobile-accordion-content">
-            <a href="/#security" onclick="toggleMobileNav(); clickNavSection('features');" class="mobile-sub-link">
-                <i class="fas fa-shield-halved" style="color: #ef4444;"></i> Moderation
-            </a>
-            <a href="/#features" onclick="toggleMobileNav(); clickNavSection('features');" class="mobile-sub-link">
-                <i class="fas fa-music" style="color: #00c2ff;"></i> Music
-            </a>
-            <a href="/manage.html" class="mobile-sub-link">
-                <i class="fas fa-sliders" style="color: #10b981;"></i> Server Management
-            </a>
-            <a href="/ticket.html" class="mobile-sub-link">
-                <i class="fas fa-bolt" style="color: #FF6E42;"></i> Automation &amp; Utilities
-            </a>
-            <a href="/#features" onclick="toggleMobileNav(); clickNavSection('features');" class="mobile-sub-link" style="color: #FF6E42; font-weight: 700; border-top: 1px solid rgba(255,255,255,0.06); padding-top: 8px;">
-                Explore All Features &rarr;
-            </a>
-        </div>
-
-        <!-- 3. Commands -->
-        <a href="/#features" onclick="toggleMobileNav(); clickNavSection('features');" class="mobile-nav-link">
-            <span>Commands</span>
-            <i class="fas fa-terminal" style="color: #94a3b8; font-size: 0.85rem;"></i>
-        </a>
-
-        <!-- 4. Premium -->
-        <a href="/#pricing" onclick="toggleMobileNav(); clickNavSection('pricing');" class="mobile-nav-link">
-            <span>Premium</span>
-            <i class="fas fa-crown" style="color: #f59e0b; font-size: 0.85rem;"></i>
-        </a>
-
-        <!-- 5. Docs Accordion -->
-        <div class="mobile-nav-link" onclick="toggleMobileAccordion('mobile-docs-acc')">
-            <span>Docs</span>
-            <i class="fas fa-chevron-down" id="mobile-docs-acc-icon" style="color: #94a3b8; font-size: 0.85rem; transition: transform 0.2s;"></i>
-        </div>
-        <div id="mobile-docs-acc" class="mobile-accordion-content">
-            <a href="/about.html" class="mobile-sub-link">
-                <i class="fas fa-book-open" style="color: #00c2ff;"></i> Getting Started
-            </a>
-            <a href="/about.html#setup" class="mobile-sub-link">
-                <i class="fas fa-wrench" style="color: #00c2ff;"></i> Setup Guide
-            </a>
-            <a href="/about.html#permissions" class="mobile-sub-link">
-                <i class="fas fa-lock" style="color: #00c2ff;"></i> Permissions
-            </a>
-            <a href="/about.html#api" class="mobile-sub-link">
-                <i class="fas fa-code" style="color: #00c2ff;"></i> API &amp; Dev Docs
-            </a>
-            <a href="/#faq" onclick="toggleMobileNav(); clickNavSection('faq');" class="mobile-sub-link">
-                <i class="fas fa-circle-question" style="color: #00c2ff;"></i> FAQ
-            </a>
-        </div>
-
-        <!-- 6. Dashboard -->
-        <a href="/manage.html" class="mobile-nav-link" style="background: rgba(0, 194, 255, 0.08); border-color: rgba(0, 194, 255, 0.25);">
-            <span style="color: #00c2ff;">Dashboard Workspace</span>
-            <i class="fas fa-table-cells-large" style="color: #00c2ff;"></i>
-        </a>
-
-        <!-- 7. Add to Discord Mobile CTA -->
-        <a href="https://discord.com/oauth2/authorize?client_id=1527243189860175933&permissions=8&integration_type=0&scope=bot+applications.commands" target="_blank" rel="noreferrer" class="mobile-nav-link" style="background: linear-gradient(135deg, #FF6E42, #ff8f6b); color: #000; justify-content: center; font-weight: 800; margin-top: 10px;">
-            <i class="fab fa-discord" style="margin-right: 8px;"></i>
-            <span>Add to Discord</span>
-        </a>
-    </div>
 
     <!-- Main Workspace Sections -->
     <main id="main-content" style="opacity: 1; pointer-events: auto; transition: opacity 1.5s ease;">
@@ -2430,95 +1869,100 @@
                 </div>
             </div>
 
-            <!-- VEYRA Professional 5-Column Footer -->
-            <footer class="veyra-footer">
-                <div class="footer-container">
-                    <div class="footer-grid">
-                        <!-- Col 1: VEYRA Brand & Live Status -->
-                        <div class="footer-brand-col">
-                            <div class="footer-logo">
-                                <img src="assets/bypass_logs_avatar.webp" alt="VEYRA" class="footer-logo-img" onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png'">
-                                <span class="footer-logo-text">VEYRA</span>
+            <!-- VengeanceUI Style Cinematic Animated Reveal Footer -->
+            <!-- Realtime Professional Default Footer -->
+            <footer id="animated-reveal-footer" style="background: rgba(4, 7, 13, 0.95); border-top: 1px solid rgba(255, 255, 255, 0.06); padding: 60px 20px 30px 20px; box-sizing: border-box; width: 100%; position: relative; margin-top: 80px;">
+                <!-- Top Glowing Gradient Divider Line -->
+                <div style="position: absolute; top: 0; left: 0; right: 0; height: 1.5px; background: linear-gradient(90deg, transparent, #FF6E42, #a855f7, #10b981, transparent);"></div>
+
+                <div style="max-width: 1150px; margin: 0 auto; width: 100%;">
+                    
+                    <!-- Top Brand Header & Live System Status -->
+                    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255, 255, 255, 0.06); padding-bottom: 30px; margin-bottom: 40px; flex-wrap: wrap; gap: 20px;">
+                        <div>
+                            <div style="font-family: var(--font-display); font-size: 2.2rem; font-weight: 900; letter-spacing: 0.12em; color: #fff; text-shadow: 0 0 25px rgba(255, 110, 66, 0.35);">
+                                VEYRA
                             </div>
-                            <div class="footer-tagline">One bot. Everything.</div>
-                            <p class="footer-description">
-                                An all-in-one Discord bot built to simplify server management and community tools.
+                            <div style="font-family: var(--font-mono); font-size: 0.75rem; color: rgba(255, 255, 255, 0.5); letter-spacing: 0.18em; text-transform: uppercase; margin-top: 2px;">
+                                ALL-IN-ONE DISCORD BOT & SECURITY INFRASTRUCTURE
+                            </div>
+                        </div>
+
+                        <!-- Live Real-Time Telemetry Badge -->
+                        <div style="display: flex; align-items: center; gap: 12px; background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.25); padding: 8px 16px; border-radius: 30px;">
+                            <span style="width: 8px; height: 8px; border-radius: 50%; background: #10b981; animation: pulse 1s infinite; box-shadow: 0 0 10px #10b981;"></span>
+                            <span style="font-family: var(--font-mono); font-size: 0.72rem; font-weight: 800; color: #10b981; letter-spacing: 0.05em; text-transform: uppercase;">
+                                SYSTEM OPERATIONAL — 99.99% UPTIME
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- 4 Column Main Links Grid -->
+                    <div style="display: grid; grid-template-columns: 1.4fr 1fr 1fr 1fr; gap: 40px; margin-bottom: 50px;">
+                        
+                        <!-- Col 1: About & Socials -->
+                        <div>
+                            <h4 style="color: #fff; font-size: 0.95rem; font-weight: 800; font-family: var(--font-display); letter-spacing: 0.05em; margin: 0 0 16px 0; text-transform: uppercase;">About Veyra</h4>
+                            <p style="font-size: 0.82rem; color: rgba(255,255,255,0.55); line-height: 1.6; margin-bottom: 20px;">
+                                Ultra-fast, all-in-one Discord bot built for high-security community protection, real-time ticket stores, custom invite tracking, and whitelisting.
                             </p>
-                            <div class="footer-status-pill">
-                                <span class="status-beacon"></span>
-                                <span>Bot Operational • 99.99% Uptime</span>
-                            </div>
-                            <div>
-                                <a href="https://discord.gg/veyra" target="_blank" rel="noopener noreferrer" class="footer-discord-badge">
-                                    <i class="fab fa-discord" style="color: #5865F2;"></i>
-                                    <span>Official Discord</span>
-                                </a>
+                            <div style="display: flex; gap: 10px;">
+                                <a href="https://discord.gg/ghostfamily" target="_blank" style="width: 36px; height: 36px; border-radius: 10px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); display: flex; align-items: center; justify-content: center; color: #fff; transition: all 0.25s ease;" onmouseover="this.style.background='#5865F2'; this.style.borderColor='#5865F2';" onmouseout="this.style.background='rgba(255,255,255,0.04)'; this.style.borderColor='rgba(255,255,255,0.08)';"><i class="fab fa-discord"></i></a>
+                                <a href="#" style="width: 36px; height: 36px; border-radius: 10px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); display: flex; align-items: center; justify-content: center; color: #fff; transition: all 0.25s ease;" onmouseover="this.style.background='#1DA1F2'; this.style.borderColor='#1DA1F2';" onmouseout="this.style.background='rgba(255,255,255,0.04)'; this.style.borderColor='rgba(255,255,255,0.08)';"><i class="fab fa-twitter"></i></a>
+                                <a href="#" style="width: 36px; height: 36px; border-radius: 10px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); display: flex; align-items: center; justify-content: center; color: #fff; transition: all 0.25s ease;" onmouseover="this.style.background='#333'; this.style.borderColor='#555';" onmouseout="this.style.background='rgba(255,255,255,0.04)'; this.style.borderColor='rgba(255,255,255,0.08)';"><i class="fab fa-github"></i></a>
                             </div>
                         </div>
 
-                        <!-- Col 2: Product -->
+                        <!-- Col 2: Navigation -->
                         <div>
-                            <h4 class="footer-col-title">Product</h4>
-                            <ul class="footer-links">
-                                <li><a href="#features">Features</a></li>
-                                <li><a href="javascript:void(0)" onclick="openCommandsModal()">Commands</a></li>
-                                <li><a href="#pricing">Premium</a></li>
-                                <li><a href="javascript:void(0)" onclick="clickManageServers()">Dashboard</a></li>
-                                <li><a href="https://discord.com/oauth2/authorize?client_id=1527243189860175933&permissions=8&integration_type=0&scope=bot+applications.commands" target="_blank" rel="noopener noreferrer">Add to Discord</a></li>
+                            <h4 style="color: #fff; font-size: 0.95rem; font-weight: 800; font-family: var(--font-display); letter-spacing: 0.05em; margin: 0 0 16px 0; text-transform: uppercase;">Navigation</h4>
+                            <ul style="list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 10px; font-size: 0.83rem;">
+                                <li><a href="/" style="color: rgba(255,255,255,0.6); text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='#FF6E42'" onmouseout="this.style.color='rgba(255,255,255,0.6)'">Home Page</a></li>
+                                <li><a href="/manage" style="color: rgba(255,255,255,0.6); text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='#FF6E42'" onmouseout="this.style.color='rgba(255,255,255,0.6)'">Dashboard Workspace</a></li>
+                                <li><a href="/about" style="color: rgba(255,255,255,0.6); text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='#FF6E42'" onmouseout="this.style.color='rgba(255,255,255,0.6)'">About Veyra</a></li>
+                                <li><a href="/ticket" style="color: rgba(255,255,255,0.6); text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='#FF6E42'" onmouseout="this.style.color='rgba(255,255,255,0.6)'">Support & Tickets</a></li>
                             </ul>
                         </div>
 
-                        <!-- Col 3: Resources -->
+                        <!-- Col 3: Modules -->
                         <div>
-                            <h4 class="footer-col-title">Resources</h4>
-                            <ul class="footer-links">
-                                <li><a href="#docs">Documentation</a></li>
-                                <li><a href="#docs-getting-started">Getting Started</a></li>
-                                <li><a href="#faq">FAQ</a></li>
-                                <li><a href="#changelog">Changelog</a></li>
-                                <li><a href="https://discord.gg/veyra" target="_blank" rel="noopener noreferrer">Support</a></li>
+                            <h4 style="color: #fff; font-size: 0.95rem; font-weight: 800; font-family: var(--font-display); letter-spacing: 0.05em; margin: 0 0 16px 0; text-transform: uppercase;">Bot Modules</h4>
+                            <ul style="list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 10px; font-size: 0.83rem;">
+                                <li><a href="/#security" style="color: rgba(255,255,255,0.6); text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='#10b981'" onmouseout="this.style.color='rgba(255,255,255,0.6)'">Anti-Nuke & Protection</a></li>
+                                <li><a href="/ticket" style="color: rgba(255,255,255,0.6); text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='#a855f7'" onmouseout="this.style.color='rgba(255,255,255,0.6)'">Store & Ticket Panels</a></li>
+                                <li><a href="/#invites" style="color: rgba(255,255,255,0.6); text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='#3b82f6'" onmouseout="this.style.color='rgba(255,255,255,0.6)'">Invite Tracker & Alt Gate</a></li>
+                                <li><a href="/#levels" style="color: rgba(255,255,255,0.6); text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='#f59e0b'" onmouseout="this.style.color='rgba(255,255,255,0.6)'">Leveling & XP System</a></li>
                             </ul>
                         </div>
 
-                        <!-- Col 4: Explore -->
+                        <!-- Col 4: Performance & Network -->
                         <div>
-                            <h4 class="footer-col-title">Explore</h4>
-                            <ul class="footer-links">
-                                <li><a href="#features-moderation">Moderation</a></li>
-                                <li><a href="#features-music">Music</a></li>
-                                <li><a href="#features-server-management">Server Management</a></li>
-                                <li><a href="#features-roles">Role Management</a></li>
-                                <li><a href="#features-utilities">Utilities</a></li>
-                            </ul>
+                            <h4 style="color: #fff; font-size: 0.95rem; font-weight: 800; font-family: var(--font-display); letter-spacing: 0.05em; margin: 0 0 16px 0; text-transform: uppercase;">System Metrics</h4>
+                            <div style="display: flex; flex-direction: column; gap: 8px; font-family: var(--font-mono); font-size: 0.75rem; color: rgba(255,255,255,0.6);">
+                                <div style="display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.04); padding-bottom: 6px;">
+                                    <span>Latency:</span> <span style="color: #10b981; font-weight: 700;">0.04ms</span>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.04); padding-bottom: 6px;">
+                                    <span>Gateway Shards:</span> <span style="color: #FF6E42; font-weight: 700;">Active</span>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.04); padding-bottom: 6px;">
+                                    <span>Cluster Region:</span> <span style="color: #a855f7; font-weight: 700;">Asia-South</span>
+                                </div>
+                            </div>
                         </div>
 
-                        <!-- Col 5: Company & Legal -->
-                        <div>
-                            <h4 class="footer-col-title">Company & Legal</h4>
-                            <ul class="footer-links">
-                                <li><a href="/about">About VEYRA</a></li>
-                                <li><a href="https://discord.gg/veyra" target="_blank" rel="noopener noreferrer">Contact</a></li>
-                                <li><a href="/privacy.html">Privacy Policy</a></li>
-                                <li><a href="/terms.html">Terms of Service</a></li>
-                                <li><a href="/cookies.html">Cookie Policy</a></li>
-                            </ul>
+                    </div>
+
+                    <!-- Bottom Copyright Bar -->
+                    <div style="border-top: 1px solid rgba(255, 255, 255, 0.06); padding-top: 24px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; font-size: 0.78rem; color: rgba(255,255,255,0.45);">
+                        <div>&copy; 2026 VEYRA Systems. All rights reserved. Powered By Veyra Development™ | Designed By Arun</div>
+                        <div style="display: flex; gap: 20px;">
+                            <a href="#" style="color: rgba(255,255,255,0.45); text-decoration: none;">Privacy Policy</a>
+                            <a href="#" style="color: rgba(255,255,255,0.45); text-decoration: none;">Terms of Service</a>
+                            <a href="https://veyra-bot.vercel.app" target="_blank" style="color: rgba(255,255,255,0.45); text-decoration: none;">Main Website</a>
                         </div>
                     </div>
 
-                    <!-- Bottom Bar -->
-                    <div class="footer-bottom-bar">
-                        <div class="footer-bottom-left">
-                            <span>&copy; <span id="current-year">2026</span> VEYRA. All rights reserved.</span>
-                            <span class="footer-sep">•</span>
-                            <span>An independent Discord bot project.</span>
-                        </div>
-                        <div>
-                            <button onclick="scrollToTop()" class="back-to-top-btn" aria-label="Back to top">
-                                <span>Back to Top</span>
-                                <i class="fas fa-arrow-up"></i>
-                            </button>
-                        </div>
-                    </div>
                 </div>
             </footer>
         </section>
@@ -10215,104 +9659,6 @@ function heroClickModule(type) {
         if (typeof showToast === 'function') showToast("Support Tickets", "Realtime ticket store channels active.");
     }
 }
-</script>
-
-<script>
-// =========================================================================
-// TOP BAR & FOOTER INTERACTIVITY ENGINE
-// =========================================================================
-
-// Smooth scroll to top
-function scrollToTop() {
-    window.scrollTo({
-        top: 0,
-        behavior: 'smooth'
-    });
-}
-
-// Toggle desktop dropdown
-function toggleNavDropdown(menuId, event) {
-    if (event) {
-        event.stopPropagation();
-        event.preventDefault();
-    }
-    const item = document.getElementById(menuId);
-    if (!item) return;
-    const wasOpen = item.classList.contains('open');
-    closeNavDropdowns();
-    if (!wasOpen) {
-        item.classList.add('open');
-    }
-}
-
-// Close all desktop dropdowns
-function closeNavDropdowns() {
-    document.querySelectorAll('.nav-has-dropdown.open').forEach(el => {
-        el.classList.remove('open');
-    });
-}
-
-// Toggle mobile navigation drawer
-function toggleMobileNav() {
-    const drawer = document.getElementById('mobile-nav-drawer') || document.getElementById('mobile-drawer');
-    const toggleBtn = document.getElementById('mobile-menu-toggle');
-    if (!drawer) return;
-    const isOpen = drawer.classList.contains('open');
-    if (isOpen) {
-        drawer.classList.remove('open');
-        if (toggleBtn) toggleBtn.innerHTML = '<i class="fas fa-bars"></i>';
-    } else {
-        drawer.classList.add('open');
-        if (toggleBtn) toggleBtn.innerHTML = '<i class="fas fa-times"></i>';
-    }
-}
-
-// Toggle mobile drawer accordion
-function toggleMobileAccordion(accId) {
-    const content = document.getElementById(accId);
-    const arrow = document.getElementById(accId + '-icon') || document.getElementById(accId + '-arrow');
-    if (!content) return;
-    const isOpen = content.classList.contains('open');
-    if (isOpen) {
-        content.classList.remove('open');
-        if (arrow) arrow.style.transform = 'rotate(0deg)';
-    } else {
-        content.classList.add('open');
-        if (arrow) arrow.style.transform = 'rotate(180deg)';
-    }
-}
-
-// Global click outside listener to close open dropdowns
-document.addEventListener('click', (e) => {
-    if (!e.target.closest('.nav-has-dropdown')) {
-        closeNavDropdowns();
-    }
-    const drawer = document.getElementById('mobile-nav-drawer') || document.getElementById('mobile-drawer');
-    const toggleBtn = document.getElementById('mobile-menu-toggle');
-    if (drawer && drawer.classList.contains('open')) {
-        if (!e.target.closest('#mobile-nav-drawer') && !e.target.closest('#mobile-drawer') && !e.target.closest('#mobile-menu-toggle')) {
-            drawer.classList.remove('open');
-            if (toggleBtn) toggleBtn.innerHTML = '<i class="fas fa-bars"></i>';
-        }
-    }
-});
-
-// Compact navbar on scroll & dynamic year
-window.addEventListener('scroll', () => {
-    const nav = document.querySelector('.navbar');
-    if (nav) {
-        if (window.scrollY > 40) {
-            nav.classList.add('compact');
-        } else {
-            nav.classList.remove('compact');
-        }
-    }
-}, { passive: true });
-
-document.addEventListener('DOMContentLoaded', () => {
-    const yr = document.getElementById('current-year');
-    if (yr) yr.textContent = new Date().getFullYear();
-});
 </script>
 
 </body>
