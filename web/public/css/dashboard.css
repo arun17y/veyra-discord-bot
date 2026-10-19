@@ -2681,35 +2681,21 @@ button[onclick*="selectServer"]:hover, button:contains("MANAGE SERVER"):hover {
    3D INTERACTIVE MOUSE TILT & UNIFORM BOX SPACING RULES
    ================================================================= */
 
-/* 3D Hardware Accelerated Tilt Effects */
-.tilt-card {
-    transform-style: preserve-3d !important;
-    transition: transform 0.12s cubic-bezier(0.2, 0, 0.2, 1), box-shadow 0.35s ease, border-color 0.35s ease !important;
-    will-change: transform;
-}
-
-/* Explicitly disable 3D mouse tilt across all dashboard views, tabs and cards */
-#dashboard-workspace .tilt-card,
-#dashboard-workspace .glass-card,
-.dashboard-container .tilt-card,
-.dashboard-panel .tilt-card,
-.tab-pane .tilt-card,
-.tab-pane .glass-card,
-#tab-content-area .tilt-card,
-#tab-content-area .glass-card,
-.screen-section.dashboard-view .tilt-card {
+/* 3D Hardware Accelerated Tilt Effects - DISABLED GLOBALLY */
+.tilt-card,
+.glass-card {
     transform: none !important;
     perspective: none !important;
     transform-style: flat !important;
+    will-change: auto !important;
 }
 
 .tilt-card-reset {
-    transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.35s ease, border-color 0.35s ease !important;
+    transform: none !important;
 }
 
 .tilt-card:hover {
-    box-shadow: 0 20px 45px rgba(0, 0, 0, 0.65), 0 0 25px rgba(168, 85, 247, 0.18) !important;
-    z-index: 10;
+    transform: none !important;
 }
 
 /* Uniform Section Padding & Grid Clearance */

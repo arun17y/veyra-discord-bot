@@ -1,0 +1,20 @@
+# VEYRA Robots.txt - https://veyra.in
+User-agent: *
+Allow: /
+Allow: /about
+Allow: /about.html
+Allow: /ticket
+Allow: /ticket.html
+Allow: /features
+Allow: /commands
+Allow: /docs
+Allow: /faq
+
+# Disallow private administration, authentication and internal api routes
+Disallow: /arun-admin/
+Disallow: /admin.html
+Disallow: /api/
+Disallow: /auth/
+Disallow: /callback
+
+Sitemap: https://veyra.in/sitemap.xml

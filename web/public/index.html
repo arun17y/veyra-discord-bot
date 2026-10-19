@@ -3,7 +3,61 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VEYRA - Premium Discord Protection & Automation Suite</title>
+    <title>VEYRA – All-in-One Discord Bot for Server Management</title>
+    <meta name="description" content="Meet VEYRA, an all-in-one Discord bot for moderation, music, server management, roles, automation and useful community tools. Built for high-speed security and community growth.">
+    <meta name="keywords" content="VEYRA, VEYRA Bot, VEYRA Discord Bot, all in one Discord bot, best all in one Discord bot, multipurpose Discord bot, Discord moderation bot, Discord music bot, Discord server management bot, Discord bot India">
+    <meta name="author" content="VEYRA Team">
+    <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
+    <link rel="canonical" href="https://veyra.in/">
+
+    <!-- Open Graph Metadata -->
+    <meta property="og:locale" content="en_US">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="VEYRA – All-in-One Discord Bot for Server Management">
+    <meta property="og:description" content="Meet VEYRA, an all-in-one Discord bot for moderation, music, server management, roles, automation and useful community tools.">
+    <meta property="og:url" content="https://veyra.in/">
+    <meta property="og:site_name" content="VEYRA">
+    <meta property="og:image" content="https://veyra.in/assets/bypass_logs_avatar.webp">
+    <meta property="og:image:width" content="512">
+    <meta property="og:image:height" content="512">
+    <meta property="og:image:alt" content="VEYRA Discord Bot Logo">
+
+    <!-- Twitter Card Metadata -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="VEYRA – All-in-One Discord Bot">
+    <meta name="twitter:description" content="Meet VEYRA, an all-in-one Discord bot for moderation, music, server management, roles, automation and community tools.">
+    <meta name="twitter:image" content="https://veyra.in/assets/bypass_logs_avatar.webp">
+
+    <!-- Schema.org JSON-LD Structured Data -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "WebSite",
+          "@id": "https://veyra.in/#website",
+          "url": "https://veyra.in/",
+          "name": "VEYRA",
+          "description": "All-in-One Discord Bot for Server Management, Moderation, and Community Tools",
+          "inLanguage": "en-US"
+        },
+        {
+          "@type": "SoftwareApplication",
+          "@id": "https://veyra.in/#application",
+          "name": "VEYRA Discord Bot",
+          "url": "https://veyra.in/",
+          "applicationCategory": "SecurityApplication",
+          "operatingSystem": "Discord",
+          "offers": {
+            "@type": "Offer",
+            "price": "0",
+            "priceCurrency": "USD"
+          },
+          "description": "All-in-one Discord bot built to simplify server management, moderation, music, and community tools."
+        }
+      ]
+    }
+    </script>
     
     <!-- Modern typography and FontAwesome icons -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Outfit:wght@300;400;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
@@ -524,61 +578,642 @@
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 
     <style>
-        /* Modern FAQ Accordion Styling */
+        /* Sleek High-End FAQ Accordion & Section Sizing */
+        .faq-section {
+            max-width: 840px !important;
+            margin: 70px auto 40px auto !important;
+            padding: 0 20px !important;
+            box-sizing: border-box !important;
+            border-bottom: none !important;
+        }
+        .faq-section .section-title-landing {
+            font-family: var(--font-display) !important;
+            font-size: clamp(1.8rem, 3.2vw, 2.4rem) !important;
+            font-weight: 800 !important;
+            text-align: center !important;
+            letter-spacing: 0.06em !important;
+            margin-bottom: 28px !important;
+            color: #ffffff !important;
+            text-shadow: 0 0 25px rgba(255, 110, 66, 0.25) !important;
+        }
+        .faq-list {
+            display: flex !important;
+            flex-direction: column !important;
+            gap: 12px !important;
+            margin-top: 20px !important;
+        }
         .faq-item {
-            margin-bottom: 12px;
-            border-radius: 12px;
-            background: rgba(15, 23, 42, 0.65) !important;
+            margin-bottom: 0 !important;
+            border-radius: 12px !important;
+            background: rgba(10, 18, 28, 0.78) !important;
             border: 1px solid rgba(255, 255, 255, 0.08) !important;
-            overflow: hidden;
-            transition: all 0.3s ease;
+            overflow: hidden !important;
+            padding: 0 !important;
+            transition: border-color 0.22s ease, background 0.22s ease, box-shadow 0.22s ease !important;
+            box-shadow: 0 4px 18px rgba(0, 0, 0, 0.35) !important;
         }
         .faq-item:hover {
-            border-color: rgba(168, 85, 247, 0.35) !important;
+            border-color: rgba(255, 110, 66, 0.4) !important;
+            background: rgba(14, 24, 38, 0.9) !important;
         }
         .faq-question {
-            padding: 18px 24px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            cursor: pointer;
-            font-weight: 700;
-            color: #fff;
-            font-size: 0.95rem;
-            user-select: none;
+            padding: 16px 22px !important;
+            display: flex !important;
+            justify-content: space-between !important;
+            align-items: center !important;
+            cursor: pointer !important;
+            font-family: var(--font-display) !important;
+            font-weight: 700 !important;
+            color: #f1f5f9 !important;
+            font-size: 0.95rem !important;
+            user-select: none !important;
+            gap: 16px !important;
+            transition: color 0.2s ease !important;
+        }
+        .faq-question span {
+            line-height: 1.4 !important;
         }
         .faq-question i {
-            transition: transform 0.3s ease, color 0.3s ease;
-            color: #a855f7;
-            font-size: 0.9rem;
+            transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), color 0.2s ease !important;
+            color: #FF6E42 !important;
+            font-size: 0.85rem !important;
+            flex-shrink: 0 !important;
+            width: 28px !important;
+            height: 28px !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            border-radius: 50% !important;
+            background: rgba(255, 110, 66, 0.08) !important;
+            border: 1px solid rgba(255, 110, 66, 0.2) !important;
         }
         .faq-answer {
             max-height: 0;
             overflow: hidden;
-            transition: max-height 0.35s cubic-bezier(0.4, 0, 0.2, 1), padding 0.35s ease;
-            padding: 0 24px;
-            color: #cbd5e1;
-            font-size: 0.9rem;
-            line-height: 1.6;
+            transition: max-height 0.35s cubic-bezier(0.16, 1, 0.3, 1), padding 0.35s ease;
+            padding: 0 22px;
+            color: #94a3b8 !important;
+            font-size: 0.88rem !important;
+            line-height: 1.65 !important;
+        }
+        .faq-answer p {
+            margin: 0 !important;
         }
         .faq-item.active {
-            border-color: rgba(168, 85, 247, 0.5) !important;
-            background: rgba(15, 23, 42, 0.85) !important;
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+            border-color: rgba(255, 110, 66, 0.5) !important;
+            background: rgba(15, 26, 42, 0.96) !important;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6), 0 0 25px rgba(255, 110, 66, 0.12) !important;
         }
-        .faq-item.active .faq-answer {
-            max-height: 250px;
-            padding: 0 24px 20px 24px;
+        .faq-item.active .faq-question {
+            color: #ffffff !important;
         }
         .faq-item.active .faq-question i {
-            transform: rotate(45deg);
-            color: #ef4444;
+            transform: rotate(45deg) !important;
+            color: #ef4444 !important;
+            background: rgba(239, 68, 68, 0.12) !important;
+            border-color: rgba(239, 68, 68, 0.3) !important;
+        }
+        .faq-item.active .faq-answer {
+            max-height: 250px !important;
+            padding: 0 22px 18px 22px !important;
+        /* =========================================================================
+           TOP BAR (DESKTOP ORDER & DROPDOWN MEGA-MENU) & VEYRA FOOTER (5-COL)
+        ========================================================================= */
+        .navbar {
+            display: flex !important;
+            align-items: center !important;
+            justify-content: space-between !important;
+            padding: 0 32px !important;
+            height: 72px !important;
+            transition: all 0.25s ease !important;
+            z-index: 1000 !important;
+            background: rgba(4, 14, 20, 0.94) !important;
+            backdrop-filter: blur(20px) !important;
+            -webkit-backdrop-filter: blur(20px) !important;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.7) !important;
+        }
+        .navbar.compact {
+            height: 60px !important;
+            background: rgba(4, 14, 20, 0.98) !important;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.9) !important;
+        }
+        .nav-logo {
+            display: flex !important;
+            align-items: center !important;
+            gap: 10px !important;
+            cursor: pointer !important;
+            text-decoration: none !important;
+            flex-shrink: 0 !important;
+        }
+        .nav-logo img {
+            width: 32px !important;
+            height: 32px !important;
+            border-radius: 50% !important;
+            border: 1.5px solid #FF6E42 !important;
+            box-shadow: 0 0 14px rgba(255, 110, 66, 0.4) !important;
+        }
+        .nav-logo span {
+            font-family: var(--font-display) !important;
+            font-weight: 800 !important;
+            font-size: 1.35rem !important;
+            letter-spacing: 0.12em !important;
+            color: #fff !important;
+        }
+        .nav-links-center {
+            display: flex !important;
+            align-items: center !important;
+            gap: 8px !important;
+            list-style: none !important;
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+        .nav-link-btn {
+            background: transparent !important;
+            border: none !important;
+            color: rgba(249, 249, 249, 0.8) !important;
+            font-family: var(--font-display) !important;
+            font-size: 0.88rem !important;
+            font-weight: 700 !important;
+            cursor: pointer !important;
+            padding: 8px 14px !important;
+            border-radius: 8px !important;
+            transition: all 0.2s ease !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            gap: 6px !important;
+            text-decoration: none !important;
+            outline: none !important;
+        }
+        .nav-link-btn:hover, .nav-link-btn.active {
+            color: #fff !important;
+            background: rgba(255, 255, 255, 0.08) !important;
+        }
+        .nav-has-dropdown {
+            position: relative !important;
+        }
+        .nav-arrow {
+            font-size: 0.65rem !important;
+            transition: transform 0.25s ease !important;
+            color: rgba(255, 255, 255, 0.5) !important;
+        }
+        .nav-has-dropdown:hover .nav-arrow,
+        .nav-has-dropdown.open .nav-arrow {
+            transform: rotate(180deg) !important;
+            color: #FF6E42 !important;
+        }
+
+        /* 2-Column Mega Menu for Features */
+        .nav-mega-dropdown {
+            position: absolute !important;
+            top: 100% !important;
+            left: 50% !important;
+            transform: translateX(-50%) translateY(12px) !important;
+            width: 520px !important;
+            background: rgba(8, 16, 26, 0.98) !important;
+            border: 1.5px solid rgba(255, 110, 66, 0.3) !important;
+            border-radius: 16px !important;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.9) !important;
+            backdrop-filter: blur(25px) !important;
+            -webkit-backdrop-filter: blur(25px) !important;
+            padding: 20px !important;
+            opacity: 0 !important;
+            visibility: hidden !important;
+            pointer-events: none !important;
+            transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1) !important;
+            z-index: 1010 !important;
+        }
+        .nav-has-dropdown:hover .nav-mega-dropdown,
+        .nav-has-dropdown.open .nav-mega-dropdown {
+            opacity: 1 !important;
+            visibility: visible !important;
+            pointer-events: auto !important;
+            transform: translateX(-50%) translateY(0) !important;
+        }
+        .mega-grid {
+            display: grid !important;
+            grid-template-columns: 1fr 1fr !important;
+            gap: 12px !important;
+        }
+        .mega-item {
+            display: flex !important;
+            align-items: flex-start !important;
+            gap: 12px !important;
+            padding: 10px 12px !important;
+            border-radius: 10px !important;
+            text-decoration: none !important;
+            transition: all 0.18s ease !important;
+            background: rgba(255, 255, 255, 0.02) !important;
+            border: 1px solid rgba(255, 255, 255, 0.04) !important;
+        }
+        .mega-item:hover {
+            background: rgba(255, 110, 66, 0.1) !important;
+            border-color: rgba(255, 110, 66, 0.25) !important;
+            transform: translateY(-2px) !important;
+        }
+        .mega-icon {
+            width: 34px !important;
+            height: 34px !important;
+            border-radius: 8px !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            font-size: 1.05rem !important;
+            flex-shrink: 0 !important;
+        }
+        .mega-title {
+            color: #fff !important;
+            font-family: var(--font-display) !important;
+            font-weight: 700 !important;
+            font-size: 0.9rem !important;
+            margin-bottom: 2px !important;
+        }
+        .mega-desc {
+            color: rgba(249, 249, 249, 0.6) !important;
+            font-size: 0.74rem !important;
+            line-height: 1.35 !important;
+        }
+        .mega-footer {
+            margin-top: 16px !important;
+            padding-top: 14px !important;
+            border-top: 1px solid rgba(255, 255, 255, 0.06) !important;
+            display: flex !important;
+            justify-content: flex-end !important;
+        }
+        .mega-explore-link {
+            font-family: var(--font-display) !important;
+            font-size: 0.82rem !important;
+            font-weight: 800 !important;
+            color: #FF6E42 !important;
+            text-decoration: none !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            gap: 6px !important;
+            transition: gap 0.2s ease !important;
+        }
+        .mega-explore-link:hover {
+            gap: 10px !important;
+            color: #ffa082 !important;
+        }
+
+        /* 1-Column Docs Dropdown */
+        .nav-dropdown-menu {
+            position: absolute !important;
+            top: 100% !important;
+            left: 50% !important;
+            transform: translateX(-50%) translateY(12px) !important;
+            width: 220px !important;
+            background: rgba(8, 16, 26, 0.98) !important;
+            border: 1.5px solid rgba(0, 194, 255, 0.3) !important;
+            border-radius: 16px !important;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.9) !important;
+            backdrop-filter: blur(25px) !important;
+            -webkit-backdrop-filter: blur(25px) !important;
+            padding: 8px !important;
+            opacity: 0 !important;
+            visibility: hidden !important;
+            pointer-events: none !important;
+            transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1) !important;
+            z-index: 1010 !important;
+            display: flex !important;
+            flex-direction: column !important;
+            gap: 4px !important;
+        }
+        .nav-has-dropdown:hover .nav-dropdown-menu,
+        .nav-has-dropdown.open .nav-dropdown-menu {
+            opacity: 1 !important;
+            visibility: visible !important;
+            pointer-events: auto !important;
+            transform: translateX(-50%) translateY(0) !important;
+        }
+        .dropdown-link {
+            display: flex !important;
+            align-items: center !important;
+            gap: 10px !important;
+            padding: 9px 12px !important;
+            border-radius: 8px !important;
+            color: rgba(249, 249, 249, 0.8) !important;
+            text-decoration: none !important;
+            font-size: 0.85rem !important;
+            font-weight: 600 !important;
+            transition: all 0.15s ease !important;
+        }
+        .dropdown-link:hover {
+            background: rgba(0, 194, 255, 0.12) !important;
+            color: #fff !important;
+        }
+        .dropdown-link i {
+            color: #00c2ff !important;
+            font-size: 0.8rem !important;
+            width: 16px !important;
+            text-align: center !important;
+        }
+
+        /* Right Nav CTAs */
+        .nav-actions-right {
+            display: flex !important;
+            align-items: center !important;
+            gap: 12px !important;
+            flex-shrink: 0 !important;
+        }
+        .nav-dashboard-action {
+            background: rgba(255, 255, 255, 0.05) !important;
+            border: 1px solid rgba(255, 255, 255, 0.14) !important;
+            color: #fff !important;
+            padding: 9px 20px !important;
+            border-radius: 50px !important;
+            font-family: var(--font-display) !important;
+            font-size: 0.85rem !important;
+            font-weight: 700 !important;
+            cursor: pointer !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            gap: 8px !important;
+            transition: all 0.2s ease !important;
+            text-decoration: none !important;
+        }
+        .nav-dashboard-action:hover {
+            background: rgba(255, 255, 255, 0.12) !important;
+            border-color: rgba(255, 255, 255, 0.28) !important;
+            transform: translateY(-1px) !important;
+        }
+        .nav-cta-action {
+            background: linear-gradient(135deg, #FF6E42 0%, #ff8f6b 100%) !important;
+            border: none !important;
+            color: #000 !important;
+            padding: 10px 22px !important;
+            border-radius: 50px !important;
+            font-family: var(--font-display) !important;
+            font-size: 0.85rem !important;
+            font-weight: 800 !important;
+            letter-spacing: 0.03em !important;
+            text-decoration: none !important;
+            cursor: pointer !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            gap: 8px !important;
+            box-shadow: 0 4px 20px rgba(255, 110, 66, 0.4) !important;
+            transition: all 0.2s ease !important;
+        }
+        .nav-cta-action:hover {
+            box-shadow: 0 6px 30px rgba(255, 110, 66, 0.6) !important;
+            transform: translateY(-1px) scale(1.02) !important;
+        }
+        .nav-mobile-toggle {
+            display: none !important;
+            background: transparent !important;
+            border: none !important;
+            color: #fff !important;
+            font-size: 1.35rem !important;
+            cursor: pointer !important;
+            padding: 6px !important;
+        }
+
+        /* Mobile drawer */
+        .mobile-drawer {
+            position: fixed !important;
+            top: 72px !important;
+            left: 0 !important;
+            right: 0 !important;
+            bottom: 0 !important;
+            background: rgba(4, 14, 20, 0.98) !important;
+            backdrop-filter: blur(25px) !important;
+            -webkit-backdrop-filter: blur(25px) !important;
+            padding: 24px 20px 40px 20px !important;
+            display: none !important;
+            flex-direction: column !important;
+            gap: 10px !important;
+            overflow-y: auto !important;
+            z-index: 999 !important;
+            border-top: 1px solid rgba(255, 255, 255, 0.08) !important;
+        }
+        .mobile-drawer.open {
+            display: flex !important;
+        }
+        .mobile-nav-link {
+            display: flex !important;
+            justify-content: space-between !important;
+            align-items: center !important;
+            padding: 13px 16px !important;
+            background: rgba(255, 255, 255, 0.03) !important;
+            border: 1px solid rgba(255, 255, 255, 0.06) !important;
+            border-radius: 12px !important;
+            color: #fff !important;
+            text-decoration: none !important;
+            font-size: 0.92rem !important;
+            font-weight: 700 !important;
+            font-family: var(--font-display) !important;
+            cursor: pointer !important;
+        }
+        .mobile-accordion-content {
+            display: none !important;
+            flex-direction: column !important;
+            gap: 8px !important;
+            padding: 10px 14px !important;
+            background: rgba(0, 0, 0, 0.35) !important;
+            border-radius: 10px !important;
+        }
+        .mobile-accordion-content.open {
+            display: flex !important;
+        }
+        .mobile-sub-link {
+            display: flex !important;
+            align-items: center !important;
+            gap: 10px !important;
+            padding: 8px 10px !important;
+            color: rgba(249, 249, 249, 0.8) !important;
+            text-decoration: none !important;
+            font-size: 0.85rem !important;
+            font-weight: 600 !important;
+        }
+
+        @media (max-width: 1024px) {
+            #desktop-nav-links { display: none !important; }
+            .nav-mobile-toggle { display: block !important; }
+            .nav-dashboard-action { display: none !important; }
+            .nav-cta-action { padding: 8px 16px !important; font-size: 0.8rem !important; }
+            .navbar { padding: 0 18px !important; }
+        }
+
+        /* 5-Column Responsive Footer */
+        .veyra-footer {
+            background: #03080e !important;
+            border-top: 1px solid rgba(255, 255, 255, 0.08) !important;
+            position: relative !important;
+            padding: 70px 24px 35px 24px !important;
+            box-sizing: border-box !important;
+            width: 100% !important;
+            font-family: var(--font-display) !important;
+        }
+        .footer-container {
+            max-width: 1200px !important;
+            margin: 0 auto !important;
+            width: 100% !important;
+        }
+        .footer-grid {
+            display: grid !important;
+            grid-template-columns: 2fr 1fr 1fr 1fr 1.2fr !important;
+            gap: 40px !important;
+            padding-bottom: 50px !important;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06) !important;
+        }
+        @media (max-width: 992px) {
+            .footer-grid {
+                grid-template-columns: 1fr 1fr !important;
+                gap: 32px !important;
+            }
+            .footer-brand-col {
+                grid-column: span 2 !important;
+            }
+        }
+        @media (max-width: 560px) {
+            .footer-grid {
+                grid-template-columns: 1fr !important;
+            }
+            .footer-brand-col {
+                grid-column: span 1 !important;
+            }
+        }
+        .footer-logo {
+            display: flex !important;
+            align-items: center !important;
+            gap: 10px !important;
+            margin-bottom: 12px !important;
+        }
+        .footer-logo-img {
+            width: 32px !important;
+            height: 32px !important;
+            border-radius: 50% !important;
+            border: 1.5px solid #FF6E42 !important;
+        }
+        .footer-logo-text {
+            font-size: 1.5rem !important;
+            font-weight: 900 !important;
+            letter-spacing: 0.1em !important;
+            color: #fff !important;
+        }
+        .footer-tagline {
+            font-size: 0.95rem !important;
+            font-weight: 700 !important;
+            color: #FF6E42 !important;
+            margin-bottom: 8px !important;
+        }
+        .footer-description {
+            font-size: 0.85rem !important;
+            color: rgba(249, 249, 249, 0.65) !important;
+            line-height: 1.6 !important;
+            margin: 0 0 18px 0 !important;
+            max-width: 320px !important;
+        }
+        .footer-status-pill {
+            display: inline-flex !important;
+            align-items: center !important;
+            gap: 8px !important;
+            padding: 6px 14px !important;
+            border-radius: 50px !important;
+            background: rgba(16, 185, 129, 0.1) !important;
+            border: 1px solid rgba(16, 185, 129, 0.25) !important;
+            font-family: var(--font-mono) !important;
+            font-size: 0.72rem !important;
+            font-weight: 700 !important;
+            color: #10b981 !important;
+            margin-bottom: 12px !important;
+        }
+        .status-beacon {
+            width: 7px !important;
+            height: 7px !important;
+            border-radius: 50% !important;
+            background: #10b981 !important;
+            box-shadow: 0 0 8px #10b981 !important;
+            display: inline-block !important;
+            animation: pulse 1.2s infinite !important;
+        }
+        .footer-discord-badge {
+            display: inline-flex !important;
+            align-items: center !important;
+            gap: 8px !important;
+            padding: 8px 16px !important;
+            border-radius: 8px !important;
+            background: rgba(88, 101, 242, 0.12) !important;
+            border: 1px solid rgba(88, 101, 242, 0.3) !important;
+            color: #fff !important;
+            font-size: 0.78rem !important;
+            font-weight: 700 !important;
+            text-decoration: none !important;
+            transition: all 0.2s ease !important;
+        }
+        .footer-discord-badge:hover {
+            background: rgba(88, 101, 242, 0.25) !important;
+        }
+        .footer-col-title {
+            font-size: 0.88rem !important;
+            font-weight: 800 !important;
+            color: #fff !important;
+            letter-spacing: 0.05em !important;
+            text-transform: uppercase !important;
+            margin: 0 0 18px 0 !important;
+        }
+        .footer-links {
+            list-style: none !important;
+            padding: 0 !important;
+            margin: 0 !important;
+            display: flex !important;
+            flex-direction: column !important;
+            gap: 11px !important;
+        }
+        .footer-links a {
+            color: rgba(249, 249, 249, 0.65) !important;
+            text-decoration: none !important;
+            font-size: 0.84rem !important;
+            transition: all 0.18s ease !important;
+            display: inline-block !important;
+        }
+        .footer-links a:hover {
+            color: #fff !important;
+            transform: translateX(3px) !important;
+        }
+        .footer-bottom-bar {
+            padding-top: 26px !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: space-between !important;
+            flex-wrap: wrap !important;
+            gap: 16px !important;
+            font-size: 0.8rem !important;
+            color: rgba(249, 249, 249, 0.5) !important;
+        }
+        .footer-bottom-left {
+            display: flex !important;
+            align-items: center !important;
+            gap: 10px !important;
+            flex-wrap: wrap !important;
+        }
+        .footer-sep {
+            color: rgba(255, 255, 255, 0.2) !important;
+        }
+        .back-to-top-btn {
+            background: rgba(255, 255, 255, 0.06) !important;
+            border: 1px solid rgba(255, 255, 255, 0.12) !important;
+            color: #fff !important;
+            padding: 8px 16px !important;
+            border-radius: 50px !important;
+            font-size: 0.76rem !important;
+            font-weight: 700 !important;
+            cursor: pointer !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            gap: 6px !important;
+            transition: all 0.2s ease !important;
+        }
+        .back-to-top-btn:hover {
+            background: rgba(255, 110, 66, 0.15) !important;
+            border-color: #FF6E42 !important;
+            color: #FF6E42 !important;
+            transform: translateY(-2px) !important;
         }
     </style>
-
     <script src="js/smokey-fluid-cursor.js"></script>
     <script src="js/particle-text.js"></script>
-    <script src="js/tilt-engine.js"></script>
 </head>
 <body class="theme-slate">
     <canvas id="smokey-fluid-canvas" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: 100000; mix-blend-mode: screen;"></canvas>
@@ -612,172 +1247,196 @@
     </div>
 
     <!-- Header Navigation Bar -->
+    <!-- Header Navigation Bar (Desktop & Mobile) -->
     <nav class="navbar" id="main-nav">
-        <div class="nav-logo" onclick="showScreen('landing')">
-            <img src="assets/bypass_logs_avatar.webp" alt="VEYRA Logo" style="width: 24px; height: 24px; border-radius: 50%; object-fit: cover; border: 1.5px solid rgba(255,255,255,0.2); vertical-align: middle; margin-right: 6px; display: inline-block;">
+        <!-- 1. VEYRA Logo -->
+        <a href="/" onclick="showScreen('landing'); return false;" class="nav-logo" title="VEYRA Homepage">
+            <img src="assets/bypass_logs_avatar.webp" alt="VEYRA Logo">
             <span>VEYRA</span>
-        </div>
-        <ul class="nav-links" style="display: flex; gap: 28px; list-style: none; align-items: center;">
-            <li class="nav-item" id="nav-home">
-                <button class="gen-btn active" onclick="showScreen('landing')">
-                    <div class="gen-txt-wrapper">
-                        <span class="gen-btn-letter">H</span>
-                        <span class="gen-btn-letter">o</span>
-                        <span class="gen-btn-letter">m</span>
-                        <span class="gen-btn-letter">e</span>
-                    </div>
-                </button>
+        </a>
+
+        <!-- Center Desktop Navigation Links -->
+        <ul class="nav-links-center" id="desktop-nav-links">
+            <!-- 2. Home -->
+            <li class="nav-item">
+                <a href="/" onclick="showScreen('landing'); return false;" class="nav-link-btn active">Home</a>
             </li>
-            <li class="nav-item" id="nav-manage-servers">
-                <button class="gen-btn" onclick="clickManageServers()">
-                    <div class="gen-txt-wrapper">
-                        <span class="gen-btn-letter">M</span>
-                        <span class="gen-btn-letter">a</span>
-                        <span class="gen-btn-letter">n</span>
-                        <span class="gen-btn-letter">a</span>
-                        <span class="gen-btn-letter">g</span>
-                        <span class="gen-btn-letter">e</span>
-                        <span class="gen-btn-letter">&nbsp;</span>
-                        <span class="gen-btn-letter">S</span>
-                        <span class="gen-btn-letter">e</span>
-                        <span class="gen-btn-letter">r</span>
-                        <span class="gen-btn-letter">v</span>
-                        <span class="gen-btn-letter">e</span>
-                        <span class="gen-btn-letter">r</span>
-                        <span class="gen-btn-letter">s</span>
-                    </div>
+
+            <!-- 3. Features ▾ (Two-Column Mega Menu) -->
+            <li class="nav-item nav-has-dropdown" id="nav-dropdown-features">
+                <button class="nav-link-btn" onclick="toggleNavDropdown('nav-dropdown-features', event)">
+                    <span>Features</span>
+                    <i class="fas fa-chevron-down nav-arrow"></i>
                 </button>
+                <div class="nav-mega-dropdown" id="features-mega-menu">
+                    <div class="mega-grid">
+                        <!-- Moderation -->
+                        <a href="/#features" onclick="closeNavDropdowns(); clickNavSection('features');" class="mega-item">
+                            <div class="mega-icon" style="color: #ef4444; background: rgba(239,68,68,0.12);"><i class="fas fa-shield-halved"></i></div>
+                            <div>
+                                <div class="mega-title">Moderation</div>
+                                <div class="mega-desc">Warnings, anti-raid & protection features</div>
+                            </div>
+                        </a>
+                        <!-- Music -->
+                        <a href="/#features" onclick="closeNavDropdowns(); clickNavSection('features');" class="mega-item">
+                            <div class="mega-icon" style="color: #00c2ff; background: rgba(0,194,255,0.12);"><i class="fas fa-music"></i></div>
+                            <div>
+                                <div class="mega-title">Music</div>
+                                <div class="mega-desc">Playback controls, queue & integrations</div>
+                            </div>
+                        </a>
+                        <!-- Server Management -->
+                        <a href="/manage.html" class="mega-item">
+                            <div class="mega-icon" style="color: #10b981; background: rgba(16,185,129,0.12);"><i class="fas fa-sliders"></i></div>
+                            <div>
+                                <div class="mega-title">Server Management</div>
+                                <div class="mega-desc">Channels, categories, roles & permissions</div>
+                            </div>
+                        </a>
+                        <!-- Automation & Utilities -->
+                        <a href="/ticket.html" class="mega-item">
+                            <div class="mega-icon" style="color: #FF6E42; background: rgba(255,110,66,0.12);"><i class="fas fa-bolt"></i></div>
+                            <div>
+                                <div class="mega-title">Automation &amp; Utilities</div>
+                                <div class="mega-desc">Supported workflows, ticket panels & tools</div>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="mega-footer">
+                        <a href="/#features" onclick="closeNavDropdowns(); clickNavSection('features');" class="mega-explore-link">
+                            <span>Explore All Features</span>
+                            <i class="fas fa-arrow-right"></i>
+                        </a>
+                    </div>
+                </div>
             </li>
-            <li class="nav-item" id="nav-features">
-                <button class="gen-btn" onclick="clickNavSection('features')">
-                    <div class="gen-txt-wrapper">
-                        <span class="gen-btn-letter">F</span>
-                        <span class="gen-btn-letter">e</span>
-                        <span class="gen-btn-letter">a</span>
-                        <span class="gen-btn-letter">t</span>
-                        <span class="gen-btn-letter">u</span>
-                        <span class="gen-btn-letter">r</span>
-                        <span class="gen-btn-letter">e</span>
-                        <span class="gen-btn-letter">s</span>
-                    </div>
-                </button>
+
+            <!-- 4. Commands -->
+            <li class="nav-item">
+                <a href="javascript:void(0)" onclick="openCommandsModal()" class="nav-link-btn">Commands</a>
             </li>
-            <li class="nav-item" id="nav-tickets">
-                <button class="gen-btn" onclick="window.location.href='/ticket'">
-                    <div class="gen-txt-wrapper">
-                        <span class="gen-btn-letter">T</span>
-                        <span class="gen-btn-letter">i</span>
-                        <span class="gen-btn-letter">c</span>
-                        <span class="gen-btn-letter">k</span>
-                        <span class="gen-btn-letter">e</span>
-                        <span class="gen-btn-letter">t</span>
-                        <span class="gen-btn-letter">s</span>
-                    </div>
-                </button>
+
+            <!-- 5. Premium -->
+            <li class="nav-item">
+                <a href="/#pricing" onclick="clickNavSection('pricing');" class="nav-link-btn">Premium</a>
             </li>
-            <li class="nav-item" id="nav-pricing">
-                <button class="gen-btn" onclick="clickNavSection('pricing')">
-                    <div class="gen-txt-wrapper">
-                        <span class="gen-btn-letter">P</span>
-                        <span class="gen-btn-letter">r</span>
-                        <span class="gen-btn-letter">i</span>
-                        <span class="gen-btn-letter">c</span>
-                        <span class="gen-btn-letter">i</span>
-                        <span class="gen-btn-letter">n</span>
-                        <span class="gen-btn-letter">g</span>
-                    </div>
+
+            <!-- 6. Docs ▾ (1-Column Dropdown) -->
+            <li class="nav-item nav-has-dropdown" id="nav-dropdown-docs">
+                <button class="nav-link-btn" onclick="toggleNavDropdown('nav-dropdown-docs', event)">
+                    <span>Docs</span>
+                    <i class="fas fa-chevron-down nav-arrow"></i>
                 </button>
-            </li>
-            <li class="nav-item" id="nav-faq">
-                <button class="gen-btn" onclick="clickNavSection('faq')">
-                    <div class="gen-txt-wrapper">
-                        <span class="gen-btn-letter">F</span>
-                        <span class="gen-btn-letter">a</span>
-                        <span class="gen-btn-letter">q</span>
-                    </div>
-                </button>
-            </li>
-            <li class="nav-item" id="nav-admin" style="display: none;">
-                <button class="gen-btn" onclick="showScreen('admin')">
-                    <div class="gen-txt-wrapper" style="color: #f59e0b;">
-                        <i class="fas fa-crown" style="margin-right: 4px;"></i>
-                        <span class="gen-btn-letter">A</span>
-                        <span class="gen-btn-letter">d</span>
-                        <span class="gen-btn-letter">m</span>
-                        <span class="gen-btn-letter">i</span>
-                        <span class="gen-btn-letter">n</span>
-                    </div>
-                </button>
+                <div class="nav-dropdown-menu" id="docs-dropdown-menu">
+                    <a href="/about.html" class="dropdown-link"><i class="fas fa-book-open"></i> Getting Started</a>
+                    <a href="/about.html#setup" class="dropdown-link"><i class="fas fa-wrench"></i> Setup Guide</a>
+                    <a href="/about.html#permissions" class="dropdown-link"><i class="fas fa-lock"></i> Permissions</a>
+                    <a href="/about.html#api" class="dropdown-link"><i class="fas fa-code"></i> API &amp; Dev Docs</a>
+                    <a href="/#faq" onclick="closeNavDropdowns(); clickNavSection('faq');" class="dropdown-link"><i class="fas fa-circle-question"></i> FAQ</a>
+                </div>
             </li>
         </ul>
-        <div class="nav-auth" style="display: flex; align-items: center; gap: 12px; position: relative;">
-            <button class="liquid-metal-btn" onclick="simulateLogin()" id="login-btn">
-                <div class="liquid-metal-btn-inner">
-                    <i class="fab fa-discord" style="color: #a855f7;"></i>
-                    <span>Login with Discord</span>
-                </div>
+
+        <!-- Right Side: Dashboard + Add to Discord (Primary CTA) -->
+        <div class="nav-actions-right">
+            <!-- 7. Dashboard -->
+            <button class="nav-dashboard-action" onclick="clickManageServers()" id="nav-dashboard-button" title="Open Server Dashboard">
+                <i class="fas fa-table-cells-large" style="color: #00c2ff;"></i>
+                <span>Dashboard</span>
             </button>
 
-            <!-- Logged-in Header Dropdown Buttons -->
-            <div id="header-user-widgets" style="display: none; align-items: center; gap: 12px; position: relative;">
-                
-                <!-- Server Avatar Dropdown Trigger -->
-                <div id="header-server-dropdown-trigger-container" style="position: relative; display: none;">
-                    <div onclick="toggleHeaderDropdown('header-server-dropdown')" style="display: flex; align-items: center; gap: 6px; cursor: pointer; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); padding: 4px 10px 4px 6px; border-radius: 20px; transition: background 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.1)'" onmouseout="this.style.background='rgba(255,255,255,0.05)'">
-                        <div style="width: 28px; height: 28px; border-radius: 50%; background: #a855f7; overflow: hidden; display: flex; align-items: center; justify-content: center; border: 1px solid rgba(255,255,255,0.2);" id="header-server-avatar-img">
-                            <img src="assets/bypass_logs_avatar.webp" style="width: 100%; height: 100%; object-fit: cover;">
-                        </div>
-                        <i class="fas fa-caret-down" style="color: #94a3b8; font-size: 0.75rem;"></i>
-                    </div>
+            <!-- 8. Add to Discord (Primary CTA) -->
+            <a href="https://discord.com/oauth2/authorize?client_id=1527243189860175933&permissions=8&integration_type=0&scope=bot+applications.commands" target="_blank" rel="noreferrer" class="nav-cta-action">
+                <i class="fab fa-discord"></i>
+                <span>Add to Discord</span>
+            </a>
 
-                    <!-- Server Dropdown Menu Popover -->
-                    <div id="header-server-dropdown" style="display: none; position: absolute; right: 0; top: 42px; width: 240px; background: #2f3136; border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; box-shadow: 0 15px 35px rgba(0,0,0,0.7); z-index: 9999; overflow: hidden; font-family: sans-serif;">
-                        <div style="border-left: 4px solid #7c3aed; background: #202225; padding: 12px 14px; display: flex; align-items: center; gap: 10px;">
-                            <div style="width: 32px; height: 32px; border-radius: 50%; overflow: hidden; background: #7c3aed; display: flex; align-items: center; justify-content: center;" id="header-server-dropdown-icon">
-                                <img src="assets/bypass_logs_avatar.webp" style="width: 100%; height: 100%; object-fit: cover;">
-                            </div>
-                            <div>
-                                <div style="font-size: 0.65rem; font-weight: 800; color: #a855f7; letter-spacing: 0.08em; text-transform: uppercase;">CURRENT SERVER</div>
-                                <div style="font-size: 0.88rem; font-weight: 700; color: #fff;" id="header-server-dropdown-name">SERVER PORTAL</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- User Avatar Dropdown Trigger -->
-                <div style="position: relative;">
-                    <div onclick="toggleHeaderDropdown('header-user-dropdown')" style="display: flex; align-items: center; gap: 6px; cursor: pointer; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); padding: 4px 10px 4px 6px; border-radius: 20px; transition: background 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.1)'" onmouseout="this.style.background='rgba(255,255,255,0.05)'">
-                        <div style="width: 28px; height: 28px; border-radius: 50%; background: #9333ea; overflow: hidden; display: flex; align-items: center; justify-content: center; font-weight: 700; color: #fff; font-size: 0.85rem; border: 1px solid rgba(255,255,255,0.2);" id="header-user-avatar-img">
-                            D
-                        </div>
-                        <i class="fas fa-caret-down" style="color: #94a3b8; font-size: 0.75rem;"></i>
-                    </div>
-
-                    <!-- User Dropdown Menu Popover -->
-                    <div id="header-user-dropdown" style="display: none; position: absolute; right: 0; top: 42px; width: 220px; background: #2f3136; border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; box-shadow: 0 15px 35px rgba(0,0,0,0.7); z-index: 9999; overflow: hidden; font-family: sans-serif;">
-                        <div style="border-left: 4px solid #7c3aed; background: #202225; padding: 12px 14px; display: flex; align-items: center; gap: 10px;">
-                            <div style="width: 32px; height: 32px; border-radius: 50%; overflow: hidden; background: #9333ea; display: flex; align-items: center; justify-content: center; font-weight: 700; color: #fff; font-size: 0.9rem;" id="header-user-dropdown-avatar">
-                                D
-                            </div>
-                            <div>
-                                <div style="font-size: 0.65rem; font-weight: 800; color: #a855f7; letter-spacing: 0.08em; text-transform: uppercase;">SIGNED IN AS</div>
-                                <div style="font-size: 0.88rem; font-weight: 700; color: #fff;" id="header-user-dropdown-name">!! DADDY</div>
-                            </div>
-                        </div>
-
-                        <!-- Menu Button 11: ONLY Log out button as requested -->
-                        <div style="padding: 6px;">
-                            <button onclick="logout()" style="width: 100%; text-align: left; background: transparent; border: none; padding: 10px 12px; border-radius: 4px; color: #dcddde; font-size: 0.88rem; font-weight: 600; display: flex; align-items: center; gap: 10px; cursor: pointer; transition: background 0.15s, color 0.15s;" onmouseover="this.style.background='#36393f'; this.style.color='#ef4444';" onmouseout="this.style.background='transparent'; this.style.color='#dcddde';">
-                                <i class="fas fa-right-from-bracket" style="font-size: 0.95rem; color: #8e9297;"></i>
-                                <span>Log out</span>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-            </div>
+            <!-- Mobile Hamburger Toggle -->
+            <button class="nav-mobile-toggle" onclick="toggleMobileNav()" id="mobile-menu-toggle" aria-label="Open Navigation Menu">
+                <i class="fas fa-bars"></i>
+            </button>
         </div>
     </nav>
+
+    <!-- Mobile Drawer & Accordions -->
+    <div id="mobile-nav-drawer" class="mobile-drawer">
+        <!-- 1. Home -->
+        <a href="/" onclick="toggleMobileNav(); showScreen('landing'); return false;" class="mobile-nav-link">
+            <span>Home</span>
+            <i class="fas fa-house" style="color: #94a3b8; font-size: 0.85rem;"></i>
+        </a>
+
+        <!-- 2. Features Accordion -->
+        <div class="mobile-nav-link" onclick="toggleMobileAccordion('mobile-features-acc')">
+            <span>Features</span>
+            <i class="fas fa-chevron-down" id="mobile-features-acc-icon" style="color: #94a3b8; font-size: 0.85rem; transition: transform 0.2s;"></i>
+        </div>
+        <div id="mobile-features-acc" class="mobile-accordion-content">
+            <a href="/#features" onclick="toggleMobileNav(); clickNavSection('features');" class="mobile-sub-link">
+                <i class="fas fa-shield-halved" style="color: #ef4444;"></i> Moderation
+            </a>
+            <a href="/#features" onclick="toggleMobileNav(); clickNavSection('features');" class="mobile-sub-link">
+                <i class="fas fa-music" style="color: #00c2ff;"></i> Music
+            </a>
+            <a href="/manage.html" class="mobile-sub-link">
+                <i class="fas fa-sliders" style="color: #10b981;"></i> Server Management
+            </a>
+            <a href="/ticket.html" class="mobile-sub-link">
+                <i class="fas fa-bolt" style="color: #FF6E42;"></i> Automation &amp; Utilities
+            </a>
+            <a href="/#features" onclick="toggleMobileNav(); clickNavSection('features');" class="mobile-sub-link" style="color: #FF6E42; font-weight: 700; border-top: 1px solid rgba(255,255,255,0.06); padding-top: 8px;">
+                Explore All Features &rarr;
+            </a>
+        </div>
+
+        <!-- 3. Commands -->
+        <a href="javascript:void(0)" onclick="toggleMobileNav(); openCommandsModal();" class="mobile-nav-link">
+            <span>Commands</span>
+            <i class="fas fa-terminal" style="color: #94a3b8; font-size: 0.85rem;"></i>
+        </a>
+
+        <!-- 4. Premium -->
+        <a href="/#pricing" onclick="toggleMobileNav(); clickNavSection('pricing');" class="mobile-nav-link">
+            <span>Premium</span>
+            <i class="fas fa-crown" style="color: #f59e0b; font-size: 0.85rem;"></i>
+        </a>
+
+        <!-- 5. Docs Accordion -->
+        <div class="mobile-nav-link" onclick="toggleMobileAccordion('mobile-docs-acc')">
+            <span>Docs</span>
+            <i class="fas fa-chevron-down" id="mobile-docs-acc-icon" style="color: #94a3b8; font-size: 0.85rem; transition: transform 0.2s;"></i>
+        </div>
+        <div id="mobile-docs-acc" class="mobile-accordion-content">
+            <a href="/about.html" class="mobile-sub-link">
+                <i class="fas fa-book-open" style="color: #00c2ff;"></i> Getting Started
+            </a>
+            <a href="/about.html#setup" class="mobile-sub-link">
+                <i class="fas fa-wrench" style="color: #00c2ff;"></i> Setup Guide
+            </a>
+            <a href="/about.html#permissions" class="mobile-sub-link">
+                <i class="fas fa-lock" style="color: #00c2ff;"></i> Permissions
+            </a>
+            <a href="/about.html#api" class="mobile-sub-link">
+                <i class="fas fa-code" style="color: #00c2ff;"></i> API &amp; Dev Docs
+            </a>
+            <a href="/#faq" onclick="toggleMobileNav(); clickNavSection('faq');" class="mobile-sub-link">
+                <i class="fas fa-circle-question" style="color: #00c2ff;"></i> FAQ
+            </a>
+        </div>
+
+        <!-- 6. Dashboard -->
+        <a href="/manage.html" class="mobile-nav-link" style="background: rgba(0, 194, 255, 0.08); border-color: rgba(0, 194, 255, 0.25);">
+            <span style="color: #00c2ff;">Dashboard Workspace</span>
+            <i class="fas fa-table-cells-large" style="color: #00c2ff;"></i>
+        </a>
+
+        <!-- 7. Add to Discord Mobile CTA -->
+        <a href="https://discord.com/oauth2/authorize?client_id=1527243189860175933&permissions=8&integration_type=0&scope=bot+applications.commands" target="_blank" rel="noreferrer" class="mobile-nav-link" style="background: linear-gradient(135deg, #FF6E42, #ff8f6b); color: #000; justify-content: center; font-weight: 800; margin-top: 10px;">
+            <i class="fab fa-discord" style="margin-right: 8px;"></i>
+            <span>Add to Discord</span>
+        </a>
+    </div>
 
     <!-- Main Workspace Sections -->
     <main id="main-content" style="opacity: 1; pointer-events: auto; transition: opacity 1.5s ease;">
@@ -1694,40 +2353,12 @@
                     </p>
                 </div>
             </div>
-
-            <!-- Ultra-Crisp Glowing Sci-Fi Core Showcase Section -->
-            <div class="glass-card" style="max-width: 850px; width: 100%; box-sizing: border-box; margin: 60px auto; padding: 42px 30px; background: rgba(8, 12, 22, 0.92); border: 1.5px solid rgba(255, 110, 66, 0.25); border-radius: 24px; box-shadow: 0 25px 60px rgba(0,0,0,0.85), 0 0 50px rgba(255, 110, 66, 0.08); text-align: center; overflow: hidden; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative;">
-                
-                <!-- Electric Animated Top Line -->
-                <div style="position: absolute; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, #FF6E42, #a855f7, #10b981);"></div>
-
-                <!-- Glowing Badge Tag -->
-                <div style="display: inline-flex; align-items: center; gap: 8px; padding: 6px 16px; border-radius: 20px; background: rgba(255, 110, 66, 0.1); border: 1px solid rgba(255, 110, 66, 0.3); margin-bottom: 16px;">
-                    <span style="width: 6px; height: 6px; border-radius: 50%; background: #FF6E42; animation: pulse 1s infinite;"></span>
-                    <span style="font-family: var(--font-mono); font-size: 0.7rem; font-weight: 800; color: #FF6E42; letter-spacing: 0.12em; text-transform: uppercase;">VEYRA CORE SHIELD ENGINE</span>
-                </div>
-
-                <!-- Main Glowing Particle Morphing Headline -->
-                <div id="particle-headline-container" style="width: 100%; min-height: 90px; margin: 10px 0; display: flex; align-items: center; justify-content: center; position: relative;">
-                    <div id="vaporize-text-headline" style="font-family: var(--font-display); font-size: clamp(1.6rem, 3.6vw, 3.0rem); font-weight: 900; background: linear-gradient(135deg, #ffffff 0%, #FF6E42 45%, #a855f7 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-shadow: 0 0 35px rgba(255, 110, 66, 0.35); letter-spacing: 0.04em; text-transform: uppercase; line-height: 1.3;">
-                        VEYRA UNSTOPPABLE DISCORD SECURITY SUITE
-                    </div>
-                </div>
-
-                <!-- Sub-pills grid -->
-                <div style="display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; margin-top: 16px;">
-                    <span style="font-family: var(--font-mono); font-size: 0.68rem; color: #10b981; background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.25); padding: 5px 14px; border-radius: 6px; font-weight: 700;">⚡ 0.04ms LATENCY</span>
-                    <span style="font-family: var(--font-mono); font-size: 0.68rem; color: #3b82f6; background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.25); padding: 5px 14px; border-radius: 6px; font-weight: 700;">🛡️ 100% ANTI-NUKE</span>
-                    <span style="font-family: var(--font-mono); font-size: 0.68rem; color: #a855f7; background: rgba(168, 85, 247, 0.1); border: 1px solid rgba(168, 85, 247, 0.25); padding: 5px 14px; border-radius: 6px; font-weight: 700;">🎫 REAL-TIME TICKETING</span>
-                </div>
-            </div>
-
             <!-- FAQ Section -->
             <div class="faq-section" id="faq">
                 <h2 class="section-title-landing">FREQUENTLY ASKED QUESTIONS</h2>
                 <div class="faq-list">
                     <!-- FAQ 2 -->
-                    <div class="faq-item glass-card">
+                    <div class="faq-item">
                         <div class="faq-question" onclick="toggleFaq(this)">
                             <span>Is the bot online 24/7?</span>
                             <i class="fas fa-plus"></i>
@@ -1737,7 +2368,7 @@
                         </div>
                     </div>
                     <!-- FAQ 1 -->
-                    <div class="faq-item glass-card">
+                    <div class="faq-item">
                         <div class="faq-question" onclick="toggleFaq(this)">
                             <span>How does the Anti-Nuke system prevent malicious admins?</span>
                             <i class="fas fa-plus"></i>
@@ -1747,7 +2378,7 @@
                         </div>
                     </div>
                     <!-- FAQ 3 -->
-                    <div class="faq-item glass-card">
+                    <div class="faq-item">
                         <div class="faq-question" onclick="toggleFaq(this)">
                             <span>Can I whitelist my co-owners?</span>
                             <i class="fas fa-plus"></i>
@@ -1757,7 +2388,7 @@
                         </div>
                     </div>
                     <!-- FAQ 4 -->
-                    <div class="faq-item glass-card">
+                    <div class="faq-item">
                         <div class="faq-question" onclick="toggleFaq(this)">
                             <span>What is the difference between Anti-Nuke and Anti-Raid modules?</span>
                             <i class="fas fa-plus"></i>
@@ -1767,7 +2398,7 @@
                         </div>
                     </div>
                     <!-- FAQ 5 -->
-                    <div class="faq-item glass-card">
+                    <div class="faq-item">
                         <div class="faq-question" onclick="toggleFaq(this)">
                             <span>How does Webhook Protection secure my integrations?</span>
                             <i class="fas fa-plus"></i>
@@ -1777,7 +2408,7 @@
                         </div>
                     </div>
                     <!-- FAQ 6 -->
-                    <div class="faq-item glass-card">
+                    <div class="faq-item">
                         <div class="faq-question" onclick="toggleFaq(this)">
                             <span>How does the real-time Audit Weblogs system sync?</span>
                             <i class="fas fa-plus"></i>
@@ -1787,7 +2418,7 @@
                         </div>
                     </div>
                     <!-- FAQ 7 -->
-                    <div class="faq-item glass-card">
+                    <div class="faq-item">
                         <div class="faq-question" onclick="toggleFaq(this)">
                             <span>Can I build custom embeds using the Embed Builder?</span>
                             <i class="fas fa-plus"></i>
@@ -1797,7 +2428,7 @@
                         </div>
                     </div>
                     <!-- FAQ 8 -->
-                    <div class="faq-item glass-card">
+                    <div class="faq-item">
                         <div class="faq-question" onclick="toggleFaq(this)">
                             <span>What does "Beast Mode" do?</span>
                             <i class="fas fa-plus"></i>
@@ -1807,7 +2438,7 @@
                         </div>
                     </div>
                     <!-- FAQ 9 -->
-                    <div class="faq-item glass-card">
+                    <div class="faq-item">
                         <div class="faq-question" onclick="toggleFaq(this)">
                             <span>How does the Invite Tracker keep track of invites?</span>
                             <i class="fas fa-plus"></i>
@@ -1817,7 +2448,7 @@
                         </div>
                     </div>
                     <!-- FAQ 10 -->
-                    <div class="faq-item glass-card">
+                    <div class="faq-item">
                         <div class="faq-question" onclick="toggleFaq(this)">
                             <span>Is my server configuration stored securely?</span>
                             <i class="fas fa-plus"></i>
@@ -1869,100 +2500,95 @@
                 </div>
             </div>
 
-            <!-- VengeanceUI Style Cinematic Animated Reveal Footer -->
-            <!-- Realtime Professional Default Footer -->
-            <footer id="animated-reveal-footer" style="background: rgba(4, 7, 13, 0.95); border-top: 1px solid rgba(255, 255, 255, 0.06); padding: 60px 20px 30px 20px; box-sizing: border-box; width: 100%; position: relative; margin-top: 80px;">
-                <!-- Top Glowing Gradient Divider Line -->
-                <div style="position: absolute; top: 0; left: 0; right: 0; height: 1.5px; background: linear-gradient(90deg, transparent, #FF6E42, #a855f7, #10b981, transparent);"></div>
-
-                <div style="max-width: 1150px; margin: 0 auto; width: 100%;">
-                    
-                    <!-- Top Brand Header & Live System Status -->
-                    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255, 255, 255, 0.06); padding-bottom: 30px; margin-bottom: 40px; flex-wrap: wrap; gap: 20px;">
-                        <div>
-                            <div style="font-family: var(--font-display); font-size: 2.2rem; font-weight: 900; letter-spacing: 0.12em; color: #fff; text-shadow: 0 0 25px rgba(255, 110, 66, 0.35);">
-                                VEYRA
+            <!-- VEYRA Professional 5-Column Footer -->
+            <footer class="veyra-footer">
+                <div class="footer-container">
+                    <div class="footer-grid">
+                        <!-- Col 1: VEYRA Brand & Live Status -->
+                        <div class="footer-brand-col">
+                            <div class="footer-logo">
+                                <img src="assets/bypass_logs_avatar.webp" alt="VEYRA" class="footer-logo-img" onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png'">
+                                <span class="footer-logo-text">VEYRA</span>
                             </div>
-                            <div style="font-family: var(--font-mono); font-size: 0.75rem; color: rgba(255, 255, 255, 0.5); letter-spacing: 0.18em; text-transform: uppercase; margin-top: 2px;">
-                                ALL-IN-ONE DISCORD BOT & SECURITY INFRASTRUCTURE
-                            </div>
-                        </div>
-
-                        <!-- Live Real-Time Telemetry Badge -->
-                        <div style="display: flex; align-items: center; gap: 12px; background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.25); padding: 8px 16px; border-radius: 30px;">
-                            <span style="width: 8px; height: 8px; border-radius: 50%; background: #10b981; animation: pulse 1s infinite; box-shadow: 0 0 10px #10b981;"></span>
-                            <span style="font-family: var(--font-mono); font-size: 0.72rem; font-weight: 800; color: #10b981; letter-spacing: 0.05em; text-transform: uppercase;">
-                                SYSTEM OPERATIONAL — 99.99% UPTIME
-                            </span>
-                        </div>
-                    </div>
-
-                    <!-- 4 Column Main Links Grid -->
-                    <div style="display: grid; grid-template-columns: 1.4fr 1fr 1fr 1fr; gap: 40px; margin-bottom: 50px;">
-                        
-                        <!-- Col 1: About & Socials -->
-                        <div>
-                            <h4 style="color: #fff; font-size: 0.95rem; font-weight: 800; font-family: var(--font-display); letter-spacing: 0.05em; margin: 0 0 16px 0; text-transform: uppercase;">About Veyra</h4>
-                            <p style="font-size: 0.82rem; color: rgba(255,255,255,0.55); line-height: 1.6; margin-bottom: 20px;">
-                                Ultra-fast, all-in-one Discord bot built for high-security community protection, real-time ticket stores, custom invite tracking, and whitelisting.
+                            <div class="footer-tagline">One bot. Everything.</div>
+                            <p class="footer-description">
+                                An all-in-one Discord bot built to simplify server management and community tools.
                             </p>
-                            <div style="display: flex; gap: 10px;">
-                                <a href="https://discord.gg/ghostfamily" target="_blank" style="width: 36px; height: 36px; border-radius: 10px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); display: flex; align-items: center; justify-content: center; color: #fff; transition: all 0.25s ease;" onmouseover="this.style.background='#5865F2'; this.style.borderColor='#5865F2';" onmouseout="this.style.background='rgba(255,255,255,0.04)'; this.style.borderColor='rgba(255,255,255,0.08)';"><i class="fab fa-discord"></i></a>
-                                <a href="#" style="width: 36px; height: 36px; border-radius: 10px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); display: flex; align-items: center; justify-content: center; color: #fff; transition: all 0.25s ease;" onmouseover="this.style.background='#1DA1F2'; this.style.borderColor='#1DA1F2';" onmouseout="this.style.background='rgba(255,255,255,0.04)'; this.style.borderColor='rgba(255,255,255,0.08)';"><i class="fab fa-twitter"></i></a>
-                                <a href="#" style="width: 36px; height: 36px; border-radius: 10px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); display: flex; align-items: center; justify-content: center; color: #fff; transition: all 0.25s ease;" onmouseover="this.style.background='#333'; this.style.borderColor='#555';" onmouseout="this.style.background='rgba(255,255,255,0.04)'; this.style.borderColor='rgba(255,255,255,0.08)';"><i class="fab fa-github"></i></a>
+                            <div class="footer-status-pill">
+                                <span class="status-beacon"></span>
+                                <span>Bot Operational • 99.99% Uptime</span>
+                            </div>
+                            <div>
+                                <a href="https://discord.gg/veyra" target="_blank" rel="noopener noreferrer" class="footer-discord-badge">
+                                    <i class="fab fa-discord" style="color: #5865F2;"></i>
+                                    <span>Official Discord</span>
+                                </a>
                             </div>
                         </div>
 
-                        <!-- Col 2: Navigation -->
+                        <!-- Col 2: Product -->
                         <div>
-                            <h4 style="color: #fff; font-size: 0.95rem; font-weight: 800; font-family: var(--font-display); letter-spacing: 0.05em; margin: 0 0 16px 0; text-transform: uppercase;">Navigation</h4>
-                            <ul style="list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 10px; font-size: 0.83rem;">
-                                <li><a href="/" style="color: rgba(255,255,255,0.6); text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='#FF6E42'" onmouseout="this.style.color='rgba(255,255,255,0.6)'">Home Page</a></li>
-                                <li><a href="/manage" style="color: rgba(255,255,255,0.6); text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='#FF6E42'" onmouseout="this.style.color='rgba(255,255,255,0.6)'">Dashboard Workspace</a></li>
-                                <li><a href="/about" style="color: rgba(255,255,255,0.6); text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='#FF6E42'" onmouseout="this.style.color='rgba(255,255,255,0.6)'">About Veyra</a></li>
-                                <li><a href="/ticket" style="color: rgba(255,255,255,0.6); text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='#FF6E42'" onmouseout="this.style.color='rgba(255,255,255,0.6)'">Support & Tickets</a></li>
+                            <h4 class="footer-col-title">Product</h4>
+                            <ul class="footer-links">
+                                <li><a href="#features">Features</a></li>
+                                <li><a href="javascript:void(0)" onclick="openCommandsModal()">Commands</a></li>
+                                <li><a href="#pricing">Premium</a></li>
+                                <li><a href="javascript:void(0)" onclick="clickManageServers()">Dashboard</a></li>
+                                <li><a href="https://discord.com/oauth2/authorize?client_id=1527243189860175933&permissions=8&integration_type=0&scope=bot+applications.commands" target="_blank" rel="noopener noreferrer">Add to Discord</a></li>
                             </ul>
                         </div>
 
-                        <!-- Col 3: Modules -->
+                        <!-- Col 3: Resources -->
                         <div>
-                            <h4 style="color: #fff; font-size: 0.95rem; font-weight: 800; font-family: var(--font-display); letter-spacing: 0.05em; margin: 0 0 16px 0; text-transform: uppercase;">Bot Modules</h4>
-                            <ul style="list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 10px; font-size: 0.83rem;">
-                                <li><a href="/#security" style="color: rgba(255,255,255,0.6); text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='#10b981'" onmouseout="this.style.color='rgba(255,255,255,0.6)'">Anti-Nuke & Protection</a></li>
-                                <li><a href="/ticket" style="color: rgba(255,255,255,0.6); text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='#a855f7'" onmouseout="this.style.color='rgba(255,255,255,0.6)'">Store & Ticket Panels</a></li>
-                                <li><a href="/#invites" style="color: rgba(255,255,255,0.6); text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='#3b82f6'" onmouseout="this.style.color='rgba(255,255,255,0.6)'">Invite Tracker & Alt Gate</a></li>
-                                <li><a href="/#levels" style="color: rgba(255,255,255,0.6); text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='#f59e0b'" onmouseout="this.style.color='rgba(255,255,255,0.6)'">Leveling & XP System</a></li>
+                            <h4 class="footer-col-title">Resources</h4>
+                            <ul class="footer-links">
+                                <li><a href="#docs">Documentation</a></li>
+                                <li><a href="#docs-getting-started">Getting Started</a></li>
+                                <li><a href="#faq">FAQ</a></li>
+                                <li><a href="#changelog">Changelog</a></li>
+                                <li><a href="https://discord.gg/veyra" target="_blank" rel="noopener noreferrer">Support</a></li>
                             </ul>
                         </div>
 
-                        <!-- Col 4: Performance & Network -->
+                        <!-- Col 4: Explore -->
                         <div>
-                            <h4 style="color: #fff; font-size: 0.95rem; font-weight: 800; font-family: var(--font-display); letter-spacing: 0.05em; margin: 0 0 16px 0; text-transform: uppercase;">System Metrics</h4>
-                            <div style="display: flex; flex-direction: column; gap: 8px; font-family: var(--font-mono); font-size: 0.75rem; color: rgba(255,255,255,0.6);">
-                                <div style="display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.04); padding-bottom: 6px;">
-                                    <span>Latency:</span> <span style="color: #10b981; font-weight: 700;">0.04ms</span>
-                                </div>
-                                <div style="display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.04); padding-bottom: 6px;">
-                                    <span>Gateway Shards:</span> <span style="color: #FF6E42; font-weight: 700;">Active</span>
-                                </div>
-                                <div style="display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.04); padding-bottom: 6px;">
-                                    <span>Cluster Region:</span> <span style="color: #a855f7; font-weight: 700;">Asia-South</span>
-                                </div>
-                            </div>
+                            <h4 class="footer-col-title">Explore</h4>
+                            <ul class="footer-links">
+                                <li><a href="#features-moderation">Moderation</a></li>
+                                <li><a href="#features-music">Music</a></li>
+                                <li><a href="#features-server-management">Server Management</a></li>
+                                <li><a href="#features-roles">Role Management</a></li>
+                                <li><a href="#features-utilities">Utilities</a></li>
+                            </ul>
                         </div>
 
-                    </div>
-
-                    <!-- Bottom Copyright Bar -->
-                    <div style="border-top: 1px solid rgba(255, 255, 255, 0.06); padding-top: 24px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; font-size: 0.78rem; color: rgba(255,255,255,0.45);">
-                        <div>&copy; 2026 VEYRA Systems. All rights reserved. Powered By Veyra Development™ | Designed By Arun</div>
-                        <div style="display: flex; gap: 20px;">
-                            <a href="#" style="color: rgba(255,255,255,0.45); text-decoration: none;">Privacy Policy</a>
-                            <a href="#" style="color: rgba(255,255,255,0.45); text-decoration: none;">Terms of Service</a>
-                            <a href="https://veyra-bot.vercel.app" target="_blank" style="color: rgba(255,255,255,0.45); text-decoration: none;">Main Website</a>
+                        <!-- Col 5: Company & Legal -->
+                        <div>
+                            <h4 class="footer-col-title">Company & Legal</h4>
+                            <ul class="footer-links">
+                                <li><a href="/about.html">About VEYRA</a></li>
+                                <li><a href="https://discord.gg/veyra" target="_blank" rel="noopener noreferrer">Contact</a></li>
+                                <li><a href="/privacy.html">Privacy Policy</a></li>
+                                <li><a href="/terms.html">Terms of Service</a></li>
+                                <li><a href="/cookies.html">Cookie Policy</a></li>
+                            </ul>
                         </div>
                     </div>
 
+                    <!-- Bottom Bar -->
+                    <div class="footer-bottom-bar">
+                        <div class="footer-bottom-left">
+                            <span>&copy; <span id="current-year">2026</span> VEYRA. All rights reserved.</span>
+                            <span class="footer-sep">•</span>
+                            <span>An independent Discord bot project.</span>
+                        </div>
+                        <div>
+                            <button onclick="scrollToTop()" class="back-to-top-btn" aria-label="Back to top">
+                                <span>Back to Top</span>
+                                <i class="fas fa-arrow-up"></i>
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </footer>
         </section>
@@ -2192,79 +2818,112 @@
         <section id="screen-dashboard" class="dashboard-container" style="display:none;">
             <!-- Sidebar navigation panel -->
             <aside class="sidebar" style="display: flex; flex-direction: column; height: 100%; justify-content: space-between;">
-                <div>
-                    <!-- Active Guild Header Card -->
-                    <!-- Active Guild Header Card -->
-                    <div style="padding: 15px 20px; border-bottom: 1px solid rgba(255,255,255,0.04); display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px;">
-                        <div style="display: flex; align-items: center; gap: 10px;">
-                            <div style="width: 28px; height: 28px; border-radius: 50%; background: #a855f7; overflow: hidden; display:flex; align-items:center; justify-content:center; border: 1.5px solid rgba(255,255,255,0.1);">
-                                <img src="assets/bypass_logs_avatar.webp" style="width: 100%; height: 100%; object-fit: cover;">
+                <div style="flex: 1; overflow-y: auto; padding-bottom: 20px;">
+                    <!-- Server Switcher / Brand Header -->
+                    <div class="sidebar-header-box" style="padding: 16px 18px; border-bottom: 1px solid rgba(255,255,255,0.06); display: flex; flex-direction: column; gap: 12px; margin-bottom: 15px;">
+                        <div style="display: flex; align-items: center; justify-content: space-between;">
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <div style="width: 32px; height: 32px; border-radius: 8px; background: linear-gradient(135deg, #a855f7, #6366f1); display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(168,85,247,0.3);">
+                                    <i class="fas fa-bolt" style="color: #fff; font-size: 0.9rem;"></i>
+                                </div>
+                                <div>
+                                    <div class="sidebar-brand-text" style="font-weight: 800; color: #fff; font-size: 0.92rem; letter-spacing: 0.05em; line-height: 1.2;">VEYRA</div>
+                                    <div class="sidebar-brand-text" style="font-size: 0.65rem; color: #a855f7; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em;">SERVER DASHBOARD</div>
+                                </div>
                             </div>
-                            <span class="sidebar-brand-text" style="font-weight: 800; color: #fff; font-size: 0.85rem; letter-spacing: 0.05em; transition: opacity 0.2s;">VEYRA</span>
+                            <button id="sidebar-toggle-btn" class="crossed" style="background: none; border: none; cursor: pointer; padding: 4px;">
+                                <div class="sidemenu-line sidemenu-line-1"></div>
+                                <div class="sidemenu-line sidemenu-line-2"></div>
+                                <div class="sidemenu-line sidemenu-line-3"></div>
+                            </button>
                         </div>
-                        <button id="sidebar-toggle-btn" class="crossed">
-                            <div class="sidemenu-line sidemenu-line-1"></div>
-                            <div class="sidemenu-line sidemenu-line-2"></div>
-                            <div class="sidemenu-line sidemenu-line-3"></div>
-                        </button>
+                        
+                        <!-- Server Switcher Dropdown Action -->
+                        <div onclick="if(typeof clickManageServers === 'function'){ clickManageServers(); } else { window.location.href='/manage'; }" style="display: flex; align-items: center; justify-content: space-between; padding: 9px 12px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.background='rgba(168,85,247,0.12)'; this.style.borderColor='rgba(168,85,247,0.3)';" onmouseout="this.style.background='rgba(255,255,255,0.04)'; this.style.borderColor='rgba(255,255,255,0.08)';" title="Switch Server">
+                            <div style="display: flex; align-items: center; gap: 8px; overflow: hidden;">
+                                <div id="sidebar-guild-icon" style="width: 24px; height: 24px; border-radius: 50%; background: #3b82f6; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: 800; color: #fff; flex-shrink: 0;">V</div>
+                                <span id="sidebar-guild-name" style="font-size: 0.82rem; font-weight: 700; color: #f1f5f9; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 120px;">Active Server</span>
+                            </div>
+                            <i class="fas fa-chevron-right" style="font-size: 0.7rem; color: #94a3b8;"></i>
+                        </div>
+                        
+                        <!-- Quick Search / Command Palette Shortcut -->
+                        <div onclick="openQuickNavSearch()" style="display: flex; align-items: center; justify-content: space-between; padding: 7px 10px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.05); border-radius: 6px; cursor: pointer; color: #94a3b8; font-size: 0.78rem;" title="Quick search tabs">
+                            <span style="display: flex; align-items: center; gap: 6px;"><i class="fas fa-magnifying-glass" style="font-size: 0.75rem;"></i> Search Settings</span>
+                            <kbd style="background: rgba(255,255,255,0.08); color: #cbd5e1; font-size: 0.65rem; padding: 2px 5px; border-radius: 4px; font-family: monospace;">Ctrl K</kbd>
+                        </div>
                     </div>
 
-                    <div class="sidebar-title">Server</div>
-                    <ul class="sidebar-menu">
-                        <li class="sidebar-item" id="menu-settings"><a href="#" onclick="switchTab('settings')"><i class="fas fa-gears"></i> <span>Administration</span></a></li>
-                        <li class="sidebar-item" id="menu-autoroles"><a href="#" onclick="switchTab('autoroles')"><i class="fas fa-users-gear"></i> <span>Autoroles & Sticky Roles</span></a></li>
-                        <li class="sidebar-item" id="menu-weblogs"><a href="#" onclick="switchTab('weblogs')"><i class="fas fa-file-shield"></i> <span>Audit Logs</span></a></li>
-                        <li class="sidebar-item" id="menu-verification"><a href="#" onclick="switchTab('verification')"><i class="fas fa-shield"></i> <span>Verification <span style="font-size:0.6rem; font-weight:800; color:#c084fc; background:rgba(192,132,252,0.15); padding:1px 4px; border-radius:3px; margin-left:5px;">PRO</span></span></a></li>
-                        <li class="sidebar-item" id="menu-security"><a href="#" onclick="switchTab('security')"><i class="fas fa-shield-halved"></i> <span>Raid Protection <span style="font-size:0.6rem; font-weight:800; color:#c084fc; background:rgba(192,132,252,0.15); padding:1px 4px; border-radius:3px; margin-left:5px;">PRO</span></span></a></li>
-                        <li class="sidebar-item" id="menu-personalize"><a href="#" onclick="switchTab('personalize')"><i class="fas fa-user-gear"></i> <span>Bot Profile <span style="font-size:0.6rem; font-weight:800; color:#eab308; background:rgba(234,179,8,0.1); padding:1px 4px; border-radius:3px; margin-left:5px;">PREMIUM</span></span></a></li>
+                    <!-- 1. OVERVIEW -->
+                    <div class="sidebar-title" style="padding: 0 18px;">OVERVIEW</div>
+                    <ul class="sidebar-menu" style="padding: 0 12px; margin-bottom: 18px;">
+                        <li class="sidebar-item" id="menu-overview"><a href="#" onclick="switchTab('overview')"><i class="fas fa-chart-line"></i> <span>Overview</span></a></li>
+                        <li class="sidebar-item" id="menu-myservers"><a href="#" onclick="if(typeof clickManageServers==='function'){clickManageServers();}else{window.location.href='/manage';}"><i class="fas fa-server"></i> <span>My Servers</span></a></li>
+                        <li class="sidebar-item" id="menu-analytics"><a href="#" onclick="switchTab('analytics')"><i class="fas fa-chart-column"></i> <span>Activity & Statistics</span></a></li>
                     </ul>
 
-                    <div class="sidebar-title">Growth</div>
-                    <ul class="sidebar-menu">
-                        <li class="sidebar-item" id="menu-overview"><a href="#" onclick="switchTab('overview')"><i class="fas fa-chart-line"></i> <span>Invite Tracking</span></a></li>
-                        <li class="sidebar-item" id="menu-analytics"><a href="#" onclick="switchTab('analytics')"><i class="fas fa-chart-column"></i> <span>Analytics</span></a></li>
-                        <li class="sidebar-item" id="menu-reports"><a href="#" onclick="switchTab('reports')"><i class="fas fa-file-contract"></i> <span>Server Reports <span style="font-size:0.6rem; font-weight:800; color:#eab308; background:rgba(234,179,8,0.1); padding:1px 4px; border-radius:3px; margin-left:5px;">PREMIUM</span></span></a></li>
-                        <li class="sidebar-item" id="menu-levels"><a href="#" onclick="switchTab('levels')"><i class="fas fa-chart-simple"></i> <span>Levels & XP <span style="font-size:0.6rem; font-weight:800; color:#eab308; background:rgba(234,179,8,0.1); padding:1px 4px; border-radius:3px; margin-left:5px;">PREMIUM</span></span></a></li>
-                        <li class="sidebar-item" id="menu-commands"><a href="#" onclick="switchTab('commands')"><i class="fas fa-terminal"></i> <span>Commands <span style="font-size:0.6rem; font-weight:800; color:#c084fc; background:rgba(192,132,252,0.15); padding:1px 4px; border-radius:3px; margin-left:5px;">PRO</span></span></a></li>
+                    <!-- 2. BOT CONFIGURATION (Collapsible) -->
+                    <div class="sidebar-group-header" onclick="toggleSidebarGroup('group-bot-config')" style="display: flex; align-items: center; justify-content: space-between; cursor: pointer; padding: 4px 18px; user-select: none;">
+                        <div class="sidebar-title" style="margin: 0;">BOT CONFIGURATION</div>
+                        <i class="fas fa-chevron-down group-toggle-icon" id="icon-group-bot-config" style="font-size: 0.7rem; color: var(--text-muted); transition: transform 0.2s;"></i>
+                    </div>
+                    <ul class="sidebar-menu" id="group-bot-config" style="padding: 0 12px; margin-bottom: 18px; transition: all 0.25s ease;">
+                        <li class="sidebar-item" id="menu-security"><a href="#" onclick="switchTab('security')"><i class="fas fa-shield-halved"></i> <span>Moderation <span style="font-size:0.6rem; font-weight:800; color:#c084fc; background:rgba(192,132,252,0.15); padding:1px 4px; border-radius:3px; margin-left:5px;">PRO</span></span></a></li>
+                        <li class="sidebar-item" id="menu-settings"><a href="#" onclick="switchTab('settings')"><i class="fas fa-robot"></i> <span>Auto Moderation</span></a></li>
+                        <li class="sidebar-item" id="menu-music"><a href="#" onclick="showMusicPlayerModal()"><i class="fas fa-music"></i> <span>Music <span style="font-size:0.6rem; font-weight:800; color:#38bdf8; background:rgba(56,189,248,0.15); padding:1px 4px; border-radius:3px; margin-left:5px;">HD</span></span></a></li>
+                        <li class="sidebar-item" id="menu-welcome"><a href="#" onclick="switchTab('welcome')"><i class="fas fa-envelope-open-text"></i> <span>Welcome & Leave <span style="font-size:0.6rem; font-weight:800; color:#c084fc; background:rgba(192,132,252,0.15); padding:1px 4px; border-radius:3px; margin-left:5px;">PRO</span></span></a></li>
+                        <li class="sidebar-item" id="menu-weblogs"><a href="#" onclick="switchTab('weblogs')"><i class="fas fa-file-shield"></i> <span>Logging</span></a></li>
+                        <li class="sidebar-item" id="menu-autoroles"><a href="#" onclick="switchTab('autoroles')"><i class="fas fa-users-gear"></i> <span>Roles & Permissions</span></a></li>
+                        <li class="sidebar-item" id="menu-channels"><a href="#" onclick="switchTab('settings')"><i class="fas fa-folder-tree"></i> <span>Channels & Categories</span></a></li>
+                        <li class="sidebar-item" id="menu-stickymessages"><a href="#" onclick="switchTab('stickymessages')"><i class="fas fa-wand-magic-sparkles"></i> <span>Automation <span style="font-size:0.6rem; font-weight:800; color:#c084fc; background:rgba(192,132,252,0.15); padding:1px 4px; border-radius:3px; margin-left:5px;">PRO</span></span></a></li>
+                        <li class="sidebar-item" id="menu-commands"><a href="#" onclick="switchTab('commands')"><i class="fas fa-terminal"></i> <span>Custom Commands</span></a></li>
+                        <li class="sidebar-item" id="menu-embedmessages"><a href="#" onclick="switchTab('embedmessages')"><i class="fas fa-toolbox"></i> <span>Utilities <span style="font-size:0.6rem; font-weight:800; color:#10b981; background:rgba(16,185,129,0.15); padding:1px 4px; border-radius:3px; margin-left:5px;">NEW</span></span></a></li>
+                        <li class="sidebar-item" id="menu-verification"><a href="#" onclick="switchTab('verification')"><i class="fas fa-shield"></i> <span>Server Setup</span></a></li>
                     </ul>
 
-                    <div class="sidebar-title">Server Discovery</div>
-                    <ul class="sidebar-menu">
-                        <li class="sidebar-item" id="menu-publish"><a href="#" onclick="switchTab('publish')"><i class="fas fa-globe"></i> <span>Publish Listing <span style="font-size:0.6rem; font-weight:800; color:#eab308; background:rgba(234,179,8,0.1); padding:1px 4px; border-radius:3px; margin-left:5px;">PREMIUM</span></span></a></li>
-                    </ul>
-
-                    <div class="sidebar-title">Messages</div>
-                    <ul class="sidebar-menu">
-                        <li class="sidebar-item" id="menu-welcome"><a href="#" onclick="switchTab('welcome')"><i class="fas fa-envelope-open-text"></i> <span>Welcome Messages <span style="font-size:0.6rem; font-weight:800; color:#c084fc; background:rgba(192,132,252,0.15); padding:1px 4px; border-radius:3px; margin-left:5px;">PRO</span></span></a></li>
-                        <li class="sidebar-item" id="menu-leave"><a href="#" onclick="switchTab('leave')"><i class="fas fa-right-from-bracket"></i> <span>Exit Messages <span style="font-size:0.6rem; font-weight:800; color:#c084fc; background:rgba(192,132,252,0.15); padding:1px 4px; border-radius:3px; margin-left:5px;">PRO</span></span></a></li>
-                        <li class="sidebar-item" id="menu-embed"><a href="#" onclick="switchTab('embed')"><i class="fas fa-comment-dots"></i> <span>Join DM Messages <span style="font-size:0.6rem; font-weight:800; color:#c084fc; background:rgba(192,132,252,0.15); padding:1px 4px; border-radius:3px; margin-left:5px;">PRO</span></span></a></li>
-                        <li class="sidebar-item" id="menu-invitetracker"><a href="#" onclick="switchTab('invitetracker')"><i class="fas fa-paper-plane"></i> <span>Invite Tracker Messages <span style="font-size:0.6rem; font-weight:800; color:#c084fc; background:rgba(192,132,252,0.15); padding:1px 4px; border-radius:3px; margin-left:5px;">PRO</span></span></a></li>
-                                                <li class="sidebar-item" id="menu-embedmessages"><a href="#" onclick="switchTab('embedmessages')"><i class="fas fa-layer-group"></i> <span>Embed Messages <span style="font-size:0.6rem; font-weight:800; color:#10b981; background:rgba(16,185,129,0.15); padding:1px 4px; border-radius:3px; margin-left:5px;">NEW</span></span></a></li>
-<li class="sidebar-item" id="menu-stickymessages"><a href="#" onclick="switchTab('stickymessages')"><i class="fas fa-note-sticky"></i> <span>Sticky Messages <span style="font-size:0.6rem; font-weight:800; color:#c084fc; background:rgba(192,132,252,0.15); padding:1px 4px; border-radius:3px; margin-left:5px;">PRO</span></span></a></li>
-                    </ul>
-
-                    <div class="sidebar-title">Support</div>
-                    <ul class="sidebar-menu">
+                    <!-- 3. COMMUNITY MANAGEMENT (Collapsible) -->
+                    <div class="sidebar-group-header" onclick="toggleSidebarGroup('group-community')" style="display: flex; align-items: center; justify-content: space-between; cursor: pointer; padding: 4px 18px; user-select: none;">
+                        <div class="sidebar-title" style="margin: 0;">COMMUNITY MANAGEMENT</div>
+                        <i class="fas fa-chevron-down group-toggle-icon" id="icon-group-community" style="font-size: 0.7rem; color: var(--text-muted); transition: transform 0.2s;"></i>
+                    </div>
+                    <ul class="sidebar-menu" id="group-community" style="padding: 0 12px; margin-bottom: 18px; transition: all 0.25s ease;">
+                        <li class="sidebar-item" id="menu-announcements"><a href="#" onclick="switchTab('embedmessages')"><i class="fas fa-bullhorn"></i> <span>Announcements</span></a></li>
+                        <li class="sidebar-item" id="menu-starboard"><a href="#" onclick="if(typeof showToast==='function') showToast('Starboard', 'Starboard sync module active in server channels.'); else switchTab('settings');"><i class="fas fa-star"></i> <span>Starboard</span></a></li>
+                        <li class="sidebar-item" id="menu-suggestions"><a href="#" onclick="if(typeof showToast==='function') showToast('Suggestions', 'Suggestion box integration active.'); else switchTab('settings');"><i class="fas fa-lightbulb"></i> <span>Suggestions</span></a></li>
                         <li class="sidebar-item" id="menu-tickets"><a href="#" onclick="switchTab('tickets')"><i class="fas fa-ticket"></i> <span>Tickets <span style="font-size:0.6rem; font-weight:800; color:#f43f5e; background:rgba(244,63,94,0.15); padding:1px 4px; border-radius:3px; margin-left:5px;">TICKET</span></span></a></li>
+                        <li class="sidebar-item" id="menu-giveaways"><a href="#" onclick="if(typeof showToast==='function') showToast('Giveaways', 'Giveaway engine ready.'); else switchTab('settings');"><i class="fas fa-gift"></i> <span>Giveaways</span></a></li>
+                        <li class="sidebar-item" id="menu-polls"><a href="#" onclick="if(typeof showToast==='function') showToast('Polls & Events', 'Polls & community event tracker active.'); else switchTab('settings');"><i class="fas fa-square-poll-vertical"></i> <span>Polls & Events</span></a></li>
+                    </ul>
+
+                    <!-- 4. PERSONAL / ACCOUNT -->
+                    <div class="sidebar-title" style="padding: 0 18px;">PERSONAL</div>
+                    <ul class="sidebar-menu" style="padding: 0 12px;">
+                        <li class="sidebar-item" id="menu-notifications"><a href="#" onclick="switchTab('settings')"><i class="fas fa-bell"></i> <span>Notifications</span></a></li>
+                        <li class="sidebar-item" id="menu-personalize"><a href="#" onclick="switchTab('personalize')"><i class="fas fa-sliders"></i> <span>Preferences <span style="font-size:0.6rem; font-weight:800; color:#eab308; background:rgba(234,179,8,0.1); padding:1px 4px; border-radius:3px; margin-left:5px;">PREMIUM</span></span></a></li>
+                        <li class="sidebar-item" id="menu-support"><a href="https://discord.gg/veyra" target="_blank" rel="noopener noreferrer"><i class="fas fa-circle-question"></i> <span>Help & Support</span></a></li>
+                        <li class="sidebar-item" id="menu-account"><a href="#" onclick="switchTab('personalize')"><i class="fas fa-user-gear"></i> <span>Account & Settings</span></a></li>
                     </ul>
                 </div>
 
                 <div>
                     <!-- Subscription Status Card Box -->
-                    <div id="sidebar-subscription-card" class="glass-card" style="margin: 20px 15px; padding: 15px; background: rgba(255,255,255,0.015); border: 1px solid rgba(255,255,255,0.03); border-radius: 10px; cursor: pointer;" onclick="showScreen('landing'); setTimeout(() => scrollToSection('pricing'), 100);">
+                    <div id="sidebar-subscription-card" class="glass-card" style="margin: 15px 12px; padding: 12px 14px; background: rgba(255,255,255,0.015); border: 1px solid rgba(255,255,255,0.03); border-radius: 10px; cursor: pointer;" onclick="showScreen('landing'); setTimeout(() => scrollToSection('pricing'), 100);">
                         <div id="sidebar-subscription-badge" style="font-family: var(--font-mono); font-size: 0.65rem; color: #ef4444; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 4px;">NO SUBSCRIPTION</div>
                         <div id="sidebar-subscription-title" style="font-weight: 700; color: #fff; font-size: 0.85rem; margin-bottom: 4px;">No Active Plan</div>
                         <div id="sidebar-subscription-footer" style="font-size: 0.75rem; color: #a855f7; font-weight: 700; display: flex; align-items: center; gap: 4px;">Activate plan now &rarr;</div>
                     </div>
 
                     <!-- Bottom User widget panel -->
-                    <div style="padding: 15px 20px; border-top: 1px solid rgba(255,255,255,0.04); display: flex; align-items: center; justify-content: space-between; background: rgba(0,0,0,0.15); width: 100%;">
-                        <div style="display: flex; align-items: center; gap: 10px;">
-                            <div id="sidebar-user-avatar" style="width: 36px; height: 36px; border-radius: 50%; background: #9333ea; display: flex; align-items: center; justify-content: center; font-weight: 700; color: #fff; font-size: 1rem; border: 1.5px solid rgba(255,255,255,0.1);">D</div>
-                            <span id="sidebar-user-name" style="font-weight: 700; color: #fff; font-size: 0.88rem;">!! DADDY</span>
+                    <div style="padding: 12px 16px; border-top: 1px solid rgba(255,255,255,0.04); display: flex; align-items: center; justify-content: space-between; background: rgba(0,0,0,0.2); width: 100%;">
+                        <div style="display: flex; align-items: center; gap: 10px; overflow: hidden;">
+                            <div id="sidebar-user-avatar" style="width: 34px; height: 34px; border-radius: 50%; background: #9333ea; display: flex; align-items: center; justify-content: center; font-weight: 700; color: #fff; font-size: 0.95rem; border: 1.5px solid rgba(255,255,255,0.1); flex-shrink: 0;">D</div>
+                            <div style="overflow: hidden;">
+                                <div id="sidebar-user-name" style="font-weight: 700; color: #fff; font-size: 0.85rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Discord User</div>
+                                <div style="font-size: 0.68rem; color: #10b981; display: flex; align-items: center; gap: 4px;"><span style="width: 6px; height: 6px; border-radius: 50%; background: #10b981;"></span> Online</div>
+                            </div>
                         </div>
-                        <div style="display: flex; gap: 10px; color: var(--text-secondary); font-size: 0.85rem;">
-                            <a href="#" style="color: #ef4444; transition: opacity 0.2s;" onmouseover="this.style.opacity='0.8'" onmouseout="this.style.opacity='1'" onclick="logout()"><i class="fas fa-right-from-bracket"></i></a>
+                        <div style="display: flex; gap: 10px; color: var(--text-secondary); font-size: 0.85rem; flex-shrink: 0;">
+                            <a href="#" style="color: #ef4444; transition: opacity 0.2s; padding: 4px;" title="Logout" onmouseover="this.style.opacity='0.8'" onmouseout="this.style.opacity='1'" onclick="logout()"><i class="fas fa-right-from-bracket"></i></a>
                         </div>
                     </div>
                 </div>
@@ -9657,6 +10316,192 @@ function heroClickModule(type) {
             badge.innerText = badge.innerText === 'REALTIME' ? 'LIVE_SYNC' : 'REALTIME';
         }
         if (typeof showToast === 'function') showToast("Support Tickets", "Realtime ticket store channels active.");
+    }
+}
+</script>
+
+<!-- VEYRA Navigation, Sidebar & Interaction Engine -->
+<script>
+// Top Bar Dropdowns
+function toggleNavDropdown(menuId, event) {
+    if (event) {
+        event.preventDefault();
+        event.stopPropagation();
+    }
+    const target = document.getElementById(menuId);
+    if (!target) return;
+    const isShowing = target.classList.contains('show');
+    closeNavDropdowns();
+    if (!isShowing) {
+        target.classList.add('show');
+    }
+}
+
+function closeNavDropdowns() {
+    document.querySelectorAll('.nav-dropdown-menu, .nav-mega-dropdown').forEach(el => {
+        el.classList.remove('show');
+    });
+}
+
+document.addEventListener('click', (e) => {
+    if (!e.target.closest('.nav-item-dropdown')) {
+        closeNavDropdowns();
+    }
+});
+
+// Mobile Drawer & Accordion
+function toggleMobileNav() {
+    const drawer = document.getElementById('mobileNavDrawer');
+    if (!drawer) return;
+    drawer.classList.toggle('open');
+}
+
+function toggleMobileAccordion(accId) {
+    const acc = document.getElementById(accId);
+    if (!acc) return;
+    const isOpen = acc.classList.contains('open');
+    document.querySelectorAll('.mobile-accordion-content').forEach(el => el.classList.remove('open'));
+    document.querySelectorAll('.mobile-nav-accordion-header i').forEach(icon => icon.style.transform = 'rotate(0deg)');
+    if (!isOpen) {
+        acc.classList.add('open');
+        const header = acc.previousElementSibling;
+        if (header) {
+            const icon = header.querySelector('i');
+            if (icon) icon.style.transform = 'rotate(180deg)';
+        }
+    }
+}
+
+// Smooth Back to Top
+function scrollToTop() {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// Compact Navbar on Scroll
+window.addEventListener('scroll', () => {
+    const nav = document.getElementById('main-nav');
+    if (!nav) return;
+    if (window.scrollY > 40) {
+        nav.classList.add('compact');
+    } else {
+        nav.classList.remove('compact');
+    }
+}, { passive: true });
+
+// Dashboard Sidebar Collapsible Groups
+function toggleSidebarGroup(groupId) {
+    const group = document.getElementById(groupId);
+    const icon = document.getElementById('icon-' + groupId);
+    if (!group) return;
+    if (group.style.display === 'none') {
+        group.style.display = 'flex';
+        if (icon) icon.style.transform = 'rotate(0deg)';
+    } else {
+        group.style.display = 'none';
+        if (icon) icon.style.transform = 'rotate(-90deg)';
+    }
+}
+
+// Quick Search / Command Palette (Ctrl+K)
+function openQuickNavSearch() {
+    let modal = document.getElementById('veyra-quicksearch-modal');
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'veyra-quicksearch-modal';
+        modal.style.cssText = 'position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.75); backdrop-filter:blur(8px); z-index:999999; display:flex; align-items:flex-start; justify-content:center; padding-top:12vh;';
+        modal.innerHTML = `
+            <div style="width:100%; max-width:540px; background:#0b0d13; border:1px solid rgba(168,85,247,0.3); border-radius:14px; box-shadow:0 20px 60px rgba(0,0,0,0.8), 0 0 30px rgba(168,85,247,0.15); overflow:hidden; font-family:sans-serif;" onclick="event.stopPropagation()">
+                <div style="display:flex; align-items:center; gap:12px; padding:16px 20px; border-bottom:1px solid rgba(255,255,255,0.06); background:rgba(255,255,255,0.02);">
+                    <i class="fas fa-magnifying-glass" style="color:#a855f7; font-size:1.1rem;"></i>
+                    <input id="quicksearch-input" type="text" placeholder="Type a feature or command (e.g. Moderation, Music, Tickets)..." style="flex:1; background:transparent; border:none; outline:none; color:#fff; font-size:1rem; font-weight:500;" autocomplete="off" />
+                    <kbd style="background:rgba(255,255,255,0.08); color:#94a3b8; font-size:0.7rem; padding:3px 7px; border-radius:4px; font-family:monospace;">ESC</kbd>
+                </div>
+                <div id="quicksearch-results" style="max-height:360px; overflow-y:auto; padding:10px;">
+                    <div class="qs-item" onclick="quickNavJump('security')" style="display:flex; align-items:center; gap:12px; padding:10px 14px; border-radius:8px; cursor:pointer; color:#f1f5f9; transition:background 0.15s;" onmouseover="this.style.background='rgba(168,85,247,0.15)'" onmouseout="this.style.background='transparent'">
+                        <i class="fas fa-shield-halved" style="color:#a855f7; width:20px;"></i>
+                        <div style="flex:1;"><div style="font-weight:600; font-size:0.9rem;">Moderation & Raid Shield</div><div style="font-size:0.75rem; color:#94a3b8;">Anti-nuke, anti-raid, kick/ban controls</div></div>
+                    </div>
+                    <div class="qs-item" onclick="quickNavJump('settings')" style="display:flex; align-items:center; gap:12px; padding:10px 14px; border-radius:8px; cursor:pointer; color:#f1f5f9; transition:background 0.15s;" onmouseover="this.style.background='rgba(168,85,247,0.15)'" onmouseout="this.style.background='transparent'">
+                        <i class="fas fa-robot" style="color:#38bdf8; width:20px;"></i>
+                        <div style="flex:1;"><div style="font-weight:600; font-size:0.9rem;">Auto Moderation</div><div style="font-size:0.75rem; color:#94a3b8;">Spam filters, link delete, bad word blocker</div></div>
+                    </div>
+                    <div class="qs-item" onclick="quickNavJump('welcome')" style="display:flex; align-items:center; gap:12px; padding:10px 14px; border-radius:8px; cursor:pointer; color:#f1f5f9; transition:background 0.15s;" onmouseover="this.style.background='rgba(168,85,247,0.15)'" onmouseout="this.style.background='transparent'">
+                        <i class="fas fa-envelope-open-text" style="color:#ec4899; width:20px;"></i>
+                        <div style="flex:1;"><div style="font-weight:600; font-size:0.9rem;">Welcome & Leave Messages</div><div style="font-size:0.75rem; color:#94a3b8;">Custom cards, DM on join, exit logs</div></div>
+                    </div>
+                    <div class="qs-item" onclick="quickNavJump('tickets')" style="display:flex; align-items:center; gap:12px; padding:10px 14px; border-radius:8px; cursor:pointer; color:#f1f5f9; transition:background 0.15s;" onmouseover="this.style.background='rgba(168,85,247,0.15)'" onmouseout="this.style.background='transparent'">
+                        <i class="fas fa-ticket" style="color:#f43f5e; width:20px;"></i>
+                        <div style="flex:1;"><div style="font-weight:600; font-size:0.9rem;">Tickets & Support Panels</div><div style="font-size:0.75rem; color:#94a3b8;">Interactive button tickets with transcript logging</div></div>
+                    </div>
+                    <div class="qs-item" onclick="quickNavJump('autoroles')" style="display:flex; align-items:center; gap:12px; padding:10px 14px; border-radius:8px; cursor:pointer; color:#f1f5f9; transition:background 0.15s;" onmouseover="this.style.background='rgba(168,85,247,0.15)'" onmouseout="this.style.background='transparent'">
+                        <i class="fas fa-users-gear" style="color:#eab308; width:20px;"></i>
+                        <div style="flex:1;"><div style="font-weight:600; font-size:0.9rem;">Roles & Permissions</div><div style="font-size:0.75rem; color:#94a3b8;">Autoroles, sticky roles on rejoin</div></div>
+                    </div>
+                    <div class="qs-item" onclick="quickNavJump('stickymessages')" style="display:flex; align-items:center; gap:12px; padding:10px 14px; border-radius:8px; cursor:pointer; color:#f1f5f9; transition:background 0.15s;" onmouseover="this.style.background='rgba(168,85,247,0.15)'" onmouseout="this.style.background='transparent'">
+                        <i class="fas fa-wand-magic-sparkles" style="color:#10b981; width:20px;"></i>
+                        <div style="flex:1;"><div style="font-weight:600; font-size:0.9rem;">Automation & Sticky Messages</div><div style="font-size:0.75rem; color:#94a3b8;">Pin messages to bottom of chat automatically</div></div>
+                    </div>
+                    <div class="qs-item" onclick="quickNavJump('commands')" style="display:flex; align-items:center; gap:12px; padding:10px 14px; border-radius:8px; cursor:pointer; color:#f1f5f9; transition:background 0.15s;" onmouseover="this.style.background='rgba(168,85,247,0.15)'" onmouseout="this.style.background='transparent'">
+                        <i class="fas fa-terminal" style="color:#a855f7; width:20px;"></i>
+                        <div style="flex:1;"><div style="font-weight:600; font-size:0.9rem;">Commands Directory</div><div style="font-size:0.75rem; color:#94a3b8;">Slash command directory and permissions</div></div>
+                    </div>
+                </div>
+            </div>
+        `;
+        modal.addEventListener('click', closeQuickNavSearch);
+        document.body.appendChild(modal);
+
+        const input = document.getElementById('quicksearch-input');
+        input.addEventListener('input', (e) => {
+            const query = e.target.value.toLowerCase().trim();
+            const items = modal.querySelectorAll('.qs-item');
+            items.forEach(item => {
+                const text = item.innerText.toLowerCase();
+                item.style.display = text.includes(query) ? 'flex' : 'none';
+            });
+        });
+    } else {
+        modal.style.display = 'flex';
+    }
+    setTimeout(() => {
+        const inp = document.getElementById('quicksearch-input');
+        if (inp) {
+            inp.value = '';
+            inp.focus();
+            const items = modal.querySelectorAll('.qs-item');
+            items.forEach(item => item.style.display = 'flex');
+        }
+    }, 50);
+}
+
+function closeQuickNavSearch() {
+    const modal = document.getElementById('veyra-quicksearch-modal');
+    if (modal) modal.style.display = 'none';
+}
+
+function quickNavJump(tabId) {
+    closeQuickNavSearch();
+    if (typeof showScreen === 'function') showScreen('dashboard');
+    if (typeof switchTab === 'function') switchTab(tabId);
+}
+
+document.addEventListener('keydown', (e) => {
+    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        openQuickNavSearch();
+    } else if (e.key === 'Escape') {
+        closeQuickNavSearch();
+        closeNavDropdowns();
+        const drawer = document.getElementById('mobileNavDrawer');
+        if (drawer && drawer.classList.contains('open')) drawer.classList.remove('open');
+    }
+});
+
+function showMusicPlayerModal() {
+    if (typeof showToast === 'function') {
+        showToast('VEYRA Music Engine', 'High-definition 384kbps lossless audio player ready. Join a voice channel and use /play.', 'info');
+    } else {
+        alert('VEYRA Music Engine: High-definition 384kbps lossless audio ready. Use /play in Discord.');
     }
 }
 </script>
