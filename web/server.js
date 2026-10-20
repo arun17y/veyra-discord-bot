@@ -68,6 +68,48 @@ app.use((err, req, res, next) => {
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 app.use(cookieParser());
 
+// Discord API Reverse Proxy for Render & Cloud Datacenters (bypasses Cloudflare 1015 datacenter IP block)
+app.all('/api/discord-proxy/*', async (req, res) => {
+    try {
+        const subPath = req.url.replace(/^\/api\/discord-proxy/, '');
+        const targetUrl = `https://discord.com/api${subPath}`;
+        
+        const headers = {};
+        for (const [k, v] of Object.entries(req.headers)) {
+            const kl = k.toLowerCase();
+            if (kl !== 'host' && kl !== 'content-length' && kl !== 'connection') {
+                headers[k] = v;
+            }
+        }
+        if (!headers['user-agent'] || headers['user-agent'].includes('node-fetch')) {
+            headers['user-agent'] = 'DiscordBot (https://veyra-bot.vercel.app, 2.0.0)';
+        }
+
+        const fetchOptions = {
+            method: req.method,
+            headers: headers
+        };
+
+        if (req.method !== 'GET' && req.method !== 'HEAD' && req.body && Object.keys(req.body).length > 0) {
+            fetchOptions.body = JSON.stringify(req.body);
+            headers['content-type'] = 'application/json';
+        }
+
+        const discordRes = await fetch(targetUrl, fetchOptions);
+        res.status(discordRes.status);
+        discordRes.headers.forEach((val, key) => {
+            const kl = key.toLowerCase();
+            if (kl !== 'content-encoding' && kl !== 'transfer-encoding') {
+                res.setHeader(key, val);
+            }
+        });
+        const arrayBuf = await discordRes.arrayBuffer();
+        res.send(Buffer.from(arrayBuf));
+    } catch (err) {
+        res.status(502).json({ error: 'Discord Proxy Error', details: err.message });
+    }
+});
+
 // Serve static dashboard web resources
 app.use(express.static(path.join(__dirname, 'public')));
 

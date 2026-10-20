@@ -84,12 +84,19 @@ for p in ffmpeg_candidate_dirs:
     if os.path.exists(p) and p not in os.environ.get("PATH", ""):
         os.environ["PATH"] = p + os.pathsep + os.environ.get("PATH", "")
 
-# Cloudflare Datacenter Rate Limit Bypass (Error Code 0)
-# Uses Chrome 120 TLS fingerprint via curl_cffi to transparently bypass Cloudflare blocks on datacenter IPs
+# Cloudflare Datacenter Rate Limit Bypass (Error Code 1015 / 429)
+# On Render / cloud datacenter IPs, route Discord REST requests through our clean Vercel proxy
 try:
     import discord.http
     import discord.errors
-    from curl_cffi.requests import AsyncSession as _CurlAsyncSession
+    import aiohttp
+    import asyncio
+
+    PROXY_BASE = os.getenv("DISCORD_PROXY_URL", "https://veyra-bot.vercel.app/api/discord-proxy")
+
+    if os.getenv("RENDER") or os.getenv("USE_DISCORD_PROXY") == "1":
+        discord.http.Route.BASE = f"{PROXY_BASE}/v10"
+        print(f"🛡️ Active Discord API Reverse Proxy: {discord.http.Route.BASE}")
 
     _orig_http_request = discord.http.HTTPClient.request
 
@@ -98,64 +105,55 @@ try:
             return await _orig_http_request(self, route, *args, **kwargs)
         except Exception as exc:
             err_msg = str(exc).lower()
-            if "429" not in err_msg and "blocked" not in err_msg and "rate limit" not in err_msg:
+            if "429" not in err_msg and "blocked" not in err_msg and "rate limit" not in err_msg and "cloudflare" not in err_msg:
                 raise
             
-            print(f"🛡️ [Cloudflare Bypass] Intercepted {exc}. Rerouting {route.method} {route.url} through Chrome TLS impersonation...")
-            req_headers = {
-                'Authorization': f'Bot {self.token}' if getattr(self, 'token', None) else ''
+            req_url = route.url
+            if not req_url.startswith(PROXY_BASE):
+                req_url = req_url.replace("https://discord.com/api", PROXY_BASE)
+
+            print(f"🛡️ [Cloudflare Bypass] Intercepted {exc} on {route.url}. Rerouting via Vercel Proxy: {req_url}...")
+            
+            headers = {
+                'Authorization': f'Bot {self.token}' if getattr(self, 'token', None) else '',
+                'User-Agent': 'DiscordBot (https://veyra-bot.vercel.app, 2.0.0)'
             }
             if 'headers' in kwargs and kwargs['headers']:
                 for k, v in kwargs['headers'].items():
                     if k.lower() != 'user-agent':
-                        req_headers[k] = v
-                
-            async with _CurlAsyncSession(impersonate="chrome120") as s:
-                res = await s.request(
+                        headers[k] = v
+
+            async with aiohttp.ClientSession() as session:
+                async with session.request(
                     route.method,
-                    route.url,
-                    headers=req_headers,
+                    req_url,
+                    headers=headers,
                     json=kwargs.get('json'),
                     data=kwargs.get('data'),
-                    timeout=kwargs.get('timeout', 30)
-                )
-                print(f"✅ [Cloudflare Bypass] Response: HTTP {res.status_code}")
-                if res.status_code in (200, 201):
-                    try:
-                        return res.json()
-                    except Exception:
-                        return res.text
-                elif res.status_code == 204:
-                    return None
-                elif res.status_code == 429:
-                    try:
-                        retry_after = float(res.json().get('retry_after', 5.0))
-                    except Exception:
-                        retry_after = 5.0
-                    print(f"⏳ [Cloudflare Bypass] Rate limited. Sleeping for {retry_after}s before retry...")
-                    import asyncio
-                    await asyncio.sleep(retry_after)
-                    res = await s.request(
-                        route.method,
-                        route.url,
-                        headers=req_headers,
-                        json=kwargs.get('json'),
-                        data=kwargs.get('data'),
-                        timeout=kwargs.get('timeout', 30)
-                    )
-                    if res.status_code in (200, 201):
+                    timeout=aiohttp.ClientTimeout(total=30)
+                ) as res:
+                    print(f"✅ [Proxy Response] HTTP {res.status}")
+                    if res.status in (200, 201):
                         try:
-                            return res.json()
+                            return await res.json()
                         except Exception:
-                            return res.text
-                    elif res.status_code == 204:
+                            return await res.text()
+                    elif res.status == 204:
                         return None
-                    raise exc
-                else:
-                    raise exc
+                    elif res.status == 429:
+                        try:
+                            data = await res.json()
+                            retry_after = float(data.get('retry_after', 5.0))
+                        except Exception:
+                            retry_after = 5.0
+                        print(f"⏳ Rate limited on proxy. Waiting {retry_after}s...")
+                        await asyncio.sleep(retry_after)
+                        return await _stealth_http_request(self, route, *args, **kwargs)
+                    else:
+                        raise exc
 
     discord.http.HTTPClient.request = _stealth_http_request
-    print("🔒 Stealth Chrome TLS Cloudflare Bypass installed for Discord API.")
+    print("🔒 Datacenter Discord API Proxy & Cloudflare Guard installed.")
 except Exception as _patch_err:
     print(f"⚠️ Could not install stealth HTTPClient patch: {_patch_err}")
 
