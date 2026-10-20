@@ -69,9 +69,9 @@ app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 app.use(cookieParser());
 
 // Discord API Reverse Proxy for Render & Cloud Datacenters (bypasses Cloudflare 1015 datacenter IP block)
-app.all('/api/discord-proxy/*', async (req, res) => {
+app.use('/api/discord-proxy', async (req, res) => {
     try {
-        const subPath = req.url.replace(/^\/api\/discord-proxy/, '');
+        const subPath = req.url.startsWith('/') ? req.url : '/' + req.url;
         const targetUrl = `https://discord.com/api${subPath}`;
         
         const headers = {};
