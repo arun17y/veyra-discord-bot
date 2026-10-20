@@ -1,6 +1,6 @@
 FROM python:3.11-slim
 
-# Install system dependencies, Node.js 20 LTS, FFmpeg, Opus, Git, Unzip, Deno, and bgutil-pot
+# Install system dependencies: FFmpeg, Opus, Git, Unzip, Deno, and bgutil-pot for YouTube PO Token generation
 RUN apt-get update && apt-get install -y \
     curl \
     ca-certificates \
@@ -10,8 +10,6 @@ RUN apt-get update && apt-get install -y \
     libopus-dev \
     git \
     unzip && \
-    curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && \
-    apt-get install -y nodejs && \
     curl -fsSL -o /tmp/deno.zip "https://github.com/denoland/deno/releases/latest/download/deno-x86_64-unknown-linux-gnu.zip" && \
     unzip /tmp/deno.zip -d /usr/local/bin && \
     chmod +x /usr/local/bin/deno && \
@@ -26,18 +24,14 @@ ENV PYTHONIOENCODING=utf-8
 ENV PYTHONUNBUFFERED=1
 ENV PORT=3000
 
-# Install Python requirements
+# Install Python requirements (discord.py, yt-dlp, psycopg2-binary, etc.)
 COPY requirements.txt ./
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Install Node dependencies
-COPY package*.json ./
-RUN npm install --omit=dev
-
-# Copy application source
+# Copy application code
 COPY . .
 
 EXPOSE 3000
 
-# Run Node master process (hosts website on port 3000 & auto-launches python bot)
-CMD ["npm", "start"]
+# Launch VEYRA Discord Bot with built-in Render HTTP health check server
+CMD ["python3", "-u", "bot/bot.py"]
