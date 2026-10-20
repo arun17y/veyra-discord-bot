@@ -4542,7 +4542,7 @@ if (!process.env.VERCEL) {
         function startDiscordBot() {
             const botPath = path.join(__dirname, '../bot/bot.py');
             logBotMessage('LAUNCHER', `Spawning Discord Bot process: ${botPath}`);
-            const spawnEnv = { ...process.env, PYTHONIOENCODING: 'utf-8', PYTHONUNBUFFERED: '1' };
+            const spawnEnv = { ...process.env, PYTHONIOENCODING: 'utf-8', PYTHONUNBUFFERED: '1', BOT_SPAWNED_BY_WEB: '1' };
             lastBotStartTime = Date.now();
 
             function launch(cmd) {

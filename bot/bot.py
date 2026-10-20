@@ -3610,26 +3610,37 @@ def update_db_guild_roles_and_channels():
                 PRIMARY KEY (guild_id, emoji_id)
             )
         """)
-        for g in bot.guilds:
+        for g in list(bot.guilds):
             cursor.execute("DELETE FROM guild_roles WHERE guild_id = ?", (str(g.id),))
-            for r in g.roles:
-                if not r.is_default():
-                    cursor.execute(
-                        "INSERT OR REPLACE INTO guild_roles (guild_id, role_id, name, color, position) VALUES (?, ?, ?, ?, ?)",
-                        (str(g.id), str(r.id), r.name, str(r.color), r.position)
-                    )
+            role_data = [
+                (str(g.id), str(r.id), r.name, str(r.color), r.position)
+                for r in g.roles if not r.is_default()
+            ]
+            if role_data:
+                cursor.executemany(
+                    "INSERT OR REPLACE INTO guild_roles (guild_id, role_id, name, color, position) VALUES (?, ?, ?, ?, ?)",
+                    role_data
+                )
             cursor.execute("DELETE FROM guild_channels WHERE guild_id = ?", (str(g.id),))
-            for c in g.text_channels:
-                cursor.execute(
+            channel_data = [
+                (str(g.id), str(c.id), c.name, "text")
+                for c in g.text_channels
+            ]
+            if channel_data:
+                cursor.executemany(
                     "INSERT OR REPLACE INTO guild_channels (guild_id, channel_id, name, type) VALUES (?, ?, ?, ?)",
-                    (str(g.id), str(c.id), c.name, "text")
+                    channel_data
                 )
             cursor.execute("DELETE FROM guild_emojis WHERE guild_id = ?", (str(g.id),))
-            for emoji in g.emojis:
-                fmt = f"<a:{emoji.name}:{emoji.id}>" if emoji.animated else f"<:{emoji.name}:{emoji.id}>"
-                cursor.execute(
+            emoji_data = [
+                (str(g.id), str(emoji.id), emoji.name, 1 if emoji.animated else 0, str(emoji.url),
+                 f"<a:{emoji.name}:{emoji.id}>" if emoji.animated else f"<:{emoji.name}:{emoji.id}>")
+                for emoji in g.emojis
+            ]
+            if emoji_data:
+                cursor.executemany(
                     "INSERT OR REPLACE INTO guild_emojis (guild_id, emoji_id, name, animated, url, formatted) VALUES (?, ?, ?, ?, ?, ?)",
-                    (str(g.id), str(emoji.id), emoji.name, 1 if emoji.animated else 0, str(emoji.url), fmt)
+                    emoji_data
                 )
         conn.commit()
         conn.close()
@@ -4328,8 +4339,8 @@ From raids and nukes to spam and unwanted users, I'll protect your community wit
                 pass
 
         try:
-            update_db_bot_guilds()
-            update_db_guild_roles_and_channels()
+            await asyncio.to_thread(update_db_bot_guilds)
+            await asyncio.to_thread(update_db_guild_roles_and_channels)
             await sync_active_bot_guilds()
         except Exception as dbe:
             print(f"Notice: background DB sync: {dbe}")
@@ -12252,6 +12263,8 @@ if __name__ == "__main__":
 
 def start_health_check_server():
     import os, threading
+    if os.getenv('BOT_SPAWNED_BY_WEB') == '1' or os.getenv('SKIP_BOT_HEALTH') == '1':
+        return None
     from http.server import HTTPServer, BaseHTTPRequestHandler
 
     class HealthCheckHandler(BaseHTTPRequestHandler):
