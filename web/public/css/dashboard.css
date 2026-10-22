@@ -2971,3 +2971,96 @@ body {
     background: var(--accent-secondary) !important;
     transform: translateY(-1px) !important;
 }
+
+/* ==================== 30+ REVIEWS MARQUEE STYLES ==================== */
+@keyframes marqueeLeft {
+    0% {
+        transform: translateX(0);
+    }
+    100% {
+        transform: translateX(-50%);
+    }
+}
+
+@keyframes marqueeRight {
+    0% {
+        transform: translateX(-50%);
+    }
+    100% {
+        transform: translateX(0);
+    }
+}
+
+.marquee-container {
+    mask-image: linear-gradient(to right, transparent 0%, black 5%, black 95%, transparent 100%);
+    -webkit-mask-image: linear-gradient(to right, transparent 0%, black 5%, black 95%, transparent 100%);
+}
+
+.marquee-track {
+    will-change: transform;
+}
+
+.marquee-container:hover .marquee-track {
+    animation-play-state: paused;
+}
+
+.review-marquee-card {
+    transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.25s ease;
+}
+
+.review-marquee-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 14px 34px rgba(53, 43, 58, 0.12) !important;
+    border-color: var(--accent-primary) !important;
+}
+
+/* 4-Feature switcher responsive fixes */
+@media (max-width: 900px) {
+    .amari-feature-grid {
+        grid-template-columns: 1fr !important;
+    }
+}
+
+/* Ticket Workspace Horizontal Nav & Direct Access */
+.tickets-nav-bar {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    padding: 12px 24px;
+    background: rgba(15, 23, 42, 0.25);
+    border-bottom: 1px solid var(--border-color);
+    scrollbar-width: none;
+}
+.tickets-nav-bar::-webkit-scrollbar {
+    display: none;
+}
+.ts-pill-btn {
+    background: rgba(255, 255, 255, 0.05) !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    color: #94a3b8 !important;
+    padding: 8px 16px !important;
+    border-radius: 8px !important;
+    font-size: 0.86rem !important;
+    font-weight: 600 !important;
+    cursor: pointer !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    white-space: nowrap !important;
+    text-decoration: none !important;
+    transition: all 0.2s ease !important;
+}
+.ts-pill-btn:hover {
+    background: rgba(255, 255, 255, 0.1) !important;
+    color: #ffffff !important;
+}
+.ts-pill-btn.active, .tickets-sidebar-item.active {
+    background: var(--accent-primary) !important;
+    border-color: var(--accent-primary) !important;
+    color: #ffffff !important;
+    font-weight: 700 !important;
+    box-shadow: 0 4px 14px rgba(217, 108, 145, 0.35) !important;
+}
+.ts-pill-btn.active span, .ts-pill-btn.active i, .tickets-sidebar-item.active span, .tickets-sidebar-item.active i {
+    color: #ffffff !important;
+}
