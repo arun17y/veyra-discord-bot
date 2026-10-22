@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Premium | VEYRA Discord Bot</title>
+    <link rel="icon" type="image/webp" href="assets/bypass_logs_avatar.webp">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --bg-dark: #121418;
+            --bg-card: #1c1e24;
+            --bg-card-hover: #23262e;
+            --coral-primary: #E26749;
+            --coral-hover: #D45537;
+            --coral-subtle: rgba(226, 103, 73, 0.15);
+            --text-main: #FFFFFF;
+            --text-muted: #9DA4B0;
+            --text-sub: #6B7280;
+            --border-subtle: rgba(255, 255, 255, 0.06);
+            --font-display: 'Outfit', sans-serif;
+            --font-body: 'Inter', sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            font-family: var(--font-body);
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        .perspective-grid-floor {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 55vh;
+            background: linear-gradient(to bottom, transparent, rgba(18, 20, 24, 0.95)),
+                        repeating-linear-gradient(90deg, rgba(255,255,255,0.02) 0px, rgba(255,255,255,0.02) 1px, transparent 1px, transparent 60px),
+                        repeating-linear-gradient(0deg, rgba(255,255,255,0.02) 0px, rgba(255,255,255,0.02) 1px, transparent 1px, transparent 60px);
+            transform: perspective(400px) rotateX(60deg) scale(2);
+            transform-origin: bottom center;
+            pointer-events: none;
+            z-index: 0;
+            opacity: 0.6;
+        }
+
+        .ambient-spotlight {
+            position: fixed;
+            top: 20%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 650px;
+            height: 650px;
+            background: radial-gradient(circle, rgba(226, 103, 73, 0.12) 0%, transparent 70%);
+            filter: blur(100px);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* Nav */
+        .amari-nav {
+            position: relative;
+            z-index: 50;
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 24px 30px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .amari-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+            color: #FFFFFF;
+        }
+        .amari-brand-icon {
+            width: 38px;
+            height: 38px;
+            border-radius: 10px;
+            object-fit: cover;
+        }
+        .amari-brand-name {
+            font-family: var(--font-display);
+            font-size: 1.35rem;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            color: #FFFFFF;
+        }
+        .amari-brand-sub {
+            font-size: 0.72rem;
+            color: var(--coral-primary);
+            font-weight: 700;
+            margin-left: 2px;
+        }
+        .amari-nav-links {
+            display: flex;
+            align-items: center;
+            gap: 32px;
+            list-style: none;
+        }
+        .amari-nav-links a, .amari-nav-links button {
+            color: #D1D5DB;
+            text-decoration: none;
+            font-size: 0.95rem;
+            font-weight: 500;
+            background: none;
+            border: none;
+            cursor: pointer;
+            transition: color 0.15s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .amari-nav-links a:hover, .amari-nav-links button:hover {
+            color: #FFFFFF;
+        }
+        .amari-nav-links a.active {
+            color: var(--coral-primary);
+            font-weight: 600;
+        }
+        .nav-item-dropdown { position: relative; }
+        .dropdown-menu {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background: #181A20;
+            border: 1px solid var(--border-subtle);
+            border-radius: 8px;
+            padding: 8px;
+            min-width: 140px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            display: none;
+            flex-direction: column;
+            gap: 4px;
+            z-index: 100;
+        }
+        .nav-item-dropdown:hover .dropdown-menu { display: flex; }
+        .dropdown-menu a {
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 0.88rem;
+            color: #9DA4B0;
+        }
+        .dropdown-menu a:hover {
+            background: rgba(255,255,255,0.05);
+            color: #FFFFFF;
+        }
+        .amari-login-btn {
+            background: transparent;
+            border: 1px solid rgba(255, 255, 255, 0.16);
+            color: #FFFFFF;
+            padding: 8px 24px;
+            border-radius: 8px;
+            font-family: var(--font-body);
+            font-size: 0.92rem;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.2s ease;
+        }
+        .amari-login-btn:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+
+        /* Container */
+        .premium-main {
+            position: relative;
+            z-index: 10;
+            max-width: 1000px;
+            margin: 40px auto 100px auto;
+            padding: 0 24px;
+        }
+
+        .premium-header {
+            margin-bottom: 36px;
+        }
+        .premium-title {
+            font-family: var(--font-display);
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--coral-primary);
+            letter-spacing: -0.02em;
+            margin-bottom: 8px;
+        }
+        .premium-sub {
+            color: var(--text-muted);
+            font-size: 1rem;
+            max-width: 650px;
+            line-height: 1.6;
+        }
+
+        /* Purchase Card */
+        .purchase-card-wrap {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 60px;
+        }
+        .purchase-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: 16px;
+            padding: 36px 40px;
+            max-width: 520px;
+            width: 100%;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 16px;
+            box-shadow: 0 20px 45px rgba(0,0,0,0.4);
+        }
+        .purchase-title {
+            font-family: var(--font-display);
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: #FFFFFF;
+        }
+        .purchase-desc {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            line-height: 1.6;
+        }
+        .price-box {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #14161B;
+            border: 1px solid var(--border-subtle);
+            border-radius: 8px;
+            padding: 10px 24px;
+            font-family: var(--font-mono);
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #FFFFFF;
+            width: 100%;
+            max-width: 280px;
+        }
+        .price-curr {
+            color: var(--coral-primary);
+            margin-right: 6px;
+        }
+        .gift-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.88rem;
+            color: var(--text-muted);
+            cursor: pointer;
+        }
+        .gift-row input {
+            accent-color: var(--coral-primary);
+            cursor: pointer;
+        }
+        .btn-purchase {
+            background: var(--coral-primary);
+            color: #FFFFFF;
+            border: none;
+            padding: 12px 48px;
+            border-radius: 8px;
+            font-family: var(--font-display);
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 20px rgba(226, 103, 73, 0.3);
+            width: 100%;
+            max-width: 280px;
+        }
+        .btn-purchase:hover {
+            background: var(--coral-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 25px rgba(226, 103, 73, 0.45);
+        }
+
+        /* Perks Table */
+        .perks-section {
+            margin-bottom: 60px;
+        }
+        .perks-title {
+            font-family: var(--font-display);
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: #FFFFFF;
+            margin-bottom: 20px;
+        }
+        .perks-table {
+            width: 100%;
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: 12px;
+            border-collapse: collapse;
+            overflow: hidden;
+        }
+        .perks-table th {
+            text-align: left;
+            padding: 16px 24px;
+            font-family: var(--font-display);
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            border-bottom: 1px solid var(--border-subtle);
+            background: #17191E;
+        }
+        .perks-table th.center, .perks-table td.center {
+            text-align: center;
+            width: 140px;
+        }
+        .perks-table td {
+            padding: 16px 24px;
+            font-size: 0.92rem;
+            color: #E5E7EB;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+        }
+        .perks-table tr:last-child td {
+            border-bottom: none;
+        }
+        .icon-check {
+            color: #10B981;
+            font-size: 1rem;
+        }
+        .icon-cross {
+            color: #EF4444;
+            font-size: 1rem;
+        }
+        .tag-limited {
+            color: #F59E0B;
+            font-size: 0.82rem;
+            font-weight: 600;
+        }
+
+        /* Split Cards (Disclaimer + FAQ) */
+        .split-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 28px;
+            margin-bottom: 60px;
+        }
+        .split-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: 14px;
+            padding: 30px;
+        }
+        .split-card-title {
+            font-family: var(--font-display);
+            font-size: 1.45rem;
+            font-weight: 800;
+            color: var(--coral-primary);
+            margin-bottom: 16px;
+        }
+        .split-content {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            line-height: 1.7;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+        .split-content strong {
+            color: #FFFFFF;
+        }
+        .split-bullet {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+        }
+        .split-bullet-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--coral-primary);
+            margin-top: 8px;
+            flex-shrink: 0;
+        }
+        .split-content a {
+            color: var(--coral-primary);
+            text-decoration: none;
+        }
+        .split-content a:hover {
+            text-decoration: underline;
+        }
+
+        /* Footer */
+        .amari-footer {
+            border-top: 1px solid var(--border-subtle);
+            padding: 36px 24px;
+            max-width: 1280px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: var(--text-sub);
+            font-size: 0.88rem;
+        }
+        .footer-links {
+            display: flex;
+            gap: 24px;
+        }
+        .footer-links a {
+            color: var(--text-muted);
+            text-decoration: none;
+            transition: color 0.15s;
+        }
+        .footer-links a:hover {
+            color: #FFFFFF;
+        }
+        .footer-socials {
+            display: flex;
+            gap: 16px;
+            font-size: 1.1rem;
+        }
+        .footer-socials a {
+            color: var(--text-muted);
+            transition: color 0.15s;
+        }
+        .footer-socials a:hover {
+            color: #FFFFFF;
+        }
+
+        @media (max-width: 768px) {
+            .split-grid {
+                grid-template-columns: 1fr;
+            }
+            .amari-footer {
+                flex-direction: column;
+                gap: 20px;
+                text-align: center;
+            }
+            .amari-nav-links {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="perspective-grid-floor"></div>
+    <div class="ambient-spotlight"></div>
+
+    <!-- Navigation Header -->
+    <header>
+        <nav class="amari-nav">
+            <a href="/" class="amari-brand">
+                <img src="assets/bypass_logs_avatar.webp" class="amari-brand-icon" alt="VEYRA" onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png'">
+                <div>
+                    <span class="amari-brand-name">veyra</span>
+                    <span class="amari-brand-sub">bot</span>
+                </div>
+            </a>
+
+            <ul class="amari-nav-links">
+                <li><a href="/commands.html">Commands</a></li>
+                <li class="nav-item-dropdown">
+                    <button>About <i class="fas fa-chevron-down" style="font-size: 0.7rem; margin-left: 2px;"></i></button>
+                    <div class="dropdown-menu">
+                        <a href="/about.html">Docs</a>
+                        <a href="/about.html#faq">FAQ</a>
+                        <a href="/about.html#api">API</a>
+                    </div>
+                </li>
+                <li><a href="/premium.html" class="active">Premium</a></li>
+                <li><a href="https://discord.gg/77P5Cq837X" target="_blank" rel="noreferrer">Support</a></li>
+            </ul>
+
+            <div>
+                <a href="/#screen-dashboard" class="amari-login-btn">Dashboard</a>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Main Content -->
+    <main class="premium-main">
+        <div class="premium-header">
+            <h1 class="premium-title">Premium</h1>
+            <p class="premium-sub">If you enjoy Veyra, please consider upgrading. It allows us to keep hosting 24/7, developing, and deploying enterprise security infrastructure for your community.</p>
+        </div>
+
+        <!-- Purchase Card -->
+        <div class="purchase-card-wrap">
+            <div class="purchase-card">
+                <h2 class="purchase-title">Server Premium</h2>
+                <p class="purchase-desc">By upgrading you will receive exclusive security and automation perks listed below, along with access to VIP low-latency clusters and 24/7 priority support.</p>
+                <div class="price-box">
+                    <span class="price-curr">₹</span> 199 <span style="font-size: 0.85rem; color: #9DA4B0; margin-left: 4px;">/ mo</span>
+                </div>
+                <label class="gift-row">
+                    <input type="checkbox" id="gift-checkbox">
+                    <span>Gift Premium to another server</span>
+                </label>
+                <button class="btn-purchase" onclick="triggerCheckout()">Purchase</button>
+            </div>
+        </div>
+
+        <!-- Perks Table -->
+        <section class="perks-section">
+            <h2 class="perks-title">Premium Perks</h2>
+            <table class="perks-table">
+                <thead>
+                    <tr>
+                        <th>Features</th>
+                        <th class="center">Free</th>
+                        <th class="center">Premium</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Autonomous Anti-Raid Shield</td>
+                        <td class="center"><i class="fas fa-check icon-check"></i></td>
+                        <td class="center"><i class="fas fa-check icon-check"></i></td>
+                    </tr>
+                    <tr>
+                        <td>Custom Action Cooldowns</td>
+                        <td class="center"><i class="fas fa-xmark icon-cross"></i></td>
+                        <td class="center"><i class="fas fa-check icon-check"></i></td>
+                    </tr>
+                    <tr>
+                        <td>Nuclear Guard Traps & Honeypots</td>
+                        <td class="center"><span class="tag-limited">Limited (3)</span></td>
+                        <td class="center"><i class="fas fa-check icon-check"></i> (Unlimited)</td>
+                    </tr>
+                    <tr>
+                        <td>24/7 Voice Channel Streaming & Music</td>
+                        <td class="center"><i class="fas fa-xmark icon-cross"></i></td>
+                        <td class="center"><i class="fas fa-check icon-check"></i></td>
+                    </tr>
+                    <tr>
+                        <td>Multi-Panel Interactive Ticket Queues</td>
+                        <td class="center"><span class="tag-limited">1 Panel</span></td>
+                        <td class="center"><i class="fas fa-check icon-check"></i> (Unlimited)</td>
+                    </tr>
+                    <tr>
+                        <td>Custom Bot Branding (Avatar & Activity)</td>
+                        <td class="center"><i class="fas fa-xmark icon-cross"></i></td>
+                        <td class="center"><i class="fas fa-check icon-check"></i></td>
+                    </tr>
+                    <tr>
+                        <td>High-Frequency Audit Log Scanner (< 0.04ms)</td>
+                        <td class="center"><i class="fas fa-check icon-check"></i></td>
+                        <td class="center"><i class="fas fa-check icon-check"></i></td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <!-- Split Grid (Disclaimer & FAQ) -->
+        <div class="split-grid">
+            <div class="split-card">
+                <h3 class="split-card-title">Disclaimer</h3>
+                <div class="split-content">
+                    <p>By upgrading or donating to Veyra, you understand that:</p>
+                    <div class="split-bullet">
+                        <span class="split-bullet-dot"></span>
+                        <span>All perks are activated automatically and tied to your Discord guild or user account within seconds.</span>
+                    </div>
+                    <div class="split-bullet">
+                        <span class="split-bullet-dot"></span>
+                        <span>Some administrative features require server ownership or Administrator permissions in Discord.</span>
+                    </div>
+                    <div class="split-bullet">
+                        <span class="split-bullet-dot"></span>
+                        <span>For any issues with upgrades, please contact us via our <a href="https://discord.gg/77P5Cq837X" target="_blank">support server</a> or email <a href="mailto:support@veyrabot.com">support@veyrabot.com</a>.</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="split-card">
+                <h3 class="split-card-title">Frequently Asked Questions</h3>
+                <div class="split-content">
+                    <div>
+                        <strong>Refunds</strong>
+                        <p>Refunds are evaluated case-by-case. If you face any issues, contact our team in the support server.</p>
+                    </div>
+                    <div>
+                        <strong>How do I get the perks?</strong>
+                        <p>Once payment succeeds, your perks activate automatically within 10-15 seconds. If you need help, join our support server.</p>
+                    </div>
+                    <div>
+                        <strong>Can I transfer perks to another server?</strong>
+                        <p>Yes, server premium can be reassigned between guilds you own directly from the dashboard.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="amari-footer">
+        <div>&copy; 2026 VeyraBot.com | All rights reserved.</div>
+        <div class="footer-links">
+            <a href="/about.html#terms">Refund Policy</a>
+            <a href="https://discord.gg/77P5Cq837X" target="_blank">Support</a>
+        </div>
+        <div class="footer-socials">
+            <a href="https://discord.gg/77P5Cq837X" target="_blank"><i class="fab fa-discord"></i></a>
+            <a href="https://twitter.com" target="_blank"><i class="fab fa-x-twitter"></i></a>
+        </div>
+    </footer>
+
+    <script>
+        function triggerCheckout() {
+            // Redirect or trigger Razorpay modal
+            window.location.href = '/#pricing';
+        }
+    </script>
+</body>
+</html>

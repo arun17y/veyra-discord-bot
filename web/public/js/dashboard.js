@@ -1522,7 +1522,7 @@ function logout() {
     if (loginBtn) {
         loginBtn.innerHTML = `
             <div class="liquid-metal-btn-inner">
-                <i class="fab fa-discord" style="color: #a855f7;"></i>
+                <i class="fab fa-discord" style="color: #E26749;"></i>
                 <span>Login with Discord</span>
             </div>
         `;
@@ -2472,7 +2472,7 @@ function getCustomServerIcon(serverName) {
         return `<div class="dyno-server-icon" style="background: linear-gradient(135deg, #f59e0b, #d97706); color: #fff; display:flex; align-items:center; justify-content:center;"><i class="fas fa-smile-beam"></i></div>`;
     }
     if (name.includes("GUNS")) {
-        return `<div class="dyno-server-icon" style="background: #18181b; color: #a855f7; border: 1.5px solid rgba(168, 85, 247, 0.4); display:flex; align-items:center; justify-content:center;"><i class="fas fa-crosshairs"></i></div>`;
+        return `<div class="dyno-server-icon" style="background: #18181b; color: #E26749; border: 1.5px solid rgba(168, 85, 247, 0.4); display:flex; align-items:center; justify-content:center;"><i class="fas fa-crosshairs"></i></div>`;
     }
     if (name.includes("OBSIDIAN")) {
         return `<div class="dyno-server-icon" style="background: linear-gradient(135deg, #1e1b4b, #311042); color: #c084fc; display:flex; align-items:center; justify-content:center;"><i class="fas fa-gem"></i></div>`;
@@ -2646,7 +2646,7 @@ function checkSession(forceRefresh = false) {
                 if (loginBtn) {
                     loginBtn.innerHTML = `
                         <div class="liquid-metal-btn-inner">
-                            <i class="fab fa-discord" style="color: #a855f7;"></i>
+                            <i class="fab fa-discord" style="color: #E26749;"></i>
                             <span>Login with Discord</span>
                         </div>
                     `;
@@ -2682,7 +2682,7 @@ function renderUserGuilds(guilds, loggedIn = false) {
         container.style.maxWidth = '500px';
         container.innerHTML = `
             <div class="login-auth-card-container" style="display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 70vh; width: 100%; position: relative;">
-                <div class="glass-card" style="width: 100%; max-width: 440px; background: rgba(15, 17, 26, 0.7); border: 1.5px solid rgba(255, 255, 255, 0.04); border-radius: 20px; padding: 40px 30px; text-align: center; box-shadow: 0 30px 60px rgba(0,0,0,0.8); backdrop-filter: blur(10px); position: relative; z-index: 10;">
+                <div class="glass-card" style="width: 100%; max-width: 440px; background: #1C1E24; border: 1px solid rgba(255,255,255,0.06); border: 1.5px solid rgba(255, 255, 255, 0.04); border-radius: 20px; padding: 40px 30px; text-align: center; box-shadow: 0 30px 60px rgba(0,0,0,0.8); backdrop-filter: blur(10px); position: relative; z-index: 10;">
                     <div style="width: 80px; height: 80px; border-radius: 20px; background: #1a1c23; border: 1.5px solid rgba(255,255,255,0.06); display: flex; align-items: center; justify-content: center; margin: 0 auto 25px auto; overflow: hidden; position: relative;">
                         <img src="assets/bypass_logs_avatar.webp" style="width: 100%; height: 100%; object-fit: cover;">
                         <span style="position: absolute; bottom: 8px; right: 8px; width: 10px; height: 10px; border-radius: 50%; background: #a855f7; border: 2px solid #1a1c23;"></span>
@@ -2701,7 +2701,7 @@ function renderUserGuilds(guilds, loggedIn = false) {
                         </div>
                     </button>
                     <div style="margin-top: 30px; display: flex; align-items: center; justify-content: center; gap: 6px; font-family: var(--font-mono); font-size: 0.65rem; color: var(--text-secondary); letter-spacing: 0.08em;">
-                        <i class="fas fa-shield-halved" style="color: #a855f7; font-size: 0.75rem;"></i>
+                        <i class="fas fa-shield-halved" style="color: #E26749; font-size: 0.75rem;"></i>
                         <span>ECC ENCRYPTED GATEWAY</span>
                     </div>
                 </div>
@@ -2725,7 +2725,7 @@ function renderUserGuilds(guilds, loggedIn = false) {
             <button onclick="simulateAddBot('New Guild')" class="invite-bot-btn" style="background: transparent; color: #f59e0b; border: 1.5px solid rgba(245, 158, 11, 0.45); padding: 8px 18px; border-radius: 6px; font-family: var(--font-mono); font-weight: 700; font-size: 0.76rem; letter-spacing: 0.05em; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.background='rgba(245, 158, 11, 0.05)'" onmouseout="this.style.background='transparent'">
                 + INVITE BOT
             </button>
-            <button id="refresh-servers-btn" onclick="manualRefreshServers()" style="background: rgba(168, 85, 247, 0.12); color: #c084fc; border: 1.5px solid rgba(168, 85, 247, 0.35); padding: 8px 16px; border-radius: 6px; font-family: var(--font-mono); font-weight: 700; font-size: 0.76rem; letter-spacing: 0.05em; cursor: pointer; transition: all 0.2s; display: inline-flex; align-items: center; gap: 6px;" onmouseover="this.style.background='rgba(168, 85, 247, 0.2)'" onmouseout="this.style.background='rgba(168, 85, 247, 0.12)'">
+            <button id="refresh-servers-btn" onclick="manualRefreshServers()" style="background: rgba(226, 103, 73, 0.12); color: #c084fc; border: 1.5px solid rgba(168, 85, 247, 0.35); padding: 8px 16px; border-radius: 6px; font-family: var(--font-mono); font-weight: 700; font-size: 0.76rem; letter-spacing: 0.05em; cursor: pointer; transition: all 0.2s; display: inline-flex; align-items: center; gap: 6px;" onmouseover="this.style.background='rgba(168, 85, 247, 0.2)'" onmouseout="this.style.background='rgba(168, 85, 247, 0.12)'">
                 <i class="fas fa-arrows-rotate" id="refresh-servers-icon"></i>
                 <span>REFRESH STATUS</span>
             </button>
@@ -2871,7 +2871,7 @@ function filterGuildsList() {
             statusText = 'Bot Active';
             statusDotColor = '#10b981'; // green
             actionBtnText = 'MANAGE SERVER';
-            actionBtnStyle = 'background: linear-gradient(135deg, #7c3aed, #6d28d9); border: 1px solid rgba(255,255,255,0.3); color: #ffffff; padding: 12px 0; border-radius: 10px; width: 100%; font-weight: 800; font-size: 0.95rem; cursor: pointer; text-align: center; text-transform: uppercase; letter-spacing: 0.08em; font-family: var(--font-display); box-shadow: 0 6px 20px rgba(124, 58, 237, 0.4);';
+            actionBtnStyle = 'background: #E26749; border: 1px solid rgba(255,255,255,0.3); color: #ffffff; padding: 12px 0; border-radius: 10px; width: 100%; font-weight: 800; font-size: 0.95rem; cursor: pointer; text-align: center; text-transform: uppercase; letter-spacing: 0.08em; font-family: var(--font-display); box-shadow: 0 6px 20px rgba(124, 58, 237, 0.4);';
             clickHandler = `loadServerDashboard('${g.id}')`;
         } else if (isMissing) {
             statusText = 'Missing (Offline / Kicked)';
@@ -5975,7 +5975,7 @@ function loadAdminGuilds() {
                             ${iconHtml}
                             <span style="font-weight: 700; color: #fff;">${g.name}</span>
                         </td>
-                        <td style="padding: 12px; font-family: var(--font-mono); font-size: 0.8rem; color: #a855f7;">${g.guild_id}</td>
+                        <td style="padding: 12px; font-family: var(--font-mono); font-size: 0.8rem; color: #E26749;">${g.guild_id}</td>
                         <td style="padding: 12px;">${planBadge}</td>
                         <td style="padding: 12px;">${ticketBadge}</td>
                         <td style="padding: 12px; color: #94a3b8; font-size: 0.8rem;">${expText}</td>
@@ -6361,7 +6361,7 @@ window.addLevelRewardRow = function() {
     tr.style.cssText = "border-bottom: 1px solid rgba(255,255,255,0.03);";
     tr.innerHTML = `
         <td style="padding: 10px 5px; font-weight: 600; color: #fff;">@${escapeHtml(roleName)}</td>
-        <td style="padding: 10px 5px; color: #a855f7; font-weight: 700;">${level}</td>
+        <td style="padding: 10px 5px; color: #E26749; font-weight: 700;">${level}</td>
         <td style="padding: 10px 5px;">
             <button type="button" onclick="this.closest('tr').remove();" style="background: #ef4444; border: none; color: #fff; padding: 4px 8px; border-radius: 4px; cursor: pointer;"><i class="fas fa-trash"></i></button>
         </td>
@@ -6401,7 +6401,7 @@ function renderLevelsRewardsTable(rewards) {
     tbody.innerHTML = rewards.map(r => `
         <tr data-role-id="${escapeHtml(r.role_id)}" data-level="${r.level}" style="border-bottom: 1px solid rgba(255,255,255,0.03);">
             <td style="padding: 10px 5px; font-weight: 600; color: #fff;">@${escapeHtml(r.role_id)}</td>
-            <td style="padding: 10px 5px; color: #a855f7; font-weight: 700;">${r.level}</td>
+            <td style="padding: 10px 5px; color: #E26749; font-weight: 700;">${r.level}</td>
             <td style="padding: 10px 5px;">
                 <button type="button" onclick="this.closest('tr').remove();" style="background: #ef4444; border: none; color: #fff; padding: 4px 8px; border-radius: 4px; cursor: pointer;"><i class="fas fa-trash"></i></button>
             </td>
@@ -7763,7 +7763,7 @@ function renderEmojiPickerContent(searchFilter = '') {
             
             <div style="padding: 10px 20px; background: #111214; border-top: 1px solid rgba(255,255,255,0.05); font-size: 0.75rem; color: #949ba4; display: flex; justify-content: space-between; align-items: center;">
                 <span>Click any emoji to insert into active input</span>
-                <span style="color: #a855f7; font-weight: 700;">Animated GIFs & Static PNGs</span>
+                <span style="color: #E26749; font-weight: 700;">Animated GIFs & Static PNGs</span>
             </div>
         </div>
     `;
@@ -8197,7 +8197,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const ts = new Date(log.timestamp || Date.now()).toLocaleTimeString();
             tr.innerHTML = `
                 <td style="font-family: var(--font-mono); font-size: 0.75rem; color: rgba(255,255,255,0.4);">${ts}</td>
-                <td style="font-weight: 700; color: #a855f7;">${escapeHtml(log.user || 'VEYRA')}</td>
+                <td style="font-weight: 700; color: #E26749;">${escapeHtml(log.user || 'VEYRA')}</td>
                 <td><span style="background: rgba(168,85,247,0.1); color: #c084fc; padding: 2px 8px; border-radius: 4px; font-size: 0.72rem; font-family: var(--font-mono); font-weight: 700;">${escapeHtml(log.action || 'Event')}</span></td>
                 <td style="color: rgba(255,255,255,0.7); font-size: 0.8rem;">${escapeHtml(log.details || '')}</td>
             `;

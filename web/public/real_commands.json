@@ -1,0 +1,2615 @@
+[
+  {
+    "name": "logs security",
+    "raw": "/logs security",
+    "desc": "Log channel for security actions",
+    "category": "Admin",
+    "badge": "Admin",
+    "examples": [
+      {
+        "cmd": "/logs security",
+        "desc": "Log channel for security actions"
+      }
+    ]
+  },
+  {
+    "name": "scan",
+    "raw": "/scan",
+    "desc": "Let VEYRA check your server security parameters and configuration",
+    "category": "Admin",
+    "badge": "Admin",
+    "examples": [
+      {
+        "cmd": "/scan",
+        "desc": "Let VEYRA check your server security parameters and configuration"
+      }
+    ]
+  },
+  {
+    "name": "security blacklist",
+    "raw": "/security blacklist",
+    "desc": "Blacklist user from creating tickets",
+    "category": "Admin",
+    "badge": "Admin",
+    "examples": [
+      {
+        "cmd": "/security blacklist",
+        "desc": "Blacklist user from creating tickets"
+      }
+    ]
+  },
+  {
+    "name": "security unblacklist",
+    "raw": "/security unblacklist",
+    "desc": "Unblacklist user from creating tickets",
+    "category": "Admin",
+    "badge": "Admin",
+    "examples": [
+      {
+        "cmd": "/security unblacklist",
+        "desc": "Unblacklist user from creating tickets"
+      }
+    ]
+  },
+  {
+    "name": "security cooldown",
+    "raw": "/security cooldown",
+    "desc": "Sets ticket creation cooldown",
+    "category": "Admin",
+    "badge": "Admin",
+    "examples": [
+      {
+        "cmd": "/security cooldown",
+        "desc": "Sets ticket creation cooldown"
+      }
+    ]
+  },
+  {
+    "name": "security lockdown",
+    "raw": "/security lockdown",
+    "desc": "Temporarily disables ticket creation",
+    "category": "Admin",
+    "badge": "Admin",
+    "examples": [
+      {
+        "cmd": "/security lockdown",
+        "desc": "Temporarily disables ticket creation"
+      }
+    ]
+  },
+  {
+    "name": "security unlockdown",
+    "raw": "/security unlockdown",
+    "desc": "Enables ticket creation again",
+    "category": "Admin",
+    "badge": "Admin",
+    "examples": [
+      {
+        "cmd": "/security unlockdown",
+        "desc": "Enables ticket creation again"
+      }
+    ]
+  },
+  {
+    "name": "whitelist add_user",
+    "raw": "/whitelist add_user",
+    "desc": "Add user to whitelist category",
+    "category": "Admin",
+    "badge": "Admin",
+    "examples": [
+      {
+        "cmd": "/whitelist add_user",
+        "desc": "Add user to whitelist category"
+      }
+    ]
+  },
+  {
+    "name": "whitelist remove_user",
+    "raw": "/whitelist remove_user",
+    "desc": "Remove a user from whitelist category",
+    "category": "Admin",
+    "badge": "Admin",
+    "examples": [
+      {
+        "cmd": "/whitelist remove_user",
+        "desc": "Remove a user from whitelist category"
+      }
+    ]
+  },
+  {
+    "name": "whitelist add_role",
+    "raw": "/whitelist add_role",
+    "desc": "Add a role to whitelist category",
+    "category": "Admin",
+    "badge": "Admin",
+    "examples": [
+      {
+        "cmd": "/whitelist add_role",
+        "desc": "Add a role to whitelist category"
+      }
+    ]
+  },
+  {
+    "name": "whitelist remove_role",
+    "raw": "/whitelist remove_role",
+    "desc": "Remove a role from whitelist category",
+    "category": "Admin",
+    "badge": "Admin",
+    "examples": [
+      {
+        "cmd": "/whitelist remove_role",
+        "desc": "Remove a role from whitelist category"
+      }
+    ]
+  },
+  {
+    "name": "whitelist add_channel",
+    "raw": "/whitelist add_channel",
+    "desc": "Add a channel to whitelist category",
+    "category": "Admin",
+    "badge": "Admin",
+    "examples": [
+      {
+        "cmd": "/whitelist add_channel",
+        "desc": "Add a channel to whitelist category"
+      }
+    ]
+  },
+  {
+    "name": "whitelist remove_channel",
+    "raw": "/whitelist remove_channel",
+    "desc": "Remove a channel from whitelist category",
+    "category": "Admin",
+    "badge": "Admin",
+    "examples": [
+      {
+        "cmd": "/whitelist remove_channel",
+        "desc": "Remove a channel from whitelist category"
+      }
+    ]
+  },
+  {
+    "name": "verification enable",
+    "raw": "/verification enable",
+    "desc": "Enable verification on your server",
+    "category": "Admin",
+    "badge": "Admin",
+    "examples": [
+      {
+        "cmd": "/verification enable",
+        "desc": "Enable verification on your server"
+      }
+    ]
+  },
+  {
+    "name": "verification disable",
+    "raw": "/verification disable",
+    "desc": "Disable verification on your server without deleting unverified role",
+    "category": "Admin",
+    "badge": "Admin",
+    "examples": [
+      {
+        "cmd": "/verification disable",
+        "desc": "Disable verification on your server without deleting unverified role"
+      }
+    ]
+  },
+  {
+    "name": "verification setup_channel",
+    "raw": "/verification setup_channel",
+    "desc": "Setup verification channel on your server",
+    "category": "Admin",
+    "badge": "Admin",
+    "examples": [
+      {
+        "cmd": "/verification setup_channel",
+        "desc": "Setup verification channel on your server"
+      }
+    ]
+  },
+  {
+    "name": "verification setup_role",
+    "raw": "/verification setup_role",
+    "desc": "Setup verification role on your server",
+    "category": "Admin",
+    "badge": "Admin",
+    "examples": [
+      {
+        "cmd": "/verification setup_role",
+        "desc": "Setup verification role on your server"
+      }
+    ]
+  },
+  {
+    "name": "verification set_verified",
+    "raw": "/verification set_verified",
+    "desc": "Set a role to give your users when they get verified",
+    "category": "Admin",
+    "badge": "Admin",
+    "examples": [
+      {
+        "cmd": "/verification set_verified",
+        "desc": "Set a role to give your users when they get verified"
+      }
+    ]
+  },
+  {
+    "name": "verification update_role",
+    "raw": "/verification update_role",
+    "desc": "Update and configure verification gate channel and role permissions",
+    "category": "Admin",
+    "badge": "Admin",
+    "examples": [
+      {
+        "cmd": "/verification update_role",
+        "desc": "Update and configure verification gate channel and role permissions"
+      }
+    ]
+  },
+  {
+    "name": "verification verify",
+    "raw": "/verification verify",
+    "desc": "Manually verify someone",
+    "category": "Admin",
+    "badge": "Admin",
+    "examples": [
+      {
+        "cmd": "/verification verify",
+        "desc": "Manually verify someone"
+      }
+    ]
+  },
+  {
+    "name": "verification reset",
+    "raw": "/verification reset",
+    "desc": "Reset verification on your server, deletes verification channel and unverified role overrides",
+    "category": "Admin",
+    "badge": "Admin",
+    "examples": [
+      {
+        "cmd": "/verification reset",
+        "desc": "Reset verification on your server, deletes verification channel and unverified role overrides"
+      }
+    ]
+  },
+  {
+    "name": "verify",
+    "raw": "/verify",
+    "desc": "Verify yourself",
+    "category": "Admin",
+    "badge": "Admin",
+    "examples": [
+      {
+        "cmd": "/verify",
+        "desc": "Verify yourself"
+      }
+    ]
+  },
+  {
+    "name": "setup panel",
+    "raw": "/setup panel",
+    "desc": "Post ticket creation panel",
+    "category": "Premium",
+    "badge": "Owner",
+    "examples": [
+      {
+        "cmd": "/setup panel",
+        "desc": "Post ticket creation panel"
+      }
+    ]
+  },
+  {
+    "name": "setup panels",
+    "raw": "/setup panels",
+    "desc": "List configured panels",
+    "category": "Premium",
+    "badge": "Owner",
+    "examples": [
+      {
+        "cmd": "/setup panels",
+        "desc": "List configured panels"
+      }
+    ]
+  },
+  {
+    "name": "setup tickettype",
+    "raw": "/setup tickettype",
+    "desc": "Set style of ticket panel: One-Click Button or Dropdown",
+    "category": "Premium",
+    "badge": "Owner",
+    "examples": [
+      {
+        "cmd": "/setup tickettype",
+        "desc": "Set style of ticket panel: One-Click Button or Dropdown"
+      }
+    ]
+  },
+  {
+    "name": "ticket create",
+    "raw": "/ticket create",
+    "desc": "Create a ticket manually for a selected user",
+    "category": "Premium",
+    "badge": "Owner",
+    "examples": [
+      {
+        "cmd": "/ticket create",
+        "desc": "Create a ticket manually for a selected user"
+      }
+    ]
+  },
+  {
+    "name": "ticket claim",
+    "raw": "/ticket claim",
+    "desc": "Claim the current ticket",
+    "category": "Premium",
+    "badge": "Owner",
+    "examples": [
+      {
+        "cmd": "/ticket claim",
+        "desc": "Claim the current ticket"
+      }
+    ]
+  },
+  {
+    "name": "ticket unclaim",
+    "raw": "/ticket unclaim",
+    "desc": "Release claim on the current ticket",
+    "category": "Premium",
+    "badge": "Owner",
+    "examples": [
+      {
+        "cmd": "/ticket unclaim",
+        "desc": "Release claim on the current ticket"
+      }
+    ]
+  },
+  {
+    "name": "ticket transfer",
+    "raw": "/ticket transfer",
+    "desc": "Transfer ticket ownership to another staff member",
+    "category": "Premium",
+    "badge": "Owner",
+    "examples": [
+      {
+        "cmd": "/ticket transfer",
+        "desc": "Transfer ticket ownership to another staff member"
+      }
+    ]
+  },
+  {
+    "name": "ticket add",
+    "raw": "/ticket add",
+    "desc": "Add a user to the ticket",
+    "category": "Premium",
+    "badge": "Owner",
+    "examples": [
+      {
+        "cmd": "/ticket add",
+        "desc": "Add a user to the ticket"
+      }
+    ]
+  },
+  {
+    "name": "ticket remove",
+    "raw": "/ticket remove",
+    "desc": "Remove a user from the ticket",
+    "category": "Premium",
+    "badge": "Owner",
+    "examples": [
+      {
+        "cmd": "/ticket remove",
+        "desc": "Remove a user from the ticket"
+      }
+    ]
+  },
+  {
+    "name": "ticket rename",
+    "raw": "/ticket rename",
+    "desc": "Rename the ticket channel",
+    "category": "Premium",
+    "badge": "Owner",
+    "examples": [
+      {
+        "cmd": "/ticket rename",
+        "desc": "Rename the ticket channel"
+      }
+    ]
+  },
+  {
+    "name": "ticket move",
+    "raw": "/ticket move",
+    "desc": "Move ticket to another category",
+    "category": "Premium",
+    "badge": "Owner",
+    "examples": [
+      {
+        "cmd": "/ticket move",
+        "desc": "Move ticket to another category"
+      }
+    ]
+  },
+  {
+    "name": "ticket close",
+    "raw": "/ticket close",
+    "desc": "Close the current ticket",
+    "category": "Premium",
+    "badge": "Owner",
+    "examples": [
+      {
+        "cmd": "/ticket close",
+        "desc": "Close the current ticket"
+      }
+    ]
+  },
+  {
+    "name": "ticket reopen",
+    "raw": "/ticket reopen",
+    "desc": "Reopen a closed ticket",
+    "category": "Premium",
+    "badge": "Owner",
+    "examples": [
+      {
+        "cmd": "/ticket reopen",
+        "desc": "Reopen a closed ticket"
+      }
+    ]
+  },
+  {
+    "name": "ticket delete",
+    "raw": "/ticket delete",
+    "desc": "Permanently delete the ticket after confirmation",
+    "category": "Premium",
+    "badge": "Owner",
+    "examples": [
+      {
+        "cmd": "/ticket delete",
+        "desc": "Permanently delete the ticket after confirmation"
+      }
+    ]
+  },
+  {
+    "name": "ticket transcript",
+    "raw": "/ticket transcript",
+    "desc": "Generate HTML transcript",
+    "category": "Premium",
+    "badge": "Owner",
+    "examples": [
+      {
+        "cmd": "/ticket transcript",
+        "desc": "Generate HTML transcript"
+      }
+    ]
+  },
+  {
+    "name": "ticket info",
+    "raw": "/ticket info",
+    "desc": "Display ticket info details",
+    "category": "Premium",
+    "badge": "Owner",
+    "examples": [
+      {
+        "cmd": "/ticket info",
+        "desc": "Display ticket info details"
+      }
+    ]
+  },
+  {
+    "name": "ticket note",
+    "raw": "/ticket note",
+    "desc": "Add internal staff note",
+    "category": "Premium",
+    "badge": "Owner",
+    "examples": [
+      {
+        "cmd": "/ticket note",
+        "desc": "Add internal staff note"
+      }
+    ]
+  },
+  {
+    "name": "ticket cleanup",
+    "raw": "/ticket cleanup",
+    "desc": "Clean up orphaned, closed, or glitch-duplicated ticket channels",
+    "category": "Premium",
+    "badge": "Owner",
+    "examples": [
+      {
+        "cmd": "/ticket cleanup",
+        "desc": "Clean up orphaned, closed, or glitch-duplicated ticket channels"
+      }
+    ]
+  },
+  {
+    "name": "ticket help",
+    "raw": "/ticket help",
+    "desc": "Displays the ticket help menu.",
+    "category": "Premium",
+    "badge": "Owner",
+    "examples": [
+      {
+        "cmd": "/ticket help",
+        "desc": "Displays the ticket help menu."
+      }
+    ]
+  },
+  {
+    "name": "ticket settings",
+    "raw": "/ticket settings",
+    "desc": "Configure ticket bot settings",
+    "category": "Premium",
+    "badge": "Owner",
+    "examples": [
+      {
+        "cmd": "/ticket settings",
+        "desc": "Configure ticket bot settings"
+      }
+    ]
+  },
+  {
+    "name": "setupticket",
+    "raw": ",setupticket",
+    "desc": "Server & bot execution command",
+    "category": "Premium",
+    "badge": "Owner",
+    "examples": [
+      {
+        "cmd": ",setupticket",
+        "desc": "Server & bot execution command"
+      }
+    ]
+  },
+  {
+    "name": "welcome channel",
+    "raw": "/welcome channel",
+    "desc": "Set the welcome announcement channel",
+    "category": "General",
+    "badge": "",
+    "examples": [
+      {
+        "cmd": "/welcome channel",
+        "desc": "Set the welcome announcement channel"
+      }
+    ]
+  },
+  {
+    "name": "welcome msg",
+    "raw": "/welcome msg",
+    "desc": "Set the welcome message content or embed description",
+    "category": "General",
+    "badge": "",
+    "examples": [
+      {
+        "cmd": "/welcome msg",
+        "desc": "Set the welcome message content or embed description"
+      }
+    ]
+  },
+  {
+    "name": "welcome message",
+    "raw": "/welcome message",
+    "desc": "Set the welcome message content (alias for /setup welcome msg)",
+    "category": "General",
+    "badge": "",
+    "examples": [
+      {
+        "cmd": "/welcome message",
+        "desc": "Set the welcome message content (alias for /setup welcome msg)"
+      }
+    ]
+  },
+  {
+    "name": "welcome image",
+    "raw": "/welcome image",
+    "desc": "Set the banner image or GIF URL for welcome greetings",
+    "category": "General",
+    "badge": "",
+    "examples": [
+      {
+        "cmd": "/welcome image",
+        "desc": "Set the banner image or GIF URL for welcome greetings"
+      }
+    ]
+  },
+  {
+    "name": "welcome color",
+    "raw": "/welcome color",
+    "desc": "Set the left border embed color (e.g. #ef4444, #a855f7)",
+    "category": "General",
+    "badge": "",
+    "examples": [
+      {
+        "cmd": "/welcome color",
+        "desc": "Set the left border embed color (e.g. #ef4444, #a855f7)"
+      }
+    ]
+  },
+  {
+    "name": "welcome toggle",
+    "raw": "/welcome toggle",
+    "desc": "Enable or disable welcome greetings",
+    "category": "General",
+    "badge": "",
+    "examples": [
+      {
+        "cmd": "/welcome toggle",
+        "desc": "Enable or disable welcome greetings"
+      }
+    ]
+  },
+  {
+    "name": "welcome test",
+    "raw": "/welcome test",
+    "desc": "Send a test welcome message to verify channel & layout",
+    "category": "General",
+    "badge": "",
+    "examples": [
+      {
+        "cmd": "/welcome test",
+        "desc": "Send a test welcome message to verify channel & layout"
+      }
+    ]
+  },
+  {
+    "name": "exit channel",
+    "raw": "/exit channel",
+    "desc": "Set the exit/leave announcement channel",
+    "category": "General",
+    "badge": "",
+    "examples": [
+      {
+        "cmd": "/exit channel",
+        "desc": "Set the exit/leave announcement channel"
+      }
+    ]
+  },
+  {
+    "name": "exit msg",
+    "raw": "/exit msg",
+    "desc": "Set the exit/leave message content or embed description",
+    "category": "General",
+    "badge": "",
+    "examples": [
+      {
+        "cmd": "/exit msg",
+        "desc": "Set the exit/leave message content or embed description"
+      }
+    ]
+  },
+  {
+    "name": "exit message",
+    "raw": "/exit message",
+    "desc": "Set the exit/leave message content (alias for /setup exit msg)",
+    "category": "General",
+    "badge": "",
+    "examples": [
+      {
+        "cmd": "/exit message",
+        "desc": "Set the exit/leave message content (alias for /setup exit msg)"
+      }
+    ]
+  },
+  {
+    "name": "exit image",
+    "raw": "/exit image",
+    "desc": "Set the banner image or GIF URL for exit/leave greetings",
+    "category": "General",
+    "badge": "",
+    "examples": [
+      {
+        "cmd": "/exit image",
+        "desc": "Set the banner image or GIF URL for exit/leave greetings"
+      }
+    ]
+  },
+  {
+    "name": "exit color",
+    "raw": "/exit color",
+    "desc": "Set the left border embed color (e.g. #ef4444, #a855f7)",
+    "category": "General",
+    "badge": "",
+    "examples": [
+      {
+        "cmd": "/exit color",
+        "desc": "Set the left border embed color (e.g. #ef4444, #a855f7)"
+      }
+    ]
+  },
+  {
+    "name": "exit toggle",
+    "raw": "/exit toggle",
+    "desc": "Enable or disable exit/leave greetings",
+    "category": "General",
+    "badge": "",
+    "examples": [
+      {
+        "cmd": "/exit toggle",
+        "desc": "Enable or disable exit/leave greetings"
+      }
+    ]
+  },
+  {
+    "name": "exit test",
+    "raw": "/exit test",
+    "desc": "Send a test exit message to verify channel & layout",
+    "category": "General",
+    "badge": "",
+    "examples": [
+      {
+        "cmd": "/exit test",
+        "desc": "Send a test exit message to verify channel & layout"
+      }
+    ]
+  },
+  {
+    "name": "welcome channel",
+    "raw": "/welcome channel",
+    "desc": "Set the welcome announcement channel",
+    "category": "General",
+    "badge": "",
+    "examples": [
+      {
+        "cmd": "/welcome channel",
+        "desc": "Set the welcome announcement channel"
+      }
+    ]
+  },
+  {
+    "name": "welcome msg",
+    "raw": "/welcome msg",
+    "desc": "Set the welcome message content or embed description",
+    "category": "General",
+    "badge": "",
+    "examples": [
+      {
+        "cmd": "/welcome msg",
+        "desc": "Set the welcome message content or embed description"
+      }
+    ]
+  },
+  {
+    "name": "welcome message",
+    "raw": "/welcome message",
+    "desc": "Set the welcome message content (alias for /welcome msg)",
+    "category": "General",
+    "badge": "",
+    "examples": [
+      {
+        "cmd": "/welcome message",
+        "desc": "Set the welcome message content (alias for /welcome msg)"
+      }
+    ]
+  },
+  {
+    "name": "welcome image",
+    "raw": "/welcome image",
+    "desc": "Set the banner image or GIF URL for welcome greetings",
+    "category": "General",
+    "badge": "",
+    "examples": [
+      {
+        "cmd": "/welcome image",
+        "desc": "Set the banner image or GIF URL for welcome greetings"
+      }
+    ]
+  },
+  {
+    "name": "welcome color",
+    "raw": "/welcome color",
+    "desc": "Set the left border embed color (e.g. #ef4444)",
+    "category": "General",
+    "badge": "",
+    "examples": [
+      {
+        "cmd": "/welcome color",
+        "desc": "Set the left border embed color (e.g. #ef4444)"
+      }
+    ]
+  },
+  {
+    "name": "welcome test",
+    "raw": "/welcome test",
+    "desc": "Send a test welcome message",
+    "category": "General",
+    "badge": "",
+    "examples": [
+      {
+        "cmd": "/welcome test",
+        "desc": "Send a test welcome message"
+      }
+    ]
+  },
+  {
+    "name": "welcome toggle",
+    "raw": "/welcome toggle",
+    "desc": "Enable or disable welcome greetings",
+    "category": "General",
+    "badge": "",
+    "examples": [
+      {
+        "cmd": "/welcome toggle",
+        "desc": "Enable or disable welcome greetings"
+      }
+    ]
+  },
+  {
+    "name": "exit channel",
+    "raw": "/exit channel",
+    "desc": "Set the exit/leave announcement channel",
+    "category": "General",
+    "badge": "",
+    "examples": [
+      {
+        "cmd": "/exit channel",
+        "desc": "Set the exit/leave announcement channel"
+      }
+    ]
+  },
+  {
+    "name": "exit msg",
+    "raw": "/exit msg",
+    "desc": "Set the exit/leave message content or embed description",
+    "category": "General",
+    "badge": "",
+    "examples": [
+      {
+        "cmd": "/exit msg",
+        "desc": "Set the exit/leave message content or embed description"
+      }
+    ]
+  },
+  {
+    "name": "exit message",
+    "raw": "/exit message",
+    "desc": "Set the exit/leave message content (alias for /exit msg)",
+    "category": "General",
+    "badge": "",
+    "examples": [
+      {
+        "cmd": "/exit message",
+        "desc": "Set the exit/leave message content (alias for /exit msg)"
+      }
+    ]
+  },
+  {
+    "name": "exit image",
+    "raw": "/exit image",
+    "desc": "Set the banner image or GIF URL for exit/leave greetings",
+    "category": "General",
+    "badge": "",
+    "examples": [
+      {
+        "cmd": "/exit image",
+        "desc": "Set the banner image or GIF URL for exit/leave greetings"
+      }
+    ]
+  },
+  {
+    "name": "exit color",
+    "raw": "/exit color",
+    "desc": "Set the left border embed color (e.g. #ef4444)",
+    "category": "General",
+    "badge": "",
+    "examples": [
+      {
+        "cmd": "/exit color",
+        "desc": "Set the left border embed color (e.g. #ef4444)"
+      }
+    ]
+  },
+  {
+    "name": "exit test",
+    "raw": "/exit test",
+    "desc": "Send a test exit message",
+    "category": "General",
+    "badge": "",
+    "examples": [
+      {
+        "cmd": "/exit test",
+        "desc": "Send a test exit message"
+      }
+    ]
+  },
+  {
+    "name": "exit toggle",
+    "raw": "/exit toggle",
+    "desc": "Enable or disable exit greetings",
+    "category": "General",
+    "badge": "",
+    "examples": [
+      {
+        "cmd": "/exit toggle",
+        "desc": "Enable or disable exit greetings"
+      }
+    ]
+  },
+  {
+    "name": "invite",
+    "raw": "/invite",
+    "desc": "Displays the official invite link for VEYRA",
+    "category": "General",
+    "badge": "",
+    "examples": [
+      {
+        "cmd": "/invite",
+        "desc": "Displays the official invite link for VEYRA"
+      }
+    ]
+  },
+  {
+    "name": "invites",
+    "raw": "/invites",
+    "desc": "Displays the invites stats of a member",
+    "category": "General",
+    "badge": "",
+    "examples": [
+      {
+        "cmd": "/invites",
+        "desc": "Displays the invites stats of a member"
+      }
+    ]
+  },
+  {
+    "name": "leaderboard invites",
+    "raw": "/leaderboard invites",
+    "desc": "Displays the top 10 inviters in this guild",
+    "category": "General",
+    "badge": "",
+    "examples": [
+      {
+        "cmd": "/leaderboard invites",
+        "desc": "Displays the top 10 inviters in this guild"
+      }
+    ]
+  },
+  {
+    "name": "autorole add",
+    "raw": "/autorole add",
+    "desc": "Add an autorole given to members on join",
+    "category": "Admin",
+    "badge": "Admin",
+    "examples": [
+      {
+        "cmd": "/autorole add",
+        "desc": "Add an autorole given to members on join"
+      }
+    ]
+  },
+  {
+    "name": "autorole remove",
+    "raw": "/autorole remove",
+    "desc": "Remove an autorole from the queue",
+    "category": "Admin",
+    "badge": "Admin",
+    "examples": [
+      {
+        "cmd": "/autorole remove",
+        "desc": "Remove an autorole from the queue"
+      }
+    ]
+  },
+  {
+    "name": "autorole list",
+    "raw": "/autorole list",
+    "desc": "List configured autoroles",
+    "category": "Admin",
+    "badge": "Admin",
+    "examples": [
+      {
+        "cmd": "/autorole list",
+        "desc": "List configured autoroles"
+      }
+    ]
+  },
+  {
+    "name": "autorole clear",
+    "raw": "/autorole clear",
+    "desc": "Clear all configured autoroles",
+    "category": "Admin",
+    "badge": "Admin",
+    "examples": [
+      {
+        "cmd": "/autorole clear",
+        "desc": "Clear all configured autoroles"
+      }
+    ]
+  },
+  {
+    "name": "stickyrole enable",
+    "raw": "/stickyrole enable",
+    "desc": "Enable sticky role restoration",
+    "category": "Admin",
+    "badge": "Admin",
+    "examples": [
+      {
+        "cmd": "/stickyrole enable",
+        "desc": "Enable sticky role restoration"
+      }
+    ]
+  },
+  {
+    "name": "stickyrole disable",
+    "raw": "/stickyrole disable",
+    "desc": "Disable sticky role restoration",
+    "category": "Admin",
+    "badge": "Admin",
+    "examples": [
+      {
+        "cmd": "/stickyrole disable",
+        "desc": "Disable sticky role restoration"
+      }
+    ]
+  },
+  {
+    "name": "softban",
+    "raw": "/softban",
+    "desc": "Softban a user",
+    "category": "Admin",
+    "badge": "Admin",
+    "examples": [
+      {
+        "cmd": "/softban",
+        "desc": "Softban a user"
+      }
+    ]
+  },
+  {
+    "name": "unban",
+    "raw": "/unban",
+    "desc": "Unban a user",
+    "category": "Admin",
+    "badge": "Admin",
+    "examples": [
+      {
+        "cmd": "/unban",
+        "desc": "Unban a user"
+      }
+    ]
+  },
+  {
+    "name": "unlock",
+    "raw": "/unlock",
+    "desc": "Unlock current or selected text channel",
+    "category": "Admin",
+    "badge": "Admin",
+    "examples": [
+      {
+        "cmd": "/unlock",
+        "desc": "Unlock current or selected text channel"
+      }
+    ]
+  },
+  {
+    "name": "unlockall",
+    "raw": "/unlockall",
+    "desc": "Unlock all the locked text channels",
+    "category": "Admin",
+    "badge": "Admin",
+    "examples": [
+      {
+        "cmd": "/unlockall",
+        "desc": "Unlock all the locked text channels"
+      }
+    ]
+  },
+  {
+    "name": "unmute",
+    "raw": "/unmute",
+    "desc": "Unmute a user",
+    "category": "Admin",
+    "badge": "Admin",
+    "examples": [
+      {
+        "cmd": "/unmute",
+        "desc": "Unmute a user"
+      }
+    ]
+  },
+  {
+    "name": "serverinfo",
+    "raw": "/serverinfo",
+    "desc": "Displays the information about a server",
+    "category": "Admin",
+    "badge": "Admin",
+    "examples": [
+      {
+        "cmd": "/serverinfo",
+        "desc": "Displays the information about a server"
+      }
+    ]
+  },
+  {
+    "name": "setmuterole",
+    "raw": "/setmuterole",
+    "desc": "Create a new mute role or set an existing one",
+    "category": "Admin",
+    "badge": "Admin",
+    "examples": [
+      {
+        "cmd": "/setmuterole",
+        "desc": "Create a new mute role or set an existing one"
+      }
+    ]
+  },
+  {
+    "name": "kick",
+    "raw": "/kick",
+    "desc": "Kicks a user from a guild",
+    "category": "Admin",
+    "badge": "Admin",
+    "examples": [
+      {
+        "cmd": "/kick",
+        "desc": "Kicks a user from a guild"
+      }
+    ]
+  },
+  {
+    "name": "lock",
+    "raw": "/lock",
+    "desc": "Lock current or selected text channel",
+    "category": "Admin",
+    "badge": "Admin",
+    "examples": [
+      {
+        "cmd": "/lock",
+        "desc": "Lock current or selected text channel"
+      }
+    ]
+  },
+  {
+    "name": "lockall",
+    "raw": "/lockall",
+    "desc": "Lock all the text channels",
+    "category": "Admin",
+    "badge": "Admin",
+    "examples": [
+      {
+        "cmd": "/lockall",
+        "desc": "Lock all the text channels"
+      }
+    ]
+  },
+  {
+    "name": "ban",
+    "raw": "/ban",
+    "desc": "Bans a user from a guild",
+    "category": "Admin",
+    "badge": "Admin",
+    "examples": [
+      {
+        "cmd": "/ban",
+        "desc": "Bans a user from a guild"
+      }
+    ]
+  },
+  {
+    "name": "clear",
+    "raw": "/clear",
+    "desc": "Clear tons of messages",
+    "category": "Admin",
+    "badge": "Admin",
+    "examples": [
+      {
+        "cmd": "/clear",
+        "desc": "Clear tons of messages"
+      }
+    ]
+  },
+  {
+    "name": "banner",
+    "raw": "/banner",
+    "desc": "Displays the banner of a user with a download link",
+    "category": "Admin",
+    "badge": "Admin",
+    "examples": [
+      {
+        "cmd": "/banner",
+        "desc": "Displays the banner of a user with a download link"
+      }
+    ]
+  },
+  {
+    "name": "guildbanner",
+    "raw": "/guildbanner",
+    "desc": "Displays this server",
+    "category": "Admin",
+    "badge": "Admin",
+    "examples": [
+      {
+        "cmd": "/guildbanner",
+        "desc": "Displays this server"
+      }
+    ]
+  },
+  {
+    "name": "servericon",
+    "raw": "/servericon",
+    "desc": "Displays this server",
+    "category": "Admin",
+    "badge": "Admin",
+    "examples": [
+      {
+        "cmd": "/servericon",
+        "desc": "Displays this server"
+      }
+    ]
+  },
+  {
+    "name": "roleinfo",
+    "raw": "/roleinfo",
+    "desc": "Displays the information about a guild",
+    "category": "Admin",
+    "badge": "Admin",
+    "examples": [
+      {
+        "cmd": "/roleinfo",
+        "desc": "Displays the information about a guild"
+      }
+    ]
+  },
+  {
+    "name": "warn",
+    "raw": "/warn",
+    "desc": "Warn a member",
+    "category": "Admin",
+    "badge": "Admin",
+    "examples": [
+      {
+        "cmd": "/warn",
+        "desc": "Warn a member"
+      }
+    ]
+  },
+  {
+    "name": "warnings",
+    "raw": "/warnings",
+    "desc": "Get warnings for a user",
+    "category": "Admin",
+    "badge": "Admin",
+    "examples": [
+      {
+        "cmd": "/warnings",
+        "desc": "Get warnings for a user"
+      }
+    ]
+  },
+  {
+    "name": "slowmode channel",
+    "raw": "/slowmode channel",
+    "desc": "Enable/disable slowmode for a channel",
+    "category": "Admin",
+    "badge": "Admin",
+    "examples": [
+      {
+        "cmd": "/slowmode channel",
+        "desc": "Enable/disable slowmode for a channel"
+      }
+    ]
+  },
+  {
+    "name": "slowmode discord",
+    "raw": "/slowmode discord",
+    "desc": "Set discord slowmode on a channel",
+    "category": "Admin",
+    "badge": "Admin",
+    "examples": [
+      {
+        "cmd": "/slowmode discord",
+        "desc": "Set discord slowmode on a channel"
+      }
+    ]
+  },
+  {
+    "name": "slowmode user",
+    "raw": "/slowmode user",
+    "desc": "Enable/disable slowmode per user for a channel",
+    "category": "Admin",
+    "badge": "Admin",
+    "examples": [
+      {
+        "cmd": "/slowmode user",
+        "desc": "Enable/disable slowmode per user for a channel"
+      }
+    ]
+  },
+  {
+    "name": "purge",
+    "raw": ",purge",
+    "desc": "Bulk delete messages in the channel",
+    "category": "Admin",
+    "badge": "Admin",
+    "examples": [
+      {
+        "cmd": ",purge",
+        "desc": "Bulk delete messages in the channel"
+      }
+    ]
+  },
+  {
+    "name": "lock",
+    "raw": ",lock",
+    "desc": "Locks the current channel",
+    "category": "Admin",
+    "badge": "Admin",
+    "examples": [
+      {
+        "cmd": ",lock",
+        "desc": "Locks the current channel"
+      }
+    ]
+  },
+  {
+    "name": "unlock",
+    "raw": ",unlock",
+    "desc": "Unlocks the current channel",
+    "category": "Admin",
+    "badge": "Admin",
+    "examples": [
+      {
+        "cmd": ",unlock",
+        "desc": "Unlocks the current channel"
+      }
+    ]
+  },
+  {
+    "name": "lockall",
+    "raw": ",lockall",
+    "desc": "Locks all text channels in the server",
+    "category": "Admin",
+    "badge": "Admin",
+    "examples": [
+      {
+        "cmd": ",lockall",
+        "desc": "Locks all text channels in the server"
+      }
+    ]
+  },
+  {
+    "name": "unlockall",
+    "raw": ",unlockall",
+    "desc": "Unlocks all text channels in the server",
+    "category": "Admin",
+    "badge": "Admin",
+    "examples": [
+      {
+        "cmd": ",unlockall",
+        "desc": "Unlocks all text channels in the server"
+      }
+    ]
+  },
+  {
+    "name": "mute",
+    "raw": ",mute",
+    "desc": "Server & bot execution command",
+    "category": "Admin",
+    "badge": "Admin",
+    "examples": [
+      {
+        "cmd": ",mute",
+        "desc": "Server & bot execution command"
+      }
+    ]
+  },
+  {
+    "name": "unmute",
+    "raw": ",unmute",
+    "desc": "Server & bot execution command",
+    "category": "Admin",
+    "badge": "Admin",
+    "examples": [
+      {
+        "cmd": ",unmute",
+        "desc": "Server & bot execution command"
+      }
+    ]
+  },
+  {
+    "name": "kick",
+    "raw": ",kick",
+    "desc": "Server & bot execution command",
+    "category": "Admin",
+    "badge": "Admin",
+    "examples": [
+      {
+        "cmd": ",kick",
+        "desc": "Server & bot execution command"
+      }
+    ]
+  },
+  {
+    "name": "ban",
+    "raw": ",ban",
+    "desc": "Server & bot execution command",
+    "category": "Admin",
+    "badge": "Admin",
+    "examples": [
+      {
+        "cmd": ",ban",
+        "desc": "Server & bot execution command"
+      }
+    ]
+  },
+  {
+    "name": "stopnuke",
+    "raw": "/stopnuke",
+    "desc": "Aborts any pending nuke sequence in this channel",
+    "category": "Admin",
+    "badge": "Admin",
+    "examples": [
+      {
+        "cmd": "/stopnuke",
+        "desc": "Aborts any pending nuke sequence in this channel"
+      }
+    ]
+  },
+  {
+    "name": "banner",
+    "raw": ",banner",
+    "desc": "Displays user banner with download link",
+    "category": "Admin",
+    "badge": "Admin",
+    "examples": [
+      {
+        "cmd": ",banner",
+        "desc": "Displays user banner with download link"
+      }
+    ]
+  },
+  {
+    "name": "servericon",
+    "raw": ",servericon",
+    "desc": "Displays server icon with download link",
+    "category": "Premium",
+    "badge": "Owner",
+    "examples": [
+      {
+        "cmd": ",servericon",
+        "desc": "Displays server icon with download link"
+      }
+    ]
+  },
+  {
+    "name": "serverbanner",
+    "raw": ",serverbanner",
+    "desc": "Displays server banner with download link",
+    "category": "Admin",
+    "badge": "Admin",
+    "examples": [
+      {
+        "cmd": ",serverbanner",
+        "desc": "Displays server banner with download link"
+      }
+    ]
+  },
+  {
+    "name": "serverinfo",
+    "raw": ",serverinfo",
+    "desc": "Displays server information",
+    "category": "Premium",
+    "badge": "Owner",
+    "examples": [
+      {
+        "cmd": ",serverinfo",
+        "desc": "Displays server information"
+      }
+    ]
+  },
+  {
+    "name": "ping",
+    "raw": "/ping",
+    "desc": "Measures bot latency and database performance.",
+    "category": "General",
+    "badge": "",
+    "examples": [
+      {
+        "cmd": "/ping",
+        "desc": "Measures bot latency and database performance."
+      }
+    ]
+  },
+  {
+    "name": "uptime",
+    "raw": "/uptime",
+    "desc": "Checks how long the bot has been online.",
+    "category": "General",
+    "badge": "",
+    "examples": [
+      {
+        "cmd": "/uptime",
+        "desc": "Checks how long the bot has been online."
+      }
+    ]
+  },
+  {
+    "name": "permission add",
+    "raw": "/permission add",
+    "desc": "Add some permission to a user",
+    "category": "General",
+    "badge": "",
+    "examples": [
+      {
+        "cmd": "/permission add",
+        "desc": "Add some permission to a user"
+      }
+    ]
+  },
+  {
+    "name": "permission remove",
+    "raw": "/permission remove",
+    "desc": "Remove some permission from a user",
+    "category": "General",
+    "badge": "",
+    "examples": [
+      {
+        "cmd": "/permission remove",
+        "desc": "Remove some permission from a user"
+      }
+    ]
+  },
+  {
+    "name": "permission reset_id",
+    "raw": "/permission reset_id",
+    "desc": "Remove all the permissions from a user using their id",
+    "category": "General",
+    "badge": "",
+    "examples": [
+      {
+        "cmd": "/permission reset_id",
+        "desc": "Remove all the permissions from a user using their id"
+      }
+    ]
+  },
+  {
+    "name": "permission view_permission",
+    "raw": "/permission view_permission",
+    "desc": "Get users with the selected permission",
+    "category": "General",
+    "badge": "",
+    "examples": [
+      {
+        "cmd": "/permission view_permission",
+        "desc": "Get users with the selected permission"
+      }
+    ]
+  },
+  {
+    "name": "permission view_user",
+    "raw": "/permission view_user",
+    "desc": "Get granted permissions of a user",
+    "category": "General",
+    "badge": "",
+    "examples": [
+      {
+        "cmd": "/permission view_user",
+        "desc": "Get granted permissions of a user"
+      }
+    ]
+  },
+  {
+    "name": "logs mod",
+    "raw": "/logs mod",
+    "desc": "Log channel for moderation commands",
+    "category": "General",
+    "badge": "",
+    "examples": [
+      {
+        "cmd": "/logs mod",
+        "desc": "Log channel for moderation commands"
+      }
+    ]
+  },
+  {
+    "name": "settings",
+    "raw": "/settings",
+    "desc": "Get current settings of the server",
+    "category": "General",
+    "badge": "",
+    "examples": [
+      {
+        "cmd": "/settings",
+        "desc": "Get current settings of the server"
+      }
+    ]
+  },
+  {
+    "name": "premium",
+    "raw": "/premium",
+    "desc": "Shows information about VEYRA Premium",
+    "category": "Premium",
+    "badge": "Owner",
+    "examples": [
+      {
+        "cmd": "/premium",
+        "desc": "Shows information about VEYRA Premium"
+      }
+    ]
+  },
+  {
+    "name": "setlimit",
+    "raw": "/setlimit",
+    "desc": "Change the limit of an anti nuke action",
+    "category": "General",
+    "badge": "",
+    "examples": [
+      {
+        "cmd": "/setlimit",
+        "desc": "Change the limit of an anti nuke action"
+      }
+    ]
+  },
+  {
+    "name": "setpunishment",
+    "raw": "/setpunishment",
+    "desc": "Change the punishment type of a specific action",
+    "category": "General",
+    "badge": "",
+    "examples": [
+      {
+        "cmd": "/setpunishment",
+        "desc": "Change the punishment type of a specific action"
+      }
+    ]
+  },
+  {
+    "name": "help",
+    "raw": "/help",
+    "desc": "Displays the help command of the bot",
+    "category": "General",
+    "badge": "",
+    "examples": [
+      {
+        "cmd": "/help",
+        "desc": "Displays the help command of the bot"
+      }
+    ]
+  },
+  {
+    "name": "about",
+    "raw": "/about",
+    "desc": "Information about the bot",
+    "category": "General",
+    "badge": "",
+    "examples": [
+      {
+        "cmd": "/about",
+        "desc": "Information about the bot"
+      }
+    ]
+  },
+  {
+    "name": "timeout",
+    "raw": "/timeout",
+    "desc": "Apply an active timeout to a server member (restricts messaging, attachments, reactions)",
+    "category": "General",
+    "badge": "",
+    "examples": [
+      {
+        "cmd": "/timeout",
+        "desc": "Apply an active timeout to a server member (restricts messaging, attachments, reactions)"
+      }
+    ]
+  },
+  {
+    "name": "disable",
+    "raw": "/disable",
+    "desc": "Disable an anti nuke action",
+    "category": "General",
+    "badge": "",
+    "examples": [
+      {
+        "cmd": "/disable",
+        "desc": "Disable an anti nuke action"
+      }
+    ]
+  },
+  {
+    "name": "enable",
+    "raw": "/enable",
+    "desc": "Enable an anti nuke action",
+    "category": "General",
+    "badge": "",
+    "examples": [
+      {
+        "cmd": "/enable",
+        "desc": "Enable an anti nuke action"
+      }
+    ]
+  },
+  {
+    "name": "plan",
+    "raw": "/plan",
+    "desc": "Displays detailed VEYRA subscription plans (Free, Pro, Premium)",
+    "category": "General",
+    "badge": "",
+    "examples": [
+      {
+        "cmd": "/plan",
+        "desc": "Displays detailed VEYRA subscription plans (Free, Pro, Premium)"
+      }
+    ]
+  },
+  {
+    "name": "avatar",
+    "raw": "/avatar",
+    "desc": "Displays the avatar of a user with a download link",
+    "category": "General",
+    "badge": "",
+    "examples": [
+      {
+        "cmd": "/avatar",
+        "desc": "Displays the avatar of a user with a download link"
+      }
+    ]
+  },
+  {
+    "name": "accountage",
+    "raw": "/accountage",
+    "desc": "Displays the account age of your account or a user",
+    "category": "General",
+    "badge": "",
+    "examples": [
+      {
+        "cmd": "/accountage",
+        "desc": "Displays the account age of your account or a user"
+      }
+    ]
+  },
+  {
+    "name": "membercount",
+    "raw": "/membercount",
+    "desc": "Displays the member count of the server",
+    "category": "General",
+    "badge": "",
+    "examples": [
+      {
+        "cmd": "/membercount",
+        "desc": "Displays the member count of the server"
+      }
+    ]
+  },
+  {
+    "name": "permissions",
+    "raw": "/permissions",
+    "desc": "Displays the information about what permissions the bot requires to function properly",
+    "category": "General",
+    "badge": "",
+    "examples": [
+      {
+        "cmd": "/permissions",
+        "desc": "Displays the information about what permissions the bot requires to function properly"
+      }
+    ]
+  },
+  {
+    "name": "messages",
+    "raw": "/messages",
+    "desc": "Displays the number of messages sent by you or a user",
+    "category": "General",
+    "badge": "",
+    "examples": [
+      {
+        "cmd": "/messages",
+        "desc": "Displays the number of messages sent by you or a user"
+      }
+    ]
+  },
+  {
+    "name": "leaderboard messages",
+    "raw": "/leaderboard messages",
+    "desc": "Displays the top 10 messengers in this guild",
+    "category": "General",
+    "badge": "",
+    "examples": [
+      {
+        "cmd": "/leaderboard messages",
+        "desc": "Displays the top 10 messengers in this guild"
+      }
+    ]
+  },
+  {
+    "name": "botinfo",
+    "raw": "/botinfo",
+    "desc": "Displays the information about the bot",
+    "category": "General",
+    "badge": "",
+    "examples": [
+      {
+        "cmd": "/botinfo",
+        "desc": "Displays the information about the bot"
+      }
+    ]
+  },
+  {
+    "name": "gstart",
+    "raw": "/gstart",
+    "desc": "Creates a giveaway",
+    "category": "General",
+    "badge": "",
+    "examples": [
+      {
+        "cmd": "/gstart",
+        "desc": "Creates a giveaway"
+      }
+    ]
+  },
+  {
+    "name": "gend",
+    "raw": "/gend",
+    "desc": "Ends an active giveaway",
+    "category": "General",
+    "badge": "",
+    "examples": [
+      {
+        "cmd": "/gend",
+        "desc": "Ends an active giveaway"
+      }
+    ]
+  },
+  {
+    "name": "greroll",
+    "raw": "/greroll",
+    "desc": "Rerolls an ended giveaway",
+    "category": "General",
+    "badge": "",
+    "examples": [
+      {
+        "cmd": "/greroll",
+        "desc": "Rerolls an ended giveaway"
+      }
+    ]
+  },
+  {
+    "name": "events create",
+    "raw": "/events create",
+    "desc": "Create an Event",
+    "category": "General",
+    "badge": "",
+    "examples": [
+      {
+        "cmd": "/events create",
+        "desc": "Create an Event"
+      }
+    ]
+  },
+  {
+    "name": "nuke",
+    "raw": "/nuke",
+    "desc": "Nukes a TextChannel with a safety countdown cancellation delay",
+    "category": "Admin",
+    "badge": "Admin",
+    "examples": [
+      {
+        "cmd": "/nuke",
+        "desc": "Nukes a TextChannel with a safety countdown cancellation delay"
+      }
+    ]
+  },
+  {
+    "name": "badges",
+    "raw": "/badges",
+    "desc": "Shows VEYRA bot badges of a Discord user",
+    "category": "General",
+    "badge": "",
+    "examples": [
+      {
+        "cmd": "/badges",
+        "desc": "Shows VEYRA bot badges of a Discord user"
+      }
+    ]
+  },
+  {
+    "name": "userinfo",
+    "raw": "/userinfo",
+    "desc": "Displays the information of member",
+    "category": "General",
+    "badge": "",
+    "examples": [
+      {
+        "cmd": "/userinfo",
+        "desc": "Displays the information of member"
+      }
+    ]
+  },
+  {
+    "name": "vcinfo",
+    "raw": "/vcinfo",
+    "desc": "Displays the information about a voice channel",
+    "category": "General",
+    "badge": "",
+    "examples": [
+      {
+        "cmd": "/vcinfo",
+        "desc": "Displays the information about a voice channel"
+      }
+    ]
+  },
+  {
+    "name": "undeafen",
+    "raw": "/undeafen",
+    "desc": "Undeafen a member",
+    "category": "General",
+    "badge": "",
+    "examples": [
+      {
+        "cmd": "/undeafen",
+        "desc": "Undeafen a member"
+      }
+    ]
+  },
+  {
+    "name": "work",
+    "raw": "/work",
+    "desc": "Work to earn coins",
+    "category": "General",
+    "badge": "",
+    "examples": [
+      {
+        "cmd": "/work",
+        "desc": "Work to earn coins"
+      }
+    ]
+  },
+  {
+    "name": "setnick",
+    "raw": "/setnick",
+    "desc": "Change the nickname of a user",
+    "category": "General",
+    "badge": "",
+    "examples": [
+      {
+        "cmd": "/setnick",
+        "desc": "Change the nickname of a user"
+      }
+    ]
+  },
+  {
+    "name": "ranks",
+    "raw": "/ranks",
+    "desc": "Get a list of joinable ranks.",
+    "category": "General",
+    "badge": "",
+    "examples": [
+      {
+        "cmd": "/ranks",
+        "desc": "Get a list of joinable ranks."
+      }
+    ]
+  },
+  {
+    "name": "reason",
+    "raw": "/reason",
+    "desc": "Supply a reason for a mod log case",
+    "category": "General",
+    "badge": "",
+    "examples": [
+      {
+        "cmd": "/reason",
+        "desc": "Supply a reason for a mod log case"
+      }
+    ]
+  },
+  {
+    "name": "remindme",
+    "raw": "/remindme",
+    "desc": "Set a reminder",
+    "category": "General",
+    "badge": "",
+    "examples": [
+      {
+        "cmd": "/remindme",
+        "desc": "Set a reminder"
+      }
+    ]
+  },
+  {
+    "name": "setup wizard",
+    "raw": "/setup wizard",
+    "desc": "Wizard setup and post ticket panel in a channel",
+    "category": "General",
+    "badge": "",
+    "examples": [
+      {
+        "cmd": "/setup wizard",
+        "desc": "Wizard setup and post ticket panel in a channel"
+      }
+    ]
+  },
+  {
+    "name": "setup quicksetup",
+    "raw": "/setup quicksetup",
+    "desc": "Quickly configure staff roles, log channel, and create a ticket panel.",
+    "category": "General",
+    "badge": "",
+    "examples": [
+      {
+        "cmd": "/setup quicksetup",
+        "desc": "Quickly configure staff roles, log channel, and create a ticket panel."
+      }
+    ]
+  },
+  {
+    "name": "setup config",
+    "raw": "/setup config",
+    "desc": "Configure server tickets global limits",
+    "category": "General",
+    "badge": "",
+    "examples": [
+      {
+        "cmd": "/setup config",
+        "desc": "Configure server tickets global limits"
+      }
+    ]
+  },
+  {
+    "name": "setup category",
+    "raw": "/setup category",
+    "desc": "Configure ticket category for Buy or Support button",
+    "category": "General",
+    "badge": "",
+    "examples": [
+      {
+        "cmd": "/setup category",
+        "desc": "Configure ticket category for Buy or Support button"
+      }
+    ]
+  },
+  {
+    "name": "setup staff",
+    "raw": "/setup staff",
+    "desc": "Configure staff roles allowed to manage tickets",
+    "category": "General",
+    "badge": "",
+    "examples": [
+      {
+        "cmd": "/setup staff",
+        "desc": "Configure staff roles allowed to manage tickets"
+      }
+    ]
+  },
+  {
+    "name": "setup limits",
+    "raw": "/setup limits",
+    "desc": "Set maximum active tickets allowed per user",
+    "category": "General",
+    "badge": "",
+    "examples": [
+      {
+        "cmd": "/setup limits",
+        "desc": "Set maximum active tickets allowed per user"
+      }
+    ]
+  },
+  {
+    "name": "setup logs",
+    "raw": "/setup logs",
+    "desc": "Configure logs channel for ticketing events",
+    "category": "General",
+    "badge": "",
+    "examples": [
+      {
+        "cmd": "/setup logs",
+        "desc": "Configure logs channel for ticketing events"
+      }
+    ]
+  },
+  {
+    "name": "setup close_setting",
+    "raw": "/setup close_setting",
+    "desc": "Configure closing permissions",
+    "category": "General",
+    "badge": "",
+    "examples": [
+      {
+        "cmd": "/setup close_setting",
+        "desc": "Configure closing permissions"
+      }
+    ]
+  },
+  {
+    "name": "setup automation",
+    "raw": "/setup automation",
+    "desc": "Configure automatic ticket actions",
+    "category": "General",
+    "badge": "",
+    "examples": [
+      {
+        "cmd": "/setup automation",
+        "desc": "Configure automatic ticket actions"
+      }
+    ]
+  },
+  {
+    "name": "stats search",
+    "raw": "/stats search",
+    "desc": "Search server tickets",
+    "category": "General",
+    "badge": "",
+    "examples": [
+      {
+        "cmd": "/stats search",
+        "desc": "Search server tickets"
+      }
+    ]
+  },
+  {
+    "name": "stats leaderboard",
+    "raw": "/stats leaderboard",
+    "desc": "Staff leaderboard",
+    "category": "General",
+    "badge": "",
+    "examples": [
+      {
+        "cmd": "/stats leaderboard",
+        "desc": "Staff leaderboard"
+      }
+    ]
+  },
+  {
+    "name": "stats history",
+    "raw": "/stats history",
+    "desc": "Shows a user",
+    "category": "General",
+    "badge": "",
+    "examples": [
+      {
+        "cmd": "/stats history",
+        "desc": "Shows a user"
+      }
+    ]
+  },
+  {
+    "name": "stats list",
+    "raw": "/stats list",
+    "desc": "Lists currently open tickets",
+    "category": "General",
+    "badge": "",
+    "examples": [
+      {
+        "cmd": "/stats list",
+        "desc": "Lists currently open tickets"
+      }
+    ]
+  },
+  {
+    "name": "stats stats",
+    "raw": "/stats stats",
+    "desc": "Shows ticket statistics",
+    "category": "General",
+    "badge": "",
+    "examples": [
+      {
+        "cmd": "/stats stats",
+        "desc": "Shows ticket statistics"
+      }
+    ]
+  },
+  {
+    "name": "stats feedback",
+    "raw": "/stats feedback",
+    "desc": "Shows collected ticket feedback",
+    "category": "General",
+    "badge": "",
+    "examples": [
+      {
+        "cmd": "/stats feedback",
+        "desc": "Shows collected ticket feedback"
+      }
+    ]
+  },
+  {
+    "name": "redeem",
+    "raw": "/redeem",
+    "desc": "Redeems votes for server premium.",
+    "category": "General",
+    "badge": "",
+    "examples": [
+      {
+        "cmd": "/redeem",
+        "desc": "Redeems votes for server premium."
+      }
+    ]
+  },
+  {
+    "name": "vote",
+    "raw": "/vote",
+    "desc": "Displays voting information.",
+    "category": "General",
+    "badge": "",
+    "examples": [
+      {
+        "cmd": "/vote",
+        "desc": "Displays voting information."
+      }
+    ]
+  },
+  {
+    "name": "setup auto",
+    "raw": "/setup auto",
+    "desc": "Automatically create server security log channels, roles, and categories",
+    "category": "General",
+    "badge": "",
+    "examples": [
+      {
+        "cmd": "/setup auto",
+        "desc": "Automatically create server security log channels, roles, and categories"
+      }
+    ]
+  },
+  {
+    "name": "setup view",
+    "raw": "/setup view",
+    "desc": "View current Welcome, Exit, and server configuration overview",
+    "category": "General",
+    "badge": "",
+    "examples": [
+      {
+        "cmd": "/setup view",
+        "desc": "View current Welcome, Exit, and server configuration overview"
+      }
+    ]
+  },
+  {
+    "name": "help",
+    "raw": ",help",
+    "desc": "Displays interactive command manual lists.",
+    "category": "General",
+    "badge": "",
+    "examples": [
+      {
+        "cmd": ",help",
+        "desc": "Displays interactive command manual lists."
+      }
+    ]
+  },
+  {
+    "name": "stats",
+    "raw": ",stats",
+    "desc": "Displays Veyra Team and system stats.",
+    "category": "General",
+    "badge": "",
+    "examples": [
+      {
+        "cmd": ",stats",
+        "desc": "Displays Veyra Team and system stats."
+      }
+    ]
+  },
+  {
+    "name": "ping",
+    "raw": ",ping",
+    "desc": "Measures bot latency and database performance.",
+    "category": "General",
+    "badge": "",
+    "examples": [
+      {
+        "cmd": ",ping",
+        "desc": "Measures bot latency and database performance."
+      }
+    ]
+  },
+  {
+    "name": "uptime",
+    "raw": ",uptime",
+    "desc": "Checks how long the bot has been online.",
+    "category": "General",
+    "badge": "",
+    "examples": [
+      {
+        "cmd": ",uptime",
+        "desc": "Checks how long the bot has been online."
+      }
+    ]
+  },
+  {
+    "name": "avatar",
+    "raw": ",avatar",
+    "desc": "Displays user avatar with download link",
+    "category": "General",
+    "badge": "",
+    "examples": [
+      {
+        "cmd": ",avatar",
+        "desc": "Displays user avatar with download link"
+      }
+    ]
+  },
+  {
+    "name": "userinfo",
+    "raw": ",userinfo",
+    "desc": "Displays member profile information",
+    "category": "General",
+    "badge": "",
+    "examples": [
+      {
+        "cmd": ",userinfo",
+        "desc": "Displays member profile information"
+      }
+    ]
+  },
+  {
+    "name": "247",
+    "raw": ",247",
+    "desc": "Connects and locks 24/7 voice channel",
+    "category": "General",
+    "badge": "",
+    "examples": [
+      {
+        "cmd": ",247",
+        "desc": "Connects and locks 24/7 voice channel"
+      }
+    ]
+  },
+  {
+    "name": "prefix",
+    "raw": ",prefix",
+    "desc": "View or update custom guild command prefix",
+    "category": "General",
+    "badge": "",
+    "examples": [
+      {
+        "cmd": ",prefix",
+        "desc": "View or update custom guild command prefix"
+      }
+    ]
+  },
+  {
+    "name": "about",
+    "raw": ",about",
+    "desc": "Displays information about VEYRA",
+    "category": "General",
+    "badge": "",
+    "examples": [
+      {
+        "cmd": ",about",
+        "desc": "Displays information about VEYRA"
+      }
+    ]
+  },
+  {
+    "name": "invite",
+    "raw": ",invite",
+    "desc": "Displays the invite links of VEYRA",
+    "category": "General",
+    "badge": "",
+    "examples": [
+      {
+        "cmd": ",invite",
+        "desc": "Displays the invite links of VEYRA"
+      }
+    ]
+  },
+  {
+    "name": "wl",
+    "raw": ",wl",
+    "desc": "Granular Antinuke Whitelist Manager",
+    "category": "General",
+    "badge": "",
+    "examples": [
+      {
+        "cmd": ",wl",
+        "desc": "Granular Antinuke Whitelist Manager"
+      }
+    ]
+  },
+  {
+    "name": "voicemaster",
+    "raw": ",voicemaster",
+    "desc": "VoiceMaster Setup Interface",
+    "category": "General",
+    "badge": "",
+    "examples": [
+      {
+        "cmd": ",voicemaster",
+        "desc": "VoiceMaster Setup Interface"
+      }
+    ]
+  },
+  {
+    "name": "kiss",
+    "raw": ",kiss",
+    "desc": "Kiss a server member",
+    "category": "General",
+    "badge": "",
+    "examples": [
+      {
+        "cmd": ",kiss",
+        "desc": "Kiss a server member"
+      }
+    ]
+  },
+  {
+    "name": "hug",
+    "raw": ",hug",
+    "desc": "Give a warm hug to a member",
+    "category": "General",
+    "badge": "",
+    "examples": [
+      {
+        "cmd": ",hug",
+        "desc": "Give a warm hug to a member"
+      }
+    ]
+  },
+  {
+    "name": "slap",
+    "raw": ",slap",
+    "desc": "Slap a server member",
+    "category": "General",
+    "badge": "",
+    "examples": [
+      {
+        "cmd": ",slap",
+        "desc": "Slap a server member"
+      }
+    ]
+  },
+  {
+    "name": "pat",
+    "raw": ",pat",
+    "desc": "Pat a server member",
+    "category": "General",
+    "badge": "",
+    "examples": [
+      {
+        "cmd": ",pat",
+        "desc": "Pat a server member"
+      }
+    ]
+  },
+  {
+    "name": "token",
+    "raw": ",token",
+    "desc": "Fake token generator",
+    "category": "General",
+    "badge": "",
+    "examples": [
+      {
+        "cmd": ",token",
+        "desc": "Fake token generator"
+      }
+    ]
+  },
+  {
+    "name": "howdumb",
+    "raw": ",howdumb",
+    "desc": "Check dumb percentage",
+    "category": "General",
+    "badge": "",
+    "examples": [
+      {
+        "cmd": ",howdumb",
+        "desc": "Check dumb percentage"
+      }
+    ]
+  },
+  {
+    "name": "howgay",
+    "raw": ",howgay",
+    "desc": "Check gay percentage",
+    "category": "General",
+    "badge": "",
+    "examples": [
+      {
+        "cmd": ",howgay",
+        "desc": "Check gay percentage"
+      }
+    ]
+  },
+  {
+    "name": "simprate",
+    "raw": ",simprate",
+    "desc": "Check simp percentage",
+    "category": "General",
+    "badge": "",
+    "examples": [
+      {
+        "cmd": ",simprate",
+        "desc": "Check simp percentage"
+      }
+    ]
+  },
+  {
+    "name": "nick",
+    "raw": ",nick",
+    "desc": "Change user nickname",
+    "category": "General",
+    "badge": "",
+    "examples": [
+      {
+        "cmd": ",nick",
+        "desc": "Change user nickname"
+      }
+    ]
+  },
+  {
+    "name": "whitelist",
+    "raw": ",whitelist",
+    "desc": "Server & bot execution command",
+    "category": "Admin",
+    "badge": "Admin",
+    "examples": [
+      {
+        "cmd": ",whitelist",
+        "desc": "Server & bot execution command"
+      }
+    ]
+  },
+  {
+    "name": "unwhitelist",
+    "raw": ",unwhitelist",
+    "desc": "Server & bot execution command",
+    "category": "Admin",
+    "badge": "Admin",
+    "examples": [
+      {
+        "cmd": ",unwhitelist",
+        "desc": "Server & bot execution command"
+      }
+    ]
+  },
+  {
+    "name": "timeout",
+    "raw": ",timeout",
+    "desc": "Server & bot execution command",
+    "category": "General",
+    "badge": "",
+    "examples": [
+      {
+        "cmd": ",timeout",
+        "desc": "Server & bot execution command"
+      }
+    ]
+  },
+  {
+    "name": "remove",
+    "raw": ",remove",
+    "desc": "Removes a member from the server with specified reason",
+    "category": "General",
+    "badge": "",
+    "examples": [
+      {
+        "cmd": ",remove",
+        "desc": "Removes a member from the server with specified reason"
+      }
+    ]
+  },
+  {
+    "name": "close",
+    "raw": ",close",
+    "desc": "Closes the active support ticket.",
+    "category": "General",
+    "badge": "",
+    "examples": [
+      {
+        "cmd": ",close",
+        "desc": "Closes the active support ticket."
+      }
+    ]
+  },
+  {
+    "name": "claim",
+    "raw": ",claim",
+    "desc": "Claims the active support ticket.",
+    "category": "General",
+    "badge": "",
+    "examples": [
+      {
+        "cmd": ",claim",
+        "desc": "Claims the active support ticket."
+      }
+    ]
+  },
+  {
+    "name": "reopen",
+    "raw": ",reopen",
+    "desc": "Reopens a closed support ticket.",
+    "category": "General",
+    "badge": "",
+    "examples": [
+      {
+        "cmd": ",reopen",
+        "desc": "Reopens a closed support ticket."
+      }
+    ]
+  }
+]

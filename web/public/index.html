@@ -1083,6 +1083,695 @@
             }
         }
 
+    
+        /* ========================================================
+           AMARIBOT AESTHETIC - COMPLETE WEBSITE UI OVERHAUL
+           Warm Dark Charcoal + Coral #E26749 + Layered Floating Cards
+        ======================================================== */
+        :root {
+            --amari-bg-dark: #121418;
+            --amari-card-dark: #1C1E24;
+            --amari-coral: #E26749;
+            --amari-coral-hover: #D45537;
+            --amari-coral-glow: rgba(226, 103, 73, 0.25);
+            --amari-text: #FFFFFF;
+            --amari-muted: #9DA4B0;
+            --amari-sub: #6B7280;
+        }
+
+        body {
+            background-color: var(--amari-bg-dark) !important;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;
+            color: var(--amari-text) !important;
+        }
+
+        /* Perspective floor grid */
+        .amari-perspective-floor {
+            position: absolute;
+            top: 250px;
+            left: 0;
+            width: 100%;
+            height: 600px;
+            background: linear-gradient(to bottom, transparent, rgba(18, 20, 24, 0.95)),
+                        repeating-linear-gradient(90deg, rgba(255,255,255,0.02) 0px, rgba(255,255,255,0.02) 1px, transparent 1px, transparent 60px),
+                        repeating-linear-gradient(0deg, rgba(255,255,255,0.02) 0px, rgba(255,255,255,0.02) 1px, transparent 1px, transparent 60px);
+            transform: perspective(400px) rotateX(60deg) scale(2);
+            transform-origin: bottom center;
+            pointer-events: none;
+            z-index: 1;
+            opacity: 0.55;
+        }
+
+        .amari-ambient-spotlight {
+            position: absolute;
+            top: 80px;
+            right: 8%;
+            width: 550px;
+            height: 550px;
+            background: radial-gradient(circle, rgba(226, 103, 73, 0.16) 0%, transparent 70%);
+            filter: blur(80px);
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        /* Nav */
+        .amari-nav {
+            position: relative;
+            z-index: 50;
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 24px 30px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .amari-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+            color: #FFFFFF;
+        }
+        .amari-brand-icon {
+            width: 38px;
+            height: 38px;
+            border-radius: 10px;
+            object-fit: cover;
+        }
+        .amari-brand-name {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.35rem;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            color: #FFFFFF;
+        }
+        .amari-brand-sub {
+            font-size: 0.72rem;
+            color: var(--amari-coral);
+            font-weight: 700;
+            margin-left: 2px;
+        }
+        .amari-nav-links {
+            display: flex;
+            align-items: center;
+            gap: 32px;
+            list-style: none;
+        }
+        .amari-nav-links a, .amari-nav-links button {
+            color: #D1D5DB;
+            text-decoration: none;
+            font-size: 0.95rem;
+            font-weight: 500;
+            background: none;
+            border: none;
+            cursor: pointer;
+            transition: color 0.15s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .amari-nav-links a:hover, .amari-nav-links button:hover { color: #FFFFFF; }
+        .nav-item-dropdown { position: relative; }
+        .dropdown-menu {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background: #181A20;
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 8px;
+            padding: 8px;
+            min-width: 140px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            display: none;
+            flex-direction: column;
+            gap: 4px;
+            z-index: 100;
+        }
+        .nav-item-dropdown:hover .dropdown-menu { display: flex; }
+        .dropdown-menu a {
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 0.88rem;
+            color: #9DA4B0;
+            text-decoration: none;
+        }
+        .dropdown-menu a:hover {
+            background: rgba(255,255,255,0.05);
+            color: #FFFFFF;
+        }
+        .amari-login-btn {
+            background: transparent;
+            border: 1px solid rgba(255, 255, 255, 0.16);
+            color: #FFFFFF;
+            padding: 8px 24px;
+            border-radius: 8px;
+            font-size: 0.92rem;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.2s ease;
+        }
+        .amari-login-btn:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+
+        /* Hero */
+        .amari-hero-wrap {
+            position: relative;
+            z-index: 10;
+            max-width: 1240px;
+            margin: 0 auto;
+            padding: 70px 24px 100px 24px;
+            display: grid;
+            grid-template-columns: 1.1fr 0.9fr;
+            gap: 60px;
+            align-items: center;
+        }
+        .amari-hero-left {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        .amari-hero-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: clamp(2.8rem, 5.2vw, 4.4rem);
+            font-weight: 800;
+            line-height: 1.1;
+            letter-spacing: -0.03em;
+            color: #FFFFFF;
+            margin-bottom: 20px;
+        }
+        .amari-coral-text {
+            color: var(--amari-coral);
+            display: inline-block;
+        }
+        .amari-hero-p {
+            font-size: 1.05rem;
+            line-height: 1.7;
+            color: var(--amari-muted);
+            max-width: 520px;
+            margin-bottom: 34px;
+        }
+        .amari-hero-actions {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+        }
+        .btn-amari-coral {
+            background: var(--amari-coral);
+            color: #FFFFFF;
+            font-family: 'Outfit', sans-serif;
+            font-size: 1rem;
+            font-weight: 700;
+            padding: 13px 30px;
+            border-radius: 8px;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 20px rgba(226, 103, 73, 0.35);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .btn-amari-coral:hover {
+            background: var(--amari-coral-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 25px rgba(226, 103, 73, 0.5);
+        }
+        .btn-amari-link {
+            color: #FFFFFF;
+            font-size: 0.95rem;
+            font-weight: 600;
+            text-decoration: none;
+            transition: color 0.15s;
+        }
+        .btn-amari-link:hover {
+            color: var(--amari-coral);
+        }
+
+        /* Hero Right: Layered Cards Showcase */
+        .amari-hero-showcase {
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 400px;
+        }
+        .amari-leaderboard-card {
+            background: #1C1E24;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            width: 320px;
+            overflow: hidden;
+            box-shadow: 0 25px 60px rgba(0,0,0,0.6);
+            transform: translateY(-20px);
+            position: relative;
+            z-index: 2;
+        }
+        .card-header-amari {
+            padding: 16px 18px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: #18191E;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+        }
+        .card-header-amari img {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+        .card-header-amari .hdr-title {
+            font-family: 'Outfit', sans-serif;
+            font-weight: 700;
+            font-size: 0.95rem;
+            color: #FFFFFF;
+        }
+        .card-header-amari .hdr-sub {
+            font-size: 0.72rem;
+            color: var(--amari-muted);
+        }
+        .leaderboard-rows {
+            padding: 12px 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .lb-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .lb-rank {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 800;
+            width: 16px;
+            text-align: center;
+        }
+        .rank-gold { color: #F59E0B; }
+        .rank-silver { color: #CBD5E1; }
+        .rank-bronze { color: #D97706; }
+        .lb-avatar {
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .lb-info {
+            display: flex;
+            flex-direction: column;
+            gap: 1px;
+        }
+        .lb-name {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: #FFFFFF;
+        }
+        .lb-sub {
+            font-size: 0.72rem;
+            color: var(--amari-sub);
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        /* Floating Overlapping Front Card */
+        .amari-floating-rank-card {
+            position: absolute;
+            bottom: 10px;
+            right: 0;
+            background: linear-gradient(135deg, rgba(226, 103, 73, 0.96), rgba(212, 85, 55, 0.96));
+            border: 1.5px solid rgba(255, 255, 255, 0.35);
+            border-radius: 12px;
+            padding: 14px 18px;
+            box-shadow: 0 15px 40px rgba(226, 103, 73, 0.45);
+            z-index: 5;
+            width: 310px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            backdrop-filter: blur(8px);
+        }
+        .floating-user-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .floating-avatar {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: #FFFFFF;
+            padding: 2px;
+            object-fit: cover;
+        }
+        .floating-name {
+            font-family: 'Outfit', sans-serif;
+            font-weight: 800;
+            font-size: 0.95rem;
+            color: #FFFFFF;
+        }
+        .floating-stats {
+            display: flex;
+            gap: 10px;
+            margin-top: 3px;
+        }
+        .floating-stat-item {
+            display: flex;
+            flex-direction: column;
+        }
+        .floating-stat-lbl {
+            font-size: 0.55rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: rgba(255, 255, 255, 0.7);
+            font-weight: 700;
+        }
+        .floating-stat-val {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+            font-weight: 800;
+            color: #FFFFFF;
+        }
+        .floating-badge-box {
+            background: rgba(0, 0, 0, 0.2);
+            padding: 6px 10px;
+            border-radius: 6px;
+            text-align: center;
+        }
+        .floating-lvl-txt {
+            font-size: 0.62rem;
+            color: rgba(255,255,255,0.8);
+            font-weight: 700;
+        }
+        .floating-lvl-num {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 800;
+            color: #FFFFFF;
+        }
+
+        /* SECTION 2: Organic Curved White Container */
+        .amari-white-section {
+            background: #FFFFFF;
+            color: #1A1A1A;
+            border-top-left-radius: 50px 30px;
+            border-top-right-radius: 50px 30px;
+            padding: 90px 24px 100px 24px;
+            position: relative;
+            z-index: 20;
+            margin-top: -30px;
+        }
+        .amari-section-header {
+            text-align: center;
+            max-width: 750px;
+            margin: 0 auto 50px auto;
+        }
+        .amari-eyebrow {
+            font-size: 0.82rem;
+            font-weight: 800;
+            color: var(--amari-coral);
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+        .amari-section-h2 {
+            font-family: 'Outfit', sans-serif;
+            font-size: clamp(2rem, 4vw, 2.7rem);
+            font-weight: 800;
+            color: #111827;
+            letter-spacing: -0.02em;
+            line-height: 1.2;
+            margin-bottom: 12px;
+        }
+        .amari-section-sub {
+            font-size: 1rem;
+            color: #6B7280;
+            margin-bottom: 20px;
+        }
+        .amari-mascots-row {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 14px;
+            font-size: 2rem;
+        }
+
+        /* 2-Column Feature Showcase Layout */
+        .amari-feature-grid {
+            display: grid;
+            grid-template-columns: 1fr 1.1fr;
+            gap: 50px;
+            max-width: 1200px;
+            margin: 0 auto;
+            align-items: center;
+        }
+        .feature-tabs-col {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+        .amari-feat-tab {
+            padding: 20px 24px;
+            border-radius: 14px;
+            border: 2px solid transparent;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            background: #FAFAFA;
+        }
+        .amari-feat-tab:hover {
+            background: #F3F4F6;
+        }
+        .amari-feat-tab.active {
+            background: #FFFFFF;
+            border-color: var(--amari-coral);
+            box-shadow: 0 10px 30px rgba(226, 103, 73, 0.12);
+        }
+        .feat-tab-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.15rem;
+            font-weight: 800;
+            color: #111827;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 6px;
+        }
+        .feat-tab-desc {
+            font-size: 0.92rem;
+            color: #4B5563;
+            line-height: 1.6;
+        }
+
+        /* Right Big Mockup Box */
+        .amari-mockup-wrap {
+            background: linear-gradient(180deg, #FFF1EE 0%, #FFE5DF 100%);
+            border: 2px solid rgba(226, 103, 73, 0.25);
+            border-radius: 24px;
+            padding: 32px;
+            box-shadow: 0 25px 60px rgba(226, 103, 73, 0.15);
+            position: relative;
+        }
+        .discord-mock-window {
+            background: #2B2D31;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .discord-mock-header {
+            background: #1E1F22;
+            padding: 10px 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            color: #94A3B8;
+            font-weight: 600;
+        }
+        .discord-mock-body {
+            padding: 18px 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+        .discord-chat-msg {
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+        }
+        .discord-chat-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+        .chat-content {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            width: 100%;
+        }
+        .chat-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .chat-username {
+            font-weight: 700;
+            color: #FFFFFF;
+            font-size: 0.9rem;
+        }
+        .chat-bot-tag {
+            background: #5865F2;
+            color: #FFFFFF;
+            font-size: 0.6rem;
+            font-weight: 800;
+            padding: 1px 4px;
+            border-radius: 4px;
+        }
+        .chat-text {
+            color: #DBDEE1;
+            font-size: 0.88rem;
+            line-height: 1.45;
+        }
+        .chat-embed-box {
+            background: #232428;
+            border-left: 4px solid #10B981;
+            border-radius: 4px 8px 8px 4px;
+            padding: 12px 14px;
+            margin-top: 4px;
+        }
+        .chat-embed-title {
+            color: #FFFFFF;
+            font-weight: 700;
+            font-size: 0.85rem;
+            margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .chat-embed-desc {
+            font-size: 0.78rem;
+            color: #B5BAC1;
+            line-height: 1.4;
+        }
+
+        /* Floating Level/Badge on Mockup */
+        .mockup-floating-badge {
+            position: absolute;
+            bottom: 15px;
+            right: 15px;
+            background: #111215;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 10px;
+            padding: 10px 14px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            z-index: 10;
+        }
+        .mockup-badge-txt {
+            display: flex;
+            flex-direction: column;
+        }
+        .mockup-badge-lbl {
+            font-size: 0.65rem;
+            font-weight: 800;
+            color: #10B981;
+            text-transform: uppercase;
+        }
+        .mockup-badge-sub {
+            font-size: 0.75rem;
+            color: #9CA3AF;
+        }
+
+        /* SECTION 4: Bottom Dark CTA & Footer */
+        .amari-bottom-cta {
+            background: #121418;
+            color: #FFFFFF;
+            border-top-left-radius: 50px 30px;
+            border-top-right-radius: 50px 30px;
+            padding: 90px 24px 60px 24px;
+            position: relative;
+            z-index: 20;
+            text-align: center;
+            margin-top: -30px;
+        }
+        .cta-eyebrow {
+            font-size: 0.82rem;
+            font-weight: 800;
+            color: var(--amari-coral);
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            margin-bottom: 12px;
+        }
+        .cta-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: clamp(2rem, 4.5vw, 3.2rem);
+            font-weight: 800;
+            color: #FFFFFF;
+            letter-spacing: -0.02em;
+            margin-bottom: 30px;
+        }
+        .cta-btn-row {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 24px;
+            margin-bottom: 60px;
+        }
+
+        /* Amari Minimal Footer */
+        .amari-minimal-footer {
+            border-top: 1px solid rgba(255, 255, 255, 0.06);
+            padding-top: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+            color: #6B7280;
+            font-size: 0.88rem;
+        }
+        .amari-minimal-footer a {
+            color: #9CA3AF;
+            text-decoration: none;
+            margin: 0 10px;
+            transition: color 0.15s;
+        }
+        .amari-minimal-footer a:hover {
+            color: #FFFFFF;
+        }
+
+        @media (max-width: 992px) {
+            .amari-hero-wrap, .amari-feature-grid {
+                grid-template-columns: 1fr;
+                gap: 40px;
+            }
+            .amari-hero-left {
+                align-items: center;
+                text-align: center;
+            }
+            .amari-hero-p {
+                text-align: center;
+            }
+            .amari-hero-actions {
+                justify-content: center;
+            }
+            .amari-nav-links {
+                display: none;
+            }
+            .amari-minimal-footer {
+                flex-direction: column;
+                gap: 16px;
+                text-align: center;
+            }
+        }
+
     </style>
 
     <script>
@@ -1662,149 +2351,31 @@
     </div>
 
     <!-- Header Navigation Bar (Image 2 Replica) -->
-    <nav class="navbar" id="main-nav">
-        <!-- 1. VEYRA Logo Left -->
-        <a href="/" onclick="showScreen('landing'); return false;" class="nav-logo-box" title="VEYRA Homepage">
-            <img src="assets/bypass_logs_avatar.webp" alt="VEYRA Logo" onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png'">
-            <span>VEYRA</span>
+    <nav class="amari-nav">
+        <a href="/" class="amari-brand">
+            <img src="assets/bypass_logs_avatar.webp" class="amari-brand-icon" alt="VEYRA" onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png'">
+            <div>
+                <span class="amari-brand-name">veyra</span>
+                <span class="amari-brand-sub">bot</span>
+            </div>
         </a>
 
-        <!-- 2. Center Nav Pill Cluster -->
-        <ul class="nav-links-center" id="desktop-nav-links">
-            <li>
-                <a href="/" onclick="showScreen('landing'); return false;" class="nav-pill-btn active">Home</a>
-            </li>
-
-            <li class="nav-has-dropdown" id="nav-dropdown-features">
-                <button class="nav-pill-btn" onclick="toggleNavDropdown('nav-dropdown-features', event)">
-                    <span>Features</span>
-                    <i class="fas fa-chevron-down nav-arrow"></i>
-                </button>
-                <div class="nav-mega-dropdown" id="features-mega-menu">
-                    <div class="mega-grid">
-                        <a href="/#security" onclick="closeNavDropdowns(); clickNavSection('features');" class="mega-item">
-                            <div class="mega-icon" style="color: #ef4444; background: rgba(239,68,68,0.12);"><i class="fas fa-shield-halved"></i></div>
-                            <div>
-                                <div class="mega-title">Moderation</div>
-                                <div class="mega-desc">Warnings, anti-raid & protection features</div>
-                            </div>
-                        </a>
-                        <a href="/#features" onclick="closeNavDropdowns(); clickNavSection('features');" class="mega-item">
-                            <div class="mega-icon" style="color: #00c2ff; background: rgba(0,194,255,0.12);"><i class="fas fa-music"></i></div>
-                            <div>
-                                <div class="mega-title">Music</div>
-                                <div class="mega-desc">Playback controls, queue & 24/7 integrations</div>
-                            </div>
-                        </a>
-                        <a href="/manage.html" class="mega-item">
-                            <div class="mega-icon" style="color: #10b981; background: rgba(16,185,129,0.12);"><i class="fas fa-sliders"></i></div>
-                            <div>
-                                <div class="mega-title">Server Management</div>
-                                <div class="mega-desc">Channels, categories, roles & permissions</div>
-                            </div>
-                        </a>
-                        <a href="/ticket.html" class="mega-item">
-                            <div class="mega-icon" style="color: #FF6E42; background: rgba(255,110,66,0.12);"><i class="fas fa-bolt"></i></div>
-                            <div>
-                                <div class="mega-title">Automation &amp; Utilities</div>
-                                <div class="mega-desc">Supported workflows, ticket panels & tools</div>
-                            </div>
-                        </a>
-                    </div>
-                    <div class="mega-footer">
-                        <a href="/#features" onclick="closeNavDropdowns(); clickNavSection('features');" class="mega-explore-link">
-                            <span>Explore All Features</span>
-                            <i class="fas fa-arrow-right"></i>
-                        </a>
-                    </div>
+        <ul class="amari-nav-links">
+            <li><a href="/commands.html">Commands</a></li>
+            <li class="nav-item-dropdown">
+                <button type="button">About <i class="fas fa-chevron-down" style="font-size: 0.7rem; margin-left: 2px;"></i></button>
+                <div class="dropdown-menu">
+                    <a href="/about.html">Docs</a>
+                    <a href="/about.html#faq">FAQ</a>
+                    <a href="/about.html#api">API</a>
                 </div>
             </li>
-
-            <li>
-                <a href="/#features" onclick="clickNavSection('features');" class="nav-pill-btn">Commands</a>
-            </li>
-
-            <li>
-                <a href="/#pricing" onclick="clickNavSection('pricing');" class="nav-pill-btn">Premium</a>
-            </li>
-
-            <li class="nav-has-dropdown" id="nav-dropdown-docs">
-                <button class="nav-pill-btn" onclick="toggleNavDropdown('nav-dropdown-docs', event)">
-                    <span>Docs</span>
-                    <i class="fas fa-chevron-down nav-arrow"></i>
-                </button>
-                <div class="nav-dropdown-menu" id="docs-dropdown-menu">
-                    <a href="/about.html" class="dropdown-link"><i class="fas fa-book-open"></i> Getting Started</a>
-                    <a href="/about.html#setup" class="dropdown-link"><i class="fas fa-wrench"></i> Setup Guide</a>
-                    <a href="/about.html#permissions" class="dropdown-link"><i class="fas fa-lock"></i> Permissions</a>
-                    <a href="/about.html#api" class="dropdown-link"><i class="fas fa-code"></i> API &amp; Dev Docs</a>
-                    <a href="/#faq" onclick="closeNavDropdowns(); clickNavSection('faq');" class="dropdown-link"><i class="fas fa-circle-question"></i> FAQ</a>
-                </div>
-            </li>
+            <li><a href="/premium.html">Premium</a></li>
+            <li><a href="https://discord.gg/77P5Cq837X" target="_blank" rel="noreferrer">Support</a></li>
         </ul>
 
-        <!-- 3. Right Action Pills + User Widget (Preserved for Login) -->
-        <div class="nav-actions-right">
-            <button class="nav-dashboard-pill" onclick="clickManageServers()" id="nav-dashboard-button" title="Open Server Dashboard">
-                <i class="fas fa-table-cells-large" style="color: #00c2ff;"></i>
-                <span>Dashboard</span>
-            </button>
-
-            <a href="https://discord.com/oauth2/authorize?client_id=1527243189860175933&permissions=8&integration_type=0&scope=bot+applications.commands" target="_blank" rel="noreferrer" class="nav-cta-pill">
-                <i class="fab fa-discord"></i>
-                <span>Add to Discord</span>
-            </a>
-
-            <!-- Logged-in Header Dropdown Buttons -->
-            <div id="header-user-widgets" style="display: none; align-items: center; gap: 10px; position: relative;">
-                <!-- Server Avatar Dropdown Trigger -->
-                <div id="header-server-dropdown-trigger-container" style="position: relative; display: none;">
-                    <div onclick="toggleHeaderDropdown('header-server-dropdown')" style="display: flex; align-items: center; gap: 6px; cursor: pointer; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); padding: 4px 10px 4px 6px; border-radius: 20px;">
-                        <div style="width: 28px; height: 28px; border-radius: 50%; background: #a855f7; overflow: hidden; display: flex; align-items: center; justify-content: center;" id="header-server-avatar-img">
-                            <img src="assets/bypass_logs_avatar.webp" style="width: 100%; height: 100%; object-fit: cover;">
-                        </div>
-                        <i class="fas fa-caret-down" style="color: #94a3b8; font-size: 0.75rem;"></i>
-                    </div>
-                    <div id="header-server-dropdown" style="display: none; position: absolute; right: 0; top: 42px; width: 240px; background: #2f3136; border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; box-shadow: 0 15px 35px rgba(0,0,0,0.7); z-index: 9999; overflow: hidden; font-family: sans-serif;">
-                        <div style="border-left: 4px solid #7c3aed; background: #202225; padding: 12px 14px; display: flex; align-items: center; gap: 10px;">
-                            <div style="width: 32px; height: 32px; border-radius: 50%; overflow: hidden; background: #7c3aed;" id="header-server-dropdown-icon">
-                                <img src="assets/bypass_logs_avatar.webp" style="width: 100%; height: 100%; object-fit: cover;">
-                            </div>
-                            <div>
-                                <div style="font-size: 0.65rem; font-weight: 800; color: #a855f7; letter-spacing: 0.08em; text-transform: uppercase;">CURRENT SERVER</div>
-                                <div style="font-size: 0.88rem; font-weight: 700; color: #fff;" id="header-server-dropdown-name">SERVER PORTAL</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- User Avatar Dropdown Trigger -->
-                <div style="position: relative;">
-                    <div onclick="toggleHeaderDropdown('header-user-dropdown')" style="display: flex; align-items: center; gap: 6px; cursor: pointer; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); padding: 4px 10px 4px 6px; border-radius: 20px;">
-                        <div style="width: 28px; height: 28px; border-radius: 50%; background: #9333ea; overflow: hidden; display: flex; align-items: center; justify-content: center; font-weight: 700; color: #fff; font-size: 0.85rem;" id="header-user-avatar-img">
-                            D
-                        </div>
-                        <i class="fas fa-caret-down" style="color: #94a3b8; font-size: 0.75rem;"></i>
-                    </div>
-                    <div id="header-user-dropdown" style="display: none; position: absolute; right: 0; top: 42px; width: 220px; background: #2f3136; border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; box-shadow: 0 15px 35px rgba(0,0,0,0.7); z-index: 9999; overflow: hidden; font-family: sans-serif;">
-                        <div style="border-left: 4px solid #7c3aed; background: #202225; padding: 12px 14px; display: flex; align-items: center; gap: 10px;">
-                            <div style="width: 32px; height: 32px; border-radius: 50%; overflow: hidden; background: #9333ea; display: flex; align-items: center; justify-content: center; font-weight: 700; color: #fff; font-size: 0.9rem;" id="header-user-dropdown-avatar">
-                                D
-                            </div>
-                            <div>
-                                <div style="font-size: 0.65rem; font-weight: 800; color: #a855f7; letter-spacing: 0.08em; text-transform: uppercase;">SIGNED IN AS</div>
-                                <div style="font-size: 0.88rem; font-weight: 700; color: #fff;" id="header-user-dropdown-name">!! DADDY</div>
-                            </div>
-                        </div>
-                        <div style="padding: 6px;">
-                            <button onclick="logout()" style="width: 100%; text-align: left; background: transparent; border: none; padding: 10px 12px; border-radius: 4px; color: #dcddde; font-size: 0.88rem; font-weight: 600; display: flex; align-items: center; gap: 10px; cursor: pointer; transition: background 0.15s, color 0.15s;" onmouseover="this.style.background='#36393f'; this.style.color='#ef4444';" onmouseout="this.style.background='transparent'; this.style.color='#dcddde';">
-                                <i class="fas fa-right-from-bracket" style="font-size: 0.95rem; color: #8e9297;"></i>
-                                <span>Log out</span>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
+        <div>
+            <a href="/manage" class="amari-login-btn">Dashboard</a>
         </div>
     </nav>
 
@@ -1812,325 +2383,216 @@
     <main id="main-content" style="opacity: 1; pointer-events: auto; transition: opacity 1.5s ease;">
 
         <!-- [SCREEN 1: PUBLIC LANDING PAGE] -->
-        <section id="screen-landing" class="screen-section">
-             <!-- VEYRA BOT upper text banner on homepage -->
-            <!-- [NEW MODERN HERO SECTION: REAL-TIME OPERATIONS COCKPIT] -->
-            <div class="veyra-hero-container">
-                <!-- Ambient Glow Lights Behind Hero -->
-                <div class="hero-ambient-glow hero-glow-violet"></div>
-                <div class="hero-ambient-glow hero-glow-ember"></div>
-                <div class="hero-grid-pattern"></div>
+        <section id="screen-landing" class="screen-section" style="padding: 0; margin: 0; background: transparent;">
+        
+        <!-- Perspective floor grid & spotlight -->
+        <div class="amari-perspective-floor"></div>
+        <div class="amari-ambient-spotlight"></div>
 
-                <div class="hero-content-grid">
-                    <!-- LEFT COLUMN: Value Proposition & High-Conversion CTAs -->
-                    <div class="hero-left-column">
-                        <!-- Live Status Pill -->
-                        <div class="hero-live-pill">
-                            <span class="live-pulse-dot"></span>
-                            <span class="live-pill-tag">KERNEL v4.2</span>
-                            <span class="live-pill-sep">/</span>
-                            <span class="live-pill-label">AUTONOMOUS DISCORD DEFENSE</span>
-                        </div>
+        <!-- [SECTION 1: AMARIBOT WARM-DARK HERO] -->
+        <div class="amari-hero-wrap">
+            <div class="amari-hero-left">
+                <h1 class="amari-hero-title">
+                    The all-in-one discord<br>
+                    <span class="amari-coral-text">security &amp; power</span><br>
+                    bot
+                </h1>
+                <p class="amari-hero-p">
+                    Protect your community, stop raids instantly, automate tickets, manage roles, and reward active members with seamless 24/7 reliability.
+                </p>
+                <div class="amari-hero-actions">
+                    <a href="https://discord.com/oauth2/authorize?client_id=1527243189860175933&permissions=8&integration_type=0&scope=bot+applications.commands" target="_blank" rel="noreferrer" class="btn-amari-coral">
+                        Add to Discord
+                    </a>
+                    <a href="/manage" class="btn-amari-link">
+                        Support Server &rarr;
+                    </a>
+                </div>
+            </div>
 
-                        <!-- Main Display Headline -->
-                        <h1 class="hero-title">
-                            Next-Gen Discord Engine.<br>
-                            <span class="hero-title-gradient">Zero-Latency Defense &amp; Automation.</span>
-                        </h1>
-
-                        <!-- Lead Paragraph -->
-                        <p class="hero-lead">
-                            Stop raids, rogue admins, and token breaches before they hit your audit log. VEYRA combines autonomous anti-nuke triggers, instant member verification gates, intelligent automod heuristics, and multi-channel ticket pipelines in one unified real-time cockpit.
-                        </p>
-
-                        <!-- High Conversion CTA Buttons -->
-                        <div class="hero-cta-group">
-                            <a href="https://discord.com/oauth2/authorize?client_id=1527243189860175933&permissions=8&integration_type=0&scope=bot+applications.commands" target="_blank" rel="noreferrer" class="btn-hero-primary">
-                                <i class="fab fa-discord"></i>
-                                <span>Add VEYRA to Discord</span>
-                                <i class="fas fa-arrow-right" style="font-size: 0.85rem; margin-left: 2px;"></i>
-                            </a>
-                            <button onclick="clickManageServers()" class="btn-hero-secondary">
-                                <span class="btn-status-pip"></span>
-                                <span>Open Dashboard</span>
-                            </button>
-                        </div>
-
-                        <!-- Micro Trust Guarantee -->
-                        <div class="hero-trust-bar">
-                            <div class="trust-item">
-                                <i class="fas fa-check-circle"></i>
-                                <span>Free Tier Included</span>
-                            </div>
-                            <div class="trust-item">
-                                <i class="fas fa-check-circle"></i>
-                                <span>Instant 1-Click Setup</span>
-                            </div>
-                            <div class="trust-item">
-                                <i class="fas fa-check-circle"></i>
-                                <span>No Credit Card Required</span>
-                            </div>
-                        </div>
-
-                        <!-- Live Telemetry Bento Grid (4 Cards) -->
-                        <div class="hero-bento-metrics">
-                            <div class="bento-metric-card">
-                                <div class="metric-icon-wrap">
-                                    <i class="fas fa-server"></i>
-                                </div>
-                                <div class="metric-val">28,491+</div>
-                                <div class="metric-lbl">Active Guilds</div>
-                            </div>
-
-                            <div class="bento-metric-card">
-                                <div class="metric-icon-wrap">
-                                    <i class="fas fa-shield-halved text-ember"></i>
-                                </div>
-                                <div class="metric-val text-ember">14.8M+</div>
-                                <div class="metric-lbl">Users Guarded</div>
-                            </div>
-
-                            <div class="bento-metric-card">
-                                <div class="metric-icon-wrap">
-                                    <i class="fas fa-bolt text-emerald"></i>
-                                </div>
-                                <div class="metric-val text-emerald">&lt; 0.04ms</div>
-                                <div class="metric-lbl">Edge Latency</div>
-                            </div>
-
-                            <div class="bento-metric-card">
-                                <div class="metric-icon-wrap">
-                                    <i class="fas fa-heart-pulse text-violet"></i>
-                                </div>
-                                <div class="metric-val text-violet">99.99%</div>
-                                <div class="metric-lbl">Uptime SLA</div>
-                            </div>
+            <div class="amari-hero-showcase">
+                <!-- Back Leaderboard Card -->
+                <div class="amari-leaderboard-card">
+                    <div class="card-header-amari">
+                        <img src="assets/bypass_logs_avatar.webp" alt="Veyra" onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png'">
+                        <div>
+                            <div class="hdr-title">VeyraBot</div>
+                            <div class="hdr-sub">Active Protection</div>
                         </div>
                     </div>
-
-                    <!-- RIGHT COLUMN: Interactive Control Cockpit -->
-                    <div class="hero-right-column">
-                        <div class="cockpit-glass-window">
-                            <!-- Window Header -->
-                            <div class="cockpit-header">
-                                <div class="cockpit-traffic-dots">
-                                    <span class="dot dot-red"></span>
-                                    <span class="dot dot-amber"></span>
-                                    <span class="dot dot-green"></span>
-                                </div>
-                                <div class="cockpit-title-tag">
-                                    <span class="cockpit-status-dot"></span>
-                                    <span class="cockpit-feed-title"># veyra-sentinel-feed</span>
-                                </div>
-                                <div class="cockpit-latency-pill">
-                                    <span class="latency-pulse"></span>
-                                    <span>0.04ms · SHARD #04</span>
-                                </div>
+                    <div class="leaderboard-rows">
+                        <div class="lb-row">
+                            <span class="lb-rank rank-gold">1</span>
+                            <img src="assets/bypass_logs_avatar.webp" class="lb-avatar" onerror="this.src='https://cdn.discordapp.com/embed/avatars/1.png'">
+                            <div class="lb-info">
+                                <span class="lb-name">Anti-Raid Shield</span>
+                                <span class="lb-sub">100% Armed &bull; 0.04ms</span>
                             </div>
-
-                            <!-- Segmented Module Selector Tabs -->
-                            <div class="cockpit-module-tabs">
-                                <button class="cockpit-tab active" onclick="switchHeroSimulatorTab('antinuke', this)">
-                                    <i class="fas fa-shield-halved"></i>
-                                    <span>Anti-Nuke</span>
-                                </button>
-                                <button class="cockpit-tab" onclick="switchHeroSimulatorTab('tickets', this)">
-                                    <i class="fas fa-ticket"></i>
-                                    <span>Tickets</span>
-                                </button>
-                                <button class="cockpit-tab" onclick="switchHeroSimulatorTab('voice', this)">
-                                    <i class="fas fa-music"></i>
-                                    <span>24/7 Voice</span>
-                                </button>
-                                <button class="cockpit-tab" onclick="switchHeroSimulatorTab('automod', this)">
-                                    <i class="fas fa-bolt"></i>
-                                    <span>Auto-Mod</span>
-                                </button>
+                        </div>
+                        <div class="lb-row">
+                            <span class="lb-rank rank-silver">2</span>
+                            <img src="assets/bypass_logs_avatar.webp" class="lb-avatar" onerror="this.src='https://cdn.discordapp.com/embed/avatars/2.png'">
+                            <div class="lb-info">
+                                <span class="lb-name">Nuclear Guard</span>
+                                <span class="lb-sub">Audit Traps Active</span>
                             </div>
-
-                            <!-- Live Discord Interaction Stream -->
-                            <div class="cockpit-body">
-                                <div class="cockpit-cmd-line">
-                                    <span class="cmd-user">@Admin</span>
-                                    <span class="cmd-used">used</span>
-                                    <code class="cmd-code" id="hero-sim-command">/security shield-status: true</code>
-                                </div>
-
-                                <!-- Response Card -->
-                                <div class="cockpit-bot-card">
-                                    <img src="assets/bypass_logs_avatar.webp" class="cockpit-bot-avatar" onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png'">
-                                    <div class="cockpit-bot-content">
-                                        <div class="cockpit-bot-header">
-                                            <span class="bot-name">VEYRA</span>
-                                            <span class="bot-badge">APP</span>
-                                            <span class="bot-time">Today at 12:45 PM</span>
-                                        </div>
-
-                                        <!-- Embed Card -->
-                                        <div class="cockpit-embed" id="hero-embed-card">
-                                            <div class="embed-title" id="hero-embed-title">
-                                                <i class="fas fa-shield-halved text-ember"></i>
-                                                <span>Anti-Nuke Sentinel System</span>
-                                            </div>
-                                            <div class="embed-desc" id="hero-embed-desc">
-                                                Autonomous audit log scanner is actively intercepting rogue admin modifications. Mass channel deletion, role stripping, and webhook creation traps are armed.
-                                            </div>
-
-                                            <div class="embed-metrics-grid" id="hero-embed-fields">
-                                                <div class="embed-metric-cell">
-                                                    <span class="metric-cell-lbl">RAID DEFENSE</span>
-                                                    <span class="metric-cell-val text-emerald">100% SECURE</span>
-                                                </div>
-                                                <div class="embed-metric-cell">
-                                                    <span class="metric-cell-lbl">ACTION THRESHOLD</span>
-                                                    <span class="metric-cell-val text-ember">3 Ops / 10s</span>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <!-- Live Action Controls -->
-                                        <div class="cockpit-action-row" id="hero-embed-buttons">
-                                            <button onclick="handleHeroSimAction('scan')" class="cockpit-btn cockpit-btn-primary">
-                                                <i class="fas fa-radar"></i> Run Threat Scan
-                                            </button>
-                                            <button onclick="handleHeroSimAction('whitelist')" class="cockpit-btn cockpit-btn-secondary">
-                                                <i class="fas fa-user-check"></i> Whitelist Admins
-                                            </button>
-                                            <button onclick="handleHeroSimAction('restore')" class="cockpit-btn cockpit-btn-success">
-                                                <i class="fas fa-rotate"></i> Auto-Repair
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Cockpit Footer Telemetry Strip -->
-                            <div class="cockpit-footer-telemetry">
-                                <div class="telemetry-item">
-                                    <span class="telemetry-lbl">Cluster:</span>
-                                    <span class="telemetry-val">Asia-South</span>
-                                </div>
-                                <div class="telemetry-item">
-                                    <span class="telemetry-lbl">Memory:</span>
-                                    <span class="telemetry-val text-emerald">28.4 MB</span>
-                                </div>
-                                <div class="telemetry-item">
-                                    <span class="telemetry-lbl">WebSocket:</span>
-                                    <span class="telemetry-val text-emerald">0ms loss</span>
-                                </div>
+                        </div>
+                        <div class="lb-row">
+                            <span class="lb-rank rank-bronze">3</span>
+                            <img src="assets/bypass_logs_avatar.webp" class="lb-avatar" onerror="this.src='https://cdn.discordapp.com/embed/avatars/3.png'">
+                            <div class="lb-info">
+                                <span class="lb-name">Smart AutoMod</span>
+                                <span class="lb-sub">Spam &amp; Raid Filter</span>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
-            
-            <!-- [TICKET SHOWCASE SECTION] -->
-            <div style="max-width: 1100px; margin: 100px auto; padding: 0 20px;">
-                <div class="glass-card" style="background: linear-gradient(135deg, rgba(168, 85, 247, 0.02), rgba(0, 0, 0, 0.5)); border: 1.5px solid rgba(168, 85, 247, 0.1); border-radius: 24px; padding: 50px 40px; display: grid; grid-template-columns: 1fr 1.1fr; gap: 40px; align-items: center; box-shadow: 0 30px 60px rgba(0,0,0,0.6); position: relative; overflow: hidden;">
-                    <div style="position: absolute; top: 0; left: 0; width: 100%; height: 2px; background: linear-gradient(90deg, transparent, rgba(168, 85, 247, 0.4), transparent);"></div>
-                    
-                    <!-- Left: Description and Info -->
-                    <div>
-                        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px;">
-                            <div style="width: 8px; height: 8px; border-radius: 50%; background: #a855f7; box-shadow: 0 0 8px #a855f7;"></div>
-                            <span style="font-family: var(--font-mono); font-size: 0.72rem; color: #c084fc; font-weight: 800; letter-spacing: 0.2em; text-transform: uppercase;">Ticket Operations</span>
-                        </div>
-                        <h2 style="font-size: clamp(1.8rem, 4vw, 2.4rem); font-weight: 800; color: #fff; margin: 0 0 16px 0; font-family: var(--font-display); letter-spacing: -0.02em; line-height: 1.2;">Automated Support<br>Ticketing Cores</h2>
-                        <p style="font-size: 0.95rem; color: var(--text-secondary); line-height: 1.6; margin-bottom: 24px;">
-                            Simplify support in your community. VEYRA provides a state-of-the-art drag-and-drop ticket panel builder with instant transcripts, custom workflows, and staff claim queues.
-                        </p>
-                        
-                        <div style="display: flex; flex-direction: column; gap: 12px; font-family: var(--font-display); font-size: 0.9rem; color: #fff; font-weight: 600;">
-                            <div style="display: flex; align-items: center; gap: 10px;">
-                                <i class="fas fa-circle-check" style="color: #a855f7; font-size: 1rem;"></i>
-                                <span>Multi-Panel Visual Layout Designer</span>
-                            </div>
-                            <div style="display: flex; align-items: center; gap: 10px;">
-                                <i class="fas fa-circle-check" style="color: #a855f7; font-size: 1rem;"></i>
-                                <span>Interactive HTML Transcripts with Attachments</span>
-                            </div>
-                            <div style="display: flex; align-items: center; gap: 10px;">
-                                <i class="fas fa-circle-check" style="color: #a855f7; font-size: 1rem;"></i>
-                                <span>Flexible Claim Queues & Custom Logging Channels</span>
+
+                <!-- Floating Overlapping Front Rank Card -->
+                <div class="amari-floating-rank-card">
+                    <div class="floating-user-left">
+                        <img src="assets/bypass_logs_avatar.webp" class="floating-avatar" onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png'">
+                        <div>
+                            <div class="floating-name">KSJaay#2487</div>
+                            <div class="floating-stats">
+                                <div class="floating-stat-item">
+                                    <span class="floating-stat-lbl">SERVER RANK</span>
+                                    <span class="floating-stat-val">#1</span>
+                                </div>
+                                <div class="floating-stat-item">
+                                    <span class="floating-stat-lbl">STATUS</span>
+                                    <span class="floating-stat-val" style="color: #A7F3D0;">SAFE</span>
+                                </div>
+                                <div class="floating-stat-item">
+                                    <span class="floating-stat-lbl">EXP</span>
+                                    <span class="floating-stat-val">7515</span>
+                                </div>
                             </div>
                         </div>
                     </div>
-                    
-                    <!-- Right: Gorgeous Visual Mockup -->
-                    <div style="background: rgba(4, 5, 8, 0.55); border: 1.5px solid rgba(255, 255, 255, 0.04); border-radius: 16px; overflow: hidden; display: flex; flex-direction: column; height: 320px; box-shadow: 0 15px 35px rgba(0,0,0,0.5);">
-                        <!-- Discord Client Window Header -->
-                        <div style="background: #202225; padding: 10px 16px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1.5px solid rgba(255, 255, 255, 0.03); flex-shrink: 0;">
-                            <div style="display: flex; align-items: center; gap: 6px;">
-                                <span style="width: 10px; height: 10px; border-radius: 50%; background: #fc5c57; display: inline-block;"></span>
-                                <span style="width: 10px; height: 10px; border-radius: 50%; background: #fdbb2d; display: inline-block;"></span>
-                                <span style="width: 10px; height: 10px; border-radius: 50%; background: #27c93f; display: inline-block;"></span>
-                            </div>
-                            <div style="font-family: var(--font-mono); font-size: 0.65rem; color: var(--text-secondary); font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase;">
-                                <i class="fas fa-ticket-alt" style="color: #a855f7; margin-right: 4px;"></i> Discord Ticket Channel Preview
-                            </div>
-                            <div style="width: 32px;"></div>
+                    <div class="floating-badge-box">
+                        <div class="floating-lvl-txt">LEVEL</div>
+                        <div class="floating-lvl-num">20</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- [SECTION 2: ORGANIC CURVED WHITE FEATURE SHOWCASE CONTAINER] -->
+        <div class="amari-white-section">
+            <div class="amari-section-header">
+                <div class="amari-eyebrow">No Bloat. Just Protection &amp; Power</div>
+                <h2 class="amari-section-h2">All you need to secure &amp; scale your community</h2>
+                <p class="amari-section-sub">Trusted by millions of users and thousands of Discord communities</p>
+                <div class="amari-mascots-row">
+                    <span>🛡️</span>
+                    <span>⚡</span>
+                </div>
+            </div>
+
+            <!-- 2-Column Interactive Tabs & Mockup -->
+            <div class="amari-feature-grid">
+                <!-- Left 4 Tabs -->
+                <div class="feature-tabs-col">
+                    <div class="amari-feat-tab active" onclick="switchAmariTab('shield', this)">
+                        <div class="feat-tab-title">
+                            <span>+1</span>
+                            <span>Anti-Raid &amp; Security</span>
                         </div>
-                        
-                        <!-- Client Body (Sidebar + Content Viewport) -->
-                        <div style="display: flex; flex: 1; min-height: 0;">
-                            <!-- Mock Sidebar -->
-                            <div style="width: 120px; background: #2f3136; padding: 14px 10px; border-right: 1.5px solid rgba(255, 255, 255, 0.02); display: flex; flex-direction: column; gap: 12px; flex-shrink: 0;">
-                                <div style="font-family: var(--font-mono); font-size: 0.58rem; color: var(--text-secondary); font-weight: 800; letter-spacing: 0.05em; text-transform: uppercase;">TEXT CHANNELS</div>
-                                <div style="display: flex; align-items: center; gap: 6px; font-size: 0.72rem; color: var(--text-secondary); font-weight: 600;"><i class="fas fa-hashtag" style="font-size: 0.68rem;"></i> general</div>
-                                <div style="display: flex; align-items: center; gap: 6px; font-size: 0.72rem; color: var(--text-secondary); font-weight: 600;"><i class="fas fa-hashtag" style="font-size: 0.68rem;"></i> welcome</div>
-                                <div style="font-family: var(--font-mono); font-size: 0.58rem; color: var(--text-secondary); font-weight: 800; letter-spacing: 0.05em; text-transform: uppercase; margin-top: 6px;">SUPPORT TICKETS</div>
-                                <div style="display: flex; align-items: center; gap: 6px; font-size: 0.72rem; color: #fff; background: rgba(255, 255, 255, 0.05); padding: 4px 8px; border-radius: 4px; font-weight: 700; border-left: 2px solid #a855f7;"><i class="fas fa-hashtag" style="color: #c084fc; font-size: 0.68rem;"></i> ticket-00042</div>
-                            </div>
-                            
-                            <!-- Mock Viewport -->
-                            <div style="flex: 1; background: #36393f; padding: 16px; display: flex; flex-direction: column; justify-content: space-between; min-width: 0;">
-                                <!-- Top Bar -->
-                                <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255, 255, 255, 0.03); padding-bottom: 8px; margin-bottom: 12px; flex-shrink: 0;">
-                                    <span style="font-size: 0.8rem; font-weight: 700; color: #fff; display: flex; align-items: center; gap: 6px;"><i class="fas fa-hashtag" style="color: #94a3b8;"></i> ticket-00042</span>
-                                    <span style="font-family: var(--font-mono); font-size: 0.62rem; color: #10b981; background: rgba(16, 185, 129, 0.1); padding: 2px 6px; border-radius: 4px; font-weight: 700;"><span id="demo-ticket-status-tag" style="font-family: var(--font-mono); font-size: 0.62rem; color: #10b981; background: rgba(16, 185, 129, 0.1); padding: 2px 6px; border-radius: 4px; font-weight: 700;">STAFF CLAIMED</span>
-                                </div>
-                                
-                                <!-- Chat Area -->
-                                <div style="flex: 1; min-height: 0; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; font-size: 0.76rem; line-height: 1.4; color: #dbdee1;">
-                                    <!-- Bot Welcome Embed Box -->
-                                    <div style="background: #2f3136; border-left: 4px solid #a855f7; border-radius: 4px; padding: 12px; margin-bottom: 4px; box-shadow: 0 4px 10px rgba(0,0,0,0.15);">
-                                        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
-                                            <div style="width: 18px; height: 18px; border-radius: 50%; overflow: hidden; background: #7c3aed; display: flex; align-items: center; justify-content: center;"><img src="assets/bypass_logs_avatar.webp" style="width: 100%; height: 100%; object-fit: cover;"></div>
-                                            <span style="font-weight: 700; color: #fff;">VEYRA <span style="font-size: 0.55rem; background: #5865F2; color: #fff; padding: 1px 3px; border-radius: 3px; margin-left: 2px; font-weight: 800; font-family: sans-serif; vertical-align: middle;">BOT</span></span>
-                                        </div>
-                                        <div style="font-weight: 700; color: #fff; font-size: 0.8rem; margin-bottom: 4px;">Ticket #00042 Created</div>
-                                        <div>Hello @kira, welcome to support. A member of staff will assist you shortly. Please explain your issue in detail.</div>
+                        <p class="feat-tab-desc">
+                            Real-time packet inspection intercepts rogue bot joins, token leaks, and channel nuke attempts before they execute.
+                        </p>
+                    </div>
+
+                    <div class="amari-feat-tab" onclick="switchAmariTab('voice', this)">
+                        <div class="feat-tab-title">
+                            <span>🎙️</span>
+                            <span>24/7 Voice &amp; Level XP</span>
+                        </div>
+                        <p class="feat-tab-desc">
+                            Members earn experience by talking in voice and chat channels. Reward active members with roles, ranks, and custom cards.
+                        </p>
+                    </div>
+
+                    <div class="amari-feat-tab" onclick="switchAmariTab('tickets', this)">
+                        <div class="feat-tab-title">
+                            <span>🎫</span>
+                            <span>Multi-Panel Tickets</span>
+                        </div>
+                        <p class="feat-tab-desc">
+                            Deploy drag-and-drop ticket creation embeds, claim queues, and automated HTML transcripts with attachment archives.
+                        </p>
+                    </div>
+
+                    <div class="amari-feat-tab" onclick="switchAmariTab('custom', this)">
+                        <div class="feat-tab-title">
+                            <span>⚙️</span>
+                            <span>Fully Customizable</span>
+                        </div>
+                        <p class="feat-tab-desc">
+                            Customize bot nickname, avatar, embed hex themes, welcome cards, and autoroles directly from your dashboard.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Right Big Mockup Box -->
+                <div class="amari-mockup-wrap">
+                    <div class="discord-mock-window">
+                        <div class="discord-mock-header">
+                            <i class="fas fa-hashtag"></i>
+                            <span id="amari-mock-channel">security-feed</span>
+                        </div>
+                        <div class="discord-mock-body">
+                            <!-- User Message -->
+                            <div class="discord-chat-msg">
+                                <img src="assets/bypass_logs_avatar.webp" class="discord-chat-avatar" onerror="this.src='https://cdn.discordapp.com/embed/avatars/4.png'">
+                                <div class="chat-content">
+                                    <div class="chat-header">
+                                        <span class="chat-username">KSJaay</span>
+                                        <span style="font-size: 0.65rem; color: #94A3B8;">Today at 12:45 PM</span>
                                     </div>
-                                    
-                                    <!-- Message 1 -->
-                                    <div style="display: flex; gap: 8px; align-items: flex-start;">
-                                        <div style="width: 24px; height: 24px; border-radius: 50%; background: #3b82f6; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 0.6rem; font-weight: 800; flex-shrink: 0;">K</div>
-                                        <div>
-                                            <div style="font-weight: 700; color: #fff; font-size: 0.72rem;">kira <span style="font-size: 0.58rem; color: var(--text-secondary); margin-left: 4px;">Today at 11:42 AM</span></div>
-                                            <div style="margin-top: 2px; color: #e3e5e8;">I need help upgrading my subscription to Pro.</div>
+                                    <div class="chat-text" id="amari-mock-cmd">
+                                        /security shield-status: true
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Bot Response -->
+                            <div class="discord-chat-msg">
+                                <img src="assets/bypass_logs_avatar.webp" class="discord-chat-avatar" onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png'">
+                                <div class="chat-content">
+                                    <div class="chat-header">
+                                        <span class="chat-username">VEYRA</span>
+                                        <span class="chat-bot-tag">APP</span>
+                                        <span style="font-size: 0.65rem; color: #94A3B8;">Today at 12:45 PM</span>
+                                    </div>
+                                    <div class="chat-embed-box" id="amari-mock-embed">
+                                        <div class="chat-embed-title" id="amari-embed-title">
+                                            <i class="fas fa-circle-check" style="color: #10B981;"></i>
+                                            <span>Autonomous Defense Active</span>
+                                        </div>
+                                        <div class="chat-embed-desc" id="amari-embed-desc">
+                                            Sentinel radar is scanning 24/7. Raid protection is 100% armed and rogue webhook creation traps are online.
                                         </div>
                                     </div>
                                 </div>
-                                
-                                <!-- Interactive Action Buttons Row -->
-                                <div style="display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; flex-shrink: 0;">
-                                    <button id="demo-ticket-close-btn" onclick="demoCloseTicket()" style="background: #da373c; border: none; border-radius: 3px; padding: 6px 12px; font-size: 0.72rem; color: #fff; font-weight: 500; display: flex; align-items: center; gap: 4px; cursor: pointer; font-family: sans-serif; transition: background 0.15s;" onmouseover="this.style.background='#a92b2f'" onmouseout="this.style.background='#da373c'">
-                                        <i class="fas fa-lock"></i> Close
-                                    </button>
-                                    <button id="demo-ticket-claim-btn" onclick="demoToggleClaimTicket()" style="background: #5865f2; border: none; border-radius: 3px; padding: 6px 12px; font-size: 0.72rem; color: #fff; font-weight: 500; display: flex; align-items: center; gap: 4px; cursor: pointer; font-family: sans-serif; transition: background 0.15s;" onmouseover="this.style.background='#4752c4'" onmouseout="this.style.background='#5865f2'">
-                                        <i class="fas fa-user-check"></i> Claimed by @rex
-                                    </button>
-                                    <button id="demo-ticket-transcript-btn" onclick="demoSaveTranscript()" style="background: #4e5058; border: none; border-radius: 3px; padding: 6px 12px; font-size: 0.72rem; color: #fff; font-weight: 500; display: flex; align-items: center; gap: 4px; cursor: pointer; font-family: sans-serif; transition: background 0.15s;" onmouseover="this.style.background='#6d6f78'" onmouseout="this.style.background='#4e5058'">
-                                        <i class="fas fa-file-invoice"></i> Save Transcript
-                                    </button>
-                                </div>
                             </div>
+                        </div>
+                    </div>
+
+                    <!-- Floating Badge -->
+                    <div class="mockup-floating-badge" id="amari-floating-badge">
+                        <i class="fas fa-shield-halved" style="color: #10B981; font-size: 1.2rem;"></i>
+                        <div class="mockup-badge-txt">
+                            <span class="mockup-badge-lbl">GATEWAY ARMED</span>
+                            <span class="mockup-badge-sub">0.04ms Response</span>
                         </div>
                     </div>
                 </div>
             </div>
+        </div>
 
-            <!-- [SIX MODULES TOOLKIT GRID SECTION] -->
+        <!-- [SIX MODULES TOOLKIT GRID SECTION] -->
             <div style="max-width: 1100px; width: 100%; box-sizing: border-box; margin: 60px auto; padding: 0 20px;">
                 <div style="margin-bottom: 50px;">
                     <div style="font-family: var(--font-mono); font-size: 0.72rem; color: var(--text-secondary); letter-spacing: 0.15em; text-transform: uppercase; margin-bottom: 12px; font-weight: 700;">
@@ -3385,101 +3847,35 @@
 
             <!-- VengeanceUI Style Cinematic Animated Reveal Footer -->
             <!-- Realtime Professional Default Footer -->
-            <footer id="animated-reveal-footer" style="background: rgba(4, 7, 13, 0.95); border-top: 1px solid rgba(255, 255, 255, 0.06); padding: 60px 20px 30px 20px; box-sizing: border-box; width: 100%; position: relative; margin-top: 80px;">
-                <!-- Top Glowing Gradient Divider Line -->
-                <div style="position: absolute; top: 0; left: 0; right: 0; height: 1.5px; background: linear-gradient(90deg, transparent, #FF6E42, #a855f7, #10b981, transparent);"></div>
+            <!-- [SECTION 4: AMARIBOT BOTTOM DARK CTA & FOOTER] -->
+        <div class="amari-bottom-cta">
+            <div class="cta-eyebrow">Setup in seconds!</div>
+            <h2 class="cta-title">
+                Are you ready to <span class="amari-coral-text">secure &amp; scale</span><br>your community?
+            </h2>
+            <div class="cta-btn-row">
+                <a href="https://discord.com/oauth2/authorize?client_id=1527243189860175933&permissions=8&integration_type=0&scope=bot+applications.commands" target="_blank" rel="noreferrer" class="btn-amari-coral">
+                    Add to Discord
+                </a>
+                <a href="/about.html" class="btn-amari-link">
+                    Learn More &rarr;
+                </a>
+            </div>
 
-                <div style="max-width: 1150px; margin: 0 auto; width: 100%;">
-                    
-                    <!-- Top Brand Header & Live System Status -->
-                    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255, 255, 255, 0.06); padding-bottom: 30px; margin-bottom: 40px; flex-wrap: wrap; gap: 20px;">
-                        <div>
-                            <div style="font-family: var(--font-display); font-size: 2.2rem; font-weight: 900; letter-spacing: 0.12em; color: #fff; text-shadow: 0 0 25px rgba(255, 110, 66, 0.35);">
-                                VEYRA
-                            </div>
-                            <div style="font-family: var(--font-mono); font-size: 0.75rem; color: rgba(255, 255, 255, 0.5); letter-spacing: 0.18em; text-transform: uppercase; margin-top: 2px;">
-                                ALL-IN-ONE DISCORD BOT & SECURITY INFRASTRUCTURE
-                            </div>
-                        </div>
-
-                        <!-- Live Real-Time Telemetry Badge -->
-                        <div style="display: flex; align-items: center; gap: 12px; background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.25); padding: 8px 16px; border-radius: 30px;">
-                            <span style="width: 8px; height: 8px; border-radius: 50%; background: #10b981; animation: pulse 1s infinite; box-shadow: 0 0 10px #10b981;"></span>
-                            <span style="font-family: var(--font-mono); font-size: 0.72rem; font-weight: 800; color: #10b981; letter-spacing: 0.05em; text-transform: uppercase;">
-                                SYSTEM OPERATIONAL — 99.99% UPTIME
-                            </span>
-                        </div>
-                    </div>
-
-                    <!-- 4 Column Main Links Grid -->
-                    <div style="display: grid; grid-template-columns: 1.4fr 1fr 1fr 1fr; gap: 40px; margin-bottom: 50px;">
-                        
-                        <!-- Col 1: About & Socials -->
-                        <div>
-                            <h4 style="color: #fff; font-size: 0.95rem; font-weight: 800; font-family: var(--font-display); letter-spacing: 0.05em; margin: 0 0 16px 0; text-transform: uppercase;">About Veyra</h4>
-                            <p style="font-size: 0.82rem; color: rgba(255,255,255,0.55); line-height: 1.6; margin-bottom: 20px;">
-                                Ultra-fast, all-in-one Discord bot built for high-security community protection, real-time ticket stores, custom invite tracking, and whitelisting.
-                            </p>
-                            <div style="display: flex; gap: 10px;">
-                                <a href="https://discord.gg/ghostfamily" target="_blank" style="width: 36px; height: 36px; border-radius: 10px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); display: flex; align-items: center; justify-content: center; color: #fff; transition: all 0.25s ease;" onmouseover="this.style.background='#5865F2'; this.style.borderColor='#5865F2';" onmouseout="this.style.background='rgba(255,255,255,0.04)'; this.style.borderColor='rgba(255,255,255,0.08)';"><i class="fab fa-discord"></i></a>
-                                <a href="#" style="width: 36px; height: 36px; border-radius: 10px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); display: flex; align-items: center; justify-content: center; color: #fff; transition: all 0.25s ease;" onmouseover="this.style.background='#1DA1F2'; this.style.borderColor='#1DA1F2';" onmouseout="this.style.background='rgba(255,255,255,0.04)'; this.style.borderColor='rgba(255,255,255,0.08)';"><i class="fab fa-twitter"></i></a>
-                                <a href="#" style="width: 36px; height: 36px; border-radius: 10px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); display: flex; align-items: center; justify-content: center; color: #fff; transition: all 0.25s ease;" onmouseover="this.style.background='#333'; this.style.borderColor='#555';" onmouseout="this.style.background='rgba(255,255,255,0.04)'; this.style.borderColor='rgba(255,255,255,0.08)';"><i class="fab fa-github"></i></a>
-                            </div>
-                        </div>
-
-                        <!-- Col 2: Navigation -->
-                        <div>
-                            <h4 style="color: #fff; font-size: 0.95rem; font-weight: 800; font-family: var(--font-display); letter-spacing: 0.05em; margin: 0 0 16px 0; text-transform: uppercase;">Navigation</h4>
-                            <ul style="list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 10px; font-size: 0.83rem;">
-                                <li><a href="/" style="color: rgba(255,255,255,0.6); text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='#FF6E42'" onmouseout="this.style.color='rgba(255,255,255,0.6)'">Home Page</a></li>
-                                <li><a href="/manage" style="color: rgba(255,255,255,0.6); text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='#FF6E42'" onmouseout="this.style.color='rgba(255,255,255,0.6)'">Dashboard Workspace</a></li>
-                                <li><a href="/about" style="color: rgba(255,255,255,0.6); text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='#FF6E42'" onmouseout="this.style.color='rgba(255,255,255,0.6)'">About Veyra</a></li>
-                                <li><a href="/ticket" style="color: rgba(255,255,255,0.6); text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='#FF6E42'" onmouseout="this.style.color='rgba(255,255,255,0.6)'">Support & Tickets</a></li>
-                            </ul>
-                        </div>
-
-                        <!-- Col 3: Modules -->
-                        <div>
-                            <h4 style="color: #fff; font-size: 0.95rem; font-weight: 800; font-family: var(--font-display); letter-spacing: 0.05em; margin: 0 0 16px 0; text-transform: uppercase;">Bot Modules</h4>
-                            <ul style="list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 10px; font-size: 0.83rem;">
-                                <li><a href="/#security" style="color: rgba(255,255,255,0.6); text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='#10b981'" onmouseout="this.style.color='rgba(255,255,255,0.6)'">Anti-Nuke & Protection</a></li>
-                                <li><a href="/ticket" style="color: rgba(255,255,255,0.6); text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='#a855f7'" onmouseout="this.style.color='rgba(255,255,255,0.6)'">Store & Ticket Panels</a></li>
-                                <li><a href="/#invites" style="color: rgba(255,255,255,0.6); text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='#3b82f6'" onmouseout="this.style.color='rgba(255,255,255,0.6)'">Invite Tracker & Alt Gate</a></li>
-                                <li><a href="/#levels" style="color: rgba(255,255,255,0.6); text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='#f59e0b'" onmouseout="this.style.color='rgba(255,255,255,0.6)'">Leveling & XP System</a></li>
-                            </ul>
-                        </div>
-
-                        <!-- Col 4: Performance & Network -->
-                        <div>
-                            <h4 style="color: #fff; font-size: 0.95rem; font-weight: 800; font-family: var(--font-display); letter-spacing: 0.05em; margin: 0 0 16px 0; text-transform: uppercase;">System Metrics</h4>
-                            <div style="display: flex; flex-direction: column; gap: 8px; font-family: var(--font-mono); font-size: 0.75rem; color: rgba(255,255,255,0.6);">
-                                <div style="display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.04); padding-bottom: 6px;">
-                                    <span>Latency:</span> <span style="color: #10b981; font-weight: 700;">0.04ms</span>
-                                </div>
-                                <div style="display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.04); padding-bottom: 6px;">
-                                    <span>Gateway Shards:</span> <span style="color: #FF6E42; font-weight: 700;">Active</span>
-                                </div>
-                                <div style="display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.04); padding-bottom: 6px;">
-                                    <span>Cluster Region:</span> <span style="color: #a855f7; font-weight: 700;">Asia-South</span>
-                                </div>
-                            </div>
-                        </div>
-
-                    </div>
-
-                    <!-- Bottom Copyright Bar -->
-                    <div style="border-top: 1px solid rgba(255, 255, 255, 0.06); padding-top: 24px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; font-size: 0.78rem; color: rgba(255,255,255,0.45);">
-                        <div>&copy; 2026 VEYRA Systems. All rights reserved. Powered By Veyra Development™ | Designed By Arun</div>
-                        <div style="display: flex; gap: 20px;">
-                            <a href="#" style="color: rgba(255,255,255,0.45); text-decoration: none;">Privacy Policy</a>
-                            <a href="#" style="color: rgba(255,255,255,0.45); text-decoration: none;">Terms of Service</a>
-                            <a href="https://veyra-bot.vercel.app" target="_blank" style="color: rgba(255,255,255,0.45); text-decoration: none;">Main Website</a>
-                        </div>
-                    </div>
-
+            <footer class="amari-minimal-footer">
+                <div>&copy; 2026 VeyraBot.com | All rights reserved.</div>
+                <div>
+                    <a href="/about.html#privacy">Privacy Policy</a>
+                    <a href="/about.html#terms">Terms of Service</a>
+                    <a href="/about.html#refund">Refund Policy</a>
+                    <a href="https://discord.gg/77P5Cq837X" target="_blank">Support</a>
+                </div>
+                <div style="font-size: 1.1rem;">
+                    <a href="https://discord.gg/77P5Cq837X" target="_blank"><i class="fab fa-discord"></i></a>
+                    <a href="https://twitter.com" target="_blank"><i class="fab fa-x-twitter"></i></a>
                 </div>
             </footer>
-        </section>
+        </div>
 
         <!-- [SCREEN 5: ADMIN CONTROL CENTER (SOVEREIGN PANEL)] -->
         <section id="screen-admin" class="content-area" style="display:none; max-width:1100px; margin: 40px auto; padding: 20px;">
