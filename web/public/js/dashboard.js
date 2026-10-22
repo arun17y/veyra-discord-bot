@@ -669,6 +669,9 @@ function loadServerDashboard(guildId) {
         const dropdownImg = document.querySelector('#header-server-dropdown-icon img');
         if (dropdownImg) dropdownImg.src = iconUrl;
         
+        const sidebarGuildAvatarImg = document.getElementById('sidebar-guild-avatar-img');
+        if (sidebarGuildAvatarImg) sidebarGuildAvatarImg.src = iconUrl;
+        
         const ticketsSidebarImg = document.getElementById('tickets-sidebar-guild-icon');
         if (ticketsSidebarImg) ticketsSidebarImg.src = iconUrl;
 
@@ -2679,30 +2682,27 @@ function renderUserGuilds(guilds, loggedIn = false) {
     container.innerHTML = '';
     
     if (!loggedIn) {
-        container.style.maxWidth = '500px';
+        container.style.maxWidth = '480px';
         container.innerHTML = `
-            <div class="login-auth-card-container" style="display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 70vh; width: 100%; position: relative;">
-                <div class="glass-card" style="width: 100%; max-width: 440px; background: #1C1E24; border: 1px solid rgba(255,255,255,0.06); border: 1.5px solid rgba(255, 255, 255, 0.04); border-radius: 20px; padding: 40px 30px; text-align: center; box-shadow: 0 30px 60px rgba(0,0,0,0.8); backdrop-filter: blur(10px); position: relative; z-index: 10;">
-                    <div style="width: 80px; height: 80px; border-radius: 20px; background: #1a1c23; border: 1.5px solid rgba(255,255,255,0.06); display: flex; align-items: center; justify-content: center; margin: 0 auto 25px auto; overflow: hidden; position: relative;">
-                        <img src="assets/bypass_logs_avatar.webp" style="width: 100%; height: 100%; object-fit: cover;">
-                        <span style="position: absolute; bottom: 8px; right: 8px; width: 10px; height: 10px; border-radius: 50%; background: #a855f7; border: 2px solid #1a1c23;"></span>
+            <div class="login-auth-card-container" style="display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 65vh; width: 100%; position: relative;">
+                <div class="glass-card" style="width: 100%; max-width: 440px; background: var(--surface); border: 1px solid var(--border-color); border-radius: 20px; padding: 40px 32px; text-align: center; box-shadow: var(--theme-shadow); position: relative; z-index: 10;">
+                    <div style="width: 76px; height: 76px; border-radius: 20px; background: var(--soft-pink); border: 1.5px solid var(--border-color); display: flex; align-items: center; justify-content: center; margin: 0 auto 22px auto; overflow: hidden; position: relative;">
+                        <img src="assets/bypass_logs_avatar.webp" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png'">
                     </div>
-                    <div style="background: rgba(168, 85, 247, 0.1); color: #c084fc; border: 1px solid rgba(168, 85, 247, 0.2); border-radius: 4px; padding: 4px 10px; font-family: var(--font-mono); font-size: 0.65rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; display: inline-block; margin-bottom: 12px;">
-                        ADMIN AUTH REQUIRED
+                    <div style="background: var(--soft-pink); color: var(--accent-primary); border: 1px solid var(--border-color); border-radius: 6px; padding: 4px 12px; font-family: var(--font-mono); font-size: 0.7rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; display: inline-block; margin-bottom: 14px;">
+                        DISCORD AUTH REQUIRED
                     </div>
-                    <h2 style="font-size: 1.6rem; font-weight: 800; color: #fff; margin: 0 0 16px 0; font-family: var(--font-display);">VEYRA Bot Core</h2>
-                    <p style="font-size: 0.88rem; color: var(--text-secondary); line-height: 1.6; margin: 0 0 30px 0; font-family: var(--font-display); font-weight: 500; max-width: 320px; margin-left: auto; margin-right: auto;">
-                        Welcome, Administrator. Please authenticate using Discord OAuth 2.0 to access the VEYRA Firewall controls.
+                    <h2 style="font-size: 1.6rem; font-weight: 800; color: var(--text-primary); margin: 0 0 12px 0; font-family: var(--font-display);">Welcome to Veyra</h2>
+                    <p style="font-size: 0.9rem; color: var(--text-secondary); line-height: 1.6; margin: 0 0 28px 0; font-family: var(--font-body); font-weight: 400; max-width: 320px; margin-left: auto; margin-right: auto;">
+                        Sign in with Discord to manage your community servers, configure security, and review server logs.
                     </p>
-                    <button class="liquid-metal-btn" onclick="simulateLogin()" style="width: 100%; font-size: 1.05rem; border-radius: 12px; cursor: pointer;">
-                        <div class="liquid-metal-btn-inner" style="padding: 15px 0; border-radius: 12px; display: flex; align-items: center; justify-content: center; gap: 10px; font-weight: 700; background: linear-gradient(135deg, #5865F2, #4752c4);">
-                            <i class="fab fa-discord" style="color: #fff; font-size: 1.25rem;"></i>
-                            <span>LOGIN WITH DISCORD</span>
-                        </div>
+                    <button class="btn-primary" onclick="simulateLogin()" style="width: 100%; font-size: 1rem; border-radius: 10px; cursor: pointer; background: var(--accent-primary); color: #FFFFFF; font-weight: 700; padding: 14px 0; border: none; display: flex; align-items: center; justify-content: center; gap: 10px; transition: all 0.2s ease;">
+                        <i class="fab fa-discord" style="font-size: 1.2rem;"></i>
+                        <span>Sign In with Discord</span>
                     </button>
-                    <div style="margin-top: 30px; display: flex; align-items: center; justify-content: center; gap: 6px; font-family: var(--font-mono); font-size: 0.65rem; color: var(--text-secondary); letter-spacing: 0.08em;">
-                        <i class="fas fa-shield-halved" style="color: #E26749; font-size: 0.75rem;"></i>
-                        <span>ECC ENCRYPTED GATEWAY</span>
+                    <div style="margin-top: 24px; display: flex; align-items: center; justify-content: center; gap: 6px; font-family: var(--font-mono); font-size: 0.72rem; color: var(--text-muted); letter-spacing: 0.04em;">
+                        <i class="fas fa-shield-halved" style="color: var(--accent-primary); font-size: 0.8rem;"></i>
+                        <span>Official Discord OAuth2 Gateway</span>
                     </div>
                 </div>
             </div>
@@ -2711,35 +2711,37 @@ function renderUserGuilds(guilds, loggedIn = false) {
     }
 
     // Render the Server Management view (if logged in)
-    container.style.maxWidth = '550px';
+    container.style.maxWidth = '640px';
     
     // Header section
     const headerDiv = document.createElement('div');
-    headerDiv.style.marginBottom = '25px';
+    headerDiv.style.marginBottom = '24px';
     headerDiv.innerHTML = `
-        <h1 style="font-size: 2.2rem; color: #fff; font-family: var(--font-display); font-weight: 800; margin: 0 0 6px 0;">Server Management</h1>
-        <p style="font-size: 0.88rem; color: var(--text-secondary); margin: 0 0 16px 0; font-family: var(--font-display); font-weight: 500;">
-            Manage your Discord servers with VEYRA Security & VEYRA TICKET
-        </p>
-        <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
-            <button onclick="simulateAddBot('New Guild')" class="invite-bot-btn" style="background: transparent; color: #f59e0b; border: 1.5px solid rgba(245, 158, 11, 0.45); padding: 8px 18px; border-radius: 6px; font-family: var(--font-mono); font-weight: 700; font-size: 0.76rem; letter-spacing: 0.05em; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.background='rgba(245, 158, 11, 0.05)'" onmouseout="this.style.background='transparent'">
-                + INVITE BOT
-            </button>
-            <button id="refresh-servers-btn" onclick="manualRefreshServers()" style="background: rgba(226, 103, 73, 0.12); color: #c084fc; border: 1.5px solid rgba(168, 85, 247, 0.35); padding: 8px 16px; border-radius: 6px; font-family: var(--font-mono); font-weight: 700; font-size: 0.76rem; letter-spacing: 0.05em; cursor: pointer; transition: all 0.2s; display: inline-flex; align-items: center; gap: 6px;" onmouseover="this.style.background='rgba(168, 85, 247, 0.2)'" onmouseout="this.style.background='rgba(168, 85, 247, 0.12)'">
-                <i class="fas fa-arrows-rotate" id="refresh-servers-icon"></i>
-                <span>REFRESH STATUS</span>
-            </button>
+        <div style="display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-bottom: 6px;">
+            <h1 style="font-size: 2rem; color: var(--text-primary); font-family: var(--font-display); font-weight: 800; margin: 0;">Select a Server</h1>
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <button onclick="simulateAddBot('New Guild')" class="invite-bot-btn" style="background: var(--surface); color: var(--accent-primary); border: 1.5px solid var(--border-color); padding: 8px 16px; border-radius: 8px; font-family: var(--font-display); font-weight: 700; font-size: 0.82rem; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.borderColor='var(--accent-primary)'" onmouseout="this.style.borderColor='var(--border-color)'">
+                    <i class="fas fa-plus" style="margin-right: 4px;"></i> Invite Bot
+                </button>
+                <button id="refresh-servers-btn" onclick="manualRefreshServers()" style="background: var(--soft-pink); color: var(--accent-secondary); border: 1px solid var(--border-color); padding: 8px 14px; border-radius: 8px; font-family: var(--font-display); font-weight: 700; font-size: 0.82rem; cursor: pointer; transition: all 0.2s; display: inline-flex; align-items: center; gap: 6px;">
+                    <i class="fas fa-arrows-rotate" id="refresh-servers-icon"></i>
+                    <span>Refresh</span>
+                </button>
+            </div>
         </div>
+        <p style="font-size: 0.92rem; color: var(--text-secondary); margin: 0; font-family: var(--font-body); font-weight: 400;">
+            Choose a server to access its moderation, automations, and security controls.
+        </p>
     `;
     container.appendChild(headerDiv);
 
     // Search bar
     const searchDiv = document.createElement('div');
     searchDiv.style.position = 'relative';
-    searchDiv.style.marginBottom = '20px';
+    searchDiv.style.marginBottom = '18px';
     searchDiv.innerHTML = `
-        <input type="text" id="guild-search-input" placeholder="Search for a server..." style="width: 100%; padding: 14px 45px 14px 16px; background: #0f111a; border: 1px solid rgba(255,255,255,0.06); border-radius: 8px; color: #fff; font-size: 0.92rem; font-family: var(--font-display); box-sizing: border-box;">
-        <i class="fas fa-magnifying-glass" style="position: absolute; right: 16px; top: 16px; color: var(--text-secondary); font-size: 0.95rem; pointer-events: none;"></i>
+        <input type="text" id="guild-search-input" placeholder="Search servers by name..." style="width: 100%; padding: 12px 42px 12px 16px; background: var(--surface); border: 1px solid var(--border-color); border-radius: 10px; color: var(--text-primary); font-size: 0.92rem; font-family: var(--font-body); box-sizing: border-box; box-shadow: var(--card-shadow); transition: border-color 0.2s ease;">
+        <i class="fas fa-magnifying-glass" style="position: absolute; right: 16px; top: 15px; color: var(--text-muted); font-size: 0.92rem; pointer-events: none;"></i>
     `;
     container.appendChild(searchDiv);
 
@@ -2748,13 +2750,13 @@ function renderUserGuilds(guilds, loggedIn = false) {
     statsDiv.id = 'servers-stats-row';
     statsDiv.style.display = 'flex';
     statsDiv.style.alignItems = 'center';
-    statsDiv.style.gap = '8px';
+    statsDiv.style.gap = '10px';
     statsDiv.style.flexWrap = 'wrap';
     statsDiv.style.fontFamily = 'var(--font-mono)';
-    statsDiv.style.fontSize = '0.72rem';
+    statsDiv.style.fontSize = '0.74rem';
     statsDiv.style.color = 'var(--text-secondary)';
     statsDiv.style.fontWeight = '600';
-    statsDiv.style.marginBottom = '25px';
+    statsDiv.style.marginBottom = '22px';
     
     // Count stats
     const totalCount = guilds.length;
@@ -2763,13 +2765,12 @@ function renderUserGuilds(guilds, loggedIn = false) {
     const noPermissionCount = guilds.filter(g => g.active !== true && g.can_invite === false).length;
 
     statsDiv.innerHTML = `
-        <span>${totalCount} Servers</span>
+        <span style="color: var(--text-primary); font-weight: 700;">${totalCount} Total</span>
         <span>&bull;</span>
-        <span style="display: flex; align-items: center; gap: 4px;"><span style="width: 6px; height: 6px; border-radius: 50%; background: #10b981; display: inline-block;"></span> ${activeCount} Active</span>
+        <span style="display: flex; align-items: center; gap: 5px;"><span style="width: 7px; height: 7px; border-radius: 50%; background: #287A55; display: inline-block;"></span> ${activeCount} Active</span>
         <span>&bull;</span>
-        <span style="display: flex; align-items: center; gap: 4px;"><span style="width: 6px; height: 6px; border-radius: 50%; background: #a855f7; display: inline-block;"></span> ${notConfiguredCount} Not Configured</span>
-        <span>&bull;</span>
-        <span style="display: flex; align-items: center; gap: 4px;"><span style="width: 6px; height: 6px; border-radius: 50%; background: #6b7280; display: inline-block;"></span> ${noPermissionCount} No Permission</span>
+        <span style="display: flex; align-items: center; gap: 5px;"><span style="width: 7px; height: 7px; border-radius: 50%; background: var(--accent-primary); display: inline-block;"></span> ${notConfiguredCount} Ready to Add</span>
+        ${noPermissionCount > 0 ? `<span>&bull;</span><span style="display: flex; align-items: center; gap: 5px; color: var(--text-muted);"><span style="width: 7px; height: 7px; border-radius: 50%; background: var(--text-muted); display: inline-block;"></span> ${noPermissionCount} No Access</span>` : ''}
     `;
     container.appendChild(statsDiv);
 
@@ -2778,7 +2779,7 @@ function renderUserGuilds(guilds, loggedIn = false) {
     listGrid.id = 'servers-selection-grid';
     listGrid.style.display = 'flex';
     listGrid.style.flexDirection = 'column';
-    listGrid.style.gap = '18px';
+    listGrid.style.gap = '14px';
     container.appendChild(listGrid);
 
     window.allGuildsCache = guilds;
@@ -2802,9 +2803,9 @@ function filterGuildsList() {
     const filtered = guilds.filter(g => g.name.toLowerCase().includes(query));
     
     // Sort sequence:
-    // 1st: bot is active (g.active === true && g.missing !== true) -> priority 1
-    // 2nd: bot not configured or missing (g.active !== true && g.can_invite !== false) -> priority 2
-    // 3rd: dont have permission (g.can_invite === false) -> priority 3
+    // 1st: bot is active -> priority 1
+    // 2nd: can invite -> priority 2
+    // 3rd: no permission -> priority 3
     filtered.sort((a, b) => {
         const getPriority = (g) => {
             const isBotActive = g.active === true && g.missing !== true;
@@ -2823,125 +2824,132 @@ function filterGuildsList() {
     
     if (filtered.length === 0) {
         const noServersCard = document.createElement('div');
-        noServersCard.style.padding = '35px 20px';
+        noServersCard.style.padding = '40px 24px';
         noServersCard.style.textAlign = 'center';
         noServersCard.style.color = 'var(--text-secondary)';
-        noServersCard.style.fontFamily = 'var(--font-display)';
-        noServersCard.style.fontSize = '0.9rem';
-        noServersCard.style.background = '#111214';
-        noServersCard.style.border = '1.5px dashed rgba(255,255,255,0.05)';
+        noServersCard.style.fontFamily = 'var(--font-body)';
+        noServersCard.style.fontSize = '0.92rem';
+        noServersCard.style.background = 'var(--surface)';
+        noServersCard.style.border = '1.5px dashed var(--border-color)';
         noServersCard.style.borderRadius = '14px';
         noServersCard.innerHTML = `
-            <i class="fas fa-server" style="font-size: 1.8rem; color: rgba(255,255,255,0.15); margin-bottom: 12px; display: block;"></i>
-            No manageable servers found.<br>
-            <span style="font-size: 0.74rem; opacity: 0.7; display: inline-block; margin-top: 4px; line-height: 1.4;">Make sure you are the Owner or have Manage Server/Admin permission in your servers.</span>
+            <i class="fas fa-server" style="font-size: 2rem; color: var(--accent-primary); margin-bottom: 12px; display: block; opacity: 0.7;"></i>
+            <strong style="color: var(--text-primary); display: block; margin-bottom: 4px;">No matching servers found</strong>
+            <span style="font-size: 0.8rem; color: var(--text-muted); display: inline-block; line-height: 1.5;">Make sure you are the Server Owner or have "Manage Server" permissions in Discord.</span>
         `;
         listGrid.appendChild(noServersCard);
     } else {
         filtered.forEach(g => {
             const card = document.createElement('div');
-        card.className = 'glass-card';
-        card.style.background = '#111214';
-        card.style.border = '1.5px solid rgba(255,255,255,0.02)';
-        card.style.borderRadius = '14px';
-        card.style.padding = '20px';
-        card.style.display = 'flex';
-        card.style.flexDirection = 'column';
-        card.style.gap = '16px';
-        card.style.boxShadow = '0 8px 24px rgba(0,0,0,0.3)';
+            card.className = 'glass-card server-card-item';
+            card.style.background = 'var(--surface)';
+            card.style.border = '1px solid var(--border-color)';
+            card.style.borderRadius = '14px';
+            card.style.padding = '18px 20px';
+            card.style.display = 'flex';
+            card.style.flexDirection = 'column';
+            card.style.gap = '14px';
+            card.style.boxShadow = 'var(--card-shadow)';
+            card.style.transition = 'all 0.2s ease';
 
-        let iconHtml = '';
-        if (g.icon) {
-            iconHtml = `<img src="https://cdn.discordapp.com/icons/${g.id}/${g.icon}.png?size=128" style="width:44px; height:44px; border-radius:8px; object-fit:cover; border: 1.5px solid rgba(255,255,255,0.08);">`;
-        } else {
-            iconHtml = `<div style="width: 44px; height: 44px; border-radius: 8px; background: rgba(255,255,255,0.04); border: 1.5px solid rgba(255,255,255,0.08); display:flex; align-items:center; justify-content:center; font-weight:700; color:#fff; font-size:0.9rem;">${g.name.charAt(0)}</div>`;
-        }
+            let iconHtml = '';
+            if (g.icon) {
+                iconHtml = `<img src="https://cdn.discordapp.com/icons/${g.id}/${g.icon}.png?size=128" style="width:46px; height:46px; border-radius:10px; object-fit:cover; border: 1px solid var(--border-color); flex-shrink:0;">`;
+            } else {
+                const initial = (g.name || 'S').charAt(0).toUpperCase();
+                iconHtml = `<div style="width: 46px; height: 46px; border-radius: 10px; background: var(--soft-pink); border: 1px solid var(--border-color); display:flex; align-items:center; justify-content:center; font-weight:800; color:var(--accent-primary); font-size:1.1rem; flex-shrink:0;">${initial}</div>`;
+            }
 
-        const isBotActive = g.active === true && g.missing !== true;
-        const isMissing = g.missing === true;
-        const canInvite = g.can_invite !== false;
-        
-        let statusText = 'Not Configured';
-        let statusDotColor = '#a855f7'; // purple for not configured
-        let actionBtnText = '+ ADD TO SERVER';
-        let actionBtnStyle = 'background: #248046; border: none; color: #fff; padding: 10px 0; border-radius: 8px; width: 100%; font-weight: 600; cursor: pointer; text-align: center; font-family: var(--font-display);';
-        let clickHandler = `simulateAddBot('${g.name.replace(/'/g, "\\'")}', '${g.id}')`;
-        
-        if (isBotActive) {
-            statusText = 'Bot Active';
-            statusDotColor = '#10b981'; // green
-            actionBtnText = 'MANAGE SERVER';
-            actionBtnStyle = 'background: #E26749; border: 1px solid rgba(255,255,255,0.3); color: #ffffff; padding: 12px 0; border-radius: 10px; width: 100%; font-weight: 800; font-size: 0.95rem; cursor: pointer; text-align: center; text-transform: uppercase; letter-spacing: 0.08em; font-family: var(--font-display); box-shadow: 0 6px 20px rgba(124, 58, 237, 0.4);';
-            clickHandler = `loadServerDashboard('${g.id}')`;
-        } else if (isMissing) {
-            statusText = 'Missing (Offline / Kicked)';
-            statusDotColor = '#f59e0b'; // orange
-            actionBtnText = 'RE-INVITE BOT';
-            actionBtnStyle = 'background: #d97706; border: none; color: #fff; padding: 10px 0; border-radius: 8px; width: 100%; font-weight: 600; cursor: pointer; text-align: center; font-family: var(--font-display);';
-            clickHandler = `simulateAddBot('${g.name.replace(/'/g, "\\'")}', '${g.id}')`;
-        } else if (!canInvite) {
-            statusText = 'No Permission (Missing Admin Rights)';
-            statusDotColor = '#6b7280'; // grey
-            actionBtnText = 'YOU DON\'T HAVE PERMISSION';
-            actionBtnStyle = 'background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.04); color: rgba(255,255,255,0.2); padding: 10px 0; border-radius: 8px; width: 100%; font-weight: 600; cursor: not-allowed; text-align: center; font-family: var(--font-display);';
-            clickHandler = 'event.stopPropagation(); return false;';
-        }
+            const isBotActive = g.active === true && g.missing !== true;
+            const isMissing = g.missing === true;
+            const canInvite = g.can_invite !== false;
+            
+            let statusText = 'Not Configured';
+            let statusDotColor = 'var(--accent-primary)';
+            let statusBg = 'var(--soft-pink)';
+            let actionBtnText = '<i class="fas fa-plus" style="margin-right: 6px;"></i> Add to Server';
+            let actionBtnStyle = 'background: var(--soft-pink); border: 1px solid var(--border-color); color: var(--accent-secondary); padding: 11px 0; border-radius: 8px; width: 100%; font-weight: 700; font-size: 0.88rem; cursor: pointer; text-align: center; font-family: var(--font-display); transition: all 0.2s ease;';
+            let clickHandler = `simulateAddBot('${g.name.replace(/'/g, "\'")}', '${g.id}')`;
+            
+            if (isBotActive) {
+                statusText = 'Bot Online';
+                statusDotColor = '#287A55';
+                statusBg = 'rgba(40, 122, 85, 0.12)';
+                actionBtnText = '<i class="fas fa-sliders" style="margin-right: 6px;"></i> Manage Server';
+                actionBtnStyle = 'background: var(--accent-primary); border: none; color: #FFFFFF; padding: 12px 0; border-radius: 8px; width: 100%; font-weight: 700; font-size: 0.92rem; cursor: pointer; text-align: center; font-family: var(--font-display); box-shadow: 0 4px 14px rgba(217, 108, 145, 0.25); transition: all 0.2s ease;';
+                clickHandler = `loadServerDashboard('${g.id}')`;
+            } else if (isMissing) {
+                statusText = 'Bot Missing / Kicked';
+                statusDotColor = '#9A6415';
+                statusBg = 'rgba(154, 100, 21, 0.12)';
+                actionBtnText = '<i class="fas fa-arrow-rotate-right" style="margin-right: 6px;"></i> Re-Invite Bot';
+                actionBtnStyle = 'background: #9A6415; border: none; color: #FFFFFF; padding: 11px 0; border-radius: 8px; width: 100%; font-weight: 700; font-size: 0.88rem; cursor: pointer; text-align: center; font-family: var(--font-display); transition: all 0.2s ease;';
+                clickHandler = `simulateAddBot('${g.name.replace(/'/g, "\'")}', '${g.id}')`;
+            } else if (!canInvite) {
+                statusText = 'Missing Admin Rights';
+                statusDotColor = 'var(--text-muted)';
+                statusBg = 'var(--bg-secondary)';
+                actionBtnText = '<i class="fas fa-lock" style="margin-right: 6px;"></i> No Manage Permission';
+                actionBtnStyle = 'background: var(--bg-secondary); border: 1px solid var(--border-color); color: var(--text-muted); padding: 11px 0; border-radius: 8px; width: 100%; font-weight: 600; font-size: 0.85rem; cursor: not-allowed; text-align: center; font-family: var(--font-display);';
+                clickHandler = 'event.stopPropagation(); return false;';
+            }
 
-        card.innerHTML = `
-            <div style="display: flex; align-items: center; gap: 14px;">
-                ${iconHtml}
-                <div>
-                    <h4 style="font-size: 0.95rem; font-weight: 800; color: #fff; margin: 0 0 4px 0; font-family: var(--font-display);">${g.name}</h4>
-                    <div style="display: flex; align-items: center; gap: 6px; font-size: 0.72rem; font-family: var(--font-mono); color: ${statusDotColor}; font-weight: 600;">
-                        <span style="width: 6px; height: 6px; border-radius: 50%; background: ${statusDotColor}; display: inline-block;"></span>
-                        ${statusText}
+            card.innerHTML = `
+                <div style="display: flex; align-items: center; justify-content: space-between; gap: 14px;">
+                    <div style="display: flex; align-items: center; gap: 12px; min-width: 0;">
+                        ${iconHtml}
+                        <div style="min-width: 0;">
+                            <h4 style="font-size: 1rem; font-weight: 700; color: var(--text-primary); margin: 0 0 4px 0; font-family: var(--font-display); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${g.name}</h4>
+                            <div style="display: inline-flex; align-items: center; gap: 6px; font-size: 0.72rem; font-family: var(--font-mono); color: ${statusDotColor}; font-weight: 600; background: ${statusBg}; padding: 2px 8px; border-radius: 4px;">
+                                <span style="width: 6px; height: 6px; border-radius: 50%; background: ${statusDotColor}; display: inline-block;"></span>
+                                ${statusText}
+                            </div>
+                        </div>
                     </div>
                 </div>
-            </div>
-            <button onclick="${clickHandler}" style="${actionBtnStyle}" onmouseover="this.style.opacity='0.95'" onmouseout="this.style.opacity='1'">
-                ${actionBtnText}
-            </button>
-        `;
-        listGrid.appendChild(card);
-    });
-}
+                <button onclick="${clickHandler}" style="${actionBtnStyle}" onmouseover="if(this.style.cursor!=='not-allowed') this.style.opacity='0.92'" onmouseout="this.style.opacity='1'">
+                    ${actionBtnText}
+                </button>
+            `;
+            listGrid.appendChild(card);
+        });
+    }
 
     // Add New Server card at the bottom of the stack
     const addCard = document.createElement('div');
     addCard.className = 'glass-card';
-    addCard.style.border = '2px dashed rgba(255,255,255,0.1)';
+    addCard.style.border = '1.5px dashed var(--border-color)';
     addCard.style.borderRadius = '14px';
-    addCard.style.padding = '24px 20px';
+    addCard.style.padding = '22px 20px';
     addCard.style.display = 'flex';
     addCard.style.flexDirection = 'column';
     addCard.style.alignItems = 'center';
     addCard.style.justifyContent = 'center';
-    addCard.style.gap = '8px';
+    addCard.style.gap = '6px';
     addCard.style.cursor = 'pointer';
-    addCard.style.transition = 'all 0.2s';
-    addCard.style.background = 'transparent';
+    addCard.style.transition = 'all 0.2s ease';
+    addCard.style.background = 'var(--surface)';
     addCard.onclick = () => simulateAddBot('New Guild');
 
     addCard.onmouseover = () => {
-        addCard.style.borderColor = 'rgba(255,255,255,0.25)';
-        addCard.style.background = 'rgba(255,255,255,0.01)';
+        addCard.style.borderColor = 'var(--accent-primary)';
+        addCard.style.background = 'var(--soft-pink)';
     };
     addCard.onmouseout = () => {
-        addCard.style.borderColor = 'rgba(255,255,255,0.1)';
-        addCard.style.background = 'transparent';
+        addCard.style.borderColor = 'var(--border-color)';
+        addCard.style.background = 'var(--surface)';
     };
 
     addCard.innerHTML = `
-        <div style="width: 38px; height: 38px; border-radius: 50%; border: 1.5px solid rgba(255,255,255,0.15); display: flex; align-items: center; justify-content: center; color: var(--text-secondary); font-size: 1rem;">
+        <div style="width: 36px; height: 36px; border-radius: 50%; background: var(--soft-pink); border: 1px solid var(--border-color); display: flex; align-items: center; justify-content: center; color: var(--accent-primary); font-size: 0.95rem;">
             <i class="fas fa-plus"></i>
         </div>
-        <div style="font-weight: 700; color: #fff; font-size: 0.88rem; margin-top: 4px; font-family: var(--font-display);">Add New Server</div>
-        <div style="font-size: 0.72rem; color: var(--text-secondary); font-weight: 500; font-family: var(--font-display);">Invite VEYRA Security to another server</div>
+        <div style="font-weight: 700; color: var(--text-primary); font-size: 0.9rem; margin-top: 2px; font-family: var(--font-display);">Add to Another Server</div>
+        <div style="font-size: 0.76rem; color: var(--text-muted); font-weight: 500; font-family: var(--font-body);">Invite VEYRA to a new Discord community</div>
     `;
     listGrid.appendChild(addCard);
 }
 
-// Real-time server status refresh function
 window.manualRefreshServers = function() {
     const icon = document.getElementById('refresh-servers-icon');
     if (icon) icon.classList.add('fa-spin');

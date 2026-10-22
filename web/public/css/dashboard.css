@@ -1973,7 +1973,7 @@ input:checked + .slider:before {
     width: 90px;
     height: 90px;
     border-radius: 50%;
-    border: 1px solid rgba(59, 130, 246, 0.3);
+    border: 1px solid rgba(217, 108, 145, 0.3);
     pointer-events: none;
     z-index: 1;
     opacity: 0;
@@ -1992,7 +1992,7 @@ input:checked + .slider:before {
 
 @keyframes shieldPulse1 {
     0% { transform: scale(1); opacity: 0.4; }
-    50% { opacity: 0.8; border-color: rgba(59, 130, 246, 0.5); }
+    50% { opacity: 0.8; border-color: rgba(217, 108, 145, 0.5); }
     100% { transform: scale(1.8); opacity: 0; }
 }
 
@@ -2009,8 +2009,8 @@ input:checked + .slider:before {
     box-shadow: 0 5px 15px rgba(239, 68, 68, 0.15) !important;
 }
 .threat-btn-card:nth-child(3):hover {
-    border-color: rgba(59, 130, 246, 0.6) !important;
-    box-shadow: 0 5px 15px rgba(59, 130, 246, 0.15) !important;
+    border-color: rgba(217, 108, 145, 0.6) !important;
+    box-shadow: 0 5px 15px rgba(217, 108, 145, 0.15) !important;
 }
 
 /* --- GLITCH TEXT COMPONENT STYLES --- */
@@ -2103,7 +2103,7 @@ input:checked + .slider:before {
     }
     .scroll-reveal-container {
         padding-left: 20px !important;
-        border-left: 2px solid rgba(59, 130, 246, 0.3) !important;
+        border-left: 2px solid rgba(217, 108, 145, 0.3) !important;
     }
 }
 
@@ -2245,7 +2245,7 @@ input:checked + .slider:before {
     position: relative;
     padding: var(--metal-border);
     border-radius: 50px;
-    background: linear-gradient(90deg, #3b82f6, #93c5fd, #a855f7, #3b82f6);
+    background: linear-gradient(90deg, #D96C91, #FBE8EE, #a855f7, #D96C91);
     background-size: 300% 300%;
     animation: liquid-metal-flow 5s linear infinite;
     border: none;
@@ -2254,7 +2254,7 @@ input:checked + .slider:before {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 10px 30px rgba(59, 130, 246, 0.25);
+    box-shadow: 0 10px 30px rgba(217, 108, 145, 0.25);
     transition: transform 0.2s ease, box-shadow var(--transition);
 }
 
@@ -2440,7 +2440,7 @@ input:checked + .slider:before {
         left: 0 !important;
         height: calc(100vh - 60px) !important;
         z-index: 1000 !important;
-        background: #07080c !important; /* solid premium dark background to prevent transparency overlap */
+        background: var(--surface) !important; border-right: 1px solid var(--border-color) !important;
         width: 260px !important;
         padding-left: 20px !important; /* Shift menu content rightwards */
         padding-right: 15px !important;
@@ -2494,7 +2494,7 @@ body, p, span, div, li, h1, h2, h3, h4, h5, h6 {
 
 /* 3. Hero Section Buttons */
 .hero-grid-split .btn-secondary, [onclick="clickManageServers()"].btn-secondary {
-    background: rgba(255, 255, 255, 0.15) !important;
+    background: var(--soft-pink) !important;
     border: 1.5px solid rgba(255, 255, 255, 0.3) !important;
     color: var(--text-primary) !important;
     font-weight: 800 !important;
@@ -2502,7 +2502,7 @@ body, p, span, div, li, h1, h2, h3, h4, h5, h6 {
 }
 
 .hero-grid-split .btn-primary, [onclick="simulateAddBot()"].btn-primary {
-    background: linear-gradient(135deg, #FF6E42, #e85830) !important;
+    background: var(--accent-primary) !important;
     color: var(--text-primary) !important;
     font-weight: 800 !important;
     box-shadow: 0 8px 25px rgba(255, 110, 66, 0.4) !important;
@@ -2745,3 +2745,229 @@ body {
     line-height: 1.6 !important;
 }
 
+
+
+/* =========================================================================
+   AUTHENTICATED DASHBOARD FULL REDESIGN - THEME-AWARE DESIGN SYSTEM
+   ========================================================================= */
+
+#screen-dashboard {
+    background-color: var(--bg-primary) !important;
+    color: var(--text-primary) !important;
+    min-height: calc(100vh - 70px) !important;
+}
+
+#screen-dashboard h1,
+#screen-dashboard h2,
+#screen-dashboard h3,
+#screen-dashboard h4,
+#screen-dashboard .section-title {
+    color: var(--text-primary) !important;
+    font-family: var(--font-display) !important;
+}
+
+#screen-dashboard p,
+#screen-dashboard .section-subtitle {
+    color: var(--text-secondary) !important;
+    font-family: var(--font-body) !important;
+}
+
+#screen-dashboard label {
+    color: var(--text-primary) !important;
+    font-weight: 600 !important;
+    font-size: 0.88rem !important;
+}
+
+/* Control boxes and tab cards */
+#screen-dashboard .glass-card,
+#screen-dashboard .control-box-sec,
+#screen-dashboard .command-box,
+#screen-dashboard .audit-card,
+#screen-dashboard .table-responsive,
+#screen-dashboard .tab-pane > div:not(.section-header) {
+    background: var(--surface) !important;
+    border: 1px solid var(--border-color) !important;
+    border-radius: 14px !important;
+    box-shadow: var(--card-shadow) !important;
+    color: var(--text-primary) !important;
+}
+
+/* Inputs, textareas, and selects */
+#screen-dashboard input[type="text"],
+#screen-dashboard input[type="number"],
+#screen-dashboard select,
+#screen-dashboard textarea,
+#screen-dashboard .form-control {
+    background: var(--surface) !important;
+    border: 1px solid var(--border-color) !important;
+    color: var(--text-primary) !important;
+    border-radius: 8px !important;
+    padding: 10px 14px !important;
+    font-size: 0.9rem !important;
+    font-family: var(--font-body) !important;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease !important;
+}
+
+#screen-dashboard input[type="text"]:focus,
+#screen-dashboard input[type="number"]:focus,
+#screen-dashboard select:focus,
+#screen-dashboard textarea:focus,
+#screen-dashboard .form-control:focus {
+    border-color: var(--accent-primary) !important;
+    box-shadow: 0 0 0 3px rgba(217, 108, 145, 0.15) !important;
+    outline: none !important;
+}
+
+/* Sidebar Navigation Items */
+.sidebar {
+    background: var(--surface) !important;
+    border-right: 1px solid var(--border-color) !important;
+}
+
+.sidebar-title {
+    color: var(--text-muted) !important;
+    font-family: var(--font-mono) !important;
+    font-weight: 700 !important;
+    font-size: 0.68rem !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.08em !important;
+}
+
+.sidebar-item a {
+    color: var(--text-secondary) !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 10px !important;
+    padding: 9px 12px !important;
+    border-radius: 8px !important;
+    font-size: 0.88rem !important;
+    font-weight: 500 !important;
+    text-decoration: none !important;
+    transition: all 0.18s ease !important;
+}
+
+.sidebar-item a i {
+    color: var(--text-muted) !important;
+    font-size: 0.95rem !important;
+    width: 18px !important;
+    text-align: center !important;
+    transition: color 0.18s ease !important;
+}
+
+.sidebar-item a:hover {
+    color: var(--accent-primary) !important;
+    background: var(--soft-pink) !important;
+}
+
+.sidebar-item a:hover i {
+    color: var(--accent-primary) !important;
+}
+
+.sidebar-item.active a {
+    color: var(--accent-secondary) !important;
+    background: var(--soft-pink) !important;
+    font-weight: 700 !important;
+    border-left: 3px solid var(--accent-primary) !important;
+}
+
+.sidebar-item.active a i {
+    color: var(--accent-primary) !important;
+}
+
+/* Sidebar Badges */
+.nav-badge-pro {
+    font-size: 0.62rem !important;
+    font-weight: 800 !important;
+    color: var(--accent-secondary) !important;
+    background: rgba(217, 108, 145, 0.15) !important;
+    padding: 1px 5px !important;
+    border-radius: 4px !important;
+    margin-left: 6px !important;
+    letter-spacing: 0.04em !important;
+}
+
+.nav-badge-prem {
+    font-size: 0.62rem !important;
+    font-weight: 800 !important;
+    color: #9A6415 !important;
+    background: rgba(154, 100, 21, 0.12) !important;
+    padding: 1px 5px !important;
+    border-radius: 4px !important;
+    margin-left: 6px !important;
+    letter-spacing: 0.04em !important;
+}
+
+.nav-badge-new {
+    font-size: 0.62rem !important;
+    font-weight: 800 !important;
+    color: #287A55 !important;
+    background: rgba(40, 122, 85, 0.12) !important;
+    padding: 1px 5px !important;
+    border-radius: 4px !important;
+    margin-left: 6px !important;
+    letter-spacing: 0.04em !important;
+}
+
+/* Status indicator node */
+.status-node {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    padding: 6px 14px !important;
+    background: var(--surface) !important;
+    border: 1px solid var(--border-color) !important;
+    border-radius: 20px !important;
+    font-size: 0.78rem !important;
+    font-family: var(--font-mono) !important;
+    font-weight: 600 !important;
+    color: var(--text-primary) !important;
+}
+
+.status-dot {
+    width: 8px !important;
+    height: 8px !important;
+    border-radius: 50% !important;
+    background: #287A55 !important;
+    box-shadow: 0 0 8px rgba(40, 122, 85, 0.5) !important;
+}
+
+/* Tables inside dashboard */
+#screen-dashboard table {
+    width: 100% !important;
+    border-collapse: collapse !important;
+}
+
+#screen-dashboard th {
+    background: var(--bg-secondary) !important;
+    color: var(--text-muted) !important;
+    font-family: var(--font-mono) !important;
+    font-size: 0.72rem !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.06em !important;
+    padding: 12px 14px !important;
+    border-bottom: 1px solid var(--border-color) !important;
+}
+
+#screen-dashboard td {
+    padding: 12px 14px !important;
+    border-bottom: 1px solid var(--border-color) !important;
+    color: var(--text-primary) !important;
+    font-size: 0.88rem !important;
+}
+
+/* Primary buttons keep solid readable white text */
+.btn-primary,
+.server-manage-btn-amari {
+    background: var(--accent-primary) !important;
+    color: #FFFFFF !important;
+    border: none !important;
+    font-weight: 700 !important;
+    border-radius: 8px !important;
+    box-shadow: 0 4px 14px rgba(217, 108, 145, 0.3) !important;
+}
+
+.btn-primary:hover,
+.server-manage-btn-amari:hover {
+    background: var(--accent-secondary) !important;
+    transform: translateY(-1px) !important;
+}

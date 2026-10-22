@@ -28,8 +28,8 @@
             document.documentElement.setAttribute('data-theme', theme);
         })();
     </script>
-    <link rel="stylesheet" href="css/themes.css?v=v4_pure_rose_high_contrast">
-    <link rel="stylesheet" href="css/dashboard.css?v=v4_pure_rose_high_contrast">
+    <link rel="stylesheet" href="css/themes.css?v=v5_dashboard_redesign">
+    <link rel="stylesheet" href="css/dashboard.css?v=v5_dashboard_redesign">
     <style>
         /* =============================================
            VEYRA BRAND PALETTE OVERRIDE — A to Z
@@ -2725,7 +2725,7 @@
                                 <div style="display:flex; justify-content:space-between; align-items:center; background:rgba(255,255,255,0.02); padding:6px 12px; border-radius:6px; font-size:0.8rem; color:#fff;">
                                     <div style="display:flex; align-items:center; gap:8px;">
                                         <span style="font-family:var(--font-mono); font-weight:700; color:#eab308;">01</span>
-                                        <div style="width:18px; height:18px; border-radius:50%; background:#3b82f6; display:flex; align-items:center; justify-content:center; font-size:0.6rem; font-weight:800;">K</div>
+                                        <div style="width:18px; height:18px; border-radius:50%; background:#D96C91; display:flex; align-items:center; justify-content:center; font-size:0.6rem; font-weight:800;">K</div>
                                         <span style="font-weight:600;">Kira</span>
                                     </div>
                                     <span style="font-family:var(--font-mono); font-weight:800; color:#eab308;">214</span>
@@ -4059,7 +4059,7 @@
                 
                 <!-- Main navigation tabs -->
                 <div style="display: flex; gap: 40px; border-bottom: 1px solid rgba(255,255,255,0.06); padding-bottom: 12px; margin-bottom: 12px; font-family: var(--font-mono); font-size: 0.85rem; font-weight: 700; text-transform: uppercase;">
-                    <a href="#" onclick="showScreen('servers')" style="color: #3b82f6; text-decoration: none; border-bottom: 2px solid #3b82f6; padding-bottom: 12px;">Servers</a>
+                    <a href="#" onclick="showScreen('servers')" style="color: #D96C91; text-decoration: none; border-bottom: 2px solid #D96C91; padding-bottom: 12px;">Servers</a>
                     <a href="#" style="color: var(--text-secondary); text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='var(--text-secondary)'">Membership</a>
                     <a href="#" style="color: var(--text-secondary); text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='var(--text-secondary)'">Settings</a>
                 </div>
@@ -4087,80 +4087,94 @@
         <!-- [SCREEN 3: SERVER DASHBOARD WORKSPACE] -->
         <section id="screen-dashboard" class="dashboard-container" style="display:none;">
             <!-- Sidebar navigation panel -->
-            <aside class="sidebar" style="display: flex; flex-direction: column; height: 100%; justify-content: space-between;">
+            <aside class="sidebar" style="display: flex; flex-direction: column; height: 100%; justify-content: space-between; overflow-y: auto;">
                 <div>
-                    <!-- Active Guild Header Card -->
-                    <!-- Active Guild Header Card -->
-                    <div style="padding: 15px 20px; border-bottom: 1px solid rgba(255,255,255,0.04); display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px;">
-                        <div style="display: flex; align-items: center; gap: 10px;">
-                            <div style="width: 28px; height: 28px; border-radius: 50%; background: #a855f7; overflow: hidden; display:flex; align-items:center; justify-content:center; border: 1.5px solid rgba(255,255,255,0.1);">
-                                <img src="assets/bypass_logs_avatar.webp" style="width: 100%; height: 100%; object-fit: cover;">
+                    <!-- Brand Area Header -->
+                    <div style="padding: 18px 20px 14px 20px; border-bottom: 1px solid var(--border-color); display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
+                        <a href="/" style="display: flex; align-items: center; gap: 10px; text-decoration: none;">
+                            <div style="width: 32px; height: 32px; border-radius: 8px; background: var(--soft-pink); overflow: hidden; display: flex; align-items: center; justify-content: center; border: 1.5px solid var(--border-color);">
+                                <img src="assets/bypass_logs_avatar.webp" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png'">
                             </div>
-                            <span class="sidebar-brand-text" style="font-weight: 800; color: #fff; font-size: 0.85rem; letter-spacing: 0.05em; transition: opacity 0.2s;">VEYRA</span>
-                        </div>
-                        <button id="sidebar-toggle-btn" class="crossed">
-                            <div class="sidemenu-line sidemenu-line-1"></div>
-                            <div class="sidemenu-line sidemenu-line-2"></div>
-                            <div class="sidemenu-line sidemenu-line-3"></div>
+                            <div style="display: flex; flex-direction: column;">
+                                <span class="sidebar-brand-text" style="font-weight: 800; color: var(--text-primary); font-size: 0.95rem; letter-spacing: 0.05em; font-family: var(--font-display);">VEYRA</span>
+                                <span style="font-size: 0.65rem; color: var(--accent-primary); font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em;">Dashboard</span>
+                            </div>
+                        </a>
+                        <button id="sidebar-toggle-btn" class="crossed" style="background: none; border: none; cursor: pointer; color: var(--text-muted); padding: 4px;" title="Collapse Menu">
+                            <i class="fas fa-bars" style="font-size: 1rem;"></i>
                         </button>
                     </div>
 
-                    <div class="sidebar-title">Server</div>
+                    <!-- Current Server Context & Switcher Card -->
+                    <div id="sidebar-current-guild-box" onclick="showScreen('servers')" style="margin: 0 14px 16px 14px; padding: 10px 12px; border-radius: 10px; background: var(--bg-secondary); border: 1px solid var(--border-color); display: flex; align-items: center; justify-content: space-between; cursor: pointer; transition: all 0.2s ease;" title="Click to Switch Server">
+                        <div style="display: flex; align-items: center; gap: 10px; min-width: 0;">
+                            <img id="sidebar-guild-avatar-img" src="assets/bypass_logs_avatar.webp" style="width: 32px; height: 32px; border-radius: 8px; object-fit: cover; border: 1px solid var(--border-color); flex-shrink: 0;" onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png'">
+                            <div style="min-width: 0;">
+                                <div id="sidebar-guild-name" style="font-size: 0.86rem; font-weight: 700; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Select Server</div>
+                                <div style="font-size: 0.68rem; color: var(--text-muted); display: flex; align-items: center; gap: 4px;">
+                                    <span style="width: 6px; height: 6px; border-radius: 50%; background: #287A55; display: inline-block;"></span>
+                                    <span>Active Server</span>
+                                </div>
+                            </div>
+                        </div>
+                        <i class="fas fa-repeat" style="font-size: 0.75rem; color: var(--accent-primary); flex-shrink: 0;" title="Switch Server"></i>
+                    </div>
+
+                    <div class="sidebar-title" style="padding: 6px 18px 4px 18px; font-size: 0.68rem; font-family: var(--font-mono); font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em;">Server Management</div>
                     <ul class="sidebar-menu">
-                        <li class="sidebar-item" id="menu-settings"><a href="#" onclick="switchTab('settings')"><i class="fas fa-gears"></i> <span>Administration</span></a></li>
+                        <li class="sidebar-item" id="menu-settings"><a href="#" onclick="switchTab('settings')"><i class="fas fa-sliders"></i> <span>Administration</span></a></li>
                         <li class="sidebar-item" id="menu-autoroles"><a href="#" onclick="switchTab('autoroles')"><i class="fas fa-users-gear"></i> <span>Autoroles & Sticky Roles</span></a></li>
                         <li class="sidebar-item" id="menu-weblogs"><a href="#" onclick="switchTab('weblogs')"><i class="fas fa-file-shield"></i> <span>Audit Logs</span></a></li>
-                        <li class="sidebar-item" id="menu-verification"><a href="#" onclick="switchTab('verification')"><i class="fas fa-shield"></i> <span>Verification <span style="font-size:0.6rem; font-weight:800; color:#c084fc; background:rgba(192,132,252,0.15); padding:1px 4px; border-radius:3px; margin-left:5px;">PRO</span></span></a></li>
-                        <li class="sidebar-item" id="menu-security"><a href="#" onclick="switchTab('security')"><i class="fas fa-shield-halved"></i> <span>Raid Protection <span style="font-size:0.6rem; font-weight:800; color:#c084fc; background:rgba(192,132,252,0.15); padding:1px 4px; border-radius:3px; margin-left:5px;">PRO</span></span></a></li>
-                        <li class="sidebar-item" id="menu-personalize"><a href="#" onclick="switchTab('personalize')"><i class="fas fa-user-gear"></i> <span>Bot Profile <span style="font-size:0.6rem; font-weight:800; color:#eab308; background:rgba(234,179,8,0.1); padding:1px 4px; border-radius:3px; margin-left:5px;">PREMIUM</span></span></a></li>
+                        <li class="sidebar-item" id="menu-verification"><a href="#" onclick="switchTab('verification')"><i class="fas fa-shield-check"></i> <span>Verification <span class="nav-badge-pro">PRO</span></span></a></li>
+                        <li class="sidebar-item" id="menu-security"><a href="#" onclick="switchTab('security')"><i class="fas fa-shield-halved"></i> <span>Raid Protection <span class="nav-badge-pro">PRO</span></span></a></li>
+                        <li class="sidebar-item" id="menu-personalize"><a href="#" onclick="switchTab('personalize')"><i class="fas fa-wand-magic-sparkles"></i> <span>Bot Profile <span class="nav-badge-prem">PREMIUM</span></span></a></li>
                     </ul>
 
-                    <div class="sidebar-title">Growth</div>
+                    <div class="sidebar-title" style="padding: 12px 18px 4px 18px; font-size: 0.68rem; font-family: var(--font-mono); font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em;">Growth & Analytics</div>
                     <ul class="sidebar-menu">
-                        <li class="sidebar-item" id="menu-overview"><a href="#" onclick="switchTab('overview')"><i class="fas fa-chart-line"></i> <span>Invite Tracking</span></a></li>
+                        <li class="sidebar-item" id="menu-overview"><a href="#" onclick="switchTab('overview')"><i class="fas fa-chart-line"></i> <span>Server Overview</span></a></li>
                         <li class="sidebar-item" id="menu-analytics"><a href="#" onclick="switchTab('analytics')"><i class="fas fa-chart-column"></i> <span>Analytics</span></a></li>
-                        <li class="sidebar-item" id="menu-reports"><a href="#" onclick="switchTab('reports')"><i class="fas fa-file-contract"></i> <span>Server Reports <span style="font-size:0.6rem; font-weight:800; color:#eab308; background:rgba(234,179,8,0.1); padding:1px 4px; border-radius:3px; margin-left:5px;">PREMIUM</span></span></a></li>
-                        <li class="sidebar-item" id="menu-levels"><a href="#" onclick="switchTab('levels')"><i class="fas fa-chart-simple"></i> <span>Levels & XP <span style="font-size:0.6rem; font-weight:800; color:#eab308; background:rgba(234,179,8,0.1); padding:1px 4px; border-radius:3px; margin-left:5px;">PREMIUM</span></span></a></li>
-                        <li class="sidebar-item" id="menu-commands"><a href="#" onclick="switchTab('commands')"><i class="fas fa-terminal"></i> <span>Commands <span style="font-size:0.6rem; font-weight:800; color:#c084fc; background:rgba(192,132,252,0.15); padding:1px 4px; border-radius:3px; margin-left:5px;">PRO</span></span></a></li>
+                        <li class="sidebar-item" id="menu-reports"><a href="#" onclick="switchTab('reports')"><i class="fas fa-file-contract"></i> <span>Server Reports <span class="nav-badge-prem">PREMIUM</span></span></a></li>
+                        <li class="sidebar-item" id="menu-levels"><a href="#" onclick="switchTab('levels')"><i class="fas fa-award"></i> <span>Levels & XP <span class="nav-badge-prem">PREMIUM</span></span></a></li>
+                        <li class="sidebar-item" id="menu-commands"><a href="#" onclick="switchTab('commands')"><i class="fas fa-terminal"></i> <span>Commands <span class="nav-badge-pro">PRO</span></span></a></li>
                     </ul>
 
-                    <div class="sidebar-title">Server Discovery</div>
+                    <div class="sidebar-title" style="padding: 12px 18px 4px 18px; font-size: 0.68rem; font-family: var(--font-mono); font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em;">Messages & Automation</div>
                     <ul class="sidebar-menu">
-                        <li class="sidebar-item" id="menu-publish"><a href="#" onclick="switchTab('publish')"><i class="fas fa-globe"></i> <span>Publish Listing <span style="font-size:0.6rem; font-weight:800; color:#eab308; background:rgba(234,179,8,0.1); padding:1px 4px; border-radius:3px; margin-left:5px;">PREMIUM</span></span></a></li>
+                        <li class="sidebar-item" id="menu-welcome"><a href="#" onclick="switchTab('welcome')"><i class="fas fa-envelope-open-text"></i> <span>Welcome Messages <span class="nav-badge-pro">PRO</span></span></a></li>
+                        <li class="sidebar-item" id="menu-leave"><a href="#" onclick="switchTab('leave')"><i class="fas fa-right-from-bracket"></i> <span>Exit Messages <span class="nav-badge-pro">PRO</span></span></a></li>
+                        <li class="sidebar-item" id="menu-embed"><a href="#" onclick="switchTab('embed')"><i class="fas fa-comment-dots"></i> <span>Join DM Messages <span class="nav-badge-pro">PRO</span></span></a></li>
+                        <li class="sidebar-item" id="menu-invitetracker"><a href="#" onclick="switchTab('invitetracker')"><i class="fas fa-paper-plane"></i> <span>Invite Tracker <span class="nav-badge-pro">PRO</span></span></a></li>
+                        <li class="sidebar-item" id="menu-embedmessages"><a href="#" onclick="switchTab('embedmessages')"><i class="fas fa-layer-group"></i> <span>Embed Messages <span class="nav-badge-new">NEW</span></span></a></li>
+                        <li class="sidebar-item" id="menu-stickymessages"><a href="#" onclick="switchTab('stickymessages')"><i class="fas fa-note-sticky"></i> <span>Sticky Messages <span class="nav-badge-pro">PRO</span></span></a></li>
+                        <li class="sidebar-item" id="menu-publish"><a href="#" onclick="switchTab('publish')"><i class="fas fa-bullhorn"></i> <span>Auto-Publish <span class="nav-badge-prem">PREMIUM</span></span></a></li>
                     </ul>
 
-                    <div class="sidebar-title">Messages</div>
+                    <div class="sidebar-title" style="padding: 12px 18px 4px 18px; font-size: 0.68rem; font-family: var(--font-mono); font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em;">Support & Assistance</div>
                     <ul class="sidebar-menu">
-                        <li class="sidebar-item" id="menu-welcome"><a href="#" onclick="switchTab('welcome')"><i class="fas fa-envelope-open-text"></i> <span>Welcome Messages <span style="font-size:0.6rem; font-weight:800; color:#c084fc; background:rgba(192,132,252,0.15); padding:1px 4px; border-radius:3px; margin-left:5px;">PRO</span></span></a></li>
-                        <li class="sidebar-item" id="menu-leave"><a href="#" onclick="switchTab('leave')"><i class="fas fa-right-from-bracket"></i> <span>Exit Messages <span style="font-size:0.6rem; font-weight:800; color:#c084fc; background:rgba(192,132,252,0.15); padding:1px 4px; border-radius:3px; margin-left:5px;">PRO</span></span></a></li>
-                        <li class="sidebar-item" id="menu-embed"><a href="#" onclick="switchTab('embed')"><i class="fas fa-comment-dots"></i> <span>Join DM Messages <span style="font-size:0.6rem; font-weight:800; color:#c084fc; background:rgba(192,132,252,0.15); padding:1px 4px; border-radius:3px; margin-left:5px;">PRO</span></span></a></li>
-                        <li class="sidebar-item" id="menu-invitetracker"><a href="#" onclick="switchTab('invitetracker')"><i class="fas fa-paper-plane"></i> <span>Invite Tracker Messages <span style="font-size:0.6rem; font-weight:800; color:#c084fc; background:rgba(192,132,252,0.15); padding:1px 4px; border-radius:3px; margin-left:5px;">PRO</span></span></a></li>
-                                                <li class="sidebar-item" id="menu-embedmessages"><a href="#" onclick="switchTab('embedmessages')"><i class="fas fa-layer-group"></i> <span>Embed Messages <span style="font-size:0.6rem; font-weight:800; color:#10b981; background:rgba(16,185,129,0.15); padding:1px 4px; border-radius:3px; margin-left:5px;">NEW</span></span></a></li>
-<li class="sidebar-item" id="menu-stickymessages"><a href="#" onclick="switchTab('stickymessages')"><i class="fas fa-note-sticky"></i> <span>Sticky Messages <span style="font-size:0.6rem; font-weight:800; color:#c084fc; background:rgba(192,132,252,0.15); padding:1px 4px; border-radius:3px; margin-left:5px;">PRO</span></span></a></li>
-                    </ul>
-
-                    <div class="sidebar-title">Support</div>
-                    <ul class="sidebar-menu">
-                        <li class="sidebar-item" id="menu-tickets"><a href="#" onclick="switchTab('tickets')"><i class="fas fa-ticket"></i> <span>Tickets <span style="font-size:0.6rem; font-weight:800; color:#f43f5e; background:rgba(244,63,94,0.15); padding:1px 4px; border-radius:3px; margin-left:5px;">TICKET</span></span></a></li>
+                        <li class="sidebar-item" id="menu-tickets"><a href="#" onclick="switchTab('tickets')"><i class="fas fa-ticket"></i> <span>Tickets <span class="nav-badge-pro">TICKET</span></span></a></li>
                     </ul>
                 </div>
 
-                <div>
+                <div style="padding-bottom: 8px;">
                     <!-- Subscription Status Card Box -->
-                    <div id="sidebar-subscription-card" class="glass-card" style="margin: 20px 15px; padding: 15px; background: rgba(255,255,255,0.015); border: 1px solid rgba(255,255,255,0.03); border-radius: 10px; cursor: pointer;" onclick="showScreen('landing'); setTimeout(() => scrollToSection('pricing'), 100);">
-                        <div id="sidebar-subscription-badge" style="font-family: var(--font-mono); font-size: 0.65rem; color: #ef4444; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 4px;">NO SUBSCRIPTION</div>
-                        <div id="sidebar-subscription-title" style="font-weight: 700; color: #fff; font-size: 0.85rem; margin-bottom: 4px;">No Active Plan</div>
-                        <div id="sidebar-subscription-footer" style="font-size: 0.75rem; color: #a855f7; font-weight: 700; display: flex; align-items: center; gap: 4px;">Activate plan now &rarr;</div>
+                    <div id="sidebar-subscription-card" class="glass-card" style="margin: 16px 14px; padding: 14px; background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 12px; cursor: pointer; transition: all 0.2s ease;" onclick="showScreen('landing'); setTimeout(() => scrollToSection('pricing'), 100);">
+                        <div id="sidebar-subscription-badge" style="font-family: var(--font-mono); font-size: 0.65rem; color: var(--accent-primary); font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 4px;">NO SUBSCRIPTION</div>
+                        <div id="sidebar-subscription-title" style="font-weight: 700; color: var(--text-primary); font-size: 0.85rem; margin-bottom: 4px;">No Active Plan</div>
+                        <div id="sidebar-subscription-footer" style="font-size: 0.74rem; color: var(--accent-secondary); font-weight: 700; display: flex; align-items: center; gap: 4px;">Upgrade Server &rarr;</div>
                     </div>
 
                     <!-- Bottom User widget panel -->
-                    <div style="padding: 15px 20px; border-top: 1px solid rgba(255,255,255,0.04); display: flex; align-items: center; justify-content: space-between; background: rgba(0,0,0,0.15); width: 100%;">
-                        <div style="display: flex; align-items: center; gap: 10px;">
-                            <div id="sidebar-user-avatar" style="width: 36px; height: 36px; border-radius: 50%; background: #9333ea; display: flex; align-items: center; justify-content: center; font-weight: 700; color: #fff; font-size: 1rem; border: 1.5px solid rgba(255,255,255,0.1);">D</div>
-                            <span id="sidebar-user-name" style="font-weight: 700; color: #fff; font-size: 0.88rem;">!! DADDY</span>
+                    <div style="padding: 14px 18px; border-top: 1px solid var(--border-color); display: flex; align-items: center; justify-content: space-between; background: var(--surface); width: 100%;">
+                        <div style="display: flex; align-items: center; gap: 10px; min-width: 0;">
+                            <div id="sidebar-user-avatar" style="width: 34px; height: 34px; border-radius: 50%; background: var(--soft-pink); border: 1.5px solid var(--border-color); display: flex; align-items: center; justify-content: center; font-weight: 700; color: var(--accent-primary); font-size: 0.95rem; flex-shrink: 0;">U</div>
+                            <span id="sidebar-user-name" style="font-weight: 700; color: var(--text-primary); font-size: 0.86rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">User</span>
                         </div>
-                        <div style="display: flex; gap: 10px; color: var(--text-secondary); font-size: 0.85rem;">
-                            <a href="#" style="color: #ef4444; transition: opacity 0.2s;" onmouseover="this.style.opacity='0.8'" onmouseout="this.style.opacity='1'" onclick="logout()"><i class="fas fa-right-from-bracket"></i></a>
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <button type="button" onclick="toggleMngTheme()" style="background: none; border: none; color: var(--text-secondary); cursor: pointer; font-size: 0.95rem; padding: 4px; transition: color 0.2s;" title="Toggle Dark/Light Mode">
+                                <i class="fas fa-moon" id="sidebar-theme-icon"></i>
+                            </button>
+                            <a href="#" style="color: var(--error); font-size: 0.95rem; padding: 4px; transition: opacity 0.2s;" title="Sign Out" onclick="logout()"><i class="fas fa-right-from-bracket"></i></a>
                         </div>
                     </div>
                 </div>
@@ -4496,8 +4510,8 @@ Support: </pre>
 
                         <!-- LIMIT & PUNISH Title -->
                         <div style="position:relative; margin-top:40px; margin-bottom:25px; font-weight:800; display:flex; align-items:center;">
-                            <span style="font-size:1.05rem; color:#2563eb; position:relative; z-index:2; text-transform:uppercase; font-family:var(--font-display); letter-spacing:0.05em;">LIMIT & PUNISH</span>
-                            <span style="-webkit-text-stroke: 1px rgba(37,99,235,0.06); -webkit-text-fill-color: transparent; font-size: 2.5rem; font-weight: 900; position: absolute; left: 0; top: -14px; z-index: 1; text-transform:uppercase; letter-spacing:0.05em; pointer-events:none; font-family:var(--font-display);">TABLE</span>
+                            <span style="font-size:1.05rem; color:#D96C91; position:relative; z-index:2; text-transform:uppercase; font-family:var(--font-display); letter-spacing:0.05em;">LIMIT & PUNISH</span>
+                            <span style="-webkit-text-stroke: 1px rgba(217, 108, 145,0.06); -webkit-text-fill-color: transparent; font-size: 2.5rem; font-weight: 900; position: absolute; left: 0; top: -14px; z-index: 1; text-transform:uppercase; letter-spacing:0.05em; pointer-events:none; font-family:var(--font-display);">TABLE</span>
                         </div>
 
                         <!-- 22 Items Grid -->
@@ -4662,8 +4676,8 @@ Support: </pre>
 
                         <!-- INSTANT PUNISHMENT Title -->
                         <div style="position:relative; margin-top:40px; margin-bottom:25px; font-weight:800; display:flex; align-items:center;">
-                            <span style="font-size:1.05rem; color:#2563eb; position:relative; z-index:2; text-transform:uppercase; font-family:var(--font-display); letter-spacing:0.05em;">INSTANT PUNISHMENT</span>
-                            <span style="-webkit-text-stroke: 1px rgba(37,99,235,0.06); -webkit-text-fill-color: transparent; font-size: 2.5rem; font-weight: 900; position: absolute; left: 0; top: -14px; z-index: 1; text-transform:uppercase; letter-spacing:0.05em; pointer-events:none; font-family:var(--font-display);">PUNISH</span>
+                            <span style="font-size:1.05rem; color:#D96C91; position:relative; z-index:2; text-transform:uppercase; font-family:var(--font-display); letter-spacing:0.05em;">INSTANT PUNISHMENT</span>
+                            <span style="-webkit-text-stroke: 1px rgba(217, 108, 145,0.06); -webkit-text-fill-color: transparent; font-size: 2.5rem; font-weight: 900; position: absolute; left: 0; top: -14px; z-index: 1; text-transform:uppercase; letter-spacing:0.05em; pointer-events:none; font-family:var(--font-display);">PUNISH</span>
                         </div>
 
                         <!-- Instant List Grid -->
@@ -4927,7 +4941,7 @@ Support: </pre>
                         
                         <!-- Save Changes Button -->
                         <div style="margin-top: 30px; display: flex; justify-content: flex-end; max-width: 100%;">
-                            <button type="button" onclick="saveSecuritySettings()" class="btn-primary" style="background:#2563eb; border:none; padding:12px 30px; border-radius:6px; font-weight:700; font-size:0.92rem; display:flex; align-items:center; gap:8px; cursor:pointer; box-shadow: 0 4px 14px rgba(37,99,235,0.35);">
+                            <button type="button" onclick="saveSecuritySettings()" class="btn-primary" style="background:#D96C91; border:none; padding:12px 30px; border-radius:6px; font-weight:700; font-size:0.92rem; display:flex; align-items:center; gap:8px; cursor:pointer; box-shadow: 0 4px 14px rgba(217, 108, 145,0.35);">
                                 <i class="fas fa-floppy-disk"></i> Save Anti-Nuke Settings
                             </button>
                         </div>
@@ -4947,8 +4961,8 @@ Support: </pre>
 
                         <!-- Current Status section -->
                         <div style="position:relative; margin-top:30px; margin-bottom:20px; font-weight:800; display:flex; align-items:center;">
-                            <span style="font-size:1.02rem; color:#2563eb; position:relative; z-index:2; text-transform:uppercase; font-family:var(--font-display); letter-spacing:0.05em;">CURRENT STATUS</span>
-                            <span style="-webkit-text-stroke: 1px rgba(37,99,235,0.06); -webkit-text-fill-color: transparent; font-size: 2.3rem; font-weight: 900; position: absolute; left: 0; top: -14px; z-index: 1; text-transform:uppercase; letter-spacing:0.05em; pointer-events:none; font-family:var(--font-display);">STATUS</span>
+                            <span style="font-size:1.02rem; color:#D96C91; position:relative; z-index:2; text-transform:uppercase; font-family:var(--font-display); letter-spacing:0.05em;">CURRENT STATUS</span>
+                            <span style="-webkit-text-stroke: 1px rgba(217, 108, 145,0.06); -webkit-text-fill-color: transparent; font-size: 2.3rem; font-weight: 900; position: absolute; left: 0; top: -14px; z-index: 1; text-transform:uppercase; letter-spacing:0.05em; pointer-events:none; font-family:var(--font-display);">STATUS</span>
                         </div>
 
                         <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 30px;">
@@ -4968,8 +4982,8 @@ Support: </pre>
 
                         <!-- Configuration Section -->
                         <div style="position:relative; margin-top:30px; margin-bottom:20px; font-weight:800; display:flex; align-items:center;">
-                            <span style="font-size:1.02rem; color:#2563eb; position:relative; z-index:2; text-transform:uppercase; font-family:var(--font-display); letter-spacing:0.05em;">CONFIGURATION</span>
-                            <span style="-webkit-text-stroke: 1px rgba(37,99,235,0.06); -webkit-text-fill-color: transparent; font-size: 2.3rem; font-weight: 900; position: absolute; left: 0; top: -14px; z-index: 1; text-transform:uppercase; letter-spacing:0.05em; pointer-events:none; font-family:var(--font-display);">CONFIGURATION</span>
+                            <span style="font-size:1.02rem; color:#D96C91; position:relative; z-index:2; text-transform:uppercase; font-family:var(--font-display); letter-spacing:0.05em;">CONFIGURATION</span>
+                            <span style="-webkit-text-stroke: 1px rgba(217, 108, 145,0.06); -webkit-text-fill-color: transparent; font-size: 2.3rem; font-weight: 900; position: absolute; left: 0; top: -14px; z-index: 1; text-transform:uppercase; letter-spacing:0.05em; pointer-events:none; font-family:var(--font-display);">CONFIGURATION</span>
                         </div>
 
                         <div style="background: rgba(13,20,38,0.25); border: 1px solid rgba(255,255,255,0.03); border-radius: 8px; padding: 24px; display: flex; flex-direction: column; gap: 20px; margin-bottom: 30px;">
@@ -5006,8 +5020,8 @@ Support: </pre>
 
                         <!-- Action Scores Section -->
                         <div style="position:relative; margin-top:30px; margin-bottom:20px; font-weight:800; display:flex; align-items:center;">
-                            <span style="font-size:1.02rem; color:#2563eb; position:relative; z-index:2; text-transform:uppercase; font-family:var(--font-display); letter-spacing:0.05em;">ACTION SCORES</span>
-                            <span style="-webkit-text-stroke: 1px rgba(37,99,235,0.06); -webkit-text-fill-color: transparent; font-size: 2.3rem; font-weight: 900; position: absolute; left: 0; top: -14px; z-index: 1; text-transform:uppercase; letter-spacing:0.05em; pointer-events:none; font-family:var(--font-display);">SCORES</span>
+                            <span style="font-size:1.02rem; color:#D96C91; position:relative; z-index:2; text-transform:uppercase; font-family:var(--font-display); letter-spacing:0.05em;">ACTION SCORES</span>
+                            <span style="-webkit-text-stroke: 1px rgba(217, 108, 145,0.06); -webkit-text-fill-color: transparent; font-size: 2.3rem; font-weight: 900; position: absolute; left: 0; top: -14px; z-index: 1; text-transform:uppercase; letter-spacing:0.05em; pointer-events:none; font-family:var(--font-display);">SCORES</span>
                         </div>
 
                         <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 15px; margin-bottom: 30px;">
@@ -5058,7 +5072,7 @@ Support: </pre>
                         </div>
 
                         <div style="display: flex; justify-content: flex-end;">
-                            <button type="button" onclick="showToast('Success', 'Beast Mode configuration matrices synced successfully!')" class="btn-primary" style="background:#2563eb; border:none; padding:12px 30px; border-radius:6px; font-weight:700; cursor:pointer; box-shadow:0 4px 12px rgba(37,99,235,0.3);">
+                            <button type="button" onclick="showToast('Success', 'Beast Mode configuration matrices synced successfully!')" class="btn-primary" style="background:#D96C91; border:none; padding:12px 30px; border-radius:6px; font-weight:700; cursor:pointer; box-shadow:0 4px 12px rgba(217, 108, 145,0.3);">
                                 <i class="fas fa-floppy-disk"></i> Save Beast Mode Config
                             </button>
                         </div>
@@ -5175,8 +5189,8 @@ Support: </pre>
 
                         <!-- CONFIGURATION Title -->
                         <div style="position:relative; margin-top:30px; margin-bottom:20px; font-weight:800; display:flex; align-items:center;">
-                            <span style="font-size:1.02rem; color:#2563eb; position:relative; z-index:2; text-transform:uppercase; font-family:var(--font-display); letter-spacing:0.05em;">CONFIGURATION</span>
-                            <span style="-webkit-text-stroke: 1px rgba(37,99,235,0.06); -webkit-text-fill-color: transparent; font-size: 2.3rem; font-weight: 900; position: absolute; left: 0; top: -14px; z-index: 1; text-transform:uppercase; letter-spacing:0.05em; pointer-events:none; font-family:var(--font-display);">CONFIGURATION</span>
+                            <span style="font-size:1.02rem; color:#D96C91; position:relative; z-index:2; text-transform:uppercase; font-family:var(--font-display); letter-spacing:0.05em;">CONFIGURATION</span>
+                            <span style="-webkit-text-stroke: 1px rgba(217, 108, 145,0.06); -webkit-text-fill-color: transparent; font-size: 2.3rem; font-weight: 900; position: absolute; left: 0; top: -14px; z-index: 1; text-transform:uppercase; letter-spacing:0.05em; pointer-events:none; font-family:var(--font-display);">CONFIGURATION</span>
                         </div>
 
                         <div style="background: rgba(13,20,38,0.25); border: 1px solid rgba(255,255,255,0.03); border-radius: 8px; padding: 25px; display: flex; flex-direction: column; gap: 20px; margin-bottom: 25px;" id="verification-form-container">
@@ -5211,7 +5225,7 @@ Support: </pre>
                                 <select class="form-control guild-roles-dropdown" style="background:#0c0a18; border-color:rgba(255,255,255,0.05); margin-top:4px;" id="ver-unverified-role">
                                     <option value="Unverified">Unverified</option>
                                 </select>
-                                <div style="background:rgba(59,130,246,0.04); border-left: 3px solid #3b82f6; padding: 8px 12px; border-radius: 4px; font-size: 0.75rem; color:#dbdee1; margin-top:6px; line-height:1.4;">
+                                <div style="background:rgba(217, 108, 145,0.04); border-left: 3px solid #D96C91; padding: 8px 12px; border-radius: 4px; font-size: 0.75rem; color:#dbdee1; margin-top:6px; line-height:1.4;">
                                     📌 Update Unverified Role: You must update unverified role when you create new channels.<br>
                                     ⚠️ Unverified Role should have a higher position than your normal and non moderation roles.
                                 </div>
@@ -5225,7 +5239,7 @@ Support: </pre>
                                     <select class="form-control guild-channels-dropdown" style="background:#0c0a18; border-color:rgba(255,255,255,0.05); flex:1;" id="ver-channel">
                                         <option value="verify">#verify</option>
                                     </select>
-                                    <button type="button" class="btn-primary" onclick="showToast('Success', 'Verification channel created successfully')" style="background:#2563eb; border:none; padding:8px 15px; border-radius:6px; font-weight:700; font-size:0.8rem; height:38px; cursor:pointer;">
+                                    <button type="button" class="btn-primary" onclick="showToast('Success', 'Verification channel created successfully')" style="background:#D96C91; border:none; padding:8px 15px; border-radius:6px; font-weight:700; font-size:0.8rem; height:38px; cursor:pointer;">
                                         Create Verification Channel
                                     </button>
                                 </div>
@@ -5282,7 +5296,7 @@ Support: </pre>
                         </div>
 
                         <div style="display:flex; justify-content:flex-end;">
-                            <button type="button" onclick="saveVerificationSettings()" class="btn-primary" style="background:#2563eb; border:none; padding:12px 30px; border-radius:6px; font-weight:700; cursor:pointer; box-shadow:0 4px 12px rgba(37,99,235,0.3);">
+                            <button type="button" onclick="saveVerificationSettings()" class="btn-primary" style="background:#D96C91; border:none; padding:12px 30px; border-radius:6px; font-weight:700; cursor:pointer; box-shadow:0 4px 12px rgba(217, 108, 145,0.3);">
                                 <i class="fas fa-floppy-disk"></i> Save Verification Settings
                             </button>
                         </div>
@@ -5364,7 +5378,7 @@ Support: </pre>
                                     <label style="font-size:0.78rem; color:var(--text-secondary); font-weight:700; text-transform:uppercase;">USER ID</label>
                                     <div style="display:flex; gap:10px; margin-top:4px;">
                                         <input type="text" class="form-control" id="mod-user-id-grant" placeholder="Enter Discord User ID..." style="flex:1; background:rgba(0,0,0,0.25); border-color:rgba(255,255,255,0.05); padding:10px 14px;">
-                                        <button class="btn-primary" onclick="addModerationOverride()" style="background:#2563eb; border:none; padding:10px 20px; border-radius:6px; font-weight:700; cursor:pointer;">
+                                        <button class="btn-primary" onclick="addModerationOverride()" style="background:#D96C91; border:none; padding:10px 20px; border-radius:6px; font-weight:700; cursor:pointer;">
                                             Add Override
                                         </button>
                                     </div>
@@ -5436,19 +5450,19 @@ Support: </pre>
                             <div style="background: rgba(13,20,38,0.25); border: 1px solid rgba(255,255,255,0.03); border-radius: 12px; padding: 25px; text-align: center; display:flex; flex-direction:column; gap:16px;">
                                 <div style="font-size: 2rem; color: var(--accent-primary);"><i class="fas fa-users-gear"></i></div>
                                 <span style="font-size:1.02rem; color:#fff; font-weight:800; letter-spacing:0.05em; text-transform:uppercase;">Whitelisted Roles</span>
-                                <button class="btn-primary" onclick="openWhitelistModal('Role')" style="padding:10px 16px; border-radius:6px; cursor:pointer; background:#2563eb; border:none; font-weight:700; color:#fff; width:100%;">Configure Roles</button>
+                                <button class="btn-primary" onclick="openWhitelistModal('Role')" style="padding:10px 16px; border-radius:6px; cursor:pointer; background:#D96C91; border:none; font-weight:700; color:#fff; width:100%;">Configure Roles</button>
                             </div>
                             <!-- Card: Users -->
                             <div style="background: rgba(13,20,38,0.25); border: 1px solid rgba(255,255,255,0.03); border-radius: 12px; padding: 25px; text-align: center; display:flex; flex-direction:column; gap:16px;">
                                 <div style="font-size: 2rem; color: var(--accent-primary);"><i class="fas fa-user-shield"></i></div>
                                 <span style="font-size:1.02rem; color:#fff; font-weight:800; letter-spacing:0.05em; text-transform:uppercase;">Whitelisted Users</span>
-                                <button class="btn-primary" onclick="openWhitelistModal('User')" style="padding:10px 16px; border-radius:6px; cursor:pointer; background:#2563eb; border:none; font-weight:700; color:#fff; width:100%;">Configure Users</button>
+                                <button class="btn-primary" onclick="openWhitelistModal('User')" style="padding:10px 16px; border-radius:6px; cursor:pointer; background:#D96C91; border:none; font-weight:700; color:#fff; width:100%;">Configure Users</button>
                             </div>
                             <!-- Card: Channels -->
                             <div style="background: rgba(13,20,38,0.25); border: 1px solid rgba(255,255,255,0.03); border-radius: 12px; padding: 25px; text-align: center; display:flex; flex-direction:column; gap:16px;">
                                 <div style="font-size: 2rem; color: var(--accent-primary);"><i class="fas fa-hashtag"></i></div>
                                 <span style="font-size:1.02rem; color:#fff; font-weight:800; letter-spacing:0.05em; text-transform:uppercase;">Whitelisted Channels</span>
-                                <button class="btn-primary" onclick="openWhitelistModal('Channel')" style="padding:10px 16px; border-radius:6px; cursor:pointer; background:#2563eb; border:none; font-weight:700; color:#fff; width:100%;">Configure Channels</button>
+                                <button class="btn-primary" onclick="openWhitelistModal('Channel')" style="padding:10px 16px; border-radius:6px; cursor:pointer; background:#D96C91; border:none; font-weight:700; color:#fff; width:100%;">Configure Channels</button>
                             </div>
                         </div>
                     </div>
@@ -5462,8 +5476,8 @@ Support: </pre>
 
                         <!-- CONFIGURATION Title -->
                         <div style="position:relative; margin-top:30px; margin-bottom:20px; font-weight:800; display:flex; align-items:center;">
-                            <span style="font-size:1.02rem; color:#2563eb; position:relative; z-index:2; text-transform:uppercase; font-family:var(--font-display); letter-spacing:0.05em;">CONFIGURATION</span>
-                            <span style="-webkit-text-stroke: 1px rgba(37,99,235,0.06); -webkit-text-fill-color: transparent; font-size: 2.3rem; font-weight: 900; position: absolute; left: 0; top: -14px; z-index: 1; text-transform:uppercase; letter-spacing:0.05em; pointer-events:none; font-family:var(--font-display);">CONFIGURATION</span>
+                            <span style="font-size:1.02rem; color:#D96C91; position:relative; z-index:2; text-transform:uppercase; font-family:var(--font-display); letter-spacing:0.05em;">CONFIGURATION</span>
+                            <span style="-webkit-text-stroke: 1px rgba(217, 108, 145,0.06); -webkit-text-fill-color: transparent; font-size: 2.3rem; font-weight: 900; position: absolute; left: 0; top: -14px; z-index: 1; text-transform:uppercase; letter-spacing:0.05em; pointer-events:none; font-family:var(--font-display);">CONFIGURATION</span>
                         </div>
 
                         <div style="background: rgba(13,20,38,0.25); border: 1px solid rgba(255,255,255,0.03); border-radius: 8px; padding: 25px; display:flex; flex-direction:column; gap:20px; max-width: 600px; margin: 0 auto 30px auto;">
@@ -5487,7 +5501,7 @@ Support: </pre>
                                 <button type="button" onclick="autoCreateLogsChannels()" class="btn-primary" style="background:#059669; border:none; padding:10px 20px; border-radius:6px; font-weight:700; cursor:pointer;" onmouseover="this.style.background='#047857'" onmouseout="this.style.background='#059669'">
                                     <i class="fas fa-plus-circle"></i> Auto Create Channels
                                 </button>
-                                <button type="button" onclick="saveLogsSettings()" class="btn-primary" style="background:#2563eb; border:none; padding:10px 20px; border-radius:6px; font-weight:700; cursor:pointer;">
+                                <button type="button" onclick="saveLogsSettings()" class="btn-primary" style="background:#D96C91; border:none; padding:10px 20px; border-radius:6px; font-weight:700; cursor:pointer;">
                                     Save Logs Settings
                                 </button>
                             </div>
@@ -5556,7 +5570,7 @@ Support: </pre>
                                 </div>
                                 
                                 <div style="display:flex; justify-content:flex-end; margin-top:15px; border-top:1px solid rgba(255,255,255,0.03); padding-top:15px;">
-                                    <button type="button" onclick="saveAntiSpamSettings()" class="btn-primary" style="background:#2563eb; border:none; padding:10px 24px; border-radius:6px; font-weight:700; cursor:pointer;">
+                                    <button type="button" onclick="saveAntiSpamSettings()" class="btn-primary" style="background:#D96C91; border:none; padding:10px 24px; border-radius:6px; font-weight:700; cursor:pointer;">
                                         Save Anti-Spam
                                     </button>
                                 </div>
@@ -5677,10 +5691,10 @@ Support: </pre>
                     </div>
 
                     <!-- Permission Banner -->
-                    <div style="background: rgba(59,130,246,0.08); border-left: 4px solid #3b82f6; border-radius: 6px; padding: 14px 18px; margin-bottom: 20px;">
+                    <div style="background: rgba(217, 108, 145,0.08); border-left: 4px solid #D96C91; border-radius: 6px; padding: 14px 18px; margin-bottom: 20px;">
                         <h4 style="font-size: 0.88rem; font-weight: 700; color: #fff; margin: 0 0 4px 0;">Missing Permissions</h4>
                         <p style="font-size: 0.78rem; color: #dbdee1; margin: 0; line-height: 1.5;">
-                            VEYRA is missing the <code style="color: #3b82f6; background: rgba(59,130,246,0.15); padding: 1px 6px; border-radius: 4px;">Create Invite</code> permission. Please grant it before submitting your listing. Please also note that once the permission is granted it might take a few minutes to reflect here.
+                            VEYRA is missing the <code style="color: #D96C91; background: rgba(217, 108, 145,0.15); padding: 1px 6px; border-radius: 4px;">Create Invite</code> permission. Please grant it before submitting your listing. Please also note that once the permission is granted it might take a few minutes to reflect here.
                         </p>
                     </div>
 
@@ -7730,7 +7744,7 @@ We hope to see you back soon!
                                                 <span class="tickets-metric-card-title">In-Progress</span>
                                                 <span class="tickets-metric-card-value" id="t-home-progress">3</span>
                                             </div>
-                                            <div class="tickets-metric-card-icon" style="color:#3b82f6; background:rgba(59,130,246,0.06); border-color:rgba(59,130,246,0.15);"><i class="fas fa-clock"></i></div>
+                                            <div class="tickets-metric-card-icon" style="color:#D96C91; background:rgba(217, 108, 145,0.06); border-color:rgba(217, 108, 145,0.15);"><i class="fas fa-clock"></i></div>
                                         </div>
                                         <div class="tickets-metric-card">
                                             <div class="tickets-metric-card-left">
@@ -7766,7 +7780,7 @@ We hope to see you back soon!
                                                 <svg viewBox="0 0 36 36" style="width: 100%; height: 100%; transform: rotate(-90deg);">
                                                     <circle cx="18" cy="18" r="15.915" fill="none" stroke="rgba(255,255,255,0.04)" stroke-width="3"></circle>
                                                     <circle cx="18" cy="18" r="15.915" fill="none" stroke="#ffd43b" stroke-width="3" stroke-dasharray="77 23" stroke-dashoffset="0"></circle>
-                                                    <circle cx="18" cy="18" r="15.915" fill="none" stroke="#3b82f6" stroke-width="3" stroke-dasharray="23 77" stroke-dashoffset="-77"></circle>
+                                                    <circle cx="18" cy="18" r="15.915" fill="none" stroke="#D96C91" stroke-width="3" stroke-dasharray="23 77" stroke-dashoffset="-77"></circle>
                                                 </svg>
                                                 <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center;">
                                                     <div style="font-size: 1.5rem; font-weight: 800; color: #fff;">229</div>
@@ -7775,7 +7789,7 @@ We hope to see you back soon!
                                             </div>
                                             <div style="display: flex; flex-direction:column; gap:8px; font-size: 0.78rem; color: var(--text-secondary);">
                                                 <div style="display:flex; justify-content:space-between;"><span><span style="display:inline-block; width:8px; height:8px; background:#a855f7; border-radius:50%; margin-right:6px;"></span> Open</span> <span>0%</span></div>
-                                                <div style="display:flex; justify-content:space-between;"><span><span style="display:inline-block; width:8px; height:8px; background:#3b82f6; border-radius:50%; margin-right:6px;"></span> In Progress</span> <span>23%</span></div>
+                                                <div style="display:flex; justify-content:space-between;"><span><span style="display:inline-block; width:8px; height:8px; background:#D96C91; border-radius:50%; margin-right:6px;"></span> In Progress</span> <span>23%</span></div>
                                                 <div style="display:flex; justify-content:space-between;"><span><span style="display:inline-block; width:8px; height:8px; background:#ffd43b; border-radius:50%; margin-right:6px;"></span> Resolved</span> <span>77%</span></div>
                                             </div>
                                         </div>
@@ -7864,7 +7878,7 @@ We hope to see you back soon!
                                         <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px;">
                                             <span style="font-size: 0.82rem; color: var(--text-secondary);">Last Seen <span style="font-weight: 700; color: #fff;">Jul 30, 2026</span></span>
                                             <span style="border: 1px solid rgba(234,179,8,0.3); background: rgba(234,179,8,0.05); color: #eab308; font-size: 0.65rem; font-weight: 800; padding: 2px 8px; border-radius: 4px; font-family: var(--font-mono); text-transform: uppercase;">Ticket Panel</span>
-                                            <span style="background: rgba(59,130,246,0.1); border: 1px solid rgba(59,130,246,0.2); color: #3b82f6; font-size: 0.65rem; font-weight: 800; padding: 2px 8px; border-radius: 4px; font-family: var(--font-mono); display: inline-flex; align-items: center; gap: 4px;"><i class="fas fa-hashtag"></i> BUY-HERE</span>
+                                            <span style="background: rgba(217, 108, 145,0.1); border: 1px solid rgba(217, 108, 145,0.2); color: #D96C91; font-size: 0.65rem; font-weight: 800; padding: 2px 8px; border-radius: 4px; font-family: var(--font-mono); display: inline-flex; align-items: center; gap: 4px;"><i class="fas fa-hashtag"></i> BUY-HERE</span>
                                         </div>
 
                                         <!-- Virtual Embed Card -->
@@ -7997,7 +8011,7 @@ Thank you.</div>
                                                     <!-- Card 2: Application Panel -->
                                                     <div id="wizard-panel-type-app" onclick="selectWizardPanelType('app')" style="background: rgba(0,0,0,0.1); border: 1.5px solid rgba(255,255,255,0.04); border-radius: 10px; padding: 24px; text-align: center; cursor: pointer; position: relative; box-sizing: border-box;">
                                                         <span id="wizard-app-check" style="position: absolute; top: 12px; right: 12px; width: 18px; height: 18px; border-radius: 50%; background: #eab308; display: none; align-items: center; justify-content: center; color: #000; font-size: 0.7rem; font-weight: 900;"><i class="fas fa-check"></i></span>
-                                                        <div style="width: 54px; height: 54px; border-radius: 10px; background: rgba(59,130,246,0.1); border: 1px solid rgba(59,130,246,0.2); display: flex; align-items: center; justify-content: center; margin: 28px auto 16px auto; color: #3b82f6; font-size: 1.5rem;"><i class="far fa-clipboard"></i></div>
+                                                        <div style="width: 54px; height: 54px; border-radius: 10px; background: rgba(217, 108, 145,0.1); border: 1px solid rgba(217, 108, 145,0.2); display: flex; align-items: center; justify-content: center; margin: 28px auto 16px auto; color: #D96C91; font-size: 1.5rem;"><i class="far fa-clipboard"></i></div>
                                                         <h4 style="font-size: 1.05rem; font-weight: 700; color: #fff; margin: 0 0 8px 0;">Application Panel</h4>
                                                         <p style="font-size: 0.8rem; color: var(--text-secondary); line-height: 1.4; margin: 0;">Collect applications via modal forms. Staff can review, approve, or deny submissions.</p>
                                                     </div>
@@ -8085,7 +8099,7 @@ Thank you.</div>
                                             <button onclick="exitPanelDesigner()" class="btn-secondary" style="font-size: 0.8rem; padding: 8px 14px; border-radius: 6px; display: flex; align-items: center; gap: 6px; cursor: pointer;"><i class="fas fa-arrow-left"></i> View All Panels</button>
                                             <div style="display: flex; align-items: center; gap: 10px;">
                                                 <span style="font-size: 0.82rem; color: var(--text-secondary);">Last Seen <span style="font-weight: 700; color: #fff;">Jul 30, 2026</span></span>
-                                                <span style="background: rgba(59,130,246,0.1); border: 1px solid rgba(59,130,246,0.2); color: #3b82f6; font-size: 0.65rem; font-weight: 800; padding: 2px 8px; border-radius: 4px; font-family: var(--font-mono); display: inline-flex; align-items: center; gap: 4px;"><i class="fas fa-hashtag"></i> BUY-HERE</span>
+                                                <span style="background: rgba(217, 108, 145,0.1); border: 1px solid rgba(217, 108, 145,0.2); color: #D96C91; font-size: 0.65rem; font-weight: 800; padding: 2px 8px; border-radius: 4px; font-family: var(--font-mono); display: inline-flex; align-items: center; gap: 4px;"><i class="fas fa-hashtag"></i> BUY-HERE</span>
                                             </div>
                                         </div>
 
@@ -8165,7 +8179,7 @@ Use the options below to open a ticket for purchases, inquiries, or problem solv
                                                             <!-- Button 11 -->
                                                             <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.05); padding:8px 12px; border-radius:4px; font-size:0.8rem; color:#fff; display:flex; align-items:center; gap:8px; opacity:0.85;">
                                                                 <i class="fas fa-grip-vertical" style="color:#475569; font-size:0.75rem;"></i>
-                                                                <i class="fas fa-gem" style="color:#3b82f6; font-size:0.85rem;"></i>
+                                                                <i class="fas fa-gem" style="color:#D96C91; font-size:0.85rem;"></i>
                                                                 <span>Button 11</span>
                                                             </div>
                                                             <!-- Button 5 -->
@@ -8583,7 +8597,7 @@ Server Support Team</textarea>
                                                             </div>
                                                             <p style="font-size:0.7rem; color:var(--text-secondary); margin:6px 0 0 0;"><i class="far fa-circle-question"></i> Using the panel's default value for this field.</p>
                                                             <div style="margin-top:8px; background:rgba(0,0,0,0.25); border:1px solid rgba(255,255,255,0.05); padding:6px 10px; border-radius:6px; display:flex; align-items:center; justify-content:space-between;">
-                                                                <div style="background:rgba(59,130,246,0.1); border:1px solid rgba(59,130,246,0.2); color:#3b82f6; padding:3px 8px; border-radius:4px; font-size:0.75rem; font-weight:700; display:inline-flex; align-items:center; gap:6px;"><i class="fas fa-gem"></i> BUY <a href="#" style="color:#ef4444; font-size:0.7rem; text-decoration:none; margin-left:4px;">&times;</a></div>
+                                                                <div style="background:rgba(217, 108, 145,0.1); border:1px solid rgba(217, 108, 145,0.2); color:#D96C91; padding:3px 8px; border-radius:4px; font-size:0.75rem; font-weight:700; display:inline-flex; align-items:center; gap:6px;"><i class="fas fa-gem"></i> BUY <a href="#" style="color:#ef4444; font-size:0.7rem; text-decoration:none; margin-left:4px;">&times;</a></div>
                                                                 <i class="fas fa-chevron-down" style="font-size:0.7rem; color:#64748b;"></i>
                                                             </div>
                                                         </div>
@@ -8814,7 +8828,7 @@ Server Support Team</textarea>
                                                             </select>
                                                         </div>
                                                         <div style="margin-top:8px; background:rgba(0,0,0,0.25); border:1px solid rgba(255,255,255,0.05); padding:6px 10px; border-radius:6px; display:flex; align-items:center; justify-content:space-between;">
-                                                            <div style="background:rgba(59,130,246,0.1); border:1px solid rgba(59,130,246,0.2); color:#3b82f6; padding:3px 8px; border-radius:4px; font-size:0.75rem; font-weight:700; display:inline-flex; align-items:center; gap:6px;"><i class="fas fa-gem"></i> BUY <a href="#" style="color:#ef4444; font-size:0.7rem; text-decoration:none; margin-left:4px;">&times;</a></div>
+                                                            <div style="background:rgba(217, 108, 145,0.1); border:1px solid rgba(217, 108, 145,0.2); color:#D96C91; padding:3px 8px; border-radius:4px; font-size:0.75rem; font-weight:700; display:inline-flex; align-items:center; gap:6px;"><i class="fas fa-gem"></i> BUY <a href="#" style="color:#ef4444; font-size:0.7rem; text-decoration:none; margin-left:4px;">&times;</a></div>
                                                             <i class="fas fa-chevron-down" style="font-size:0.7rem; color:#64748b;"></i>
                                                         </div>
                                                     </div>
@@ -9053,14 +9067,14 @@ Server Support Team</textarea>
                                          modal.innerHTML = `
                                              <div class="glass-card" style="width:90%; max-width:600px; padding:25px; border:1px solid rgba(255,255,255,0.08); background:#1e1f22; box-shadow:0 20px 50px rgba(0,0,0,0.8); position:relative; text-align:left;">
                                                  <h3 style="color:#fff; margin-top:0; border-bottom:1px solid rgba(255,255,255,0.05); padding-bottom:12px; display:flex; justify-content:space-between; align-items:center;">
-                                                     <span><i class="fas fa-download" style="color:#3b82f6; margin-right:8px;"></i> Import Panel Template</span>
+                                                     <span><i class="fas fa-download" style="color:#D96C91; margin-right:8px;"></i> Import Panel Template</span>
                                                      <button onclick="document.getElementById('template-import-modal').remove()" style="background:transparent; border:none; color:#94a3b8; font-size:1.4rem; cursor:pointer;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='#94a3b8'">&times;</button>
                                                  </h3>
                                                  <p style="font-size:0.8rem; color:var(--text-secondary); margin-bottom:15px; text-align:left;">Paste the JSON template code below to import it into your panel workspace.</p>
                                                  <textarea id="import-template-textarea" placeholder='{\n    "panel_name": "Support Panel",\n    ...\n}' style="width:100%; height:180px; background:#111214; border:1px solid rgba(255,255,255,0.05); border-radius:6px; color:#fff; font-family:var(--font-mono); font-size:0.8rem; padding:12px; box-sizing:border-box; resize:none; outline:none; text-align:left;"></textarea>
                                                  <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:20px;">
                                                      <button onclick="document.getElementById('template-import-modal').remove()" class="btn-secondary" style="font-size:0.8rem; padding:8px 14px; border-radius:6px; color:#fff; cursor:pointer;">Cancel</button>
-                                                     <button onclick="processTemplateImport()" class="btn-primary" style="font-size:0.8rem; padding:8px 14px; border-radius:6px; background:#3b82f6; border:none; color:#fff; font-weight:700; cursor:pointer;">Import Now</button>
+                                                     <button onclick="processTemplateImport()" class="btn-primary" style="font-size:0.8rem; padding:8px 14px; border-radius:6px; background:#D96C91; border:none; color:#fff; font-weight:700; cursor:pointer;">Import Now</button>
                                                  </div>
                                              </div>
                                          `;
@@ -9282,7 +9296,7 @@ Server Support Team</textarea>
                                         const embedCard = document.getElementById('designer-embed-preview-card');
                                         
                                         if (type === 'embed') {
-                                            if (embedCard) embedCard.style.borderColor = '#3b82f6';
+                                            if (embedCard) embedCard.style.borderColor = '#D96C91';
                                             switchDesignerRightPanel('embed');
                                         } else if (type === 'menu') {
                                             if (embedCard) embedCard.style.borderColor = 'rgba(255,255,255,0.02)';
@@ -9744,7 +9758,7 @@ Our support team can assist you with:
                                                     <td style="padding: 14px 10px; color:var(--text-secondary); font-size:0.8rem;">Jul 31, 2026 — 10:45AM</td>
                                                     <td style="padding: 14px 10px;">
                                                         <div style="display:flex; align-items:center; gap:8px;">
-                                                            <div style="width:24px; height:24px; border-radius:50%; background:#3b82f6; display:flex; align-items:center; justify-content:center; color:#fff; font-size:0.7rem; font-weight:700;">G</div>
+                                                            <div style="width:24px; height:24px; border-radius:50%; background:#D96C91; display:flex; align-items:center; justify-content:center; color:#fff; font-size:0.7rem; font-weight:700;">G</div>
                                                             <div>
                                                                 <div style="font-weight:600; font-size:0.8rem;">guimbada</div>
                                                                 <div style="font-size:0.68rem; color:var(--text-secondary); font-family:var(--font-mono);">1324874174467932318</div>
@@ -9981,7 +9995,7 @@ Our support team can assist you with:
                                             </div>
                                             <div style="display:flex; gap:6px; margin-bottom:12px;">
                                                 <span style="background:rgba(255,255,255,0.05); color:#dbdee1; padding:2px 8px; border-radius:4px; font-size:0.72rem; font-family:var(--font-mono);">!staff</span>
-                                                <span style="background:rgba(59,130,246,0.1); color:#3b82f6; border:1px solid rgba(59,130,246,0.2); padding:2px 8px; border-radius:4px; font-size:0.72rem; font-weight:700;">2 Roles</span>
+                                                <span style="background:rgba(217, 108, 145,0.1); color:#D96C91; border:1px solid rgba(217, 108, 145,0.2); padding:2px 8px; border-radius:4px; font-size:0.72rem; font-weight:700;">2 Roles</span>
                                             </div>
                                             <p style="color:var(--text-secondary); font-size:0.8rem; line-height:1.5; margin:0;">Our staff team is online from 9 AM to 11 PM EST. Tag &lt;@&amp;Support&gt; for help with tickets, or &lt;@&amp;Admin&gt; for higher-priority issues.</p>
                                         </div>
@@ -10096,7 +10110,7 @@ Our support team can assist you with:
                                                 <div style="font-size: 0.82rem; color: var(--text-secondary); margin-bottom: 8px;">In-Progress Tickets</div>
                                                 <div style="font-size: 2.2rem; font-weight: 800; color: #fff; line-height: 1;">9</div>
                                             </div>
-                                            <div style="color: #3b82f6; font-size: 1.2rem; background: rgba(59,130,246,0.1); width: 32px; height: 32px; border-radius: 6px; display: flex; align-items: center; justify-content: center;"><i class="fas fa-rotate-right"></i></div>
+                                            <div style="color: #D96C91; font-size: 1.2rem; background: rgba(217, 108, 145,0.1); width: 32px; height: 32px; border-radius: 6px; display: flex; align-items: center; justify-content: center;"><i class="fas fa-rotate-right"></i></div>
                                         </div>
                                         <!-- Card 3 -->
                                         <div class="glass-card" style="padding: 20px; background: rgba(255,255,255,0.01); border: 1px solid rgba(255,255,255,0.03); border-radius: 8px; display: flex; justify-content: space-between; align-items: start;">
@@ -10132,7 +10146,7 @@ Our support team can assist you with:
                                                     <!-- Yellow segment (Resolved: 122/131 = 93%) -->
                                                     <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="#d4af37" stroke-width="4" stroke-dasharray="93 7" stroke-dashoffset="25"></circle>
                                                     <!-- Blue segment (In-Progress: 9/131 = ~3.5%) -->
-                                                    <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="#3b82f6" stroke-width="4" stroke-dasharray="3.5 96.5" stroke-dashoffset="32"></circle>
+                                                    <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="#D96C91" stroke-width="4" stroke-dasharray="3.5 96.5" stroke-dashoffset="32"></circle>
                                                     <!-- Purple segment (Open: 9/131 = ~3.5%) -->
                                                     <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="#a855f7" stroke-width="4" stroke-dasharray="3.5 96.5" stroke-dashoffset="28.5"></circle>
                                                 </svg>
@@ -10145,7 +10159,7 @@ Our support team can assist you with:
                                             <!-- Legend list -->
                                             <div style="display: flex; justify-content: space-around; margin-top: 16px; font-size: 0.8rem;">
                                                 <span style="display: flex; align-items: center; gap: 6px;"><span style="width: 8px; height: 8px; border-radius: 50%; background: #a855f7; display: inline-block;"></span>Open (9)</span>
-                                                <span style="display: flex; align-items: center; gap: 6px;"><span style="width: 8px; height: 8px; border-radius: 50%; background: #3b82f6; display: inline-block;"></span>In-Progress (9)</span>
+                                                <span style="display: flex; align-items: center; gap: 6px;"><span style="width: 8px; height: 8px; border-radius: 50%; background: #D96C91; display: inline-block;"></span>In-Progress (9)</span>
                                                 <span style="display: flex; align-items: center; gap: 6px;"><span style="width: 8px; height: 8px; border-radius: 50%; background: #d4af37; display: inline-block;"></span>Resolved (122)</span>
                                             </div>
                                         </div>
@@ -10404,7 +10418,7 @@ Our support team can assist you with:
                                                     <div style="display: flex; flex-direction: column; width: 26px; height: 39%; border-radius: 2px 2px 0 0; overflow: hidden;">
                                                         <div style="height: 18%; background: #86efac;" title="Halcyon: 2"></div>
                                                         <div style="height: 18%; background: #fde047;" title="Viperion: 2"></div>
-                                                        <div style="height: 27%; background: #93c5fd;" title="Lunaria: 3"></div>
+                                                        <div style="height: 27%; background: #FBE8EE;" title="Lunaria: 3"></div>
                                                         <div style="height: 37%; background: #f472b6;" title="Aspect: 4"></div>
                                                     </div>
                                                     <span style="font-size: 0.65rem; color: #64748b; margin-top: 6px;">Jul 25</span>
@@ -10414,7 +10428,7 @@ Our support team can assist you with:
                                                     <div style="display: flex; flex-direction: column; width: 26px; height: 57%; border-radius: 2px 2px 0 0; overflow: hidden;">
                                                         <div style="height: 12%; background: #86efac;" title="Halcyon: 2"></div>
                                                         <div style="height: 25%; background: #fde047;" title="Viperion: 4"></div>
-                                                        <div style="height: 31%; background: #93c5fd;" title="Lunaria: 5"></div>
+                                                        <div style="height: 31%; background: #FBE8EE;" title="Lunaria: 5"></div>
                                                         <div style="height: 32%; background: #f472b6;" title="Aspect: 5"></div>
                                                     </div>
                                                     <span style="font-size: 0.65rem; color: #64748b; margin-top: 6px;">Jul 26</span>
@@ -10424,7 +10438,7 @@ Our support team can assist you with:
                                                     <div style="display: flex; flex-direction: column; width: 26px; height: 32%; border-radius: 2px 2px 0 0; overflow: hidden;">
                                                         <div style="height: 22%; background: #86efac;" title="Halcyon: 2"></div>
                                                         <div style="height: 22%; background: #fde047;" title="Viperion: 2"></div>
-                                                        <div style="height: 22%; background: #93c5fd;" title="Lunaria: 2"></div>
+                                                        <div style="height: 22%; background: #FBE8EE;" title="Lunaria: 2"></div>
                                                         <div style="height: 34%; background: #f472b6;" title="Aspect: 3"></div>
                                                     </div>
                                                     <span style="font-size: 0.65rem; color: #64748b; margin-top: 6px;">Jul 27</span>
@@ -10434,7 +10448,7 @@ Our support team can assist you with:
                                                     <div style="display: flex; flex-direction: column; width: 26px; height: 78%; border-radius: 2px 2px 0 0; overflow: hidden;">
                                                         <div style="height: 18%; background: #86efac;" title="Halcyon: 4"></div>
                                                         <div style="height: 22%; background: #fde047;" title="Viperion: 5"></div>
-                                                        <div style="height: 27%; background: #93c5fd;" title="Lunaria: 6"></div>
+                                                        <div style="height: 27%; background: #FBE8EE;" title="Lunaria: 6"></div>
                                                         <div style="height: 33%; background: #f472b6;" title="Aspect: 7"></div>
                                                     </div>
                                                     <span style="font-size: 0.65rem; color: #64748b; margin-top: 6px;">Jul 28</span>
@@ -10444,7 +10458,7 @@ Our support team can assist you with:
                                                     <div style="display: flex; flex-direction: column; width: 26px; height: 100%; border-radius: 2px 2px 0 0; overflow: hidden;">
                                                         <div style="height: 14%; background: #86efac;" title="Halcyon: 4"></div>
                                                         <div style="height: 25%; background: #fde047;" title="Viperion: 7"></div>
-                                                        <div style="height: 25%; background: #93c5fd;" title="Lunaria: 7"></div>
+                                                        <div style="height: 25%; background: #FBE8EE;" title="Lunaria: 7"></div>
                                                         <div style="height: 36%; background: #f472b6;" title="Aspect: 10"></div>
                                                     </div>
                                                     <span style="font-size: 0.65rem; color: #64748b; margin-top: 6px;">Jul 29</span>
@@ -10454,7 +10468,7 @@ Our support team can assist you with:
                                                     <div style="display: flex; flex-direction: column; width: 26px; height: 61%; border-radius: 2px 2px 0 0; overflow: hidden;">
                                                         <div style="height: 18%; background: #86efac;" title="Halcyon: 3"></div>
                                                         <div style="height: 24%; background: #fde047;" title="Viperion: 4"></div>
-                                                        <div style="height: 24%; background: #93c5fd;" title="Lunaria: 4"></div>
+                                                        <div style="height: 24%; background: #FBE8EE;" title="Lunaria: 4"></div>
                                                         <div style="height: 34%; background: #f472b6;" title="Aspect: 6"></div>
                                                     </div>
                                                     <span style="font-size: 0.65rem; color: #64748b; margin-top: 6px;">Jul 30</span>
@@ -10464,7 +10478,7 @@ Our support team can assist you with:
                                                     <div style="display: flex; flex-direction: column; width: 26px; height: 68%; border-radius: 2px 2px 0 0; overflow: hidden;">
                                                         <div style="height: 11%; background: #86efac;" title="Halcyon: 2"></div>
                                                         <div style="height: 21%; background: #fde047;" title="Viperion: 4"></div>
-                                                        <div style="height: 31%; background: #93c5fd;" title="Lunaria: 6"></div>
+                                                        <div style="height: 31%; background: #FBE8EE;" title="Lunaria: 6"></div>
                                                         <div style="height: 37%; background: #f472b6;" title="Aspect: 7"></div>
                                                     </div>
                                                     <span style="font-size: 0.65rem; color: #64748b; margin-top: 6px;">Jul 31</span>
@@ -10473,7 +10487,7 @@ Our support team can assist you with:
                                             <!-- Legends -->
                                             <div style="display: flex; gap: 12px; margin-top: 12px; font-size: 0.72rem; flex-wrap: wrap;">
                                                 <span style="display: flex; align-items: center; gap: 6px;"><span style="width: 8px; height: 8px; border-radius: 50%; background: #f472b6; display: inline-block;"></span>Aspect</span>
-                                                <span style="display: flex; align-items: center; gap: 6px;"><span style="width: 8px; height: 8px; border-radius: 50%; background: #93c5fd; display: inline-block;"></span>Lunaria</span>
+                                                <span style="display: flex; align-items: center; gap: 6px;"><span style="width: 8px; height: 8px; border-radius: 50%; background: #FBE8EE; display: inline-block;"></span>Lunaria</span>
                                                 <span style="display: flex; align-items: center; gap: 6px;"><span style="width: 8px; height: 8px; border-radius: 50%; background: #fde047; display: inline-block;"></span>Viperion</span>
                                                 <span style="display: flex; align-items: center; gap: 6px;"><span style="width: 8px; height: 8px; border-radius: 50%; background: #86efac; display: inline-block;"></span>Halcyon</span>
                                             </div>
@@ -10501,7 +10515,7 @@ Our support team can assist you with:
                                                 <!-- Row 2 -->
                                                 <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1.5px solid rgba(255,255,255,0.02); padding-bottom: 8px;">
                                                     <div style="display: flex; align-items: center; gap: 10px;">
-                                                        <div style="width: 28px; height: 28px; border-radius: 50%; background: #93c5fd; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 0.78rem; font-weight: 700;">?</div>
+                                                        <div style="width: 28px; height: 28px; border-radius: 50%; background: #FBE8EE; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 0.78rem; font-weight: 700;">?</div>
                                                         <span style="font-size: 0.85rem; font-weight: 600; color: #fff;">Lunaria</span>
                                                     </div>
                                                     <div style="text-align: right;">
@@ -10610,7 +10624,7 @@ Our support team can assist you with:
                                                 <div style="font-size: 0.85rem; font-weight: 700; color: #fff; margin-bottom: 4px;">Main Ticket Categories</div>
                                                 <div style="font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 12px; min-height: 36px; line-height: 1.4;">Categories where all tickets will be placed.</div>
                                                 <div style="display: flex; align-items: center; justify-content: space-between; background: rgba(0,0,0,0.25); border: 1px solid rgba(255,255,255,0.05); border-radius: 6px; padding: 6px 12px; color: #fff; font-size: 0.8rem; cursor: pointer;">
-                                                    <span style="background: rgba(59,130,246,0.1); color: #3b82f6; border: 1px solid rgba(59,130,246,0.2); padding: 2px 8px; border-radius: 4px; font-weight: 700; font-size: 0.7rem; display: flex; align-items: center; gap: 4px;"><i class="fas fa-gem" style="font-size: 0.65rem;"></i> BUY<span style="color:#64748b; font-weight:normal; margin-left:4px;">&times;</span></span>
+                                                    <span style="background: rgba(217, 108, 145,0.1); color: #D96C91; border: 1px solid rgba(217, 108, 145,0.2); padding: 2px 8px; border-radius: 4px; font-weight: 700; font-size: 0.7rem; display: flex; align-items: center; gap: 4px;"><i class="fas fa-gem" style="font-size: 0.65rem;"></i> BUY<span style="color:#64748b; font-weight:normal; margin-left:4px;">&times;</span></span>
                                                     <i class="fas fa-chevron-down" style="font-size: 0.7rem; color: #64748b;"></i>
                                                 </div>
                                             </div>
