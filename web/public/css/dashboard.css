@@ -456,7 +456,7 @@ input:checked + .slider:before {
 
 /* Glass card & settings card overhaul */
 .glass-card {
-    background: #141722 !important;
+    background: var(--surface) !important;
     border: 1px solid rgba(255, 255, 255, 0.06) !important;
     border-radius: 12px !important;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25) !important;
@@ -2551,7 +2551,7 @@ body, p, span, div, li, h1, h2, h3, h4, h5, h6 {
 
 /* 5. FAQ Question Boxes */
 .faq-item {
-    background: #11131f !important;
+    background: var(--surface) !important;
     border: 1.5px solid rgba(255, 255, 255, 0.15) !important;
     border-radius: 14px !important;
     margin-bottom: 12px !important;
@@ -2571,7 +2571,7 @@ body, p, span, div, li, h1, h2, h3, h4, h5, h6 {
 
 /* 6. Server Cards on /manage */
 .guild-card-item, #screen-servers .glass-card, [id^="server-card-"] {
-    background: #0d0f18 !important;
+    background: var(--surface) !important;
     border: 1.5px solid rgba(255, 255, 255, 0.12) !important;
     border-radius: 16px !important;
     box-shadow: 0 15px 35px rgba(0,0,0,0.6) !important;
