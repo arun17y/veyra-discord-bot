@@ -13,17 +13,29 @@
     <link rel="stylesheet" href="css/dashboard.css">
     
     <style>
-        :root {
-            --bg-dark: #121418;
-            --bg-card: #1c1e24;
-            --coral-primary: #E26749;
-            --coral-hover: #D45537;
-            --text-main: #FFFFFF;
-            --text-muted: #9DA4B0;
-            --border-subtle: rgba(255, 255, 255, 0.06);
-            --font-display: 'Outfit', sans-serif;
+        :root, [data-theme="light"] {
+            --bg-dark: #FFFCFA;
+            --bg-card: #FFFFFF;
+            --coral-primary: #D96C91;
+            --coral-hover: #B94E76;
+            --text-main: #352B3A;
+            --text-muted: #766C78;
+            --border-subtle: #EDE4E7;
+            --card-shadow: 0 4px 20px rgba(53, 43, 58, 0.05);
+            --font-display: 'Outfit', 'Plus Jakarta Sans', sans-serif;
             --font-body: 'Inter', sans-serif;
             --font-mono: 'JetBrains Mono', monospace;
+        }
+
+        [data-theme="dark"] {
+            --bg-dark: #121418;
+            --bg-card: #1C1E24;
+            --coral-primary: #D96C91;
+            --coral-hover: #B94E76;
+            --text-main: #FBF8F5;
+            --text-muted: #9DA4B0;
+            --border-subtle: rgba(255, 255, 255, 0.08);
+            --card-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
         }
 
         body {
@@ -36,6 +48,7 @@
         }
 
         .perspective-grid-floor {
+            display: none !important;
             position: fixed;
             bottom: 0;
             left: 0;
@@ -236,8 +249,11 @@
                 <li><a href="https://discord.gg/77P5Cq837X" target="_blank" rel="noreferrer">Support</a></li>
             </ul>
 
-            <div>
-                <a href="/manage" class="amari-login-btn active" style="border-color: var(--coral-primary); color: var(--coral-primary);">Dashboard</a>
+            <div style="display: flex; align-items: center; gap: 14px;">
+                <button id="theme-toggle-btn-mng" onclick="toggleMngTheme()" style="background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 8px; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; color: var(--text-main); cursor: pointer; transition: all 0.2s;" title="Toggle Light/Dark Theme">
+                    <i class="fas fa-moon" id="theme-toggle-icon-mng"></i>
+                </button>
+                <a href="/manage" class="amari-login-btn active" style="border-color: var(--coral-primary); color: var(--coral-primary); background: var(--bg-card);">Dashboard</a>
             </div>
         </nav>
     </header>
@@ -252,5 +268,24 @@
     </div>
 
     <script src="js/dashboard.js?v=amari"></script>
+
+    <script>
+        function initMngTheme() {
+            const saved = localStorage.getItem('veyra_theme') || 'light';
+            document.documentElement.setAttribute('data-theme', saved);
+            const icon = document.getElementById('theme-toggle-icon-mng');
+            if (icon) icon.className = saved === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
+        }
+        function toggleMngTheme() {
+            const curr = document.documentElement.getAttribute('data-theme') || 'light';
+            const next = curr === 'light' ? 'dark' : 'light';
+            document.documentElement.setAttribute('data-theme', next);
+            localStorage.setItem('veyra_theme', next);
+            const icon = document.getElementById('theme-toggle-icon-mng');
+            if (icon) icon.className = next === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
+        }
+        window.addEventListener('DOMContentLoaded', initMngTheme);
+    </script>
+
 </body>
 </html>

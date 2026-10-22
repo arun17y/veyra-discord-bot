@@ -173,15 +173,15 @@ body {
 }
 
 /* Glassmorphism Cards */
-.glass-card {
-    background: rgba(9, 38, 52, 0.5);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border: 1px solid rgba(0, 78, 114, 0.3);
-    border-radius: 16px;
-    padding: 24px;
-    box-shadow: 0 8px 32px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,110,66,0.05) inset;
-    transition: all 0.3s ease;
+.glass-card, .feat-card, .pricing-card, .control-box-sec {
+    background: var(--surface) !important;
+    backdrop-filter: var(--glass-blur) !important;
+    -webkit-backdrop-filter: var(--glass-blur) !important;
+    border: 1px solid var(--border-color) !important;
+    border-radius: 14px !important;
+    padding: 24px !important;
+    box-shadow: var(--card-shadow) !important;
+    transition: all 0.25s ease !important;
 }
 
 .glass-card:hover {
@@ -191,24 +191,23 @@ body {
 
 /* Buttons */
 .btn-primary {
-    background: linear-gradient(135deg, #FF6E42 0%, #e85830 100%);
-    border: none;
-    color: #fff;
-    font-family: var(--font-display);
-    font-weight: 700;
-    font-size: 0.95rem;
-    padding: 12px 28px;
-    border-radius: 24px;
-    cursor: pointer;
-    box-shadow: 0 4px 20px rgba(255, 110, 66, 0.4);
-    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-    position: relative;
-    overflow: hidden;
+    background: var(--accent-primary) !important;
+    border: none !important;
+    color: #FFFFFF !important;
+    font-family: var(--font-display) !important;
+    font-weight: 700 !important;
+    font-size: 0.95rem !important;
+    padding: 11px 26px !important;
+    border-radius: 8px !important;
+    cursor: pointer !important;
+    box-shadow: 0 4px 18px rgba(var(--accent-rgb), 0.35) !important;
+    transition: all 0.2s ease !important;
 }
 
 .btn-primary:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 30px rgba(255, 110, 66, 0.55);
+    background: var(--accent-secondary) !important;
+    transform: translateY(-1px) !important;
+    box-shadow: 0 6px 22px rgba(var(--accent-rgb), 0.45) !important;
 }
 
 .btn-secondary {
@@ -247,14 +246,26 @@ body {
 
 .form-control {
     width: 100%;
-    background: rgba(0,0,0,0.3);
-    border: 1px solid var(--border-color);
-    color: #fff;
-    padding: 12px 16px;
-    border-radius: 8px;
-    font-size: 0.95rem;
-    outline: none;
-    transition: all 0.3s ease;
+    background: var(--bg-secondary) !important;
+    border: 1px solid var(--border-color) !important;
+    color: var(--text-primary) !important;
+    padding: 10px 14px !important;
+    border-radius: 8px !important;
+    font-size: 0.92rem !important;
+    outline: none !important;
+    transition: all 0.2s ease !important;
+}
+.form-control:focus {
+    border-color: var(--accent-primary) !important;
+    box-shadow: 0 0 0 3px rgba(var(--accent-rgb), 0.15) !important;
+}
+.form-label {
+    display: block !important;
+    font-size: 0.82rem !important;
+    font-weight: 600 !important;
+    color: var(--text-primary) !important;
+    margin-bottom: 6px !important;
+    letter-spacing: 0.02em !important;
 }
 
 .form-control:focus {
@@ -339,8 +350,8 @@ input:checked + .slider:before {
     display: flex !important;
     flex-direction: column !important;
     justify-content: space-between !important;
-    background: #11141C !important;
-    border-right: 1px solid rgba(255, 255, 255, 0.06) !important;
+    background: var(--bg-tertiary) !important;
+    border-right: 1px solid var(--border-color) !important;
     box-sizing: border-box !important;
     padding: 20px 14px !important;
     overflow-y: auto !important;
@@ -367,7 +378,7 @@ input:checked + .slider:before {
     min-width: 0 !important;
     min-height: 0 !important;
     height: auto !important;
-    background: #0B0D12 !important;
+    background: var(--bg-primary) !important;
     overflow-y: visible !important;
     overflow-x: hidden !important;
     padding: 30px 40px 100px 40px !important;
@@ -425,15 +436,22 @@ input:checked + .slider:before {
     color: #FFFFFF !important;
 }
 
+.sidebar-item a {
+    color: var(--text-secondary) !important;
+}
+.sidebar-item a:hover {
+    color: var(--text-primary) !important;
+    background: var(--soft-pink) !important;
+}
 .sidebar-item.active a {
-    color: #FF5C35 !important;
-    background: rgba(255, 92, 53, 0.08) !important;
-    font-weight: 600 !important;
-    border-left: 3px solid #FF5C35 !important;
+    color: var(--accent-secondary) !important;
+    background: var(--soft-pink) !important;
+    font-weight: 700 !important;
+    border-left: 3px solid var(--accent-primary) !important;
     box-shadow: none !important;
 }
 .sidebar-item.active a i {
-    color: #FF5C35 !important;
+    color: var(--accent-primary) !important;
 }
 
 /* Glass card & settings card overhaul */

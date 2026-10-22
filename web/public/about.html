@@ -12,7 +12,26 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
-        :root {
+        :root, [data-theme="light"] {
+            --gb-bg: #FFFCFA;
+            --gb-header-bg: #FFFCFA;
+            --gb-sidebar-bg: #FFF6F4;
+            --gb-card-bg: #FFFFFF;
+            --gb-text-main: #352B3A;
+            --gb-text-muted: #766C78;
+            --gb-text-sub: #958B96;
+            --gb-border: #EDE4E7;
+            --gb-coral: #D96C91;
+            --gb-coral-subtle: #FBE8EE;
+            --gb-code-bg: #FFF6F4;
+            --gb-table-stripe: #FFF9F8;
+            --gb-callout-text: #B94E76;
+            --font-display: 'Outfit', 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            --font-body: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+        }
+
+        [data-theme="dark"] {
             --gb-bg: #121418;
             --gb-header-bg: #16181D;
             --gb-sidebar-bg: #15171C;
@@ -21,30 +40,11 @@
             --gb-text-muted: #A3AAB8;
             --gb-text-sub: #6B7280;
             --gb-border: rgba(255, 255, 255, 0.08);
-            --gb-coral: #E26749;
-            --gb-coral-subtle: rgba(226, 103, 73, 0.15);
+            --gb-coral: #D96C91;
+            --gb-coral-subtle: rgba(217, 108, 145, 0.16);
             --gb-code-bg: #1A1C22;
             --gb-table-stripe: #181A20;
             --gb-callout-text: #FAD2C0;
-            --font-display: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
-            --font-body: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            --font-mono: 'JetBrains Mono', monospace;
-        }
-
-        [data-theme="light"] {
-            --gb-bg: #FFFFFF;
-            --gb-header-bg: #FFFFFF;
-            --gb-sidebar-bg: #F8F9FA;
-            --gb-card-bg: #FAFAFA;
-            --gb-text-main: #1A1A1A;
-            --gb-text-muted: #5C6975;
-            --gb-text-sub: #8C9BA5;
-            --gb-border: #E6ECF1;
-            --gb-coral: #E26749;
-            --gb-coral-subtle: #FFF3F0;
-            --gb-code-bg: #F5F7F9;
-            --gb-table-stripe: #F8F9FA;
-            --gb-callout-text: #7A2C18;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
