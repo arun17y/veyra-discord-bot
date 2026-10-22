@@ -2405,11 +2405,15 @@ document.addEventListener('DOMContentLoaded', () => {
             mainContent.style.pointerEvents = 'auto';
         }
         
-        const activeScreen = sessionStorage.getItem('activeScreen') || 'landing';
+        const isRootHome = (window.location.pathname === '/' || window.location.pathname === '/index.html' || window.location.pathname === '') && !window.location.search.includes('guild_id') && !window.location.search.includes('login=success');
+        let activeScreen = isRootHome ? 'landing' : (sessionStorage.getItem('activeScreen') || 'landing');
+        if (isRootHome) {
+            sessionStorage.setItem('activeScreen', 'landing');
+        }
         const savedGuildId = sessionStorage.getItem('activeGuildId');
         
         setTimeout(() => {
-            if (activeScreen === 'dashboard' && savedGuildId) {
+            if (activeScreen === 'dashboard' && savedGuildId && !isRootHome) {
                 window.activeGuildId = savedGuildId;
                 loadServerDashboard(savedGuildId);
             } else {
@@ -2618,7 +2622,8 @@ function checkSession(forceRefresh = false) {
                 }
                 const savedGuildId = sessionStorage.getItem('activeGuildId');
                 const activeScr = sessionStorage.getItem('activeScreen');
-                if (activeScr === 'dashboard' && savedGuildId && typeof loadServerDashboard === 'function') {
+                const isRootHome = (window.location.pathname === '/' || window.location.pathname === '/index.html' || window.location.pathname === '') && !window.location.search.includes('guild_id') && !window.location.search.includes('login=success');
+                if (!isRootHome && activeScr === 'dashboard' && savedGuildId && typeof loadServerDashboard === 'function') {
                     loadServerDashboard(savedGuildId);
                 }
                 

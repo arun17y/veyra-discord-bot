@@ -18,8 +18,8 @@
             document.documentElement.setAttribute('data-theme', theme);
         })();
     </script>
-    <link rel="stylesheet" href="css/themes.css?v=v10_fast_smooth_faq_overhaul">
-    <link rel="stylesheet" href="css/dashboard.css?v=v10_fast_smooth_faq_overhaul">
+    <link rel="stylesheet" href="css/themes.css?v=v12_restore_homepage_dashboard_realtime">
+    <link rel="stylesheet" href="css/dashboard.css?v=v12_restore_homepage_dashboard_realtime">
     <style>
         /* =============================================
            VEYRA BRAND PALETTE OVERRIDE — A to Z
@@ -2460,8 +2460,66 @@
         </ul>
 
         <div style="display: flex; align-items: center; gap: 12px;">
-            <a href="/api/auth/login" class="amari-login-btn" style="background: #FFFFFF !important; border: 1.5px solid #D96C91 !important; color: #D96C91 !important; display: inline-flex; align-items: center; gap: 8px;"><i class="fab fa-discord" style="font-size: 1.1rem;"></i> Login</a>
-            <a href="/manage" class="amari-login-btn" style="background: #D96C91 !important; color: #FFFFFF !important; border-color: #D96C91 !important;">Dashboard</a>
+            <a href="/manage" id="nav-dashboard-button" class="amari-login-btn" style="background: #D96C91 !important; color: #FFFFFF !important; border: 1.5px solid #D96C91 !important; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; font-weight: 700;">
+                <i class="fas fa-table-cells-large"></i> Dashboard
+            </a>
+            <a href="/api/auth/login" id="login-btn" class="amari-login-btn" style="background: #FFFFFF !important; border: 1.5px solid #D96C91 !important; color: #D96C91 !important; display: inline-flex; align-items: center; gap: 8px; text-decoration: none; font-weight: 700;">
+                <i class="fab fa-discord" style="font-size: 1.1rem;"></i> Login
+            </a>
+
+            <!-- Logged-in Header Dropdown Buttons -->
+            <div id="header-user-widgets" style="display: none; align-items: center; gap: 10px; position: relative;">
+                <!-- Server Avatar Dropdown Trigger -->
+                <div id="header-server-dropdown-trigger-container" style="position: relative; display: none;">
+                    <div onclick="toggleHeaderDropdown('header-server-dropdown')" style="display: flex; align-items: center; gap: 6px; cursor: pointer; padding: 4px 10px; border-radius: 20px; background: #FFFFFF; border: 1px solid #EDE4E7; box-shadow: 0 2px 6px rgba(53, 43, 58, 0.04);">
+                        <div id="header-server-avatar-img" style="width: 26px; height: 26px; border-radius: 50%; overflow: hidden; background: #D96C91;">
+                            <img src="assets/bypass_logs_avatar.webp" style="width: 100%; height: 100%; object-fit: cover;">
+                        </div>
+                        <i class="fas fa-caret-down" style="color: #6B7280; font-size: 0.75rem;"></i>
+                    </div>
+                    <div id="header-server-dropdown" style="display: none; position: absolute; right: 0; top: 42px; width: 220px; background: #FFFFFF; border: 1px solid #EDE4E7; border-radius: 12px; box-shadow: 0 16px 36px rgba(53,43,58,0.12); z-index: 1000; overflow: hidden;">
+                        <div style="background: #FBE8EE; padding: 12px 14px; display: flex; align-items: center; gap: 10px;">
+                            <div id="header-server-dropdown-icon" style="width: 32px; height: 32px; border-radius: 50%; overflow: hidden; background: #D96C91;">
+                                <img src="assets/bypass_logs_avatar.webp" style="width: 100%; height: 100%; object-fit: cover;">
+                            </div>
+                            <div>
+                                <div style="font-size: 0.65rem; font-weight: 800; color: #D96C91; letter-spacing: 0.08em; text-transform: uppercase;">ACTIVE GUILD</div>
+                                <div style="font-size: 0.88rem; font-weight: 700; color: #1C1422;" id="header-server-dropdown-name">Select Server</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- User Avatar Dropdown Trigger -->
+                <div style="position: relative;">
+                    <div onclick="toggleHeaderDropdown('header-user-dropdown')" style="display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 4px 12px 4px 6px; border-radius: 20px; background: #FFFFFF; border: 1px solid #EDE4E7; box-shadow: 0 2px 6px rgba(53, 43, 58, 0.04);">
+                        <div style="width: 28px; height: 28px; border-radius: 50%; overflow: hidden; background: #D96C91;" id="header-user-avatar-img">
+                            <img src="assets/bypass_logs_avatar.webp" style="width: 100%; height: 100%; object-fit: cover;">
+                        </div>
+                        <span style="font-size: 0.88rem; font-weight: 700; color: #1C1422;" id="header-user-dropdown-name">User</span>
+                        <i class="fas fa-caret-down" style="color: #6B7280; font-size: 0.75rem;"></i>
+                    </div>
+                    <div id="header-user-dropdown" style="display: none; position: absolute; right: 0; top: 42px; width: 220px; background: #FFFFFF; border: 1px solid #EDE4E7; border-radius: 12px; box-shadow: 0 16px 36px rgba(53,43,58,0.12); z-index: 1000; overflow: hidden;">
+                        <div style="background: #FBE8EE; padding: 12px 14px; display: flex; align-items: center; gap: 10px;">
+                            <div style="width: 32px; height: 32px; border-radius: 50%; overflow: hidden; background: #D96C91;" id="header-user-dropdown-avatar">
+                                <img src="assets/bypass_logs_avatar.webp" style="width: 100%; height: 100%; object-fit: cover;">
+                            </div>
+                            <div style="min-width: 0;">
+                                <div style="font-size: 0.65rem; font-weight: 800; color: #D96C91; letter-spacing: 0.08em; text-transform: uppercase;">LOGGED IN</div>
+                                <div style="font-size: 0.88rem; font-weight: 700; color: #1C1422; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" id="header-user-profile-handle">@user</div>
+                            </div>
+                        </div>
+                        <div style="padding: 6px;">
+                            <a href="/manage" style="display: flex; align-items: center; gap: 8px; width: 100%; padding: 8px 12px; font-size: 0.85rem; font-weight: 600; color: #1C1422; text-decoration: none; border-radius: 6px; box-sizing: border-box;" onmouseover="this.style.background='#FBE8EE'" onmouseout="this.style.background='transparent'">
+                                <i class="fas fa-server" style="color: #D96C91;"></i> Manage Servers
+                            </a>
+                            <button onclick="logout()" style="width: 100%; text-align: left; background: transparent; border: none; padding: 8px 12px; font-size: 0.85rem; font-weight: 600; color: #DC2626; cursor: pointer; border-radius: 6px; display: flex; align-items: center; gap: 8px;" onmouseover="this.style.background='#FEE2E2'" onmouseout="this.style.background='transparent'">
+                                <i class="fas fa-right-from-bracket" style="font-size: 0.85rem; color: #DC2626;"></i> Logout
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </nav>
 
@@ -4938,18 +4996,12 @@
 
             // FAQ Toggle
             window.toggleFaq = function(el) {
-                const answer = el.querySelector('.faq-answer');
-                const icon = el.querySelector('.faq-icon');
-                if (!answer) return;
-                const isOpen = answer.style.display === 'block';
-                answer.style.display = isOpen ? 'none' : 'block';
-                if (icon) {
-                    icon.className = isOpen ? 'fas fa-plus faq-icon' : 'fas fa-minus faq-icon';
-                }
+                if (!el) return;
+                el.classList.toggle('active');
             };
         })();
         </script>
-
+        </section>
 
         <!-- [SCREEN 5: ADMIN CONTROL CENTER (SOVEREIGN PANEL)] -->
         <section id="screen-admin" class="content-area" style="display:none; max-width:1100px; margin: 40px auto; padding: 20px;">
@@ -12171,8 +12223,8 @@ Our support team can assist you with:
     <!-- JS Execution libraries -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
-    <script src="js/dashboard.js?v=v10_fast_smooth_faq_overhaul"></script>
-    <script src="js/moderation.js?v=v10_fast_smooth_faq_overhaul"></script>
+    <script src="js/dashboard.js?v=v12_restore_homepage_dashboard_realtime"></script>
+    <script src="js/moderation.js?v=v12_restore_homepage_dashboard_realtime"></script>
     <!-- smokey fluid cursor removed -->
 
 
