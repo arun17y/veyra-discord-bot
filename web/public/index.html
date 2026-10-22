@@ -1690,458 +1690,909 @@
                 </div>
             </div>
 
-            <!-- Interactive Threat Testing Center Section -->
-            <div class="threat-testing-section" style="max-width: 1100px; width: 100%; box-sizing: border-box; margin: 60px auto; padding: 0 20px; text-align: center;">
-                <div style="display:inline-block; padding: 6px 16px; border-radius: 50px; background: rgba(59, 130, 246, 0.08); border: 1px solid rgba(59, 130, 246, 0.2); font-family: var(--font-mono); font-size: 0.7rem; color: #3b82f6; letter-spacing: 0.15em; text-transform: uppercase; margin-bottom: 20px;">Live Simulator</div>
-                <h2 class="section-title-landing" style="font-size: 2.2rem; margin-bottom: 10px; font-weight:800; font-family:var(--font-display);">Test Our Security Shield</h2>
-                <p class="section-desc-landing" style="color: var(--text-secondary); max-width: 700px; margin: 0 auto 50px auto; font-size: 0.95rem; line-height: 1.6;">
-                    Click the buttons below to see how VEYRA stops different threats in real-time.
+            <!-- ==================== THE TOOLKIT (6 MODULES) ==================== -->
+            <section class="features-section" id="features" style="max-width: 1180px; width: 100%; box-sizing: border-box; margin: 70px auto 40px auto; padding: 0 20px; text-align: center;">
+                <div style="display:inline-flex; align-items:center; gap:8px; padding: 6px 18px; border-radius: 50px; background: rgba(255, 110, 66, 0.08); border: 1px solid rgba(255, 110, 66, 0.25); font-family: var(--font-mono); font-size: 0.72rem; color: #FF6E42; letter-spacing: 0.16em; text-transform: uppercase; margin-bottom: 16px;">
+                    <i class="fas fa-cube" style="font-size: 0.75rem;"></i> CORE ARCHITECTURE
+                </div>
+                <h2 class="section-title-landing" style="font-size: 2.5rem; margin-bottom: 8px; font-weight: 900; font-family: var(--font-display); letter-spacing: 0.04em; color: #fff;">
+                    The Toolkit
+                </h2>
+                <div style="font-size: 1.3rem; font-weight: 700; color: #f8fafc; margin-bottom: 12px; font-family: var(--font-display); letter-spacing: 0.02em;">
+                    Six modules. One dashboard.
+                </div>
+                <p class="section-desc-landing" style="color: rgba(255,255,255,0.65); font-size: 0.98rem; max-width: 660px; margin: 0 auto 50px auto; line-height: 1.6;">
+                    Every module ships free. Premium raises the limits when your server outgrows them.
                 </p>
                 
-                <div class="glass-card simulation-dashboard" style="display: grid; grid-template-columns: 1fr 1.2fr; gap: 40px; background: rgba(10, 12, 20, 0.55); border: 1px solid rgba(255, 255, 255, 0.04); border-radius: 24px; padding: 40px; text-align: left; align-items: center; box-shadow: 0 30px 60px rgba(0,0,0,0.6); position: relative; overflow: hidden;">
-                    <!-- Electric animated border canvas overlay -->
-                    <canvas id="canvas-threat-border" style="position: absolute; top:0; left:0; pointer-events:none; z-index:10;"></canvas>
-                    <!-- Ambient simulation canvas overlay for threat particles -->
-                    <canvas id="canvas-threat-sim" style="position: absolute; top:0; left:0; width:100%; height:100%; pointer-events:none; z-index:1;"></canvas>
+                <div class="features-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 24px; text-align: left;">
                     
-                    <!-- Left: Shield Visualizer -->
-                    <div class="shield-visualizer-card" style="background: rgba(4, 5, 8, 0.6); border: 1px solid rgba(255,255,255,0.04); border-radius: 20px; padding: 30px; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; z-index: 2; height: 360px;">
-                        
-                        <!-- Top details HUD -->
-                        <div class="hud-top" style="width: 100%; display: flex; justify-content: space-between; font-family: var(--font-mono); font-size: 0.68rem; color: var(--text-secondary); letter-spacing: 0.05em; margin-bottom: 20px;">
-                            <div>
-                                <div>SHIELD STATUS: <span id="shield-status-val" style="color: #10b981; font-weight:700; text-shadow: 0 0 8px rgba(16,185,129,0.3);">ARMED</span></div>
-                                <div style="margin-top: 4px;">POWER LEVEL: <span style="color: #fff;">100%</span></div>
-                                <div style="margin-top: 4px;">SCAN RADAR: <span style="color: #a855f7;">ACTIVE</span></div>
-                            </div>
-                            <div style="text-align: right;">
-                                <div>THREATS BLOCKED: <span id="threats-blocked-count" style="color: #a855f7; font-weight: 700; font-family:var(--font-number);">14,854</span></div>
-                                <div style="margin-top: 4px;">RESPONSE TIME: <span style="color: #a855f7; font-weight: 700;">0.04ms</span></div>
-                            </div>
-                        </div>
-                        
-                        <!-- Circular shield element -->
-                        <div class="shield-circle-container" style="position: relative; width: 180px; height: 180px; display: flex; align-items: center; justify-content: center; margin-top: 10px;">
-                            <div class="shield-pulse-ring spr1" style="border-color: rgba(147, 51, 234, 0.3);"></div>
-                            <div class="shield-pulse-ring spr2" style="border-color: rgba(147, 51, 234, 0.3);"></div>
-                            <div class="shield-pulse-ring spr3" style="border-color: rgba(147, 51, 234, 0.3);"></div>
-                            
-                            <div class="shield-core-circle" id="shield-core-node" style="width: 90px; height: 90px; border-radius: 50%; background: radial-gradient(circle, rgba(147, 51, 234, 0.4), rgba(147, 51, 234, 0.08)); border: 2px solid #a855f7; display: flex; align-items: center; justify-content: center; color: #a855f7; font-size: 2.2rem; box-shadow: 0 0 30px rgba(147, 51, 234, 0.35); position: relative; z-index: 2; transition: all 0.3s ease;">
-                                <i class="fa-solid fa-shield-halved" id="shield-icon-node"></i>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Right: Trigger Controls -->
-                    <div class="threat-controls-card" style="position: relative; z-index: 2; display: flex; flex-direction: column; justify-content: center;">
-                        <h3 style="font-size: 1.6rem; color: #fff; font-family: var(--font-display); font-weight: 700; margin-bottom: 8px;">Interactive threat simulator</h3>
-                        <p style="color: var(--text-secondary); font-size: 0.88rem; line-height: 1.5; margin-bottom: 20px;">
-                            Simulate server attacks and watch how VEYRA blocks them instantly.
-                        </p>
-                        
-                        <!-- Grid of Threat Cards -->
-                        <div class="threat-cards-grid" style="display: grid; grid-template-columns: 1fr; gap: 12px;">
-                            <!-- Card 1 -->
-                            <div class="threat-btn-card" id="threat-card-spam" onclick="simulateThreat('spam')" style="background: rgba(255, 255, 255, 0.015); border: 1px solid rgba(234, 179, 8, 0.2); border-radius: 10px; padding: 14px 18px; display: flex; align-items: center; gap: 14px; cursor: pointer; transition: all 0.3s ease;" onmouseover="this.style.borderColor='rgba(234, 179, 8, 0.5)';" onmouseout="this.style.borderColor='rgba(234, 179, 8, 0.2)';">
-                                <div class="threat-btn-icon" style="width: 38px; height: 38px; border-radius: 8px; background: rgba(234, 179, 8, 0.1); border: 1px solid rgba(234, 179, 8, 0.25); display: flex; align-items: center; justify-content: center; color: #eab308; font-size: 1rem; flex-shrink: 0;">
-                                    <i class="fas fa-fire"></i>
-                                </div>
-                                <div>
-                                    <h4 style="color: #fff; font-size: 0.9rem; margin-bottom: 2px; font-weight:700;">Spam Attack</h4>
-                                    <p style="color: var(--text-secondary); font-size: 0.75rem; margin:0;">Mass bot joins</p>
-                                </div>
-                            </div>
-
-                            <!-- Card 2 -->
-                            <div class="threat-btn-card" id="threat-card-phish" onclick="simulateThreat('phish')" style="background: rgba(255, 255, 255, 0.015); border: 1px solid rgba(239, 68, 68, 0.2); border-radius: 10px; padding: 14px 18px; display: flex; align-items: center; gap: 14px; cursor: pointer; transition: all 0.3s ease;" onmouseover="this.style.borderColor='rgba(239, 68, 68, 0.5)';" onmouseout="this.style.borderColor='rgba(239, 68, 68, 0.2)';">
-                                <div class="threat-btn-icon" style="width: 38px; height: 38px; border-radius: 8px; background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.25); display: flex; align-items: center; justify-content: center; color: #ef4444; font-size: 1rem; flex-shrink: 0;">
-                                    <i class="fas fa-circle-exclamation"></i>
-                                </div>
-                                <div>
-                                    <h4 style="color: #fff; font-size: 0.9rem; margin-bottom: 2px; font-weight:700;">Phishing Link</h4>
-                                    <p style="color: var(--text-secondary); font-size: 0.75rem; margin:0;">Malicious URLs</p>
-                                </div>
-                            </div>
-
-                            <!-- Card 3 -->
-                            <div class="threat-btn-card" id="threat-card-abuse" onclick="simulateThreat('abuse')" style="background: rgba(255, 255, 255, 0.015); border: 1px solid rgba(168, 85, 247, 0.2); border-radius: 10px; padding: 14px 18px; display: flex; align-items: center; gap: 14px; cursor: pointer; transition: all 0.3s ease;" onmouseover="this.style.borderColor='rgba(168, 85, 247, 0.5)';" onmouseout="this.style.borderColor='rgba(168, 85, 247, 0.2)';">
-                                <div class="threat-btn-icon" style="width: 38px; height: 38px; border-radius: 8px; background: rgba(168, 85, 247, 0.1); border: 1px solid rgba(168, 85, 247, 0.25); display: flex; align-items: center; justify-content: center; color: #a855f7; font-size: 1rem; flex-shrink: 0;">
-                                    <i class="fas fa-bolt"></i>
-                                </div>
-                                <div>
-                                    <h4 style="color: #fff; font-size: 0.9rem; margin-bottom: 2px; font-weight:700;">Permission Abuse</h4>
-                                    <p style="color: var(--text-secondary); font-size: 0.75rem; margin:0;">Rogue admin actions</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Real-time Threat Output Status Banner (INSIDE Threat Controls Card) -->
-                        <div id="threat-sim-log-output" style="margin-top: 16px; font-family: var(--font-mono); font-size: 0.76rem; padding: 10px 14px; border-radius: 8px; background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3); color: #10b981; transition: all 0.3s ease; line-height: 1.4;">
-                            <i class="fas fa-shield-halved" style="margin-right: 6px;"></i> [STATUS] Security shield active. Click any threat button above to test real-time interception.
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Features Grid Section: Enterprise Shield Integration -->
-            <div class="features-section" id="features" style="max-width: 1100px; width: 100%; box-sizing: border-box; margin: 60px auto; padding: 0 20px; text-align: center;">
-                <h2 class="section-title-landing" style="font-size: 2.2rem; margin-bottom: 10px; font-weight:800; font-family:var(--font-display);">FEATURES</h2>
-                <p class="section-desc-landing" style="color: var(--text-secondary); font-size: 0.95rem; margin-bottom: 60px;">
-                    EVERYTHING YOU NEED TO RUN, SECURE, AND GROW A VIBRANT, BULLETPROOF DISCORD SERVER.
-                </p>
-                
-                <div class="features-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 24px; text-align: left;">
-                    <!-- Spec Card 1 -->
-                    <div class="glass-card feat-card electric-border" style="padding: 40px 30px; display: flex; flex-direction: column; justify-content: space-between; min-height: 240px;">
+                    <!-- Module 1: Anti-Raid Shield -->
+                    <div class="toolkit-card" style="background: rgba(14, 18, 35, 0.7); border: 1px solid rgba(234, 179, 8, 0.2); border-radius: 18px; padding: 32px 28px; display: flex; flex-direction: column; justify-content: space-between; min-height: 230px; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); box-shadow: 0 10px 30px rgba(0,0,0,0.35); position: relative; overflow: hidden;"
+                         onmouseover="this.style.borderColor='rgba(234, 179, 8, 0.6)'; this.style.transform='translateY(-4px)'; this.style.boxShadow='0 20px 40px rgba(234, 179, 8, 0.15)';"
+                         onmouseout="this.style.borderColor='rgba(234, 179, 8, 0.2)'; this.style.transform='translateY(0)'; this.style.boxShadow='0 10px 30px rgba(0,0,0,0.35)';">
+                        <div style="position: absolute; top: 0; right: 0; width: 120px; height: 120px; background: radial-gradient(circle, rgba(234, 179, 8, 0.12), transparent 70%); pointer-events: none;"></div>
                         <div>
-                            <div class="feat-icon" style="width: 48px; height: 48px; border-radius: 12px; background: rgba(234, 179, 8, 0.08); border: 1px solid rgba(234, 179, 8, 0.15); display: flex; align-items: center; justify-content: center; color: #eab308; font-size: 1.2rem; margin-bottom: 24px;"><i class="fas fa-shield"></i></div>
-                            <h3 style="font-size: 1.4rem; color: #fff; font-family: var(--font-display); font-weight: 700; margin-bottom: 16px;">Anti-Raid Shield</h3>
-                            <p style="color: var(--text-secondary); font-size: 0.9rem; line-height: 1.6; margin-bottom: 0;">
-                                Stop bot raids instantly. VEYRA detects and bans mass fake accounts the second they try to join your server.
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                                <div style="width: 46px; height: 46px; border-radius: 12px; background: rgba(234, 179, 8, 0.1); border: 1px solid rgba(234, 179, 8, 0.3); display: flex; align-items: center; justify-content: center; color: #eab308; font-size: 1.25rem;">
+                                    <i class="fas fa-shield"></i>
+                                </div>
+                                <span style="font-family: var(--font-mono); font-size: 0.68rem; font-weight: 700; color: #eab308; background: rgba(234, 179, 8, 0.1); padding: 3px 8px; border-radius: 6px; letter-spacing: 0.05em;">MOD-01</span>
+                            </div>
+                            <h3 style="font-size: 1.35rem; color: #fff; font-family: var(--font-display); font-weight: 800; margin-bottom: 12px; letter-spacing: 0.02em;">Anti-Raid Shield</h3>
+                            <p style="color: rgba(255,255,255,0.7); font-size: 0.9rem; line-height: 1.6; margin: 0;">
+                                Stop bot attacks & token raids. VEYRA detects, isolates, and mass-bans unauthorized fake accounts the exact second they flood your guild.
                             </p>
                         </div>
+                        <div style="margin-top: 20px; padding-top: 14px; border-top: 1px solid rgba(255,255,255,0.06); display: flex; align-items: center; justify-content: space-between; font-family: var(--font-mono); font-size: 0.72rem; color: #94a3b8;">
+                            <span><i class="fas fa-bolt" style="color: #eab308; margin-right: 5px;"></i> &lt; 12ms Response</span>
+                            <span style="color: #10b981; font-weight: 700;">100% Free Core</span>
+                        </div>
                     </div>
-                    
-                    <!-- Spec Card 2 -->
-                    <div class="glass-card feat-card electric-border" style="padding: 40px 30px; display: flex; flex-direction: column; justify-content: space-between; min-height: 240px;">
+
+                    <!-- Module 2: Nuclear Guard -->
+                    <div class="toolkit-card" style="background: rgba(14, 18, 35, 0.7); border: 1px solid rgba(239, 68, 68, 0.2); border-radius: 18px; padding: 32px 28px; display: flex; flex-direction: column; justify-content: space-between; min-height: 230px; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); box-shadow: 0 10px 30px rgba(0,0,0,0.35); position: relative; overflow: hidden;"
+                         onmouseover="this.style.borderColor='rgba(239, 68, 68, 0.6)'; this.style.transform='translateY(-4px)'; this.style.boxShadow='0 20px 40px rgba(239, 68, 68, 0.15)';"
+                         onmouseout="this.style.borderColor='rgba(239, 68, 68, 0.2)'; this.style.transform='translateY(0)'; this.style.boxShadow='0 10px 30px rgba(0,0,0,0.35)';">
+                        <div style="position: absolute; top: 0; right: 0; width: 120px; height: 120px; background: radial-gradient(circle, rgba(239, 68, 68, 0.12), transparent 70%); pointer-events: none;"></div>
                         <div>
-                            <div class="feat-icon" style="width: 48px; height: 48px; border-radius: 12px; background: rgba(239, 68, 68, 0.08); border: 1px solid rgba(239, 68, 68, 0.15); display: flex; align-items: center; justify-content: center; color: #ef4444; font-size: 1.2rem; margin-bottom: 24px;"><i class="fas fa-lock"></i></div>
-                            <h3 style="font-size: 1.4rem; color: #fff; font-family: var(--font-display); font-weight: 700; margin-bottom: 16px;">Nuclear Guard</h3>
-                            <p style="color: var(--text-secondary); font-size: 0.9rem; line-height: 1.6; margin-bottom: 0;">
-                                Prevent rogue admins. Protect your server channels, roles, and settings from being deleted by compromised staff.
-                            </p>
-                        </div>
-                    </div>
-                    
-                    <!-- Spec Card 3 -->
-                    <div class="glass-card feat-card electric-border" style="padding: 40px 30px; display: flex; flex-direction: column; justify-content: space-between; min-height: 240px;">
-                        <div>
-                            <div class="feat-icon" style="width: 48px; height: 48px; border-radius: 12px; background: rgba(147, 51, 234, 0.08); border: 1px solid rgba(147, 51, 234, 0.15); display: flex; align-items: center; justify-content: center; color: #a855f7; font-size: 1.2rem; margin-bottom: 24px;"><i class="fas fa-terminal"></i></div>
-                            <h3 style="font-size: 1.4rem; color: #fff; font-family: var(--font-display); font-weight: 700; margin-bottom: 16px;">Smart AutoMod</h3>
-                            <p style="color: var(--text-secondary); font-size: 0.9rem; line-height: 1.6; margin-bottom: 0;">
-                                Block scams and links. Automatically delete harmful links, spam messages, and dangerous websites before members click them.
-                            </p>
-                        </div>
-                    </div>
-
-                    <!-- Spec Card 4 -->
-                    <div class="glass-card feat-card electric-border" style="padding: 40px 30px; display: flex; flex-direction: column; justify-content: space-between; min-height: 240px;">
-                        <div>
-                            <div class="feat-icon" style="width: 48px; height: 48px; border-radius: 12px; background: rgba(147, 51, 234, 0.08); border: 1px solid rgba(147, 51, 234, 0.15); display: flex; align-items: center; justify-content: center; color: #a855f7; font-size: 1.2rem; margin-bottom: 24px;"><i class="fas fa-user-check"></i></div>
-                            <h3 style="font-size: 1.4rem; color: #fff; font-family: var(--font-display); font-weight: 700; margin-bottom: 16px;">Verification Gate</h3>
-                            <p style="color: var(--text-secondary); font-size: 0.9rem; line-height: 1.6; margin-bottom: 0;">
-                                Verify new members. Add custom captcha checks to make sure only real people get access to your server.
-                            </p>
-                        </div>
-                    </div>
-
-                    <!-- Spec Card 5 -->
-                    <div class="glass-card feat-card electric-border" style="padding: 40px 30px; display: flex; flex-direction: column; justify-content: space-between; min-height: 240px;">
-                        <div>
-                            <div class="feat-icon" style="width: 48px; height: 48px; border-radius: 12px; background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.15); display: flex; align-items: center; justify-content: center; color: #10b981; font-size: 1.2rem; margin-bottom: 24px;"><i class="fas fa-list-ul"></i></div>
-                            <h3 style="font-size: 1.4rem; color: #fff; font-family: var(--font-display); font-weight: 700; margin-bottom: 16px;">Active Logs</h3>
-                            <p style="color: var(--text-secondary); font-size: 0.9rem; line-height: 1.6; margin-bottom: 0;">
-                                Detailed audit logs. Keep track of every event in your server with clean logs and instant moderator alerts.
-                            </p>
-                        </div>
-                    </div>
-
-                    <!-- Spec Card 6 -->
-                    <div class="glass-card feat-card electric-border" style="padding: 40px 30px; display: flex; flex-direction: column; justify-content: space-between; min-height: 240px;">
-                        <div>
-                            <div class="feat-icon" style="width: 48px; height: 48px; border-radius: 12px; background: rgba(6, 182, 212, 0.08); border: 1px solid rgba(6, 182, 212, 0.15); display: flex; align-items: center; justify-content: center; color: #06b6d4; font-size: 1.2rem; margin-bottom: 24px;"><i class="fas fa-ticket-alt"></i></div>
-                            <h3 style="font-size: 1.4rem; color: #fff; font-family: var(--font-display); font-weight: 700; margin-bottom: 16px;">Ticket Management</h3>
-                            <p style="color: var(--text-secondary); font-size: 0.9rem; line-height: 1.6; margin-bottom: 0;">
-                                Interactive support ticketing. Build custom drag-and-drop ticket panels, claimed staff queues, and auto-archived HTML transcripts.
-                            </p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-
-
-            <!-- Pricing plans -->
-            <div class="pricing-section" id="pricing" style="margin: 40px auto;">
-                <h2 class="section-title-landing">PLANS</h2>
-                <p class="section-desc-landing" style="text-align:center;margin-bottom:40px;">Choose the perfect protection tier for your Discord server.</p>
-
-                <!-- Row 1: FREE · PRO · PREMIUM -->
-                <div class="pricing-grid-new" style="margin-bottom:24px;">
-
-                    <!-- FREE -->
-                    <div class="pricing-card-wrap">
-                        <div class="pricing-card-inner">
-                            <div class="glare-overlay"></div>
-                            <div class="plan-badge free"><i class="fas fa-shield-alt"></i> FREE</div>
-                            <div class="plan-price">₹0</div>
-                            <p class="plan-desc">Standard tools for growing channels.</p>
-                            <ul class="plan-features">
-                                <li><i class="fas fa-check"></i> Standard Security</li>
-                                <li><i class="fas fa-check"></i> Basic Welcomer</li>
-                                <li><i class="fas fa-check"></i> 1 Whitelist Limit</li>
-                                <li><i class="fas fa-check"></i> Standard Discord Ticketing</li>
-                            </ul>
-                            <button class="btn-secondary" onclick="simulateLogin()" style="width:100%;margin-top:auto;padding:14px;font-weight:700;font-size:0.9rem;border-radius:12px;border:1.5px solid rgba(255,255,255,0.2);background:rgba(255,255,255,0.06);color:#fff;cursor:pointer;transition:all 0.25s ease;"
-                                onmouseover="this.style.background='rgba(255,255,255,0.12)'" onmouseout="this.style.background='rgba(255,255,255,0.06)'">Deploy Free</button>
-                        </div>
-                    </div>
-
-                    <!-- PRO -->
-                    <div class="pricing-card-wrap featured-wrap">
-                        <div class="pricing-card-inner">
-                            <div class="glare-overlay"></div>
-                            <div class="popular-ribbon">⚡ MOST POPULAR</div>
-                            <div class="plan-badge pro"><i class="fas fa-bolt"></i> PRO</div>
-                            <div class="plan-price">₹199<span>/mo</span></div>
-                            <p class="plan-desc">Complete anti-nuke suite for active communities.</p>
-                            <ul class="plan-features">
-                                <li><i class="fas fa-check"></i> All 16 Security Modules</li>
-                                <li><i class="fas fa-check"></i> 10 Whitelist Slots</li>
-                                <li><i class="fas fa-check"></i> Live Audit Activity Stream</li>
-                                <li><i class="fas fa-check"></i> Advanced Verification System</li>
-                                <li><i class="fas fa-check"></i> Multi-category Ticketing</li>
-                                <li><i class="fas fa-check"></i> Advanced Anti-Raid Modules</li>
-                            </ul>
-                            <button class="btn-primary rzp-pay-btn btn-glass-orange" data-plan="Pro" data-amount="19900" data-name="VEYRA Pro Plan"
-                                style="width:100%;margin-top:auto;padding:14px;font-weight:700;font-size:0.9rem;border-radius:12px;cursor:pointer;"
-                            ><i class="fas fa-credit-card" style="margin-right:8px;"></i>Pay ₹199/mo</button>
-                        </div>
-                    </div>
-
-                    <!-- PREMIUM -->
-                    <div class="pricing-card-wrap" style="--shine-color1:#a855f7;">
-                        <div class="pricing-card-inner">
-                            <div class="glare-overlay"></div>
-                            <div class="plan-badge premium"><i class="fas fa-crown"></i> PREMIUM</div>
-                            <div class="plan-price">₹299<span>/mo</span></div>
-                            <p class="plan-desc">Custom branding for enterprise servers.</p>
-                            <ul class="plan-features">
-                                <li><i class="fas fa-check"></i> Custom Bot Profile &amp; Name</li>
-                                <li><i class="fas fa-check"></i> Unlimited Whitelist Slots</li>
-                                <li><i class="fas fa-check"></i> Dedicated Host Core</li>
-                                <li><i class="fas fa-check"></i> Full Ticket Custom Branding</li>
-                                <li><i class="fas fa-check"></i> Custom Command Autocomplete</li>
-                                <li><i class="fas fa-check"></i> Automated Server Reports</li>
-                                <li><i class="fas fa-check"></i> Priority 24/7 VIP Support</li>
-                            </ul>
-                            <button class="btn-primary rzp-pay-btn btn-glass-purple" data-plan="Premium" data-amount="29900" data-name="VEYRA Premium Plan"
-                                style="width:100%;margin-top:auto;padding:14px;font-weight:700;font-size:0.9rem;border-radius:12px;cursor:pointer;"
-                            ><i class="fas fa-credit-card" style="margin-right:8px;"></i>Pay ₹299/mo</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- GlareHover JS -->
-            <script>
-            (function() {
-                function initGlare() {
-                    document.querySelectorAll('.pricing-card-wrap').forEach(wrap => {
-                        const inner = wrap.querySelector('.pricing-card-inner');
-                        const glare = wrap.querySelector('.glare-overlay');
-                        if (!inner || !glare) return;
-                        inner.addEventListener('mousemove', (e) => {
-                            const rect = inner.getBoundingClientRect();
-                            const x = ((e.clientX - rect.left) / rect.width * 100).toFixed(1);
-                            const y = ((e.clientY - rect.top) / rect.height * 100).toFixed(1);
-                            glare.style.setProperty('--mx', x + '%');
-                            glare.style.setProperty('--my', y + '%');
-                        });
-                    });
-                }
-                if (document.readyState === 'loading') {
-                    document.addEventListener('DOMContentLoaded', initGlare);
-                } else {
-                    initGlare();
-                }
-            })();
-            </script>
-
-            <!-- Client Reviews -->
-            <section class="reviews-section" id="reviews" style="max-width:1150px; width:100%; box-sizing:border-box; margin:60px auto; padding:0 20px;">
-                <div style="text-align: center; margin-bottom: 45px;">
-                    <h2 class="section-title-landing" style="font-size: 2.2rem; font-weight: 900; letter-spacing: 0.08em; color: #fff; margin-bottom: 10px; text-transform: uppercase;">
-                        TRUSTED BY WORLD-CLASS GUILDS
-                    </h2>
-                    <p class="section-desc-landing" style="font-size: 1rem; color: rgba(255,255,255,0.6); max-width: 620px; margin: 0 auto;">
-                        Real feedback from server owners who protect and scale their community with VEYRA.
-                    </p>
-                </div>
-
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 24px;">
-                    
-                    <!-- Card 1 -->
-                    <div class="glass-card review-card" style="background: rgba(15, 23, 42, 0.65); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 14px; padding: 24px; display: flex; flex-direction: column; justify-content: space-between; transition: all 0.3s ease; box-shadow: 0 10px 30px rgba(0,0,0,0.3);" onmouseover="this.style.borderColor='rgba(168, 85, 247, 0.4)'; this.style.transform='translateY(-4px)';" onmouseout="this.style.borderColor='rgba(255, 255, 255, 0.08)'; this.style.transform='translateY(0)';">
-                        <div>
-                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-                                <div style="display: flex; align-items: center; gap: 12px;">
-                                    <img src="assets/avatar/avatar1.png" style="width: 44px; height: 44px; border-radius: 50%; background: #1e293b; border: 1.5px solid rgba(168, 85, 247, 0.4); object-fit: cover;">
-                                    <div>
-                                        <div style="font-weight: 700; color: #fff; font-size: 0.95rem;">xeno_guard</div>
-                                        <div style="font-size: 0.75rem; color: #94a3b8; font-family: var(--font-mono);">@xeno_guard &bull; Server Owner</div>
-                                    </div>
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                                <div style="width: 46px; height: 46px; border-radius: 12px; background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); display: flex; align-items: center; justify-content: center; color: #ef4444; font-size: 1.25rem;">
+                                    <i class="fas fa-lock"></i>
                                 </div>
-                                <span style="font-size: 0.65rem; font-weight: 800; color: #10b981; background: rgba(16, 185, 129, 0.12); border: 1px solid rgba(16, 185, 129, 0.25); padding: 3px 8px; border-radius: 20px; text-transform: uppercase;">VERIFIED</span>
+                                <span style="font-family: var(--font-mono); font-size: 0.68rem; font-weight: 700; color: #ef4444; background: rgba(239, 68, 68, 0.1); padding: 3px 8px; border-radius: 6px; letter-spacing: 0.05em;">MOD-02</span>
                             </div>
-                            <div style="color: #f59e0b; font-size: 0.85rem; margin-bottom: 12px; letter-spacing: 2px;">
-                                <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
-                            </div>
-                            <p style="font-size: 0.88rem; color: #e2e8f0; line-height: 1.6; margin: 0;">
-                                &ldquo;Saved my community from a rogue admin mass-ban sweep. Within 12ms the admin was banned and roles were completely restored. Outstanding protection speed.&rdquo;
+                            <h3 style="font-size: 1.35rem; color: #fff; font-family: var(--font-display); font-weight: 800; margin-bottom: 12px; letter-spacing: 0.02em;">Nuclear Guard</h3>
+                            <p style="color: rgba(255,255,255,0.7); font-size: 0.9rem; line-height: 1.6; margin: 0;">
+                                Neutralize rogue admins. Protect channels, roles, webhooks, and guild permissions from deletion with automated quarantine and instant rollbacks.
                             </p>
+                        </div>
+                        <div style="margin-top: 20px; padding-top: 14px; border-top: 1px solid rgba(255,255,255,0.06); display: flex; align-items: center; justify-content: space-between; font-family: var(--font-mono); font-size: 0.72rem; color: #94a3b8;">
+                            <span><i class="fas fa-shield-halved" style="color: #ef4444; margin-right: 5px;"></i> Auto-Rollback</span>
+                            <span style="color: #10b981; font-weight: 700;">100% Free Core</span>
                         </div>
                     </div>
 
-                    <!-- Card 2 -->
-                    <div class="glass-card review-card" style="background: rgba(15, 23, 42, 0.65); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 14px; padding: 24px; display: flex; flex-direction: column; justify-content: space-between; transition: all 0.3s ease; box-shadow: 0 10px 30px rgba(0,0,0,0.3);" onmouseover="this.style.borderColor='rgba(168, 85, 247, 0.4)'; this.style.transform='translateY(-4px)';" onmouseout="this.style.borderColor='rgba(255, 255, 255, 0.08)'; this.style.transform='translateY(0)';">
+                    <!-- Module 3: Smart AutoMod -->
+                    <div class="toolkit-card" style="background: rgba(14, 18, 35, 0.7); border: 1px solid rgba(168, 85, 247, 0.2); border-radius: 18px; padding: 32px 28px; display: flex; flex-direction: column; justify-content: space-between; min-height: 230px; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); box-shadow: 0 10px 30px rgba(0,0,0,0.35); position: relative; overflow: hidden;"
+                         onmouseover="this.style.borderColor='rgba(168, 85, 247, 0.6)'; this.style.transform='translateY(-4px)'; this.style.boxShadow='0 20px 40px rgba(168, 85, 247, 0.15)';"
+                         onmouseout="this.style.borderColor='rgba(168, 85, 247, 0.2)'; this.style.transform='translateY(0)'; this.style.boxShadow='0 10px 30px rgba(0,0,0,0.35)';">
+                        <div style="position: absolute; top: 0; right: 0; width: 120px; height: 120px; background: radial-gradient(circle, rgba(168, 85, 247, 0.12), transparent 70%); pointer-events: none;"></div>
                         <div>
-                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-                                <div style="display: flex; align-items: center; gap: 12px;">
-                                    <img src="assets/avatar/avatar2.png" style="width: 44px; height: 44px; border-radius: 50%; background: #1e293b; border: 1.5px solid rgba(168, 85, 247, 0.4); object-fit: cover;">
-                                    <div>
-                                        <div style="font-weight: 700; color: #fff; font-size: 0.95rem;">hyper_shade</div>
-                                        <div style="font-size: 0.75rem; color: #94a3b8; font-family: var(--font-mono);">@hyper_shade &bull; Head Moderator</div>
-                                    </div>
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                                <div style="width: 46px; height: 46px; border-radius: 12px; background: rgba(168, 85, 247, 0.1); border: 1px solid rgba(168, 85, 247, 0.3); display: flex; align-items: center; justify-content: center; color: #a855f7; font-size: 1.25rem;">
+                                    <i class="fas fa-terminal"></i>
                                 </div>
-                                <span style="font-size: 0.65rem; font-weight: 800; color: #10b981; background: rgba(16, 185, 129, 0.12); border: 1px solid rgba(16, 185, 129, 0.25); padding: 3px 8px; border-radius: 20px; text-transform: uppercase;">VERIFIED</span>
+                                <span style="font-family: var(--font-mono); font-size: 0.68rem; font-weight: 700; color: #a855f7; background: rgba(168, 85, 247, 0.1); padding: 3px 8px; border-radius: 6px; letter-spacing: 0.05em;">MOD-03</span>
                             </div>
-                            <div style="color: #f59e0b; font-size: 0.85rem; margin-bottom: 12px; letter-spacing: 2px;">
-                                <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
-                            </div>
-                            <p style="font-size: 0.88rem; color: #e2e8f0; line-height: 1.6; margin: 0;">
-                                &ldquo;The anti-bot add protection is absolutely airtight. A compromised administrator tried to invite 3 spam bots, and VEYRA blocked them all instantly.&rdquo;
+                            <h3 style="font-size: 1.35rem; color: #fff; font-family: var(--font-display); font-weight: 800; margin-bottom: 12px; letter-spacing: 0.02em;">Smart AutoMod</h3>
+                            <p style="color: rgba(255,255,255,0.7); font-size: 0.9rem; line-height: 1.6; margin: 0;">
+                                Block scams, phishers, and invite spam. Real-time NLP filters purge malicious domain links, token grabbers, and mass mentions before users click.
                             </p>
+                        </div>
+                        <div style="margin-top: 20px; padding-top: 14px; border-top: 1px solid rgba(255,255,255,0.06); display: flex; align-items: center; justify-content: space-between; font-family: var(--font-mono); font-size: 0.72rem; color: #94a3b8;">
+                            <span><i class="fas fa-ban" style="color: #a855f7; margin-right: 5px;"></i> Zero False Positives</span>
+                            <span style="color: #10b981; font-weight: 700;">100% Free Core</span>
                         </div>
                     </div>
 
-                    <!-- Card 3 -->
-                    <div class="glass-card review-card" style="background: rgba(15, 23, 42, 0.65); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 14px; padding: 24px; display: flex; flex-direction: column; justify-content: space-between; transition: all 0.3s ease; box-shadow: 0 10px 30px rgba(0,0,0,0.3);" onmouseover="this.style.borderColor='rgba(168, 85, 247, 0.4)'; this.style.transform='translateY(-4px)';" onmouseout="this.style.borderColor='rgba(255, 255, 255, 0.08)'; this.style.transform='translateY(0)';">
+                    <!-- Module 4: Verification Gate -->
+                    <div class="toolkit-card" style="background: rgba(14, 18, 35, 0.7); border: 1px solid rgba(129, 140, 248, 0.2); border-radius: 18px; padding: 32px 28px; display: flex; flex-direction: column; justify-content: space-between; min-height: 230px; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); box-shadow: 0 10px 30px rgba(0,0,0,0.35); position: relative; overflow: hidden;"
+                         onmouseover="this.style.borderColor='rgba(129, 140, 248, 0.6)'; this.style.transform='translateY(-4px)'; this.style.boxShadow='0 20px 40px rgba(129, 140, 248, 0.15)';"
+                         onmouseout="this.style.borderColor='rgba(129, 140, 248, 0.2)'; this.style.transform='translateY(0)'; this.style.boxShadow='0 10px 30px rgba(0,0,0,0.35)';">
+                        <div style="position: absolute; top: 0; right: 0; width: 120px; height: 120px; background: radial-gradient(circle, rgba(129, 140, 248, 0.12), transparent 70%); pointer-events: none;"></div>
                         <div>
-                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-                                <div style="display: flex; align-items: center; gap: 12px;">
-                                    <img src="assets/avatar/avatar3.png" style="width: 44px; height: 44px; border-radius: 50%; background: #1e293b; border: 1.5px solid rgba(168, 85, 247, 0.4); object-fit: cover;">
-                                    <div>
-                                        <div style="font-weight: 700; color: #fff; font-size: 0.95rem;">nebula_ops</div>
-                                        <div style="font-size: 0.75rem; color: #94a3b8; font-family: var(--font-mono);">@nebula_ops &bull; Community Founder</div>
-                                    </div>
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                                <div style="width: 46px; height: 46px; border-radius: 12px; background: rgba(129, 140, 248, 0.1); border: 1px solid rgba(129, 140, 248, 0.3); display: flex; align-items: center; justify-content: center; color: #818cf8; font-size: 1.25rem;">
+                                    <i class="fas fa-user-check"></i>
                                 </div>
-                                <span style="font-size: 0.65rem; font-weight: 800; color: #10b981; background: rgba(16, 185, 129, 0.12); border: 1px solid rgba(16, 185, 129, 0.25); padding: 3px 8px; border-radius: 20px; text-transform: uppercase;">VERIFIED</span>
+                                <span style="font-family: var(--font-mono); font-size: 0.68rem; font-weight: 700; color: #818cf8; background: rgba(129, 140, 248, 0.1); padding: 3px 8px; border-radius: 6px; letter-spacing: 0.05em;">MOD-04</span>
                             </div>
-                            <div style="color: #f59e0b; font-size: 0.85rem; margin-bottom: 12px; letter-spacing: 2px;">
-                                <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
-                            </div>
-                            <p style="font-size: 0.88rem; color: #e2e8f0; line-height: 1.6; margin: 0;">
-                                &ldquo;The visual embed builder and ticket panels are extremely premium. Very easy to configure thresholds, and fits seamlessly into our server layout.&rdquo;
+                            <h3 style="font-size: 1.35rem; color: #fff; font-family: var(--font-display); font-weight: 800; margin-bottom: 12px; letter-spacing: 0.02em;">Verification Gate</h3>
+                            <p style="color: rgba(255,255,255,0.7); font-size: 0.9rem; line-height: 1.6; margin: 0;">
+                                Gatekeeper for genuine users. Deploy customized visual captcha challenges, click-to-verify buttons, and password gates to keep automated bots out.
                             </p>
+                        </div>
+                        <div style="margin-top: 20px; padding-top: 14px; border-top: 1px solid rgba(255,255,255,0.06); display: flex; align-items: center; justify-content: space-between; font-family: var(--font-mono); font-size: 0.72rem; color: #94a3b8;">
+                            <span><i class="fas fa-fingerprint" style="color: #818cf8; margin-right: 5px;"></i> Captcha Engine</span>
+                            <span style="color: #10b981; font-weight: 700;">100% Free Core</span>
                         </div>
                     </div>
 
-                    <!-- Card 4 -->
-                    <div class="glass-card review-card" style="background: rgba(15, 23, 42, 0.65); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 14px; padding: 24px; display: flex; flex-direction: column; justify-content: space-between; transition: all 0.3s ease; box-shadow: 0 10px 30px rgba(0,0,0,0.3);" onmouseover="this.style.borderColor='rgba(168, 85, 247, 0.4)'; this.style.transform='translateY(-4px)';" onmouseout="this.style.borderColor='rgba(255, 255, 255, 0.08)'; this.style.transform='translateY(0)';">
+                    <!-- Module 5: Active Logs -->
+                    <div class="toolkit-card" style="background: rgba(14, 18, 35, 0.7); border: 1px solid rgba(16, 185, 129, 0.2); border-radius: 18px; padding: 32px 28px; display: flex; flex-direction: column; justify-content: space-between; min-height: 230px; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); box-shadow: 0 10px 30px rgba(0,0,0,0.35); position: relative; overflow: hidden;"
+                         onmouseover="this.style.borderColor='rgba(16, 185, 129, 0.6)'; this.style.transform='translateY(-4px)'; this.style.boxShadow='0 20px 40px rgba(16, 185, 129, 0.15)';"
+                         onmouseout="this.style.borderColor='rgba(16, 185, 129, 0.2)'; this.style.transform='translateY(0)'; this.style.boxShadow='0 10px 30px rgba(0,0,0,0.35)';">
+                        <div style="position: absolute; top: 0; right: 0; width: 120px; height: 120px; background: radial-gradient(circle, rgba(16, 185, 129, 0.12), transparent 70%); pointer-events: none;"></div>
                         <div>
-                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-                                <div style="display: flex; align-items: center; gap: 12px;">
-                                    <img src="assets/avatar/avatar4.png" style="width: 44px; height: 44px; border-radius: 50%; background: #1e293b; border: 1.5px solid rgba(168, 85, 247, 0.4); object-fit: cover;">
-                                    <div>
-                                        <div style="font-weight: 700; color: #fff; font-size: 0.95rem;">cyber_krypton</div>
-                                        <div style="font-size: 0.75rem; color: #94a3b8; font-family: var(--font-mono);">@cyber_krypton &bull; SecOps Lead</div>
-                                    </div>
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                                <div style="width: 46px; height: 46px; border-radius: 12px; background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3); display: flex; align-items: center; justify-content: center; color: #10b981; font-size: 1.25rem;">
+                                    <i class="fas fa-list-ul"></i>
                                 </div>
-                                <span style="font-size: 0.65rem; font-weight: 800; color: #10b981; background: rgba(16, 185, 129, 0.12); border: 1px solid rgba(16, 185, 129, 0.25); padding: 3px 8px; border-radius: 20px; text-transform: uppercase;">VERIFIED</span>
+                                <span style="font-family: var(--font-mono); font-size: 0.68rem; font-weight: 700; color: #10b981; background: rgba(16, 185, 129, 0.1); padding: 3px 8px; border-radius: 6px; letter-spacing: 0.05em;">MOD-05</span>
                             </div>
-                            <div style="color: #f59e0b; font-size: 0.85rem; margin-bottom: 12px; letter-spacing: 2px;">
-                                <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
-                            </div>
-                            <p style="font-size: 0.88rem; color: #e2e8f0; line-height: 1.6; margin: 0;">
-                                &ldquo;I review code for public utility bots. VEYRA's local SQLite database indexing is highly responsive under heavy, parallel Discord event flows.&rdquo;
+                            <h3 style="font-size: 1.35rem; color: #fff; font-family: var(--font-display); font-weight: 800; margin-bottom: 12px; letter-spacing: 0.02em;">Active Logs</h3>
+                            <p style="color: rgba(255,255,255,0.7); font-size: 0.9rem; line-height: 1.6; margin: 0;">
+                                Deep forensic telemetry. Instant Discord embed feeds for bans, deleted messages, voice movements, role changes, and admin action histories.
                             </p>
+                        </div>
+                        <div style="margin-top: 20px; padding-top: 14px; border-top: 1px solid rgba(255,255,255,0.06); display: flex; align-items: center; justify-content: space-between; font-family: var(--font-mono); font-size: 0.72rem; color: #94a3b8;">
+                            <span><i class="fas fa-clock" style="color: #10b981; margin-right: 5px;"></i> Real-Time Audit</span>
+                            <span style="color: #10b981; font-weight: 700;">100% Free Core</span>
                         </div>
                     </div>
 
-                    <!-- Card 5 -->
-                    <div class="glass-card review-card" style="background: rgba(15, 23, 42, 0.65); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 14px; padding: 24px; display: flex; flex-direction: column; justify-content: space-between; transition: all 0.3s ease; box-shadow: 0 10px 30px rgba(0,0,0,0.3);" onmouseover="this.style.borderColor='rgba(168, 85, 247, 0.4)'; this.style.transform='translateY(-4px)';" onmouseout="this.style.borderColor='rgba(255, 255, 255, 0.08)'; this.style.transform='translateY(0)';">
+                    <!-- Module 6: Ticket & Voice -->
+                    <div class="toolkit-card" style="background: rgba(14, 18, 35, 0.7); border: 1px solid rgba(6, 182, 212, 0.2); border-radius: 18px; padding: 32px 28px; display: flex; flex-direction: column; justify-content: space-between; min-height: 230px; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); box-shadow: 0 10px 30px rgba(0,0,0,0.35); position: relative; overflow: hidden;"
+                         onmouseover="this.style.borderColor='rgba(6, 182, 212, 0.6)'; this.style.transform='translateY(-4px)'; this.style.boxShadow='0 20px 40px rgba(6, 182, 212, 0.15)';"
+                         onmouseout="this.style.borderColor='rgba(6, 182, 212, 0.2)'; this.style.transform='translateY(0)'; this.style.boxShadow='0 10px 30px rgba(0,0,0,0.35)';">
+                        <div style="position: absolute; top: 0; right: 0; width: 120px; height: 120px; background: radial-gradient(circle, rgba(6, 182, 212, 0.12), transparent 70%); pointer-events: none;"></div>
                         <div>
-                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-                                <div style="display: flex; align-items: center; gap: 12px;">
-                                    <img src="assets/avatar/avatar5.png" style="width: 44px; height: 44px; border-radius: 50%; background: #1e293b; border: 1.5px solid rgba(168, 85, 247, 0.4); object-fit: cover;">
-                                    <div>
-                                        <div style="font-weight: 700; color: #fff; font-size: 0.95rem;">pixel_ninja</div>
-                                        <div style="font-size: 0.75rem; color: #94a3b8; font-family: var(--font-mono);">@pixel_ninja &bull; UX Architect</div>
-                                    </div>
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                                <div style="width: 46px; height: 46px; border-radius: 12px; background: rgba(6, 182, 212, 0.1); border: 1px solid rgba(6, 182, 212, 0.3); display: flex; align-items: center; justify-content: center; color: #06b6d4; font-size: 1.25rem;">
+                                    <i class="fas fa-ticket-alt"></i>
                                 </div>
-                                <span style="font-size: 0.65rem; font-weight: 800; color: #10b981; background: rgba(16, 185, 129, 0.12); border: 1px solid rgba(16, 185, 129, 0.25); padding: 3px 8px; border-radius: 20px; text-transform: uppercase;">VERIFIED</span>
+                                <span style="font-family: var(--font-mono); font-size: 0.68rem; font-weight: 700; color: #06b6d4; background: rgba(6, 182, 212, 0.1); padding: 3px 8px; border-radius: 6px; letter-spacing: 0.05em;">MOD-06</span>
                             </div>
-                            <div style="color: #f59e0b; font-size: 0.85rem; margin-bottom: 12px; letter-spacing: 2px;">
-                                <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
-                            </div>
-                            <p style="font-size: 0.88rem; color: #e2e8f0; line-height: 1.6; margin: 0;">
-                                &ldquo;The real-time web dashboard, customizable ticket transcripts, and instant anti-nuke alerts make VEYRA the ultimate management stack.&rdquo;
+                            <h3 style="font-size: 1.35rem; color: #fff; font-family: var(--font-display); font-weight: 800; margin-bottom: 12px; letter-spacing: 0.02em;">Ticket &amp; 24/7 Voice</h3>
+                            <p style="color: rgba(255,255,255,0.7); font-size: 0.9rem; line-height: 1.6; margin: 0;">
+                                Interactive drag-and-drop ticket store panels, staff claim assignments, and HTML transcripts &mdash; paired with 24/7 persistent lag-free YouTube/Spotify voice channels.
                             </p>
                         </div>
-                    </div>
-
-                    <!-- Card 6 -->
-                    <div class="glass-card review-card" style="background: rgba(15, 23, 42, 0.65); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 14px; padding: 24px; display: flex; flex-direction: column; justify-content: space-between; transition: all 0.3s ease; box-shadow: 0 10px 30px rgba(0,0,0,0.3);" onmouseover="this.style.borderColor='rgba(168, 85, 247, 0.4)'; this.style.transform='translateY(-4px)';" onmouseout="this.style.borderColor='rgba(255, 255, 255, 0.08)'; this.style.transform='translateY(0)';">
-                        <div>
-                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-                                <div style="display: flex; align-items: center; gap: 12px;">
-                                    <img src="assets/avatar/avatar6.png" style="width: 44px; height: 44px; border-radius: 50%; background: #1e293b; border: 1.5px solid rgba(168, 85, 247, 0.4); object-fit: cover;">
-                                    <div>
-                                        <div style="font-weight: 700; color: #fff; font-size: 0.95rem;">matrix_alpha</div>
-                                        <div style="font-size: 0.75rem; color: #94a3b8; font-family: var(--font-mono);">@matrix_alpha &bull; Guild Admin</div>
-                                    </div>
-                                </div>
-                                <span style="font-size: 0.65rem; font-weight: 800; color: #10b981; background: rgba(16, 185, 129, 0.12); border: 1px solid rgba(16, 185, 129, 0.25); padding: 3px 8px; border-radius: 20px; text-transform: uppercase;">VERIFIED</span>
-                            </div>
-                            <div style="color: #f59e0b; font-size: 0.85rem; margin-bottom: 12px; letter-spacing: 2px;">
-                                <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
-                            </div>
-                            <p style="font-size: 0.88rem; color: #e2e8f0; line-height: 1.6; margin: 0;">
-                                &ldquo;The rate-limited security rules thresholds are highly configurable. We have had zero false positives after whitelisting our core staff accounts.&rdquo;
-                            </p>
+                        <div style="margin-top: 20px; padding-top: 14px; border-top: 1px solid rgba(255,255,255,0.06); display: flex; align-items: center; justify-content: space-between; font-family: var(--font-mono); font-size: 0.72rem; color: #94a3b8;">
+                            <span><i class="fas fa-headphones" style="color: #06b6d4; margin-right: 5px;"></i> Lossless Audio &amp; Transcripts</span>
+                            <span style="color: #10b981; font-weight: 700;">100% Free Core</span>
                         </div>
                     </div>
 
                 </div>
             </section>
 
-            <!-- [MISSION INTEGRITY SPLIT SECTION] -->
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 40px; max-width: 1150px; width: 100%; margin: 60px auto; align-items: center; box-sizing: border-box; padding: 0 20px;">
-                <!-- LEFT: Streaming Console Mockup -->
-                <div style="width: 100%;">
-                    <div class="console-box glass-card" style="background: rgba(4, 5, 10, 0.9); border: 1.5px solid rgba(255, 110, 66, 0.2); border-radius: 16px; padding: 22px; font-family: var(--font-mono); box-shadow: 0 20px 45px rgba(0,0,0,0.8); min-height: 280px; display: flex; flex-direction: column; justify-content: space-between;">
-                        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255, 255, 255, 0.08); padding-bottom: 12px; margin-bottom: 15px;">
-                            <div style="display: flex; align-items: center; gap: 6px;">
-                                <span style="width: 10px; height: 10px; border-radius: 50%; background: #ef4444; display: inline-block;"></span>
-                                <span style="width: 10px; height: 10px; border-radius: 50%; background: #eab308; display: inline-block;"></span>
-                                <span style="width: 10px; height: 10px; border-radius: 50%; background: #10b981; display: inline-block;"></span>
-                                <span style="color: #94a3b8; font-size: 0.75rem; margin-left: 8px; font-weight: 600; font-family: var(--font-mono);">shield-daemon --active</span>
-                            </div>
-                            <span style="font-size: 0.68rem; background: rgba(16, 185, 129, 0.15); color: #10b981; border: 1px solid rgba(16,185,129,0.3); padding: 2px 8px; border-radius: 4px; font-weight: 700; font-family: var(--font-mono); letter-spacing: 0.05em;">SECURE</span>
-                        </div>
-                        
-                        <div id="console-stream-lines" style="flex-grow: 1; font-size: 0.82rem; color: #a3a3a3; line-height: 1.7; display: flex; flex-direction: column; justify-content: flex-end; min-height: 200px;">
-                            <div style="color: #10b981;">[+] VEYRA Shield Daemon v2.4 initialized...</div>
-                            <div style="color: #60a5fa;">[i] SQLite database connected: database/VEYRA.db</div>
-                            <div style="color: #a855f7;">[&bull;] Subscribed to Discord Audit Log Gateway stream.</div>
-                            <div style="color: #10b981;">[&check;] Protection status: 100% SECURE &mdash; 0 active threats.</div>
-                            <div id="live-terminal-type-line" style="color: #FF6E42; font-weight: 600; margin-top: 4px;">> Monitoring real-time guild events...</div>
-                        </div>
-                    </div>
+            <!-- ==================== PLANS (PRICING OVERHAUL) ==================== -->
+            <section class="pricing-section" id="pricing" style="max-width: 1180px; width: 100%; box-sizing: border-box; margin: 80px auto; padding: 0 20px; text-align: center;">
+                <div style="display:inline-flex; align-items:center; gap:8px; padding: 6px 18px; border-radius: 50px; background: rgba(168, 85, 247, 0.08); border: 1px solid rgba(168, 85, 247, 0.25); font-family: var(--font-mono); font-size: 0.72rem; color: #a855f7; letter-spacing: 0.16em; text-transform: uppercase; margin-bottom: 16px;">
+                    <i class="fas fa-tag"></i> TRANSPARENT PRICING
                 </div>
+                <h2 class="section-title-landing" style="font-size: 2.5rem; font-weight: 900; letter-spacing: 0.04em; color: #fff; margin-bottom: 8px; font-family: var(--font-display);">
+                    PLANS
+                </h2>
+                <p class="section-desc-landing" style="font-size: 1rem; color: rgba(255,255,255,0.65); max-width: 600px; margin: 0 auto 50px auto; line-height: 1.6;">
+                    Choose the perfect protection tier for your Discord server.
+                </p>
 
-                <!-- RIGHT: Mission Integrity Text -->
-                <div style="display: flex; flex-direction: column; align-items: flex-start; text-align: left;">
-                    <div style="display: inline-block; padding: 6px 16px; border-radius: 50px; background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3); font-family: var(--font-mono); font-size: 0.72rem; color: #10b981; font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase; margin-bottom: 16px;">Mission Integrity</div>
-                    <h2 style="font-family: var(--font-display); color: #fff; font-size: 1.8rem; line-height: 1.45; font-weight: 800; margin: 0 0 16px 0; text-align: left;">
-                        Why choose VEYRA?
+                <!-- 3-Column Plan Grid -->
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 28px; align-items: stretch; text-align: left;">
+                    
+                    <!-- PLAN 1: FREE -->
+                    <div class="pricing-box-card" style="background: rgba(13, 17, 34, 0.75); border: 1.5px solid rgba(255, 255, 255, 0.08); border-radius: 20px; padding: 36px 30px; display: flex; flex-direction: column; justify-content: space-between; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); box-shadow: 0 15px 35px rgba(0,0,0,0.4);"
+                         onmouseover="this.style.borderColor='rgba(255,255,255,0.2)'; this.style.transform='translateY(-4px)';"
+                         onmouseout="this.style.borderColor='rgba(255, 255, 255, 0.08)'; this.style.transform='translateY(0)';">
+                        <div>
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px;">
+                                <span style="font-family: var(--font-mono); font-size: 0.75rem; font-weight: 800; color: #94a3b8; background: rgba(148, 163, 184, 0.12); border: 1px solid rgba(148, 163, 184, 0.25); padding: 4px 12px; border-radius: 30px; letter-spacing: 0.08em; display: inline-flex; align-items: center; gap: 6px;">
+                                    <i class="fas fa-shield-alt"></i> FREE
+                                </span>
+                            </div>
+                            <div style="font-family: var(--font-display); font-size: 2.8rem; font-weight: 900; color: #fff; margin-bottom: 6px; letter-spacing: -0.02em;">
+                                ₹0
+                            </div>
+                            <p style="font-size: 0.88rem; color: rgba(255,255,255,0.6); line-height: 1.5; margin: 0 0 24px 0;">
+                                Standard tools for growing channels.
+                            </p>
+                            <ul style="list-style: none; padding: 0; margin: 0 0 30px 0; display: flex; flex-direction: column; gap: 14px;">
+                                <li style="font-size: 0.88rem; color: rgba(255,255,255,0.85); display: flex; align-items: center; gap: 12px;">
+                                    <i class="fas fa-check-circle" style="color: #10b981; font-size: 1rem; flex-shrink: 0;"></i> Standard Security &amp; Anti-Spam
+                                </li>
+                                <li style="font-size: 0.88rem; color: rgba(255,255,255,0.85); display: flex; align-items: center; gap: 12px;">
+                                    <i class="fas fa-check-circle" style="color: #10b981; font-size: 1rem; flex-shrink: 0;"></i> Basic Welcomer &amp; Exit Alerts
+                                </li>
+                                <li style="font-size: 0.88rem; color: rgba(255,255,255,0.85); display: flex; align-items: center; gap: 12px;">
+                                    <i class="fas fa-check-circle" style="color: #10b981; font-size: 1rem; flex-shrink: 0;"></i> 1 Whitelist Limit
+                                </li>
+                                <li style="font-size: 0.88rem; color: rgba(255,255,255,0.85); display: flex; align-items: center; gap: 12px;">
+                                    <i class="fas fa-check-circle" style="color: #10b981; font-size: 1rem; flex-shrink: 0;"></i> Standard Discord Ticketing
+                                </li>
+                            </ul>
+                        </div>
+                        <button onclick="simulateLogin()" style="width: 100%; padding: 15px; font-weight: 800; font-size: 0.92rem; border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.15); background: rgba(255, 255, 255, 0.05); color: #fff; cursor: pointer; transition: all 0.25s ease; font-family: var(--font-display); letter-spacing: 0.04em;"
+                                onmouseover="this.style.background='rgba(255,255,255,0.12)'; this.style.borderColor='rgba(255,255,255,0.3)';"
+                                onmouseout="this.style.background='rgba(255,255,255,0.05)'; this.style.borderColor='rgba(255,255,255,0.15)';">
+                            DEPLOY FREE
+                        </button>
+                    </div>
+
+                    <!-- PLAN 2: PRO (FEATURED) -->
+                    <div class="pricing-box-card" style="background: linear-gradient(180deg, rgba(30, 24, 54, 0.85), rgba(16, 18, 36, 0.85)); border: 1.5px solid #FF6E42; border-radius: 20px; padding: 36px 30px; display: flex; flex-direction: column; justify-content: space-between; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); box-shadow: 0 20px 50px rgba(255, 110, 66, 0.2); position: relative; overflow: visible;"
+                         onmouseover="this.style.transform='translateY(-6px)'; this.style.boxShadow='0 25px 60px rgba(255, 110, 66, 0.3)';"
+                         onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 20px 50px rgba(255, 110, 66, 0.2)';">
+                        <!-- Popular Floating Tag -->
+                        <div style="position: absolute; top: -13px; right: 24px; background: linear-gradient(90deg, #FF6E42, #f59e0b); color: #fff; font-family: var(--font-mono); font-size: 0.68rem; font-weight: 900; letter-spacing: 0.08em; padding: 4px 14px; border-radius: 20px; box-shadow: 0 4px 14px rgba(255, 110, 66, 0.4); text-transform: uppercase;">
+                            <i class="fas fa-fire" style="margin-right: 4px;"></i> MOST POPULAR
+                        </div>
+                        <div>
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px;">
+                                <span style="font-family: var(--font-mono); font-size: 0.75rem; font-weight: 800; color: #FF6E42; background: rgba(255, 110, 66, 0.12); border: 1px solid rgba(255, 110, 66, 0.3); padding: 4px 12px; border-radius: 30px; letter-spacing: 0.08em; display: inline-flex; align-items: center; gap: 6px;">
+                                    <i class="fas fa-bolt"></i> PRO
+                                </span>
+                            </div>
+                            <div style="font-family: var(--font-display); font-size: 2.8rem; font-weight: 900; color: #fff; margin-bottom: 6px; letter-spacing: -0.02em; display: flex; align-items: baseline; gap: 6px;">
+                                ₹199<span style="font-size: 0.95rem; font-weight: 600; color: rgba(255,255,255,0.5); font-family: var(--font-mono);">/mo</span>
+                            </div>
+                            <p style="font-size: 0.88rem; color: rgba(255,255,255,0.65); line-height: 1.5; margin: 0 0 24px 0;">
+                                Complete anti-nuke suite for active communities.
+                            </p>
+                            <ul style="list-style: none; padding: 0; margin: 0 0 30px 0; display: flex; flex-direction: column; gap: 14px;">
+                                <li style="font-size: 0.88rem; color: #fff; display: flex; align-items: center; gap: 12px;">
+                                    <i class="fas fa-check-circle" style="color: #FF6E42; font-size: 1rem; flex-shrink: 0;"></i> All 16 Security &amp; Defense Modules
+                                </li>
+                                <li style="font-size: 0.88rem; color: #fff; display: flex; align-items: center; gap: 12px;">
+                                    <i class="fas fa-check-circle" style="color: #FF6E42; font-size: 1rem; flex-shrink: 0;"></i> 10 Whitelist Slots for Staff
+                                </li>
+                                <li style="font-size: 0.88rem; color: #fff; display: flex; align-items: center; gap: 12px;">
+                                    <i class="fas fa-check-circle" style="color: #FF6E42; font-size: 1rem; flex-shrink: 0;"></i> Live Audit Activity Stream
+                                </li>
+                                <li style="font-size: 0.88rem; color: #fff; display: flex; align-items: center; gap: 12px;">
+                                    <i class="fas fa-check-circle" style="color: #FF6E42; font-size: 1rem; flex-shrink: 0;"></i> Advanced Verification System
+                                </li>
+                                <li style="font-size: 0.88rem; color: #fff; display: flex; align-items: center; gap: 12px;">
+                                    <i class="fas fa-check-circle" style="color: #FF6E42; font-size: 1rem; flex-shrink: 0;"></i> Multi-category Ticketing
+                                </li>
+                                <li style="font-size: 0.88rem; color: #fff; display: flex; align-items: center; gap: 12px;">
+                                    <i class="fas fa-check-circle" style="color: #FF6E42; font-size: 1rem; flex-shrink: 0;"></i> Advanced Anti-Raid Modules
+                                </li>
+                            </ul>
+                        </div>
+                        <button class="rzp-pay-btn" data-plan="Pro" data-amount="19900" data-name="VEYRA Pro Plan"
+                                style="width: 100%; padding: 15px; font-weight: 800; font-size: 0.95rem; border-radius: 12px; border: none; background: linear-gradient(90deg, #ea580c, #FF6E42); color: #fff; cursor: pointer; transition: all 0.25s ease; font-family: var(--font-display); letter-spacing: 0.04em; box-shadow: 0 8px 24px rgba(255, 110, 66, 0.35); display: flex; align-items: center; justify-content: center; gap: 8px;"
+                                onmouseover="this.style.transform='scale(1.02)'; this.style.boxShadow='0 12px 28px rgba(255, 110, 66, 0.5)';"
+                                onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 8px 24px rgba(255, 110, 66, 0.35)';">
+                            <i class="fas fa-credit-card"></i> PAY ₹199/MO
+                        </button>
+                    </div>
+
+                    <!-- PLAN 3: PREMIUM -->
+                    <div class="pricing-box-card" style="background: rgba(13, 17, 34, 0.75); border: 1.5px solid rgba(168, 85, 247, 0.3); border-radius: 20px; padding: 36px 30px; display: flex; flex-direction: column; justify-content: space-between; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); box-shadow: 0 15px 35px rgba(0,0,0,0.4);"
+                         onmouseover="this.style.borderColor='rgba(168, 85, 247, 0.7)'; this.style.transform='translateY(-4px)'; this.style.boxShadow='0 20px 45px rgba(168, 85, 247, 0.2)';"
+                         onmouseout="this.style.borderColor='rgba(168, 85, 247, 0.3)'; this.style.transform='translateY(0)'; this.style.boxShadow='0 15px 35px rgba(0,0,0,0.4)';">
+                        <div>
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px;">
+                                <span style="font-family: var(--font-mono); font-size: 0.75rem; font-weight: 800; color: #a855f7; background: rgba(168, 85, 247, 0.12); border: 1px solid rgba(168, 85, 247, 0.3); padding: 4px 12px; border-radius: 30px; letter-spacing: 0.08em; display: inline-flex; align-items: center; gap: 6px;">
+                                    <i class="fas fa-crown"></i> PREMIUM
+                                </span>
+                            </div>
+                            <div style="font-family: var(--font-display); font-size: 2.8rem; font-weight: 900; color: #fff; margin-bottom: 6px; letter-spacing: -0.02em; display: flex; align-items: baseline; gap: 6px;">
+                                ₹299<span style="font-size: 0.95rem; font-weight: 600; color: rgba(255,255,255,0.5); font-family: var(--font-mono);">/mo</span>
+                            </div>
+                            <p style="font-size: 0.88rem; color: rgba(255,255,255,0.6); line-height: 1.5; margin: 0 0 24px 0;">
+                                Custom branding for enterprise servers.
+                            </p>
+                            <ul style="list-style: none; padding: 0; margin: 0 0 30px 0; display: flex; flex-direction: column; gap: 14px;">
+                                <li style="font-size: 0.88rem; color: rgba(255,255,255,0.85); display: flex; align-items: center; gap: 12px;">
+                                    <i class="fas fa-check-circle" style="color: #a855f7; font-size: 1rem; flex-shrink: 0;"></i> Custom Bot Profile, Name &amp; Banner
+                                </li>
+                                <li style="font-size: 0.88rem; color: rgba(255,255,255,0.85); display: flex; align-items: center; gap: 12px;">
+                                    <i class="fas fa-check-circle" style="color: #a855f7; font-size: 1rem; flex-shrink: 0;"></i> Unlimited Whitelist Slots
+                                </li>
+                                <li style="font-size: 0.88rem; color: rgba(255,255,255,0.85); display: flex; align-items: center; gap: 12px;">
+                                    <i class="fas fa-check-circle" style="color: #a855f7; font-size: 1rem; flex-shrink: 0;"></i> Dedicated 24/7 Voice &amp; Music Core
+                                </li>
+                                <li style="font-size: 0.88rem; color: rgba(255,255,255,0.85); display: flex; align-items: center; gap: 12px;">
+                                    <i class="fas fa-check-circle" style="color: #a855f7; font-size: 1rem; flex-shrink: 0;"></i> Full Ticket Custom Branding
+                                </li>
+                                <li style="font-size: 0.88rem; color: rgba(255,255,255,0.85); display: flex; align-items: center; gap: 12px;">
+                                    <i class="fas fa-check-circle" style="color: #a855f7; font-size: 1rem; flex-shrink: 0;"></i> Custom Command Autocomplete
+                                </li>
+                                <li style="font-size: 0.88rem; color: rgba(255,255,255,0.85); display: flex; align-items: center; gap: 12px;">
+                                    <i class="fas fa-check-circle" style="color: #a855f7; font-size: 1rem; flex-shrink: 0;"></i> Automated Server Reports &amp; VIP Support
+                                </li>
+                            </ul>
+                        </div>
+                        <button class="rzp-pay-btn" data-plan="Premium" data-amount="29900" data-name="VEYRA Premium Plan"
+                                style="width: 100%; padding: 15px; font-weight: 800; font-size: 0.95rem; border-radius: 12px; border: none; background: linear-gradient(90deg, #7c3aed, #a855f7); color: #fff; cursor: pointer; transition: all 0.25s ease; font-family: var(--font-display); letter-spacing: 0.04em; box-shadow: 0 8px 24px rgba(168, 85, 247, 0.35); display: flex; align-items: center; justify-content: center; gap: 8px;"
+                                onmouseover="this.style.transform='scale(1.02)'; this.style.boxShadow='0 12px 28px rgba(168, 85, 247, 0.5)';"
+                                onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 8px 24px rgba(168, 85, 247, 0.35)';">
+                            <i class="fas fa-credit-card"></i> PAY ₹299/MO
+                        </button>
+                    </div>
+
+                </div>
+            </section>
+
+            <!-- ==================== 20+ CONTINUOUS RIGHT-TO-LEFT GAMING REVIEWS MARQUEE ==================== -->
+            <section class="reviews-section" id="reviews" style="width: 100%; overflow: hidden; margin: 80px 0 90px 0; padding: 0;">
+                <div style="max-width: 1180px; margin: 0 auto 40px auto; padding: 0 20px; text-align: center;">
+                    <div style="display:inline-flex; align-items:center; gap:8px; padding: 6px 18px; border-radius: 50px; background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.25); font-family: var(--font-mono); font-size: 0.72rem; color: #10b981; letter-spacing: 0.16em; text-transform: uppercase; margin-bottom: 16px;">
+                        <i class="fas fa-star" style="color: #f59e0b;"></i> COMMUNITY VERIFIED
+                    </div>
+                    <h2 class="section-title-landing" style="font-size: 2.5rem; font-weight: 900; letter-spacing: 0.04em; color: #fff; margin-bottom: 10px; text-transform: uppercase; font-family: var(--font-display);">
+                        TRUSTED BY WORLD-CLASS GUILDS
                     </h2>
-                    <p style="font-size: 1rem; color: #cbd5e1; line-height: 1.7; margin: 0;">
-                        Because a Discord community is not built in a day, but it can be destroyed in a second. Protect your hard work, detect threats before they spread, respond with lightning speed, and never let your server be compromised.
+                    <p class="section-desc-landing" style="font-size: 1rem; color: rgba(255,255,255,0.65); max-width: 640px; margin: 0 auto; line-height: 1.6;">
+                        Real feedback from server owners who protect and scale their gaming communities with VEYRA.
                     </p>
                 </div>
-            </div>
+
+                <!-- Marquee Container (Hover to Pause) -->
+                <div class="reviews-marquee-wrapper" id="reviews-marquee-box" style="position: relative; width: 100%; overflow: hidden; display: flex; flex-direction: column; gap: 20px;">
+                    
+                    <!-- Left and Right Gradient Fade Edges -->
+                    <div style="position: absolute; top:0; left:0; width: 140px; height: 100%; background: linear-gradient(90deg, #020617, transparent); z-index: 10; pointer-events: none;"></div>
+                    <div style="position: absolute; top:0; right:0; width: 140px; height: 100%; background: linear-gradient(270deg, #020617, transparent); z-index: 10; pointer-events: none;"></div>
+
+                    <!-- Row 1 Track (Moving Right to Left) -->
+                    <div class="marquee-track marquee-row-1" style="display: flex; gap: 20px; width: max-content;">
+                        
+                        <!-- Review 1 -->
+                        <div class="review-box-card">
+                            <div class="rb-header">
+                                <div class="rb-user">
+                                    <img src="assets/avatar/avatar1.png" class="rb-avatar" alt="xeno_guard">
+                                    <div>
+                                        <div class="rb-name">xeno_guard</div>
+                                        <div class="rb-tag">@xeno_guard &bull; Founder</div>
+                                    </div>
+                                </div>
+                                <span class="rb-badge">VERIFIED</span>
+                            </div>
+                            <div class="rb-server"><i class="fab fa-discord" style="color:#5865F2;"></i> Valtrix eSports &bull; 45.2K</div>
+                            <div class="rb-stars"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></div>
+                            <p class="rb-text">&ldquo;Saved our 45k member community from a rogue moderator mass-ban sweep. Within 12ms the admin was quarantined and all roles were 100% restored.&rdquo;</p>
+                        </div>
+
+                        <!-- Review 2 -->
+                        <div class="review-box-card">
+                            <div class="rb-header">
+                                <div class="rb-user">
+                                    <img src="assets/avatar/avatar2.png" class="rb-avatar" alt="Viper_FPS">
+                                    <div>
+                                        <div class="rb-name">Viper_FPS</div>
+                                        <div class="rb-tag">@viper_fps &bull; Tournament Lead</div>
+                                    </div>
+                                </div>
+                                <span class="rb-badge">VERIFIED</span>
+                            </div>
+                            <div class="rb-server"><i class="fab fa-discord" style="color:#5865F2;"></i> Valorant Elite Hub &bull; 64.5K</div>
+                            <div class="rb-stars"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></div>
+                            <p class="rb-text">&ldquo;During our weekly scrim tournament, a raid of 80 bot accounts joined at once. VEYRA's anti-raid shield purged every single one before a single ping was sent.&rdquo;</p>
+                        </div>
+
+                        <!-- Review 3 -->
+                        <div class="review-box-card">
+                            <div class="rb-header">
+                                <div class="rb-user">
+                                    <img src="assets/avatar/avatar3.png" class="rb-avatar" alt="ShadowKrypt">
+                                    <div>
+                                        <div class="rb-name">ShadowKrypt</div>
+                                        <div class="rb-tag">@shadow_krypt &bull; Lead SecOps</div>
+                                    </div>
+                                </div>
+                                <span class="rb-badge">VERIFIED</span>
+                            </div>
+                            <div class="rb-server"><i class="fab fa-discord" style="color:#5865F2;"></i> Ghost Syndicate &bull; 18.4K</div>
+                            <div class="rb-stars"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></div>
+                            <p class="rb-text">&ldquo;The visual captcha verification gate dropped our daily spam ticket count to absolute zero. Cleanest moderation backend we have ever deployed.&rdquo;</p>
+                        </div>
+
+                        <!-- Review 4 -->
+                        <div class="review-box-card">
+                            <div class="rb-header">
+                                <div class="rb-user">
+                                    <img src="assets/avatar/avatar4.png" class="rb-avatar" alt="Zenith_Val">
+                                    <div>
+                                        <div class="rb-name">Zenith_Val</div>
+                                        <div class="rb-tag">@zenith_val &bull; Community Director</div>
+                                    </div>
+                                </div>
+                                <span class="rb-badge">VERIFIED</span>
+                            </div>
+                            <div class="rb-server"><i class="fab fa-discord" style="color:#5865F2;"></i> Apex Scrims League &bull; 28.9K</div>
+                            <div class="rb-stars"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></div>
+                            <p class="rb-text">&ldquo;The 24/7 music voice channel never drops or lags, even during peak voice traffic with 40+ scrim lobbies active. Lossless audio quality is stunning.&rdquo;</p>
+                        </div>
+
+                        <!-- Review 5 -->
+                        <div class="review-box-card">
+                            <div class="rb-header">
+                                <div class="rb-user">
+                                    <img src="assets/avatar/avatar5.png" class="rb-avatar" alt="GhostRider_99">
+                                    <div>
+                                        <div class="rb-name">GhostRider_99</div>
+                                        <div class="rb-tag">@ghostrider &bull; RP Server Host</div>
+                                    </div>
+                                </div>
+                                <span class="rb-badge">VERIFIED</span>
+                            </div>
+                            <div class="rb-server"><i class="fab fa-discord" style="color:#5865F2;"></i> FiveM Horizon Roleplay &bull; 41.5K</div>
+                            <div class="rb-stars"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></div>
+                            <p class="rb-text">&ldquo;Our police and whitelist application tickets generate downloadable HTML transcripts automatically. Ticket management in VEYRA is unmatched.&rdquo;</p>
+                        </div>
+
+                        <!-- Review 6 -->
+                        <div class="review-box-card">
+                            <div class="rb-header">
+                                <div class="rb-user">
+                                    <img src="assets/avatar/avatar6.png" class="rb-avatar" alt="Kryptic_Gaming">
+                                    <div>
+                                        <div class="rb-name">Kryptic_Gaming</div>
+                                        <div class="rb-tag">@kryptic &bull; Clan Leader</div>
+                                    </div>
+                                </div>
+                                <span class="rb-badge">VERIFIED</span>
+                            </div>
+                            <div class="rb-server"><i class="fab fa-discord" style="color:#5865F2;"></i> Rust Survival Zone &bull; 16.2K</div>
+                            <div class="rb-stars"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></div>
+                            <p class="rb-text">&ldquo;Anti-phishing detection is lightning fast. Someone posted a disguised Steam trade scam link and VEYRA deleted the message in 40 milliseconds.&rdquo;</p>
+                        </div>
+
+                        <!-- Review 7 -->
+                        <div class="review-box-card">
+                            <div class="rb-header">
+                                <div class="rb-user">
+                                    <img src="assets/avatar/avatar1.png" class="rb-avatar" alt="Nightshade_TTV">
+                                    <div>
+                                        <div class="rb-name">Nightshade_TTV</div>
+                                        <div class="rb-tag">@nightshade &bull; Twitch Partner</div>
+                                    </div>
+                                </div>
+                                <span class="rb-badge">VERIFIED</span>
+                            </div>
+                            <div class="rb-server"><i class="fab fa-discord" style="color:#5865F2;"></i> NightCity India RP &bull; 32.1K</div>
+                            <div class="rb-stars"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></div>
+                            <p class="rb-text">&ldquo;The web dashboard is responsive on mobile and desktop alike. Managing staff permissions and reaction roles takes seconds instead of hours.&rdquo;</p>
+                        </div>
+
+                        <!-- Review 8 -->
+                        <div class="review-box-card">
+                            <div class="rb-header">
+                                <div class="rb-user">
+                                    <img src="assets/avatar/avatar2.png" class="rb-avatar" alt="Apex_Hunter">
+                                    <div>
+                                        <div class="rb-name">Apex_Hunter</div>
+                                        <div class="rb-tag">@apex_hunter &bull; Head Mod</div>
+                                    </div>
+                                </div>
+                                <span class="rb-badge">VERIFIED</span>
+                            </div>
+                            <div class="rb-server"><i class="fab fa-discord" style="color:#5865F2;"></i> Warzone India Elite &bull; 76.4K</div>
+                            <div class="rb-stars"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></div>
+                            <p class="rb-text">&ldquo;Mass-mention spam protection is bulletproof. Someone tried to @everyone with 10 alt accounts and got auto-banned instantly without bothering 76k members.&rdquo;</p>
+                        </div>
+
+                        <!-- Review 9 -->
+                        <div class="review-box-card">
+                            <div class="rb-header">
+                                <div class="rb-user">
+                                    <img src="assets/avatar/avatar3.png" class="rb-avatar" alt="CyberPulse">
+                                    <div>
+                                        <div class="rb-name">CyberPulse</div>
+                                        <div class="rb-tag">@cyberpulse &bull; Tech Lead</div>
+                                    </div>
+                                </div>
+                                <span class="rb-badge">VERIFIED</span>
+                            </div>
+                            <div class="rb-server"><i class="fab fa-discord" style="color:#5865F2;"></i> CS2 Ranked Central &bull; 52.3K</div>
+                            <div class="rb-stars"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></div>
+                            <p class="rb-text">&ldquo;Server cloning and backup snapshots saved us when Discord had an API glitch. Restored all 65 channels and permissions in less than two minutes.&rdquo;</p>
+                        </div>
+
+                        <!-- Review 10 -->
+                        <div class="review-box-card">
+                            <div class="rb-header">
+                                <div class="rb-user">
+                                    <img src="assets/avatar/avatar4.png" class="rb-avatar" alt="Frostbite_OW">
+                                    <div>
+                                        <div class="rb-name">Frostbite_OW</div>
+                                        <div class="rb-tag">@frostbite &bull; Guild Admin</div>
+                                    </div>
+                                </div>
+                                <span class="rb-badge">VERIFIED</span>
+                            </div>
+                            <div class="rb-server"><i class="fab fa-discord" style="color:#5865F2;"></i> Overwatch Pro Scrims &bull; 15.6K</div>
+                            <div class="rb-stars"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></div>
+                            <p class="rb-text">&ldquo;Replaced four separate bots (Carl, Mee6, Rhythm clone, and Ticket Tool) with just VEYRA. Memory efficiency and server responsiveness skyrocketed.&rdquo;</p>
+                        </div>
+
+                        <!-- Review 11 -->
+                        <div class="review-box-card">
+                            <div class="rb-header">
+                                <div class="rb-user">
+                                    <img src="assets/avatar/avatar5.png" class="rb-avatar" alt="Astraea_GG">
+                                    <div>
+                                        <div class="rb-name">Astraea_GG</div>
+                                        <div class="rb-tag">@astraea &bull; Community Manager</div>
+                                    </div>
+                                </div>
+                                <span class="rb-badge">VERIFIED</span>
+                            </div>
+                            <div class="rb-server"><i class="fab fa-discord" style="color:#5865F2;"></i> Anime &amp; Gaming Lounge &bull; 85.0K</div>
+                            <div class="rb-stars"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></div>
+                            <p class="rb-text">&ldquo;Custom welcome embeds with server-branded avatars and role selectors gave our 85k community the most professional onboarding experience.&rdquo;</p>
+                        </div>
+
+                        <!-- Review 12 -->
+                        <div class="review-box-card">
+                            <div class="rb-header">
+                                <div class="rb-user">
+                                    <img src="assets/avatar/avatar6.png" class="rb-avatar" alt="Ronin_Clan">
+                                    <div>
+                                        <div class="rb-name">Ronin_Clan</div>
+                                        <div class="rb-tag">@ronin &bull; eSports Captain</div>
+                                    </div>
+                                </div>
+                                <span class="rb-badge">VERIFIED</span>
+                            </div>
+                            <div class="rb-server"><i class="fab fa-discord" style="color:#5865F2;"></i> Cyberpunk Modding HQ &bull; 19.8K</div>
+                            <div class="rb-stars"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></div>
+                            <p class="rb-text">&ldquo;The emergency lockdown command is life-saving. In one command, every text channel was gated while we handled a compromised webhook token.&rdquo;</p>
+                        </div>
+
+                        <!-- Duplicated Set 1 for Seamless Infinite Marquee -->
+                        <div class="review-box-card">
+                            <div class="rb-header">
+                                <div class="rb-user">
+                                    <img src="assets/avatar/avatar1.png" class="rb-avatar" alt="xeno_guard">
+                                    <div>
+                                        <div class="rb-name">xeno_guard</div>
+                                        <div class="rb-tag">@xeno_guard &bull; Founder</div>
+                                    </div>
+                                </div>
+                                <span class="rb-badge">VERIFIED</span>
+                            </div>
+                            <div class="rb-server"><i class="fab fa-discord" style="color:#5865F2;"></i> Valtrix eSports &bull; 45.2K</div>
+                            <div class="rb-stars"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></div>
+                            <p class="rb-text">&ldquo;Saved our 45k member community from a rogue moderator mass-ban sweep. Within 12ms the admin was quarantined and all roles were 100% restored.&rdquo;</p>
+                        </div>
+
+                        <div class="review-box-card">
+                            <div class="rb-header">
+                                <div class="rb-user">
+                                    <img src="assets/avatar/avatar2.png" class="rb-avatar" alt="Viper_FPS">
+                                    <div>
+                                        <div class="rb-name">Viper_FPS</div>
+                                        <div class="rb-tag">@viper_fps &bull; Tournament Lead</div>
+                                    </div>
+                                </div>
+                                <span class="rb-badge">VERIFIED</span>
+                            </div>
+                            <div class="rb-server"><i class="fab fa-discord" style="color:#5865F2;"></i> Valorant Elite Hub &bull; 64.5K</div>
+                            <div class="rb-stars"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></div>
+                            <p class="rb-text">&ldquo;During our weekly scrim tournament, a raid of 80 bot accounts joined at once. VEYRA's anti-raid shield purged every single one before a single ping was sent.&rdquo;</p>
+                        </div>
+
+                    </div>
+
+                    <!-- Row 2 Track (Moving Right to Left, Offset / Staggered) -->
+                    <div class="marquee-track marquee-row-2" style="display: flex; gap: 20px; width: max-content;">
+                        
+                        <!-- Review 13 -->
+                        <div class="review-box-card">
+                            <div class="rb-header">
+                                <div class="rb-user">
+                                    <img src="assets/avatar/avatar3.png" class="rb-avatar" alt="NexusDrift">
+                                    <div>
+                                        <div class="rb-name">NexusDrift</div>
+                                        <div class="rb-tag">@nexusdrift &bull; SMP Owner</div>
+                                    </div>
+                                </div>
+                                <span class="rb-badge">VERIFIED</span>
+                            </div>
+                            <div class="rb-server"><i class="fab fa-discord" style="color:#5865F2;"></i> Minecraft Nexus SMP &bull; 24.1K</div>
+                            <div class="rb-stars"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></div>
+                            <p class="rb-text">&ldquo;Syncing in-game VIP ranks with Discord roles via VEYRA's role management API is flawless. Automated our entire member store workflow.&rdquo;</p>
+                        </div>
+
+                        <!-- Review 14 -->
+                        <div class="review-box-card">
+                            <div class="rb-header">
+                                <div class="rb-user">
+                                    <img src="assets/avatar/avatar4.png" class="rb-avatar" alt="Valkyrie_Pro">
+                                    <div>
+                                        <div class="rb-name">Valkyrie_Pro</div>
+                                        <div class="rb-tag">@valkyrie &bull; General Manager</div>
+                                    </div>
+                                </div>
+                                <span class="rb-badge">VERIFIED</span>
+                            </div>
+                            <div class="rb-server"><i class="fab fa-discord" style="color:#5865F2;"></i> Shadow Cheats &amp; Tools &bull; 14.8K</div>
+                            <div class="rb-stars"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></div>
+                            <p class="rb-text">&ldquo;The audit logging suite captures every single role grant and channel edit with user IDs and timestamps. Total forensic clarity in our server.&rdquo;</p>
+                        </div>
+
+                        <!-- Review 15 -->
+                        <div class="review-box-card">
+                            <div class="rb-header">
+                                <div class="rb-user">
+                                    <img src="assets/avatar/avatar5.png" class="rb-avatar" alt="Overclocked">
+                                    <div>
+                                        <div class="rb-name">Overclocked</div>
+                                        <div class="rb-tag">@overclocked &bull; Rig Builder</div>
+                                    </div>
+                                </div>
+                                <span class="rb-badge">VERIFIED</span>
+                            </div>
+                            <div class="rb-server"><i class="fab fa-discord" style="color:#5865F2;"></i> PC Enthusiasts Hub &bull; 38.6K</div>
+                            <div class="rb-stars"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></div>
+                            <p class="rb-text">&ldquo;Custom command aliases and button reaction roles make our tech troubleshooting categories completely self-serve. Members love the speed.&rdquo;</p>
+                        </div>
+
+                        <!-- Review 16 -->
+                        <div class="review-box-card">
+                            <div class="rb-header">
+                                <div class="rb-user">
+                                    <img src="assets/avatar/avatar6.png" class="rb-avatar" alt="TitanCore_IN">
+                                    <div>
+                                        <div class="rb-name">TitanCore_IN</div>
+                                        <div class="rb-tag">@titancore &bull; Head Admin</div>
+                                    </div>
+                                </div>
+                                <span class="rb-badge">VERIFIED</span>
+                            </div>
+                            <div class="rb-server"><i class="fab fa-discord" style="color:#5865F2;"></i> Rocket League Arena &bull; 27.2K</div>
+                            <div class="rb-stars"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></div>
+                            <p class="rb-text">&ldquo;Zero downtime over 4 months of heavy scrim seasons. VEYRA's uptime and stability genuinely live up to the 99.99% promise.&rdquo;</p>
+                        </div>
+
+                        <!-- Review 17 -->
+                        <div class="review-box-card">
+                            <div class="rb-header">
+                                <div class="rb-user">
+                                    <img src="assets/avatar/avatar1.png" class="rb-avatar" alt="Elysium_GG">
+                                    <div>
+                                        <div class="rb-name">Elysium_GG</div>
+                                        <div class="rb-tag">@elysium &bull; Guild Master</div>
+                                    </div>
+                                </div>
+                                <span class="rb-badge">VERIFIED</span>
+                            </div>
+                            <div class="rb-server"><i class="fab fa-discord" style="color:#5865F2;"></i> Genshin Impact Travelers &bull; 92.5K</div>
+                            <div class="rb-stars"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></div>
+                            <p class="rb-text">&ldquo;With 92,000 members, invite tracking used to cause rate limits on other bots. VEYRA handles parallel invite code caches effortlessly.&rdquo;</p>
+                        </div>
+
+                        <!-- Review 18 -->
+                        <div class="review-box-card">
+                            <div class="rb-header">
+                                <div class="rb-user">
+                                    <img src="assets/avatar/avatar2.png" class="rb-avatar" alt="QuantumLeap">
+                                    <div>
+                                        <div class="rb-name">QuantumLeap</div>
+                                        <div class="rb-tag">@quantum &bull; Scrim Admin</div>
+                                    </div>
+                                </div>
+                                <span class="rb-badge">VERIFIED</span>
+                            </div>
+                            <div class="rb-server"><i class="fab fa-discord" style="color:#5865F2;"></i> The Finals Competitive &bull; 21.3K</div>
+                            <div class="rb-stars"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></div>
+                            <p class="rb-text">&ldquo;Anti-nuke whitelist thresholds are deeply granular. You can whitelist someone for role edits without granting channel deletion permissions.&rdquo;</p>
+                        </div>
+
+                        <!-- Review 19 -->
+                        <div class="review-box-card">
+                            <div class="rb-header">
+                                <div class="rb-user">
+                                    <img src="assets/avatar/avatar3.png" class="rb-avatar" alt="ArcaneOps">
+                                    <div>
+                                        <div class="rb-name">ArcaneOps</div>
+                                        <div class="rb-tag">@arcane_ops &bull; Security Analyst</div>
+                                    </div>
+                                </div>
+                                <span class="rb-badge">VERIFIED</span>
+                            </div>
+                            <div class="rb-server"><i class="fab fa-discord" style="color:#5865F2;"></i> Tarkov Extraction Squad &bull; 17.8K</div>
+                            <div class="rb-stars"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></div>
+                            <p class="rb-text">&ldquo;We tested an internal simulated token attack on a test guild. VEYRA banned the attacker within 8ms and locked down the server instantly.&rdquo;</p>
+                        </div>
+
+                        <!-- Review 20 -->
+                        <div class="review-box-card">
+                            <div class="rb-header">
+                                <div class="rb-user">
+                                    <img src="assets/avatar/avatar4.png" class="rb-avatar" alt="Hyperion_GG">
+                                    <div>
+                                        <div class="rb-name">Hyperion_GG</div>
+                                        <div class="rb-tag">@hyperion &bull; Founder</div>
+                                    </div>
+                                </div>
+                                <span class="rb-badge">VERIFIED</span>
+                            </div>
+                            <div class="rb-server"><i class="fab fa-discord" style="color:#5865F2;"></i> League of Legends Scrims &bull; 34.0K</div>
+                            <div class="rb-stars"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></div>
+                            <p class="rb-text">&ldquo;The Pro plan is the highest-value Discord bot subscription available anywhere. Complete peace of mind for our competitive tournament hubs.&rdquo;</p>
+                        </div>
+
+                        <!-- Review 21 -->
+                        <div class="review-box-card">
+                            <div class="rb-header">
+                                <div class="rb-user">
+                                    <img src="assets/avatar/avatar5.png" class="rb-avatar" alt="InfernoSquad">
+                                    <div>
+                                        <div class="rb-name">InfernoSquad</div>
+                                        <div class="rb-tag">@inferno &bull; Moderator</div>
+                                    </div>
+                                </div>
+                                <span class="rb-badge">VERIFIED</span>
+                            </div>
+                            <div class="rb-server"><i class="fab fa-discord" style="color:#5865F2;"></i> Roblox Builders Central &bull; 48.7K</div>
+                            <div class="rb-stars"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></div>
+                            <p class="rb-text">&ldquo;Ticket claim queues prevented our 20+ staff members from overlapping on support queries. Clean, professional and incredibly fast.&rdquo;</p>
+                        </div>
+
+                        <!-- Review 22 -->
+                        <div class="review-box-card">
+                            <div class="rb-header">
+                                <div class="rb-user">
+                                    <img src="assets/avatar/avatar6.png" class="rb-avatar" alt="SilentEcho">
+                                    <div>
+                                        <div class="rb-name">SilentEcho</div>
+                                        <div class="rb-tag">@silent_echo &bull; Co-Owner</div>
+                                    </div>
+                                </div>
+                                <span class="rb-badge">VERIFIED</span>
+                            </div>
+                            <div class="rb-server"><i class="fab fa-discord" style="color:#5865F2;"></i> Palworld India Guild &bull; 11.5K</div>
+                            <div class="rb-stars"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></div>
+                            <p class="rb-text">&ldquo;The custom bot branding on the Premium tier lets VEYRA seamlessly blend into our clan branding. Zero third-party watermarks.&rdquo;</p>
+                        </div>
+
+                        <!-- Duplicated Set 2 for Seamless Infinite Marquee -->
+                        <div class="review-box-card">
+                            <div class="rb-header">
+                                <div class="rb-user">
+                                    <img src="assets/avatar/avatar3.png" class="rb-avatar" alt="NexusDrift">
+                                    <div>
+                                        <div class="rb-name">NexusDrift</div>
+                                        <div class="rb-tag">@nexusdrift &bull; SMP Owner</div>
+                                    </div>
+                                </div>
+                                <span class="rb-badge">VERIFIED</span>
+                            </div>
+                            <div class="rb-server"><i class="fab fa-discord" style="color:#5865F2;"></i> Minecraft Nexus SMP &bull; 24.1K</div>
+                            <div class="rb-stars"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></div>
+                            <p class="rb-text">&ldquo;Syncing in-game VIP ranks with Discord roles via VEYRA's role management API is flawless. Automated our entire member store workflow.&rdquo;</p>
+                        </div>
+
+                        <div class="review-box-card">
+                            <div class="rb-header">
+                                <div class="rb-user">
+                                    <img src="assets/avatar/avatar4.png" class="rb-avatar" alt="Valkyrie_Pro">
+                                    <div>
+                                        <div class="rb-name">Valkyrie_Pro</div>
+                                        <div class="rb-tag">@valkyrie &bull; General Manager</div>
+                                    </div>
+                                </div>
+                                <span class="rb-badge">VERIFIED</span>
+                            </div>
+                            <div class="rb-server"><i class="fab fa-discord" style="color:#5865F2;"></i> Shadow Cheats &amp; Tools &bull; 14.8K</div>
+                            <div class="rb-stars"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></div>
+                            <p class="rb-text">&ldquo;The audit logging suite captures every single role grant and channel edit with user IDs and timestamps. Total forensic clarity in our server.&rdquo;</p>
+                        </div>
+
+                    </div>
+
+                </div>
+            </section>
+
+            <!-- Marquee Styling & Hover Pause Logic -->
+            <style>
+                @keyframes marqueeLeft {
+                    0% { transform: translateX(0); }
+                    100% { transform: translateX(-50%); }
+                }
+                .marquee-row-1 {
+                    animation: marqueeLeft 42s linear infinite;
+                }
+                .marquee-row-2 {
+                    animation: marqueeLeft 48s linear infinite;
+                }
+                .reviews-marquee-wrapper:hover .marquee-track {
+                    animation-play-state: paused !important;
+                }
+                .review-box-card {
+                    width: 360px;
+                    flex-shrink: 0;
+                    background: rgba(14, 18, 35, 0.75);
+                    border: 1px solid rgba(255, 255, 255, 0.08);
+                    border-radius: 16px;
+                    padding: 24px;
+                    display: flex;
+                    flex-direction: column;
+                    justify-content: space-between;
+                    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+                    box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+                    box-sizing: border-box;
+                    cursor: default;
+                }
+                .review-box-card:hover {
+                    border-color: rgba(255, 110, 66, 0.45) !important;
+                    transform: translateY(-4px) scale(1.01);
+                    box-shadow: 0 16px 36px rgba(255, 110, 66, 0.15) !important;
+                    background: rgba(20, 25, 48, 0.9) !important;
+                }
+                .rb-header {
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    margin-bottom: 12px;
+                }
+                .rb-user {
+                    display: flex;
+                    align-items: center;
+                    gap: 12px;
+                }
+                .rb-avatar {
+                    width: 44px;
+                    height: 44px;
+                    border-radius: 50%;
+                    background: #1e293b;
+                    border: 1.5px solid rgba(255, 110, 66, 0.4);
+                    object-fit: cover;
+                }
+                .rb-name {
+                    font-weight: 800;
+                    color: #fff;
+                    font-size: 0.95rem;
+                    letter-spacing: 0.02em;
+                }
+                .rb-tag {
+                    font-size: 0.74rem;
+                    color: #94a3b8;
+                    font-family: var(--font-mono);
+                }
+                .rb-badge {
+                    font-size: 0.65rem;
+                    font-weight: 800;
+                    color: #10b981;
+                    background: rgba(16, 185, 129, 0.12);
+                    border: 1px solid rgba(16, 185, 129, 0.28);
+                    padding: 3px 8px;
+                    border-radius: 20px;
+                    text-transform: uppercase;
+                    letter-spacing: 0.05em;
+                }
+                .rb-server {
+                    font-size: 0.74rem;
+                    color: #cbd5e1;
+                    background: rgba(255, 255, 255, 0.04);
+                    border: 1px solid rgba(255, 255, 255, 0.06);
+                    padding: 4px 10px;
+                    border-radius: 6px;
+                    margin-bottom: 12px;
+                    display: inline-flex;
+                    align-items: center;
+                    gap: 6px;
+                    font-family: var(--font-mono);
+                    width: fit-content;
+                }
+                .rb-stars {
+                    color: #f59e0b;
+                    font-size: 0.85rem;
+                    margin-bottom: 12px;
+                    letter-spacing: 2px;
+                }
+                .rb-text {
+                    font-size: 0.88rem;
+                    color: rgba(255, 255, 255, 0.82);
+                    line-height: 1.6;
+                    margin: 0;
+                }
+            </style>
+
+            <script>
+            (function() {
+                const marqueeBox = document.getElementById('reviews-marquee-box');
+                if (marqueeBox) {
+                    const tracks = marqueeBox.querySelectorAll('.marquee-track');
+                    marqueeBox.addEventListener('mouseenter', () => {
+                        tracks.forEach(t => t.style.animationPlayState = 'paused');
+                    });
+                    marqueeBox.addEventListener('mouseleave', () => {
+                        tracks.forEach(t => t.style.animationPlayState = 'running');
+                    });
+                }
+            })();
+            </script>
+
+
             <!-- FAQ Section -->
             <div class="faq-section" id="faq">
                 <h2 class="section-title-landing">FREQUENTLY ASKED QUESTIONS</h2>
