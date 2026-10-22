@@ -1,6 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <script>
+        (function() {
+            var theme = localStorage.getItem('veyra_theme') || 'light';
+            document.documentElement.setAttribute('data-theme', theme);
+        })();
+    </script>
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Commands | VEYRA Discord Bot</title>
@@ -540,7 +547,7 @@
 
         async function loadCommands() {
             try {
-                const res = await fetch('/real_commands.json');
+                const res = await fetch('/real_commands.json?v=v2_feminine_20261022');
                 if (res.ok) {
                     allCommands = await res.json();
                 } else {

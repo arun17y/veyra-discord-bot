@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VEYRA - Premium Discord Protection & Automation Suite</title>
+    <title>VEYRA — Friendly All-In-One Discord Bot</title>
     
     <!-- Modern typography and FontAwesome icons -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700;800&family=Plus+Jakarta+Sans:wght@500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap">
@@ -22,8 +22,14 @@
     </script>
     
     <!-- Local styles -->
-    <link rel="stylesheet" href="css/themes.css">
-    <link rel="stylesheet" href="css/dashboard.css">
+        <script>
+        (function() {
+            var theme = localStorage.getItem('veyra_theme') || 'light';
+            document.documentElement.setAttribute('data-theme', theme);
+        })();
+    </script>
+    <link rel="stylesheet" href="css/themes.css?v=v2_feminine_20261022">
+    <link rel="stylesheet" href="css/dashboard.css?v=v2_feminine_20261022">
     <style>
         /* =============================================
            VEYRA BRAND PALETTE OVERRIDE — A to Z
@@ -2295,7 +2301,7 @@
     
     
 </head>
-<body class="theme-slate">
+<body class="theme-light">
     
     <!-- Aurora Fixed Background Effect -->
     
