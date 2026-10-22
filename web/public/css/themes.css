@@ -188,14 +188,14 @@ body.theme-light {
     --bg-primary: #f8fafc;
     --bg-secondary: #ffffff;
     --bg-tertiary: #f1f5f9;
-    --accent-primary: #2563eb;
-    --accent-secondary: #1d4ed8;
-    --accent-rgb: 37, 99, 235;
+    --accent-primary: #D96C91;
+    --accent-secondary: #B94E76;
+    --accent-rgb: 217, 108, 145;
     --text-primary: #0f172a;
     --text-secondary: #475569;
     --text-muted: #94a3b8;
     --border-color: rgba(15, 23, 42, 0.08);
-    --border-glow: rgba(37, 99, 235, 0.1);
+    --border-glow: rgba(217, 108, 145, 0.1);
     --glass-bg: rgba(255, 255, 255, 0.85);
     --glass-blur: blur(12px);
     --font-display: 'Space Grotesk', sans-serif;
