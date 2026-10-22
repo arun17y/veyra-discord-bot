@@ -4159,6 +4159,10 @@ app.get('/admin', (req, res) => res.sendFile(path.join(__dirname, 'public/admin.
 app.get('/tickets', (req, res) => res.sendFile(path.join(__dirname, 'public/ticket.html')));
 app.get('/ticket', (req, res) => res.sendFile(path.join(__dirname, 'public/ticket.html')));
 app.get('/about', (req, res) => res.sendFile(path.join(__dirname, 'public/about.html')));
+app.get('/commands', (req, res) => res.sendFile(path.join(__dirname, 'public/commands.html')));
+app.get('/premium', (req, res) => res.sendFile(path.join(__dirname, 'public/premium.html')));
+app.get('/pricing', (req, res) => res.sendFile(path.join(__dirname, 'public/premium.html')));
+app.get(['/docs', '/faq', '/terms', '/privacy', '/refund', '/support'], (req, res) => res.sendFile(path.join(__dirname, 'public/about.html')));
 
 // Catch-all route handler for client-side navigation (moved to proper position after API routes)
 

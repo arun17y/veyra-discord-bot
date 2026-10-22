@@ -13,8 +13,29 @@
     
     <style>
         :root {
+            --gb-bg: #121418;
+            --gb-header-bg: #16181D;
+            --gb-sidebar-bg: #15171C;
+            --gb-card-bg: #1A1C22;
+            --gb-text-main: #FBF8F5;
+            --gb-text-muted: #A3AAB8;
+            --gb-text-sub: #6B7280;
+            --gb-border: rgba(255, 255, 255, 0.08);
+            --gb-coral: #E26749;
+            --gb-coral-subtle: rgba(226, 103, 73, 0.15);
+            --gb-code-bg: #1A1C22;
+            --gb-table-stripe: #181A20;
+            --gb-callout-text: #FAD2C0;
+            --font-display: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
+            --font-body: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+        }
+
+        [data-theme="light"] {
             --gb-bg: #FFFFFF;
+            --gb-header-bg: #FFFFFF;
             --gb-sidebar-bg: #F8F9FA;
+            --gb-card-bg: #FAFAFA;
             --gb-text-main: #1A1A1A;
             --gb-text-muted: #5C6975;
             --gb-text-sub: #8C9BA5;
@@ -22,9 +43,8 @@
             --gb-coral: #E26749;
             --gb-coral-subtle: #FFF3F0;
             --gb-code-bg: #F5F7F9;
-            --font-display: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
-            --font-body: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            --font-mono: 'JetBrains Mono', monospace;
+            --gb-table-stripe: #F8F9FA;
+            --gb-callout-text: #7A2C18;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -44,7 +64,7 @@
             position: sticky;
             top: 0;
             z-index: 100;
-            background: #FFFFFF;
+            background: var(--gb-header-bg);
             border-bottom: 1px solid var(--gb-border);
             height: 60px;
             display: flex;
@@ -101,14 +121,14 @@
             transition: all 0.2s;
         }
         .search-input-gb:focus {
-            background: #FFFFFF;
+            background: var(--gb-card-bg);
             border-color: var(--gb-coral);
             width: 300px;
         }
         .search-shortcut {
             position: absolute;
             right: 8px;
-            background: #FFFFFF;
+            background: var(--gb-card-bg);
             border: 1px solid var(--gb-border);
             border-radius: 4px;
             font-size: 0.72rem;
@@ -175,7 +195,7 @@
             transition: all 0.15s;
         }
         .nav-link-item a:hover, .nav-link-item button:hover {
-            background: rgba(0,0,0,0.04);
+            background: rgba(255,255,255,0.06);
             color: var(--gb-text-main);
         }
         .nav-link-item.active a, .nav-link-item.active button {
@@ -263,7 +283,7 @@
             align-items: flex-start;
             gap: 12px;
             font-size: 0.92rem;
-            color: #7A2C18;
+            color: var(--gb-callout-text);
         }
         .callout-box i {
             color: var(--gb-coral);
@@ -289,7 +309,7 @@
         }
         .doc-p {
             font-size: 0.96rem;
-            color: #374151;
+            color: var(--gb-text-muted);
             margin-bottom: 14px;
             line-height: 1.7;
         }
@@ -316,7 +336,7 @@
             text-align: left;
         }
         .doc-table th {
-            background: #F8F9FA;
+            background: var(--gb-table-stripe);
             padding: 12px 18px;
             font-weight: 600;
             color: var(--gb-text-main);
@@ -324,7 +344,7 @@
         }
         .doc-table td {
             padding: 14px 18px;
-            color: #374151;
+            color: var(--gb-text-muted);
             border-bottom: 1px solid var(--gb-border);
             vertical-align: top;
         }
@@ -392,20 +412,21 @@
         }
         .faq-q-gb {
             padding: 16px 20px;
-            background: #FAFAFA;
+            background: var(--gb-card-bg);
+            color: var(--gb-text-main);
             font-weight: 600;
             cursor: pointer;
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
-        .faq-q-gb:hover { background: #F3F4F6; }
+        .faq-q-gb:hover { background: var(--gb-table-stripe); }
         .faq-a-gb {
             padding: 16px 20px;
             display: none;
-            background: #FFFFFF;
+            background: var(--gb-code-bg);
             border-top: 1px solid var(--gb-border);
-            color: #4B5563;
+            color: var(--gb-text-muted);
             font-size: 0.92rem;
             line-height: 1.65;
         }
@@ -448,8 +469,13 @@
             <span class="search-shortcut">Ctrl K</span>
         </div>
 
-        <div>
-            <a href="/" style="font-size: 0.88rem; font-weight: 600; color: var(--gb-coral); text-decoration: none;">&larr; Back to Home</a>
+        <div style="display: flex; align-items: center; gap: 16px;">
+            <a href="/commands" style="font-size: 0.88rem; font-weight: 500; color: var(--gb-text-muted); text-decoration: none;">Commands</a>
+            <a href="/premium" style="font-size: 0.88rem; font-weight: 500; color: var(--gb-text-muted); text-decoration: none;">Pricing</a>
+            <button id="theme-toggle-gb" onclick="toggleGbTheme()" style="background: var(--gb-card-bg); border: 1px solid var(--gb-border); border-radius: 8px; width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; color: var(--gb-text-main); cursor: pointer; transition: all 0.2s;" title="Toggle Dark/Light Mode">
+                <i class="fas fa-sun" id="theme-toggle-icon"></i>
+            </button>
+            <a href="/" style="font-size: 0.88rem; font-weight: 600; color: var(--gb-coral); text-decoration: none; display: flex; align-items: center; gap: 6px;">&larr; Back to Home</a>
         </div>
     </header>
 
@@ -863,7 +889,7 @@
                 <p class="doc-p">
                     To deliver security, anti-nuke shielding, and ticketing functionality, VEYRA processes:
                 </p>
-                <ul style="padding-left: 24px; margin-bottom: 16px; color: #374151;">
+                <ul style="padding-left: 24px; margin-bottom: 16px; color: var(--gb-text-muted);">
                     <li>Discord Guild IDs, Channel IDs, Role IDs, and User IDs required for configuration.</li>
                     <li>Audit log metadata strictly for intercepting unauthorized nuke or raid events.</li>
                     <li>Ticket transcripts generated only when explicit close actions are triggered by moderators.</li>

@@ -1,28 +1,29 @@
-body.theme-slate {
-    --bg-primary: #050505;
-    --bg-secondary: #0c0c0c;
-    --bg-tertiary: #121212;
-    --accent-primary: #ffffff;
-    --accent-secondary: #e2e8f0;
-    --accent-rgb: 255, 255, 255;
-    --accent-blue-rgb: 226, 232, 240;
-    --text-primary: #ffffff;
-    --text-secondary: #a3a3a3;
-    --text-muted: #555555;
-    --border-color: rgba(255, 255, 255, 0.12);
-    --border-glow: rgba(255, 255, 255, 0.2);
-    --glass-bg: rgba(5, 5, 5, 0.85);
-    --glass-blur: blur(20px);
-    --font-display: 'Space Grotesk', sans-serif;
+:root, body.theme-slate {
+    --bg-primary: #121418;
+    --bg-secondary: #16181D;
+    --bg-tertiary: #1C1E24;
+    --accent-primary: #E26749;
+    --accent-secondary: #FF7E5F;
+    --accent-rgb: 226, 103, 73;
+    --accent-blue-rgb: 240, 113, 103;
+    --text-primary: #FBF8F5;
+    --text-secondary: #9DA4B0;
+    --text-muted: #6B7280;
+    --border-color: rgba(255, 255, 255, 0.08);
+    --border-glow: rgba(226, 103, 73, 0.25);
+    --glass-bg: rgba(22, 24, 29, 0.95);
+    --glass-blur: blur(16px);
+    --font-display: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
+    --font-body: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
     --font-mono: 'JetBrains Mono', monospace;
-    --theme-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.85), 0 0 0 1px rgba(255, 255, 255, 0.08) inset;
-    --body-bg-gradient: #050505;
+    --theme-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.06) inset;
+    --body-bg-gradient: #121418;
     --grid-opacity: 0;
     --scanline-opacity: 0;
-    --highlight-color-hue: 0deg;
-    --theme-highlight-hue: 0deg;
-    --theme-highlight-sat: 0%;
-    --theme-highlight-light: 95%;
+    --highlight-color-hue: 13deg;
+    --theme-highlight-hue: 13deg;
+    --theme-highlight-sat: 74%;
+    --theme-highlight-light: 59%;
 }
 
 /* 2. THEME: Gold Matte Luxury (.theme-gold) */
