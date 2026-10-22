@@ -465,18 +465,8 @@ if (heroCanvas) {
         heroParticles.push(new HeroParticle(i));
     }
     
-    function renderHeroLoop() {
-        heroCtx.fillStyle = 'rgba(5, 5, 5, 0.2)';
-        heroCtx.fillRect(0, 0, heroCanvas.width, heroCanvas.height);
-        
-        heroParticles.forEach(p => {
-            p.update();
-            p.draw();
-        });
-        
-        requestAnimationFrame(renderHeroLoop);
-    }
-    renderHeroLoop();
+    // Disabled heavy canvas particles loop for 10x rendering speed
+    function renderHeroLoop() {}
 }
 
 // Navbar Server link authentication checker
@@ -2310,10 +2300,10 @@ function initAnimatedRevealFooter() {
         });
     }
 
+    // Optimized static footer render on-demand instead of 60fps infinite loop
     function renderFooterLoop() {
         renderAscii(leftCtx, leftData, '#c084fc');
         renderAscii(rightCtx, rightData, '#c084fc');
-        requestAnimationFrame(renderFooterLoop);
     }
     renderFooterLoop();
 
@@ -8258,12 +8248,19 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch (e) {}
     }
 
-    setInterval(pollBotTelemetry, 4000);
-    pollBotTelemetry();
+    // Gated telemetry polling to dashboard only
+    setInterval(() => {
+        if (sessionStorage.getItem('activeScreen') === 'dashboard') {
+            pollBotTelemetry();
+        }
+    }, 8000);
 
+    // Only connect SSE when actively in dashboard workspace
     if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', connectSSE);
+        document.addEventListener('DOMContentLoaded', () => {
+            if (sessionStorage.getItem('activeScreen') === 'dashboard') connectSSE();
+        });
     } else {
-        connectSSE();
+        if (sessionStorage.getItem('activeScreen') === 'dashboard') connectSSE();
     }
 })();

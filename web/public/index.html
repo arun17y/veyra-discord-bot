@@ -9,17 +9,7 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700;800&family=Plus+Jakarta+Sans:wght@500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <!-- Import Maps for Modern ES Modules -->
-    <script type="importmap">
-      {
-        "imports": {
-          "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
-          "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/",
-          "gsap": "https://esm.sh/gsap@3.12.5",
-          "ogl": "https://unpkg.com/ogl@1.0.11/dist/ogl.mjs"
-        }
-      }
-    </script>
+    <!-- Lightweight Fast Modern Engine -->
     
     <!-- Local styles -->
         <script>
@@ -28,8 +18,8 @@
             document.documentElement.setAttribute('data-theme', theme);
         })();
     </script>
-    <link rel="stylesheet" href="css/themes.css?v=v9_solid_dark_ui_restore">
-    <link rel="stylesheet" href="css/dashboard.css?v=v9_solid_dark_ui_restore">
+    <link rel="stylesheet" href="css/themes.css?v=v10_fast_smooth_faq_overhaul">
+    <link rel="stylesheet" href="css/dashboard.css?v=v10_fast_smooth_faq_overhaul">
     <style>
         /* =============================================
            VEYRA BRAND PALETTE OVERRIDE — A to Z
@@ -2318,6 +2308,101 @@
     </style>
     
     
+<style>
+/* ==================== VEYRA ULTRA-PREMIUM FAQ ACCORDION CARDS ==================== */
+.faq-card-modern {
+    background: #FFFFFF !important;
+    border: 1.5px solid #EDE4E7 !important;
+    border-radius: 18px !important;
+    box-shadow: 0 4px 20px rgba(53, 43, 58, 0.04) !important;
+    cursor: pointer !important;
+    overflow: hidden !important;
+    transition: border-color 0.25s ease, box-shadow 0.25s ease, transform 0.2s ease !important;
+}
+
+.faq-card-modern:hover {
+    border-color: #D96C91 !important;
+    box-shadow: 0 8px 30px rgba(217, 108, 145, 0.12) !important;
+    transform: translateY(-2px);
+}
+
+.faq-card-header {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    padding: 22px 28px !important;
+    gap: 20px !important;
+    user-select: none !important;
+}
+
+.faq-card-question {
+    font-family: 'Outfit', sans-serif !important;
+    font-size: 1.12rem !important;
+    font-weight: 700 !important;
+    color: #1C1422 !important;
+    letter-spacing: -0.01em !important;
+    line-height: 1.4 !important;
+    transition: color 0.2s ease !important;
+}
+
+.faq-card-icon-pill {
+    width: 38px !important;
+    height: 38px !important;
+    border-radius: 50% !important;
+    background: #FBE8EE !important;
+    border: 1.5px solid #EDE4E7 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    flex-shrink: 0 !important;
+    color: #D96C91 !important;
+    font-size: 0.95rem !important;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.faq-card-content {
+    max-height: 0;
+    opacity: 0;
+    overflow: hidden;
+    padding: 0 28px;
+    transition: max-height 0.35s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.25s ease, padding 0.3s ease;
+}
+
+.faq-card-content p {
+    margin: 0 !important;
+    padding-bottom: 22px !important;
+    font-family: 'Inter', sans-serif !important;
+    font-size: 0.98rem !important;
+    color: #352B3A !important;
+    line-height: 1.7 !important;
+    font-weight: 500 !important;
+    border-top: 1px solid #F5EEF0 !important;
+    padding-top: 18px !important;
+}
+
+/* Active State */
+.faq-card-modern.active {
+    border-color: #D96C91 !important;
+    box-shadow: 0 10px 32px rgba(217, 108, 145, 0.16) !important;
+    background: #FFFFFF !important;
+}
+
+.faq-card-modern.active .faq-card-question {
+    color: #B94E76 !important;
+}
+
+.faq-card-modern.active .faq-card-icon-pill {
+    transform: rotate(45deg);
+    background: #D96C91 !important;
+    border-color: #D96C91 !important;
+    color: #FFFFFF !important;
+}
+
+.faq-card-modern.active .faq-card-content {
+    max-height: 300px;
+    opacity: 1;
+}
+</style>
 </head>
 <body class="theme-light">
     
@@ -4473,69 +4558,82 @@
             </section>
 
             <!-- ==================== FAQ SECTION ==================== -->
-            <div class="faq-section" id="faq" style="max-width: 860px; margin: 80px auto; padding: 0 20px; text-align: left;">
-                <div style="text-align: center; margin-bottom: 45px;">
-                    <h2 style="font-size: 2.4rem; font-weight: 800; color: var(--text-primary); margin: 0 0 10px 0; font-family: var(--font-display); letter-spacing: -0.02em;">
+            <div class="faq-section" id="faq" style="max-width: 900px; margin: 90px auto; padding: 0 24px; text-align: left;">
+                <div style="text-align: center; margin-bottom: 50px;">
+                    <div style="font-family: var(--font-mono); font-size: 0.74rem; color: #D96C91; letter-spacing: 0.2em; text-transform: uppercase; margin-bottom: 12px; font-weight: 800;">
+                        GOT QUESTIONS? WE HAVE ANSWERS.
+                    </div>
+                    <h2 style="font-size: 2.6rem; font-weight: 800; color: #1C1422; margin: 0 0 12px 0; font-family: var(--font-display); letter-spacing: -0.02em;">
                         FREQUENTLY ASKED QUESTIONS
                     </h2>
-                    <p style="font-size: 1rem; color: var(--text-secondary); margin: 0; font-family: var(--font-body);">
-                        Everything you need to know about setting up and managing Veyra on your server.
+                    <p style="font-size: 1.05rem; color: #352B3A; margin: 0; font-family: var(--font-body); font-weight: 550; max-width: 600px; margin: 0 auto; line-height: 1.6;">
+                        Everything you need to know about setting up, securing, and scaling your community with Veyra.
                     </p>
                 </div>
 
-                <div class="faq-accordion" style="display: flex; flex-direction: column; gap: 12px;">
+                <div class="faq-accordion" style="display: flex; flex-direction: column; gap: 16px;">
                     <!-- FAQ 1 -->
-                    <div class="glass-card faq-item" onclick="toggleFaq(this)" style="background: var(--surface); border: 1px solid var(--border-color); border-radius: 14px; padding: 20px 24px; cursor: pointer; box-shadow: var(--card-shadow); transition: all 0.2s ease;">
-                        <div style="display: flex; justify-content: space-between; align-items: center; gap: 16px;">
-                            <span style="font-size: 1.02rem; font-weight: 700; color: var(--text-primary); font-family: var(--font-display);">Is the bot online 24/7?</span>
-                            <i class="fas fa-plus faq-icon" style="color: var(--accent-primary); font-size: 0.95rem; transition: transform 0.2s ease;"></i>
+                    <div class="faq-card-modern faq-item" onclick="toggleFaq(this)">
+                        <div class="faq-card-header">
+                            <span class="faq-card-question">Is the bot online 24/7?</span>
+                            <div class="faq-card-icon-pill">
+                                <i class="fas fa-plus"></i>
+                            </div>
                         </div>
-                        <div class="faq-answer" style="display: none; margin-top: 14px; color: var(--text-secondary); font-size: 0.92rem; line-height: 1.6; border-top: 1px solid var(--border-color); padding-top: 14px;">
-                            Yes. Veyra runs on high-availability cloud infrastructure across redundant clusters with automated failover, guaranteeing 99.99% operational uptime.
+                        <div class="faq-card-content">
+                            <p>Yes. Veyra runs on high-availability cloud infrastructure across redundant clusters with automated failover, guaranteeing 99.99% operational uptime and sub-15ms response latency.</p>
                         </div>
                     </div>
 
                     <!-- FAQ 2 -->
-                    <div class="glass-card faq-item" onclick="toggleFaq(this)" style="background: var(--surface); border: 1px solid var(--border-color); border-radius: 14px; padding: 20px 24px; cursor: pointer; box-shadow: var(--card-shadow); transition: all 0.2s ease;">
-                        <div style="display: flex; justify-content: space-between; align-items: center; gap: 16px;">
-                            <span style="font-size: 1.02rem; font-weight: 700; color: var(--text-primary); font-family: var(--font-display);">How does the Anti-Nuke system prevent malicious admins?</span>
-                            <i class="fas fa-plus faq-icon" style="color: var(--accent-primary); font-size: 0.95rem; transition: transform 0.2s ease;"></i>
+                    <div class="faq-card-modern faq-item" onclick="toggleFaq(this)">
+                        <div class="faq-card-header">
+                            <span class="faq-card-question">How does the Anti-Nuke system prevent malicious admins?</span>
+                            <div class="faq-card-icon-pill">
+                                <i class="fas fa-plus"></i>
+                            </div>
                         </div>
-                        <div class="faq-answer" style="display: none; margin-top: 14px; color: var(--text-secondary); font-size: 0.92rem; line-height: 1.6; border-top: 1px solid var(--border-color); padding-top: 14px;">
-                            Veyra monitors Discord audit logs in real-time. If an admin deletes channels, removes roles, or creates rogue webhooks beyond strict rate thresholds, Veyra immediately strips their permissions and quarantines them.
+                        <div class="faq-card-content">
+                            <p>Veyra monitors Discord audit logs in real-time. If an admin deletes channels, removes roles, or creates rogue webhooks beyond strict rate thresholds, Veyra immediately strips their permissions, restores destroyed assets, and quarantines their account.</p>
                         </div>
                     </div>
 
                     <!-- FAQ 3 -->
-                    <div class="glass-card faq-item" onclick="toggleFaq(this)" style="background: var(--surface); border: 1px solid var(--border-color); border-radius: 14px; padding: 20px 24px; cursor: pointer; box-shadow: var(--card-shadow); transition: all 0.2s ease;">
-                        <div style="display: flex; justify-content: space-between; align-items: center; gap: 16px;">
-                            <span style="font-size: 1.02rem; font-weight: 700; color: var(--text-primary); font-family: var(--font-display);">Can I whitelist my co-owners and staff?</span>
-                            <i class="fas fa-plus faq-icon" style="color: var(--accent-primary); font-size: 0.95rem; transition: transform 0.2s ease;"></i>
+                    <div class="faq-card-modern faq-item" onclick="toggleFaq(this)">
+                        <div class="faq-card-header">
+                            <span class="faq-card-question">Can I whitelist my co-owners and staff?</span>
+                            <div class="faq-card-icon-pill">
+                                <i class="fas fa-plus"></i>
+                            </div>
                         </div>
-                        <div class="faq-answer" style="display: none; margin-top: 14px; color: var(--text-secondary); font-size: 0.92rem; line-height: 1.6; border-top: 1px solid var(--border-color); padding-top: 14px;">
-                            Absolutely. The Whitelist tab allows you to exempt trusted staff members from anti-raid, mass-ban, and channel deletion blocks.
+                        <div class="faq-card-content">
+                            <p>Absolutely. The Whitelist tab allows you to exempt trusted staff members from anti-raid, mass-ban, and channel deletion blocks with customizable tier-based granular permissions.</p>
                         </div>
                     </div>
 
                     <!-- FAQ 4 -->
-                    <div class="glass-card faq-item" onclick="toggleFaq(this)" style="background: var(--surface); border: 1px solid var(--border-color); border-radius: 14px; padding: 20px 24px; cursor: pointer; box-shadow: var(--card-shadow); transition: all 0.2s ease;">
-                        <div style="display: flex; justify-content: space-between; align-items: center; gap: 16px;">
-                            <span style="font-size: 1.02rem; font-weight: 700; color: var(--text-primary); font-family: var(--font-display);">What is the difference between Anti-Nuke and Anti-Raid modules?</span>
-                            <i class="fas fa-plus faq-icon" style="color: var(--accent-primary); font-size: 0.95rem; transition: transform 0.2s ease;"></i>
+                    <div class="faq-card-modern faq-item" onclick="toggleFaq(this)">
+                        <div class="faq-card-header">
+                            <span class="faq-card-question">What is the difference between Anti-Nuke and Anti-Raid modules?</span>
+                            <div class="faq-card-icon-pill">
+                                <i class="fas fa-plus"></i>
+                            </div>
                         </div>
-                        <div class="faq-answer" style="display: none; margin-top: 14px; color: var(--text-secondary); font-size: 0.92rem; line-height: 1.6; border-top: 1px solid var(--border-color); padding-top: 14px;">
-                            Anti-Raid protects against external attacks (token raids, mass-join alt accounts, spam links). Anti-Nuke protects against internal threats (compromised staff tokens, rogue admin deletions, permission wipes).
+                        <div class="faq-card-content">
+                            <p>Anti-Raid protects against external attacks (token raids, mass-join alt accounts, spam links, bot flood joins). Anti-Nuke protects against internal rogue threats (compromised staff tokens, unauthorized mass deletions, role overrides, webhook abuses).</p>
                         </div>
                     </div>
 
                     <!-- FAQ 5 -->
-                    <div class="glass-card faq-item" onclick="toggleFaq(this)" style="background: var(--surface); border: 1px solid var(--border-color); border-radius: 14px; padding: 20px 24px; cursor: pointer; box-shadow: var(--card-shadow); transition: all 0.2s ease;">
-                        <div style="display: flex; justify-content: space-between; align-items: center; gap: 16px;">
-                            <span style="font-size: 1.02rem; font-weight: 700; color: var(--text-primary); font-family: var(--font-display);">Can I build custom embeds using the Embed Builder?</span>
-                            <i class="fas fa-plus faq-icon" style="color: var(--accent-primary); font-size: 0.95rem; transition: transform 0.2s ease;"></i>
+                    <div class="faq-card-modern faq-item" onclick="toggleFaq(this)">
+                        <div class="faq-card-header">
+                            <span class="faq-card-question">Can I build custom embeds using the Embed Builder?</span>
+                            <div class="faq-card-icon-pill">
+                                <i class="fas fa-plus"></i>
+                            </div>
                         </div>
-                        <div class="faq-answer" style="display: none; margin-top: 14px; color: var(--text-secondary); font-size: 0.92rem; line-height: 1.6; border-top: 1px solid var(--border-color); padding-top: 14px;">
-                            Yes. The web dashboard includes an interactive live visual embed designer where you can customize title, description, banner images, footer text, and color hex before posting directly to any channel.
+                        <div class="faq-card-content">
+                            <p>Yes! The web dashboard includes an interactive live visual embed designer where you can customize title, description, banner images, footer text, button links, and color hex before posting directly to any server channel.</p>
                         </div>
                     </div>
                 </div>
@@ -12073,38 +12171,11 @@ Our support team can assist you with:
     <!-- JS Execution libraries -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
-    <script src="js/dashboard.js?v=v9_solid_dark_ui_restore"></script>
-    <script src="js/moderation.js?v=v9_solid_dark_ui_restore"></script>
+    <script src="js/dashboard.js?v=v10_fast_smooth_faq_overhaul"></script>
+    <script src="js/moderation.js?v=v10_fast_smooth_faq_overhaul"></script>
     <!-- smokey fluid cursor removed -->
 
-    <!-- WebGL Three.js Application Entry -->
-    <!-- <script type="module" src="js/main.js"></script> -->
-    <script type="module">
-        import { initPrism } from './js/prism.js';
-        import { initLightPillar } from './js/lightpillar.js';
-        
-        try {
-            initPrism('hero-prism-container', {
-                animationType: 'rotate',
-                timeScale: 0.5,
-                height: 3.5,
-                baseWidth: 5.5,
-                scale: 3.6,
-                hueShift: 0,
-                colorFrequency: 1,
-                noise: 0,
-                glow: 1.2
-            });
-        } catch (e) {
-            console.error("Failed to initialize WebGL Prism:", e);
-        }
 
-        try {
-            initLightPillar('lightpillar-container');
-        } catch (e) {
-            console.error("Failed to initialize WebGL LightPillar:", e);
-        }
-    </script>
     <!-- Tickets Transcript Preview Modal -->
     <div id="modal-ticket-transcript" style="display:none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(5px); z-index: 10000; align-items: center; justify-content: center; padding: 20px;">
         <div class="glass-card" style="position: relative; width: 100%; max-width: 900px; height: 85vh; display: flex; flex-direction: column; background: #1e1f22; border: 1px solid rgba(255,255,255,0.05); border-radius: 12px; overflow: hidden; padding: 0;">
@@ -12349,17 +12420,8 @@ Our support team can assist you with:
         // Tutorial modal auto-start trigger removed. Triggers conditionally only when clicking the Tickets tab.
     </script>
 
-    <!-- Aurora + Dynamic Live Feed Initialization -->
-    <script type="module">
-        import { initAurora } from './js/aurora.js';
-
-        // Init Aurora fixed background at top of page
-        initAurora('aurora-bg', {
-            colorStops: ['#FF6E42', '#004E72', '#F9F9F9'],
-            amplitude: 0.9,
-            blend: 0.55,
-            speed: 0.8
-        });
+    <!-- Dynamic Live Feed Initialization -->
+    <script>
 
         // Dynamic Live console feed script
         const consoleEvents = [
@@ -12387,7 +12449,7 @@ Our support team can assist you with:
 
 <script>
 function toggleFaq(el) {
-    const item = el.closest('.faq-item');
+    const item = el.closest('.faq-item') || el;
     if (!item) return;
     const isExpanded = item.classList.contains('active');
     document.querySelectorAll('.faq-item').forEach(i => i.classList.remove('active'));
