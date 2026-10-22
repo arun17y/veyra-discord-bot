@@ -2729,7 +2729,7 @@ function renderUserGuilds(guilds, loggedIn = false) {
                 </button>
             </div>
         </div>
-        <p style="font-size: 0.92rem; color: var(--text-secondary); margin: 0; font-family: var(--font-body); font-weight: 400;">
+        <p style="font-size: 0.96rem; color: var(--text-secondary); margin: 0; font-family: var(--font-body); font-weight: 550; line-height: 1.5;">
             Choose a server to access its moderation, automations, and security controls.
         </p>
     `;
@@ -2753,9 +2753,9 @@ function renderUserGuilds(guilds, loggedIn = false) {
     statsDiv.style.gap = '10px';
     statsDiv.style.flexWrap = 'wrap';
     statsDiv.style.fontFamily = 'var(--font-mono)';
-    statsDiv.style.fontSize = '0.74rem';
+    statsDiv.style.fontSize = '0.82rem';
     statsDiv.style.color = 'var(--text-secondary)';
-    statsDiv.style.fontWeight = '600';
+    statsDiv.style.fontWeight = '700';
     statsDiv.style.marginBottom = '22px';
     
     // Count stats
@@ -2765,12 +2765,12 @@ function renderUserGuilds(guilds, loggedIn = false) {
     const noPermissionCount = guilds.filter(g => g.active !== true && g.can_invite === false).length;
 
     statsDiv.innerHTML = `
-        <span style="color: var(--text-primary); font-weight: 700;">${totalCount} Total</span>
-        <span>&bull;</span>
-        <span style="display: flex; align-items: center; gap: 5px;"><span style="width: 7px; height: 7px; border-radius: 50%; background: #287A55; display: inline-block;"></span> ${activeCount} Active</span>
-        <span>&bull;</span>
-        <span style="display: flex; align-items: center; gap: 5px;"><span style="width: 7px; height: 7px; border-radius: 50%; background: var(--accent-primary); display: inline-block;"></span> ${notConfiguredCount} Ready to Add</span>
-        ${noPermissionCount > 0 ? `<span>&bull;</span><span style="display: flex; align-items: center; gap: 5px; color: var(--text-muted);"><span style="width: 7px; height: 7px; border-radius: 50%; background: var(--text-muted); display: inline-block;"></span> ${noPermissionCount} No Access</span>` : ''}
+        <span style="color: var(--text-primary); font-weight: 800;">${totalCount} Total</span>
+        <span style="color: var(--text-muted);">&bull;</span>
+        <span style="display: flex; align-items: center; gap: 6px; color: #1E6B47; font-weight: 700;"><span style="width: 8px; height: 8px; border-radius: 50%; background: #287A55; display: inline-block;"></span> ${activeCount} Active</span>
+        <span style="color: var(--text-muted);">&bull;</span>
+        <span style="display: flex; align-items: center; gap: 6px; color: var(--accent-secondary); font-weight: 700;"><span style="width: 8px; height: 8px; border-radius: 50%; background: var(--accent-primary); display: inline-block;"></span> ${notConfiguredCount} Ready to Add</span>
+        ${noPermissionCount > 0 ? `<span style="color: var(--text-muted);">&bull;</span><span style="display: flex; align-items: center; gap: 6px; color: var(--text-secondary); font-weight: 700;"><span style="width: 8px; height: 8px; border-radius: 50%; background: var(--text-muted); display: inline-block;"></span> ${noPermissionCount} No Access</span>` : ''}
     `;
     container.appendChild(statsDiv);
 

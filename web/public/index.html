@@ -28,8 +28,8 @@
             document.documentElement.setAttribute('data-theme', theme);
         })();
     </script>
-    <link rel="stylesheet" href="css/themes.css?v=v7_ui_ux_max_complete">
-    <link rel="stylesheet" href="css/dashboard.css?v=v7_ui_ux_max_complete">
+    <link rel="stylesheet" href="css/themes.css?v=v8_razor_sharp_about_harmonized">
+    <link rel="stylesheet" href="css/dashboard.css?v=v8_razor_sharp_about_harmonized">
     <style>
         /* =============================================
            VEYRA BRAND PALETTE OVERRIDE — A to Z
@@ -2474,7 +2474,7 @@
                 <h2 style="font-size: 2.6rem; color: var(--text-primary); font-family: var(--font-display); font-weight: 800; margin: 0 0 10px 0; letter-spacing: -0.02em;">
                     Built for communities of every size
                 </h2>
-                <p style="font-size: 1.05rem; color: var(--text-secondary); max-width: 620px; margin: 0 auto 35px auto; font-family: var(--font-body);">
+                <p style="font-size: 1.1rem; color: var(--text-secondary); max-width: 640px; margin: 0 auto 35px auto; font-family: var(--font-body); font-weight: 550; line-height: 1.6;">
                     From quiet gaming groups to active community hubs with thousands of members
                 </p>
                 <div style="display: flex; justify-content: center; gap: 12px; margin-bottom: 45px; font-size: 1.2rem;">
@@ -2493,7 +2493,7 @@
                                 <span style="font-family: var(--font-mono); font-size: 0.8rem; font-weight: 800; color: var(--accent-primary); background: var(--soft-pink); padding: 2px 8px; border-radius: 6px;">01</span>
                                 <span style="font-weight: 800; color: var(--text-primary); font-size: 1.15rem; font-family: var(--font-display);">Anti-Raid &amp; Security</span>
                             </div>
-                            <p style="font-size: 0.9rem; color: var(--text-secondary); line-height: 1.6; margin: 0; font-family: var(--font-body);">
+                            <p style="font-size: 0.94rem; color: var(--text-secondary); line-height: 1.65; margin: 0; font-family: var(--font-body); font-weight: 500;">
                                 Real-time packet inspection intercepts rogue bot joins, token leaks, and channel nuke attempts before they execute.
                             </p>
                             <div class="feat-progress-bar" id="feat-progress-0" style="position: absolute; bottom: 0; left: 0; height: 3px; background: var(--accent-primary); width: 100%; transition: width 5s linear;"></div>
@@ -2505,7 +2505,7 @@
                                 <span style="font-family: var(--font-mono); font-size: 0.8rem; font-weight: 800; color: var(--text-muted); background: var(--bg-secondary); padding: 2px 8px; border-radius: 6px;">02</span>
                                 <span style="font-weight: 800; color: var(--text-primary); font-size: 1.15rem; font-family: var(--font-display);">24/7 Voice &amp; Level XP</span>
                             </div>
-                            <p style="font-size: 0.9rem; color: var(--text-secondary); line-height: 1.6; margin: 0; font-family: var(--font-body);">
+                            <p style="font-size: 0.94rem; color: var(--text-secondary); line-height: 1.65; margin: 0; font-family: var(--font-body); font-weight: 500;">
                                 Members earn experience by talking in voice and chat channels. Reward active members with roles, ranks, and custom cards.
                             </p>
                             <div class="feat-progress-bar" id="feat-progress-1" style="position: absolute; bottom: 0; left: 0; height: 3px; background: var(--accent-primary); width: 0%; transition: width 5s linear;"></div>
@@ -2517,7 +2517,7 @@
                                 <span style="font-family: var(--font-mono); font-size: 0.8rem; font-weight: 800; color: var(--text-muted); background: var(--bg-secondary); padding: 2px 8px; border-radius: 6px;">03</span>
                                 <span style="font-weight: 800; color: var(--text-primary); font-size: 1.15rem; font-family: var(--font-display);">Multi-Panel Tickets</span>
                             </div>
-                            <p style="font-size: 0.9rem; color: var(--text-secondary); line-height: 1.6; margin: 0; font-family: var(--font-body);">
+                            <p style="font-size: 0.94rem; color: var(--text-secondary); line-height: 1.65; margin: 0; font-family: var(--font-body); font-weight: 500;">
                                 Deploy drag-and-drop ticket creation embeds, claim queues, and automated HTML transcripts with attachment archives.
                             </p>
                             <div class="feat-progress-bar" id="feat-progress-2" style="position: absolute; bottom: 0; left: 0; height: 3px; background: var(--accent-primary); width: 0%; transition: width 5s linear;"></div>
@@ -2529,7 +2529,7 @@
                                 <span style="font-family: var(--font-mono); font-size: 0.8rem; font-weight: 800; color: var(--text-muted); background: var(--bg-secondary); padding: 2px 8px; border-radius: 6px;">04</span>
                                 <span style="font-weight: 800; color: var(--text-primary); font-size: 1.15rem; font-family: var(--font-display);">Fully Customizable</span>
                             </div>
-                            <p style="font-size: 0.9rem; color: var(--text-secondary); line-height: 1.6; margin: 0; font-family: var(--font-body);">
+                            <p style="font-size: 0.94rem; color: var(--text-secondary); line-height: 1.65; margin: 0; font-family: var(--font-body); font-weight: 500;">
                                 Customize bot nickname, avatar, embed hex themes, welcome cards, and autoroles directly from your dashboard.
                             </p>
                             <div class="feat-progress-bar" id="feat-progress-3" style="position: absolute; bottom: 0; left: 0; height: 3px; background: var(--accent-primary); width: 0%; transition: width 5s linear;"></div>
@@ -4746,9 +4746,11 @@
                     const bar = document.getElementById('feat-progress-' + i);
                     if (tab) {
                         if (i === idx) {
+                            tab.classList.add('active');
                             tab.style.borderColor = 'var(--accent-primary)';
                             tab.style.background = 'var(--soft-pink)';
                         } else {
+                            tab.classList.remove('active');
                             tab.style.borderColor = 'var(--border-color)';
                             tab.style.background = 'var(--surface)';
                         }
@@ -12043,8 +12045,8 @@ Our support team can assist you with:
     <!-- JS Execution libraries -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
-    <script src="js/dashboard.js?v=v7_ui_ux_max_complete"></script>
-    <script src="js/moderation.js?v=v7_ui_ux_max_complete"></script>
+    <script src="js/dashboard.js?v=v8_razor_sharp_about_harmonized"></script>
+    <script src="js/moderation.js?v=v8_razor_sharp_about_harmonized"></script>
     <!-- smokey fluid cursor removed -->
 
     <!-- WebGL Three.js Application Entry -->

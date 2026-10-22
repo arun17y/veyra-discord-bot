@@ -10,7 +10,7 @@
 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VEYRA Documentation & Policies | GitBook</title>
+    <title>VEYRA Documentation & Policies | Official Guides</title>
     <link rel="icon" type="image/webp" href="assets/bypass_logs_avatar.webp">
     <!-- Google Fonts: Inter and Outfit -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -18,139 +18,66 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Outfit:wght@500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
+    <!-- Harmonized Theme Styles -->
+    <link rel="stylesheet" href="css/themes.css?v=v8_razor_sharp_about_harmonized">
+    <link rel="stylesheet" href="css/dashboard.css?v=v8_razor_sharp_about_harmonized">
+
     <style>
         :root, [data-theme="light"] {
-            --gb-bg: #FFFCFA;
-            --gb-header-bg: #FFFCFA;
-            --gb-sidebar-bg: #FFF6F4;
-            --gb-card-bg: #FFFFFF;
-            --gb-text-main: #352B3A;
-            --gb-text-muted: #766C78;
-            --gb-text-sub: #958B96;
-            --gb-border: #EDE4E7;
-            --gb-coral: #D96C91;
-            --gb-coral-subtle: #FBE8EE;
-            --gb-code-bg: #FFF6F4;
-            --gb-table-stripe: #FFF9F8;
-            --gb-callout-text: #B94E76;
+            --gb-bg: var(--bg-primary);
+            --gb-header-bg: var(--bg-primary);
+            --gb-sidebar-bg: var(--bg-secondary);
+            --gb-card-bg: var(--surface);
+            --gb-text-main: var(--text-primary);
+            --gb-text-muted: var(--text-secondary);
+            --gb-text-sub: var(--text-muted);
+            --gb-border: var(--border-color);
+            --gb-coral: var(--accent-primary);
+            --gb-coral-subtle: var(--soft-pink);
+            --gb-code-bg: var(--bg-secondary);
+            --gb-table-stripe: var(--bg-secondary);
+            --gb-callout-text: var(--accent-secondary);
             --font-display: 'Outfit', 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
             --font-body: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
             --font-mono: 'JetBrains Mono', monospace;
         }
 
         [data-theme="dark"] {
-            --gb-bg: #121418;
-            --gb-header-bg: #16181D;
-            --gb-sidebar-bg: #15171C;
-            --gb-card-bg: #1A1C22;
-            --gb-text-main: #FBF8F5;
-            --gb-text-muted: #A3AAB8;
-            --gb-text-sub: #6B7280;
-            --gb-border: rgba(255, 255, 255, 0.08);
-            --gb-coral: #D96C91;
+            --gb-bg: var(--bg-primary);
+            --gb-header-bg: var(--bg-secondary);
+            --gb-sidebar-bg: var(--bg-secondary);
+            --gb-card-bg: var(--surface);
+            --gb-text-main: var(--text-primary);
+            --gb-text-muted: var(--text-secondary);
+            --gb-text-sub: var(--text-muted);
+            --gb-border: var(--border-color);
+            --gb-coral: var(--accent-primary);
             --gb-coral-subtle: rgba(217, 108, 145, 0.16);
             --gb-code-bg: #1A1C22;
             --gb-table-stripe: #181A20;
             --gb-callout-text: #FAD2C0;
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; }
+        * { box-sizing: border-box; margin: 0; padding: 0; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
 
         body {
             background-color: var(--gb-bg);
             color: var(--gb-text-main);
             font-family: var(--font-body);
-            line-height: 1.6;
+            line-height: 1.65;
             min-height: 100vh;
             display: flex;
             flex-direction: column;
-        }
-
-        /* Top Header */
-        .gitbook-header {
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            background: var(--gb-header-bg);
-            border-bottom: 1px solid var(--gb-border);
-            height: 60px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0 24px;
-        }
-
-        .header-left {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-        }
-        .header-brand {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            text-decoration: none;
-            color: var(--gb-text-main);
-        }
-        .header-logo {
-            width: 32px;
-            height: 32px;
-            border-radius: 8px;
-            object-fit: cover;
-        }
-        .header-title {
-            font-family: var(--font-display);
-            font-size: 1.15rem;
-            font-weight: 700;
-            letter-spacing: -0.01em;
-        }
-
-        .header-search {
-            position: relative;
-            display: flex;
-            align-items: center;
-        }
-        .header-search i {
-            position: absolute;
-            left: 12px;
-            color: var(--gb-text-sub);
-            font-size: 0.85rem;
-        }
-        .search-input-gb {
-            background: #F5F7F9;
-            border: 1px solid var(--gb-border);
-            border-radius: 8px;
-            padding: 7px 50px 7px 34px;
-            font-size: 0.88rem;
-            color: var(--gb-text-main);
-            outline: none;
-            width: 240px;
-            transition: all 0.2s;
-        }
-        .search-input-gb:focus {
-            background: var(--gb-card-bg);
-            border-color: var(--gb-coral);
-            width: 300px;
-        }
-        .search-shortcut {
-            position: absolute;
-            right: 8px;
-            background: var(--gb-card-bg);
-            border: 1px solid var(--gb-border);
-            border-radius: 4px;
-            font-size: 0.72rem;
-            color: var(--gb-text-sub);
-            padding: 1px 6px;
-            font-family: var(--font-mono);
         }
 
         /* 3-Column Layout */
         .gitbook-container {
             display: flex;
             flex: 1;
-            max-width: 1500px;
+            max-width: 1400px;
             width: 100%;
             margin: 0 auto;
+            box-sizing: border-box;
         }
 
         /* Left Sidebar */
@@ -163,52 +90,54 @@
             flex-direction: column;
             gap: 20px;
             overflow-y: auto;
-            height: calc(100vh - 60px);
+            height: calc(100vh - 66px);
             position: sticky;
-            top: 60px;
+            top: 66px;
             flex-shrink: 0;
+            box-sizing: border-box;
         }
 
         .nav-section-title {
             font-size: 0.72rem;
-            font-weight: 700;
-            color: var(--gb-text-sub);
+            font-weight: 800;
+            color: var(--text-muted);
             text-transform: uppercase;
-            letter-spacing: 0.08em;
-            margin-bottom: 6px;
+            letter-spacing: 0.1em;
+            margin-bottom: 8px;
             padding-left: 12px;
+            font-family: var(--font-mono);
         }
         .nav-link-list {
             list-style: none;
             display: flex;
             flex-direction: column;
-            gap: 2px;
+            gap: 3px;
         }
         .nav-link-item a, .nav-link-item button {
             display: flex;
             align-items: center;
             gap: 10px;
-            padding: 8px 12px;
-            border-radius: 6px;
-            color: var(--gb-text-muted);
+            padding: 9px 12px;
+            border-radius: 8px;
+            color: var(--text-secondary);
             text-decoration: none;
             font-size: 0.9rem;
-            font-weight: 500;
+            font-weight: 600;
             background: none;
             border: none;
             width: 100%;
             text-align: left;
             cursor: pointer;
-            transition: all 0.15s;
+            transition: all 0.15s ease;
         }
         .nav-link-item a:hover, .nav-link-item button:hover {
-            background: rgba(255,255,255,0.06);
-            color: var(--gb-text-main);
+            background: rgba(217, 108, 145, 0.08);
+            color: var(--text-primary);
         }
         .nav-link-item.active a, .nav-link-item.active button {
-            background: var(--gb-coral-subtle);
-            color: var(--gb-coral);
-            font-weight: 600;
+            background: var(--soft-pink);
+            color: var(--accent-primary);
+            font-weight: 700;
         }
         .nav-icon {
             font-size: 0.95rem;
@@ -223,172 +152,196 @@
             display: flex;
             align-items: center;
             gap: 8px;
-            font-size: 0.75rem;
-            color: var(--gb-text-sub);
+            font-size: 0.78rem;
+            font-weight: 500;
+            color: var(--text-muted);
         }
 
         /* Center Content Area */
         .gitbook-content {
             flex: 1;
-            padding: 40px 60px;
-            max-width: 900px;
+            padding: 40px 50px;
+            max-width: 860px;
+            min-width: 0;
+            box-sizing: border-box;
         }
 
         .doc-category-tag {
-            font-size: 0.78rem;
-            font-weight: 700;
-            color: var(--gb-coral);
-            letter-spacing: 0.05em;
+            font-size: 0.76rem;
+            font-weight: 800;
+            color: var(--accent-primary);
+            letter-spacing: 0.12em;
             text-transform: uppercase;
             margin-bottom: 8px;
+            font-family: var(--font-mono);
         }
         .doc-title {
             font-family: var(--font-display);
-            font-size: 2.4rem;
+            font-size: 2.3rem;
             font-weight: 800;
-            color: var(--gb-text-main);
+            color: var(--text-primary);
             letter-spacing: -0.02em;
-            margin-bottom: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
+            margin-bottom: 12px;
+            line-height: 1.2;
         }
-        .doc-copy-btn {
-            background: transparent;
-            border: 1px solid var(--gb-border);
-            border-radius: 6px;
-            padding: 6px 12px;
-            font-size: 0.82rem;
-            color: var(--gb-text-muted);
-            cursor: pointer;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
+        .doc-subtitle {
+            font-size: 1.05rem;
+            color: var(--text-secondary);
+            margin-bottom: 30px;
+            line-height: 1.6;
             font-weight: 500;
         }
-        .doc-copy-btn:hover {
-            border-color: #CBD5E1;
-            color: var(--gb-text-main);
+
+        .doc-tab-pane {
+            display: none;
+            animation: fadeIn 0.2s ease-in-out;
         }
-        .doc-tagline {
-            font-size: 0.85rem;
-            color: var(--gb-text-sub);
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.08em;
-            margin-bottom: 24px;
+        .doc-tab-pane.active {
+            display: block;
         }
 
-        /* Callout Box */
-        .callout-box {
-            background: var(--gb-coral-subtle);
-            border-left: 4px solid var(--gb-coral);
-            border-radius: 0 8px 8px 0;
-            padding: 14px 18px;
-            margin: 24px 0;
-            display: flex;
-            align-items: flex-start;
-            gap: 12px;
-            font-size: 0.92rem;
-            color: var(--gb-callout-text);
-        }
-        .callout-box i {
-            color: var(--gb-coral);
-            margin-top: 3px;
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(4px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
-        /* Prose */
-        .doc-section-h2 {
+        /* Documentation Content Elements with High-Contrast Legibility */
+        .article-body h2 {
             font-family: var(--font-display);
             font-size: 1.5rem;
-            font-weight: 700;
-            color: var(--gb-text-main);
+            font-weight: 800;
+            color: var(--text-primary);
             margin: 36px 0 14px 0;
             padding-bottom: 8px;
-            border-bottom: 1px solid var(--gb-border);
+            border-bottom: 1px solid var(--border-color);
         }
-        .doc-section-h3 {
+        .article-body h3 {
             font-family: var(--font-display);
             font-size: 1.2rem;
             font-weight: 700;
-            color: var(--gb-text-main);
+            color: var(--text-primary);
             margin: 24px 0 10px 0;
         }
-        .doc-p {
-            font-size: 0.96rem;
-            color: var(--gb-text-muted);
-            margin-bottom: 14px;
+        .article-body p {
+            margin-bottom: 16px;
+            color: var(--text-secondary);
+            font-size: 0.95rem;
             line-height: 1.7;
-        }
-        .doc-p a {
-            color: var(--gb-coral);
-            text-decoration: none;
             font-weight: 500;
         }
-        .doc-p a:hover {
-            text-decoration: underline;
+        .article-body ul, .article-body ol {
+            margin: 0 0 20px 24px;
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            line-height: 1.7;
+            font-weight: 500;
+        }
+        .article-body li {
+            margin-bottom: 8px;
         }
 
-        /* Table Style matching GitBook screenshot */
-        .doc-table-wrap {
-            border: 1px solid var(--gb-border);
+        /* Callouts */
+        .gb-callout {
+            background: var(--soft-pink);
+            border-left: 4px solid var(--accent-primary);
+            padding: 16px 20px;
             border-radius: 8px;
+            margin: 22px 0;
+            display: flex;
+            gap: 14px;
+            align-items: flex-start;
+        }
+        .gb-callout-icon {
+            color: var(--accent-primary);
+            font-size: 1.15rem;
+            margin-top: 2px;
+        }
+        .gb-callout-body {
+            font-size: 0.92rem;
+            color: var(--text-primary);
+            font-weight: 500;
+            line-height: 1.6;
+        }
+
+        /* Code snippets */
+        .gb-code-block {
+            background: var(--surface);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
             overflow: hidden;
             margin: 20px 0;
+            box-shadow: var(--card-shadow);
         }
-        .doc-table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 0.9rem;
-            text-align: left;
-        }
-        .doc-table th {
-            background: var(--gb-table-stripe);
-            padding: 12px 18px;
-            font-weight: 600;
-            color: var(--gb-text-main);
-            border-bottom: 1px solid var(--gb-border);
-        }
-        .doc-table td {
-            padding: 14px 18px;
-            color: var(--gb-text-muted);
-            border-bottom: 1px solid var(--gb-border);
-            vertical-align: top;
-        }
-        .doc-table tr:last-child td {
-            border-bottom: none;
-        }
-        .doc-code {
-            background: var(--gb-code-bg);
-            border: 1px solid var(--gb-border);
-            border-radius: 4px;
-            padding: 3px 6px;
+        .gb-code-header {
+            background: var(--bg-secondary);
+            padding: 8px 16px;
+            font-size: 0.75rem;
             font-family: var(--font-mono);
-            font-size: 0.85rem;
-            color: var(--gb-coral);
+            color: var(--text-muted);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 700;
+        }
+        .gb-code-body {
+            padding: 16px;
+            font-family: var(--font-mono);
+            font-size: 0.86rem;
+            color: var(--text-primary);
+            line-height: 1.5;
+            overflow-x: auto;
         }
 
-        /* Right Table of Contents (TOC) */
+        /* Tables */
+        .gb-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 24px 0;
+            font-size: 0.9rem;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+            box-shadow: var(--card-shadow);
+        }
+        .gb-table th {
+            background: var(--bg-secondary);
+            padding: 12px 16px;
+            text-align: left;
+            font-weight: 700;
+            color: var(--text-primary);
+            border-bottom: 1px solid var(--border-color);
+            font-family: var(--font-display);
+        }
+        .gb-table td {
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+        .gb-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        /* Right Table of Contents */
         .gitbook-toc {
             width: 240px;
-            padding: 40px 20px;
-            font-size: 0.85rem;
+            padding: 40px 16px;
+            height: calc(100vh - 66px);
             position: sticky;
-            top: 60px;
-            height: calc(100vh - 60px);
+            top: 66px;
             overflow-y: auto;
             flex-shrink: 0;
+            box-sizing: border-box;
         }
         .toc-title {
-            font-size: 0.75rem;
-            font-weight: 700;
-            color: var(--gb-text-sub);
+            font-size: 0.74rem;
+            font-weight: 800;
+            color: var(--text-muted);
             text-transform: uppercase;
-            letter-spacing: 0.08em;
+            letter-spacing: 0.1em;
             margin-bottom: 12px;
-            display: flex;
-            align-items: center;
-            gap: 6px;
+            font-family: var(--font-mono);
         }
         .toc-list {
             list-style: none;
@@ -397,97 +350,77 @@
             gap: 8px;
         }
         .toc-item a {
-            color: var(--gb-text-muted);
+            color: var(--text-secondary);
             text-decoration: none;
+            font-size: 0.85rem;
+            font-weight: 500;
             transition: color 0.15s;
             display: block;
+            line-height: 1.4;
         }
-        .toc-item a:hover, .toc-item.active a {
-            color: var(--gb-coral);
+        .toc-item a:hover {
+            color: var(--accent-primary);
             font-weight: 600;
-        }
-
-        /* FAQ Accordion */
-        .faq-block {
-            margin: 20px 0;
-        }
-        .faq-item-gb {
-            border: 1px solid var(--gb-border);
-            border-radius: 8px;
-            margin-bottom: 10px;
-            overflow: hidden;
-        }
-        .faq-q-gb {
-            padding: 16px 20px;
-            background: var(--gb-card-bg);
-            color: var(--gb-text-main);
-            font-weight: 600;
-            cursor: pointer;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .faq-q-gb:hover { background: var(--gb-table-stripe); }
-        .faq-a-gb {
-            padding: 16px 20px;
-            display: none;
-            background: var(--gb-code-bg);
-            border-top: 1px solid var(--gb-border);
-            color: var(--gb-text-muted);
-            font-size: 0.92rem;
-            line-height: 1.65;
-        }
-        .faq-item-gb.open .faq-a-gb { display: block; }
-        .faq-item-gb.open .faq-q-gb i { transform: rotate(180deg); color: var(--gb-coral); }
-
-        /* Hideable tab panes */
-        .doc-tab-pane {
-            display: none;
-        }
-        .doc-tab-pane.active {
-            display: block;
         }
 
         @media (max-width: 1100px) {
             .gitbook-toc { display: none; }
         }
-        @media (max-width: 800px) {
-            .gitbook-sidebar { display: none; }
+        @media (max-width: 820px) {
+            .gitbook-container { flex-direction: column; }
+            .gitbook-sidebar {
+                width: 100%;
+                height: auto;
+                position: static;
+                border-right: none;
+                border-bottom: 1px solid var(--border-color);
+            }
             .gitbook-content { padding: 30px 20px; }
+            .header-search { display: none; }
         }
     </style>
 </head>
 <body>
 
-    <!-- Header -->
-    <header class="gitbook-header">
-        <div class="header-left">
-            <a href="/" class="header-brand">
-                <img src="assets/bypass_logs_avatar.webp" class="header-logo" alt="VEYRA" onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png'">
-                <span class="header-title">VEYRA</span>
+    <!-- Master Floating Header Navbar (Exact Match to Main Site) -->
+    <header class="amari-navbar" style="position: sticky; top: 0; z-index: 100; backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); background: rgba(255, 252, 250, 0.92); border-bottom: 1px solid var(--border-color); padding: 12px 24px;">
+        <div style="max-width: 1400px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 20px;">
+            <!-- Brand Logo -->
+            <a href="/" class="amari-logo-group" style="display: flex; align-items: center; gap: 12px; text-decoration: none; flex-shrink: 0;">
+                <img src="assets/bypass_logs_avatar.webp" style="width: 36px; height: 36px; border-radius: 50%; object-fit: cover; border: 1.5px solid var(--border-color);" onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png'">
+                <span style="font-family: var(--font-display); font-size: 1.3rem; font-weight: 800; color: var(--text-primary); letter-spacing: -0.02em;">
+                    veyra <span style="background: var(--soft-pink); color: var(--accent-primary); font-size: 0.72rem; padding: 2px 7px; border-radius: 6px; font-weight: 800; text-transform: uppercase;">bot</span>
+                </span>
             </a>
-            <span style="color: var(--gb-border);">/</span>
-            <span style="font-size: 0.88rem; color: var(--gb-text-muted); font-weight: 500;">Documentation</span>
-        </div>
 
-        <div class="header-search">
-            <i class="fas fa-magnifying-glass"></i>
-            <input type="text" id="doc-search-input" class="search-input-gb" placeholder="Search docs..." oninput="handleDocSearch()">
-            <span class="search-shortcut">Ctrl K</span>
-        </div>
+            <!-- Search Bar in Navbar -->
+            <div class="header-search" style="position: relative; flex: 1; max-width: 360px; margin: 0 16px;">
+                <i class="fas fa-magnifying-glass" style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 0.85rem; pointer-events: none;"></i>
+                <input type="text" id="doc-search-input" class="search-input-gb" placeholder="Search documentation, policies, commands..." oninput="handleDocSearch()" style="width: 100%; background: var(--surface); border: 1px solid var(--border-color); border-radius: 10px; padding: 9px 52px 9px 38px; font-size: 0.88rem; color: var(--text-primary); font-family: var(--font-body); box-shadow: var(--card-shadow); outline: none; transition: all 0.2s;">
+                <span class="search-shortcut" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 4px; font-size: 0.7rem; color: var(--text-muted); padding: 2px 6px; font-family: var(--font-mono); font-weight: 600;">Ctrl K</span>
+            </div>
 
-        <div style="display: flex; align-items: center; gap: 16px;">
-            <a href="/commands" style="font-size: 0.88rem; font-weight: 500; color: var(--gb-text-muted); text-decoration: none;">Commands</a>
-            <a href="/premium" style="font-size: 0.88rem; font-weight: 500; color: var(--gb-text-muted); text-decoration: none;">Pricing</a>
-            <button id="theme-toggle-gb" onclick="toggleGbTheme()" style="background: var(--gb-card-bg); border: 1px solid var(--gb-border); border-radius: 8px; width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; color: var(--gb-text-main); cursor: pointer; transition: all 0.2s;" title="Toggle Dark/Light Mode">
-                <i class="fas fa-sun" id="theme-toggle-icon"></i>
-            </button>
-            <a href="/" style="font-size: 0.88rem; font-weight: 600; color: var(--gb-coral); text-decoration: none; display: flex; align-items: center; gap: 6px;">&larr; Back to Home</a>
+            <!-- Nav Links -->
+            <nav class="amari-nav-links" style="display: flex; align-items: center; gap: 24px; flex-shrink: 0;">
+                <a href="/commands" style="color: var(--text-secondary); text-decoration: none; font-weight: 600; font-size: 0.92rem; transition: color 0.15s;">Commands</a>
+                <a href="/about.html" style="color: var(--accent-primary); text-decoration: none; font-weight: 700; font-size: 0.92rem; border-bottom: 2px solid var(--accent-primary); padding-bottom: 2px;">About</a>
+                <a href="/premium" style="color: var(--text-secondary); text-decoration: none; font-weight: 600; font-size: 0.92rem; transition: color 0.15s;">Premium</a>
+                <a href="https://discord.gg/77P5Cq837X" target="_blank" style="color: var(--text-secondary); text-decoration: none; font-weight: 600; font-size: 0.92rem; transition: color 0.15s;">Support</a>
+            </nav>
+
+            <!-- Actions -->
+            <div style="display: flex; align-items: center; gap: 12px; flex-shrink: 0;">
+                <button id="theme-toggle-gb" onclick="toggleGbTheme()" style="background: var(--surface); border: 1px solid var(--border-color); border-radius: 8px; width: 38px; height: 38px; display: flex; align-items: center; justify-content: center; color: var(--text-primary); cursor: pointer; transition: all 0.2s;" title="Toggle Theme">
+                    <i class="fas fa-moon" id="theme-toggle-icon"></i>
+                </button>
+                <a href="/login" class="btn-primary" style="background: var(--accent-primary); color: #fff; text-decoration: none; padding: 9px 20px; border-radius: 8px; font-weight: 700; font-size: 0.9rem; transition: all 0.2s; box-shadow: 0 4px 14px rgba(217, 108, 145, 0.3);">
+                    Dashboard
+                </a>
+            </div>
         </div>
     </header>
 
-    <!-- Main Container -->
-    <div class="gitbook-container">
+<div class="gitbook-container">
         <!-- Left Sidebar Navigation -->
         <aside class="gitbook-sidebar">
             <div>
@@ -1024,6 +957,24 @@
         </aside>
     </div>
 
+    
+
+    <!-- Clean Harmonized Footer -->
+    <footer style="max-width: 1400px; width: 100%; box-sizing: border-box; margin: 60px auto 30px auto; padding: 30px 24px 0 24px; border-top: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px;">
+        <div style="font-size: 0.88rem; color: var(--text-secondary); font-family: var(--font-body); font-weight: 500;">
+            &copy; 2026 VeyraBot.com | All rights reserved.
+        </div>
+        <div style="display: flex; gap: 24px; font-size: 0.88rem; font-weight: 500;">
+            <a href="/about.html#privacy" onclick="switchDocTab('privacy'); return false;" style="color: var(--text-secondary); text-decoration: none;">Privacy Policy</a>
+            <a href="/about.html#terms" onclick="switchDocTab('terms'); return false;" style="color: var(--text-secondary); text-decoration: none;">Terms of Service</a>
+            <a href="/about.html#refund" onclick="switchDocTab('refund'); return false;" style="color: var(--text-secondary); text-decoration: none;">Refund Policy</a>
+            <a href="https://discord.gg/77P5Cq837X" target="_blank" style="color: var(--text-secondary); text-decoration: none;">Support</a>
+        </div>
+        <div style="font-size: 1.2rem;">
+            <a href="https://discord.gg/77P5Cq837X" target="_blank" style="color: var(--accent-primary);"><i class="fab fa-discord"></i></a>
+        </div>
+    </footer>
+
     <script>
         function switchDocTab(tabName) {
             // Hide all panes
@@ -1036,7 +987,7 @@
             if (targetPane) targetPane.classList.add('active');
             if (targetNav) targetNav.classList.add('active');
 
-            // Scroll top
+            // Scroll top smoothly
             window.scrollTo({ top: 0, behavior: 'smooth' });
 
             // Update URL hash
@@ -1051,21 +1002,41 @@
         function handleDocSearch() {
             const q = document.getElementById('doc-search-input').value.toLowerCase();
             if (!q) return;
-            // Simple keyword router
+            // Keyword router
             if (q.includes('faq')) switchDocTab('faq');
             else if (q.includes('command') || q.includes('scan') || q.includes('ticket')) switchDocTab('commands');
             else if (q.includes('privacy')) switchDocTab('privacy');
             else if (q.includes('refund')) switchDocTab('refund');
+            else if (q.includes('terms') || q.includes('service')) switchDocTab('terms');
             else if (q.includes('api')) switchDocTab('api');
+            else if (q.includes('security') || q.includes('nuke') || q.includes('raid')) switchDocTab('security');
             else if (q.includes('start') || q.includes('invite')) switchDocTab('start');
         }
 
-        // On load check hash
+        // Harmonized Theme Toggle
+        function toggleGbTheme() {
+            const current = document.documentElement.getAttribute('data-theme') || 'light';
+            const next = current === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', next);
+            localStorage.setItem('veyra_theme', next);
+            updateThemeIcon(next);
+        }
+
+        function updateThemeIcon(theme) {
+            const icon = document.getElementById('theme-toggle-icon');
+            if (icon) {
+                icon.className = theme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
+            }
+        }
+
+        // On load check hash and sync theme icon
         window.addEventListener('DOMContentLoaded', () => {
             const hash = window.location.hash.replace('#', '');
             if (hash && document.getElementById('pane-' + hash)) {
                 switchDocTab(hash);
             }
+            const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
+            updateThemeIcon(currentTheme);
         });
 
         // Ctrl K listener

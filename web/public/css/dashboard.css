@@ -3064,3 +3064,60 @@ body {
 .ts-pill-btn.active span, .ts-pill-btn.active i, .tickets-sidebar-item.active span, .tickets-sidebar-item.active i {
     color: #ffffff !important;
 }
+
+/* ==================== RAZOR-SHARP TEXT & ANTI-BLUR ENGINE ==================== */
+html, body {
+    -webkit-font-smoothing: antialiased !important;
+    -moz-osx-font-smoothing: grayscale !important;
+    text-rendering: optimizeLegibility !important;
+}
+
+*, *::before, *::after {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* High-contrast, crystal-clear typography overrides */
+p, .amari-feat-tab p, .glass-card p, .review-marquee-card p, .faq-answer {
+    color: var(--text-secondary) !important;
+    font-weight: 500 !important;
+    line-height: 1.65 !important;
+}
+
+/* Subtitle clarity */
+.amari-hero-p,
+#screen-dashboard p,
+#servers-container p {
+    color: var(--text-secondary) !important;
+    font-weight: 550 !important;
+}
+
+/* Server select stats row */
+#servers-stats-row {
+    color: var(--text-secondary) !important;
+    font-weight: 700 !important;
+    font-size: 0.8rem !important;
+}
+
+#servers-stats-row span {
+    font-weight: 700 !important;
+}
+
+/* 4-Feature tabs text sharpness */
+.amari-feat-tab p {
+    font-size: 0.92rem !important;
+    font-weight: 500 !important;
+    color: var(--text-secondary) !important;
+}
+
+.amari-feat-tab.active p {
+    color: #201726 !important;
+    font-weight: 550 !important;
+}
+
+/* Card titles and headings */
+h1, h2, h3, h4, h5, h6 {
+    color: var(--text-primary) !important;
+    font-weight: 800 !important;
+    letter-spacing: -0.02em !important;
+}

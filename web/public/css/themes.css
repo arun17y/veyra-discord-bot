@@ -16,9 +16,9 @@
     --accent-rgb: 217, 108, 145;
     --accent-blue-rgb: 217, 108, 145;
     --accent-lavender: #F0EBFF;
-    --text-primary: #352B3A;
-    --text-secondary: #766C78;
-    --text-muted: #958B96;
+    --text-primary: #1C1422;
+    --text-secondary: #3A303F;
+    --text-muted: #574B5B;
     --border-color: #EDE4E7;
     --border-subtle: #F2EBEE;
     --border-glow: rgba(217, 108, 145, 0.25);
@@ -52,9 +52,9 @@
     --accent-rgb: 217, 108, 145;
     --accent-blue-rgb: 217, 108, 145;
     --accent-lavender: rgba(240, 235, 255, 0.12);
-    --text-primary: #FBF8F5;
-    --text-secondary: #9DA4B0;
-    --text-muted: #6B7280;
+    --text-primary: #FFFFFF;
+    --text-secondary: #D4D8E2;
+    --text-muted: #A0A8B8;
     --border-color: rgba(255, 255, 255, 0.08);
     --border-subtle: rgba(255, 255, 255, 0.05);
     --border-glow: rgba(217, 108, 145, 0.25);
