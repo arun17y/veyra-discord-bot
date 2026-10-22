@@ -546,6 +546,10 @@ function showScreen(screenId, preserveScroll = false) {
     } else if (screenId === 'dashboard') {
         if (screenDashboard) screenDashboard.style.display = 'flex';
         if (!preserveScroll) setNavBtnActive(navManageServers, true);
+        const activeTab = document.querySelector('.tab-pane[style*="display: block"]');
+        if (!activeTab && typeof switchTab === 'function') {
+            switchTab(sessionStorage.getItem('pendingTab') || 'overview');
+        }
     } else if (screenId === 'admin') {
         if (!window.isUserAdmin) {
             showToast("Access Restricted", "The VEYRA Admin Panel is restricted exclusively to Admin ID: 1256986886631854080.", "error");
@@ -684,6 +688,10 @@ function loadServerDashboard(guildId) {
     }
     
     showScreen('dashboard');
+    const pendingTab = sessionStorage.getItem('pendingTab') || 'overview';
+    if (typeof switchTab === 'function') {
+        switchTab(pendingTab);
+    }
     
     // Reset status log list
     const logBody = document.getElementById('weblogs-body');
@@ -2617,6 +2625,11 @@ function checkSession(forceRefresh = false) {
                 renderUserGuilds(serversList, true);
                 if (typeof window.initRazorpayCheckoutFlow === 'function') {
                     window.initRazorpayCheckoutFlow();
+                }
+                const savedGuildId = sessionStorage.getItem('activeGuildId');
+                const activeScr = sessionStorage.getItem('activeScreen');
+                if (activeScr === 'dashboard' && savedGuildId && typeof loadServerDashboard === 'function') {
+                    loadServerDashboard(savedGuildId);
                 }
                 
                 const urlParams = new URLSearchParams(window.location.search);

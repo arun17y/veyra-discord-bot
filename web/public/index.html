@@ -28,8 +28,8 @@
             document.documentElement.setAttribute('data-theme', theme);
         })();
     </script>
-    <link rel="stylesheet" href="css/themes.css?v=v8_razor_sharp_about_harmonized">
-    <link rel="stylesheet" href="css/dashboard.css?v=v8_razor_sharp_about_harmonized">
+    <link rel="stylesheet" href="css/themes.css?v=v9_solid_dark_ui_restore">
+    <link rel="stylesheet" href="css/dashboard.css?v=v9_solid_dark_ui_restore">
     <style>
         /* =============================================
            VEYRA BRAND PALETTE OVERRIDE — A to Z
@@ -1763,21 +1763,25 @@
 
     <script>
         sessionStorage.setItem('hasEntered', 'true');
-        if (true) {
-            const activeScreen = window.location.search.includes('login=success') ? 'servers' : (sessionStorage.getItem('activeScreen') || 'landing');
-            let style = '#webgl-canvas, #ui-layer { display: none !important; } #main-content { opacity: 1 !important; pointer-events: auto !important; }';
-            if (activeScreen !== 'landing') {
-                style += ' #screen-landing { display: none; }';
-                if (activeScreen === 'servers') {
-                    style += ' #screen-servers { display: block; }';
-                } else if (activeScreen === 'dashboard') {
-                    style += ' #screen-dashboard { display: flex; }';
-                } else if (activeScreen === 'admin') {
-                    style += ' #screen-admin { display: block; }';
-                }
-            }
-            document.write('<style>' + style + '</style>');
+        const urlParams = new URLSearchParams(window.location.search);
+        let initialScreen = 'landing';
+        if (urlParams.has('login') && urlParams.get('login') === 'success') {
+            initialScreen = 'servers';
+        } else if (urlParams.has('guild_id')) {
+            initialScreen = 'dashboard';
+        } else if (window.location.pathname.includes('/manage')) {
+            initialScreen = 'servers';
         }
+        let style = '#webgl-canvas, #ui-layer { display: none !important; } #main-content { opacity: 1 !important; pointer-events: auto !important; }';
+        if (initialScreen !== 'landing') {
+            style += ' #screen-landing { display: none; }';
+            if (initialScreen === 'servers') {
+                style += ' #screen-servers { display: block; }';
+            } else if (initialScreen === 'dashboard') {
+                style += ' #screen-dashboard { display: flex; }';
+            }
+        }
+        document.write('<style>' + style + '</style>');
     </script>
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 
@@ -2228,79 +2232,88 @@
             margin-top: 20px !important;
         }
         .faq-item {
-            margin-bottom: 0 !important;
-            border-radius: 12px !important;
-            background: rgba(10, 18, 28, 0.78) !important;
-            border: 1px solid rgba(255, 255, 255, 0.08) !important;
+            margin-bottom: 12px !important;
+            border-radius: 14px !important;
+            background: #FFFFFF !important;
+            border: 1.5px solid #EDE4E7 !important;
             overflow: hidden !important;
             padding: 0 !important;
-            transition: border-color 0.22s ease, background 0.22s ease, box-shadow 0.22s ease !important;
-            box-shadow: 0 4px 18px rgba(0, 0, 0, 0.35) !important;
+            transition: border-color 0.22s ease, box-shadow 0.22s ease !important;
+            box-shadow: 0 4px 16px rgba(53, 43, 58, 0.05) !important;
         }
         .faq-item:hover {
-            border-color: rgba(255, 110, 66, 0.4) !important;
-            background: rgba(14, 24, 38, 0.9) !important;
+            border-color: #D96C91 !important;
+            box-shadow: 0 8px 24px rgba(217, 108, 145, 0.12) !important;
         }
         .faq-question {
-            padding: 16px 22px !important;
+            padding: 18px 24px !important;
             display: flex !important;
             justify-content: space-between !important;
             align-items: center !important;
             cursor: pointer !important;
             font-family: var(--font-display) !important;
             font-weight: 700 !important;
-            color: #f1f5f9 !important;
-            font-size: 0.95rem !important;
+            color: #1C1422 !important;
+            font-size: 1.02rem !important;
             user-select: none !important;
             gap: 16px !important;
             transition: color 0.2s ease !important;
+            text-shadow: none !important;
         }
         .faq-question span {
             line-height: 1.4 !important;
+            color: #1C1422 !important;
+            font-weight: 700 !important;
+            text-shadow: none !important;
         }
         .faq-question i {
             transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), color 0.2s ease !important;
-            color: #FF6E42 !important;
+            color: #D96C91 !important;
             font-size: 0.85rem !important;
             flex-shrink: 0 !important;
-            width: 28px !important;
-            height: 28px !important;
+            width: 32px !important;
+            height: 32px !important;
             display: inline-flex !important;
             align-items: center !important;
             justify-content: center !important;
             border-radius: 50% !important;
-            background: rgba(255, 110, 66, 0.08) !important;
-            border: 1px solid rgba(255, 110, 66, 0.2) !important;
+            background: #FBE8EE !important;
+            border: 1px solid #EDE4E7 !important;
         }
         .faq-answer {
             max-height: 0;
             overflow: hidden;
             transition: max-height 0.35s cubic-bezier(0.16, 1, 0.3, 1), padding 0.35s ease;
-            padding: 0 22px;
-            color: #94a3b8 !important;
-            font-size: 0.88rem !important;
-            line-height: 1.65 !important;
+            padding: 0 24px;
+            color: #352B3A !important;
+            font-size: 0.94rem !important;
+            line-height: 1.7 !important;
+            font-weight: 550 !important;
+            text-shadow: none !important;
         }
         .faq-answer p {
             margin: 0 !important;
+            color: #352B3A !important;
+            font-weight: 550 !important;
+            text-shadow: none !important;
         }
         .faq-item.active {
-            border-color: rgba(255, 110, 66, 0.5) !important;
-            background: rgba(15, 26, 42, 0.96) !important;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6), 0 0 25px rgba(255, 110, 66, 0.12) !important;
+            border-color: #D96C91 !important;
+            background: #FFFFFF !important;
+            box-shadow: 0 8px 24px rgba(217, 108, 145, 0.15) !important;
         }
         .faq-item.active .faq-question {
-            color: #ffffff !important;
+            color: #B94E76 !important;
         }
         .faq-item.active .faq-question i {
             transform: rotate(45deg) !important;
-            color: #ef4444 !important;
-            background: rgba(239, 68, 68, 0.12) !important;
-            border-color: rgba(239, 68, 68, 0.3) !important;
+            color: #FFFFFF !important;
+            background: #D96C91 !important;
+            border-color: #D96C91 !important;
         }
         .faq-item.active .faq-answer {
             max-height: 250px !important;
-            padding: 0 22px 18px 22px !important;
+            padding: 0 24px 20px 24px !important;
         }
     </style>
     
@@ -2361,8 +2374,9 @@
             <li><a href="https://discord.gg/77P5Cq837X" target="_blank" rel="noreferrer">Support</a></li>
         </ul>
 
-        <div>
-            <a href="/manage" class="amari-login-btn">Dashboard</a>
+        <div style="display: flex; align-items: center; gap: 12px;">
+            <a href="/api/auth/login" class="amari-login-btn" style="background: #FFFFFF !important; border: 1.5px solid #D96C91 !important; color: #D96C91 !important; display: inline-flex; align-items: center; gap: 8px;"><i class="fab fa-discord" style="font-size: 1.1rem;"></i> Login</a>
+            <a href="/manage" class="amari-login-btn" style="background: #D96C91 !important; color: #FFFFFF !important; border-color: #D96C91 !important;">Dashboard</a>
         </div>
     </nav>
 
@@ -2778,7 +2792,7 @@
                     </div>
 
                     <!-- Pro Card (₹199/mo) — Highlighted -->
-                    <div class="glass-card" style="background: var(--surface); border: 2px solid var(--accent-primary); border-radius: 20px; padding: 36px 30px; box-shadow: 0 12px 40px rgba(217, 108, 145, 0.18); position: relative; display: flex; flex-direction: column; justify-content: space-between;">
+                    <div class="glass-card" style="background: var(--surface); border: 2px solid var(--accent-primary); border-radius: 20px; padding: 36px 30px; box-shadow: 0 12px 40px rgba(217, 108, 145, 0.18); position: relative; overflow: visible !important; margin-top: 10px; display: flex; flex-direction: column; justify-content: space-between;">
                         <div style="position: absolute; top: -14px; left: 50%; transform: translateX(-50%); background: var(--accent-primary); color: #fff; font-size: 0.72rem; font-weight: 800; padding: 4px 14px; border-radius: 20px; font-family: var(--font-mono); letter-spacing: 0.06em; box-shadow: 0 4px 12px rgba(217, 108, 145, 0.4);">
                             🔥 MOST POPULAR
                         </div>
@@ -4527,21 +4541,35 @@
                 </div>
             </div>
 
-            <!-- ==================== TECH STACK STRIP ==================== -->
-            <div style="max-width: 1100px; margin: 40px auto; padding: 0 20px; text-align: center;">
-                <div style="font-family: var(--font-mono); font-size: 0.72rem; color: var(--text-muted); letter-spacing: 0.18em; text-transform: uppercase; margin-bottom: 20px; font-weight: 700;">
+            <!-- ==================== TECH STACK STRIP (RIGHT-TO-LEFT INFINITE MARQUEE) ==================== -->
+            <div style="max-width: 1100px; margin: 50px auto 40px auto; padding: 0 20px; text-align: center; overflow: hidden;">
+                <div style="font-family: var(--font-mono); font-size: 0.74rem; color: #574B5B; letter-spacing: 0.2em; text-transform: uppercase; margin-bottom: 24px; font-weight: 800;">
                     POWERED WITH
                 </div>
-                <div style="display: flex; justify-content: center; align-items: center; gap: 32px; flex-wrap: wrap; color: var(--text-secondary); font-size: 0.9rem; font-weight: 700; font-family: var(--font-display);">
-                    <span><i class="fas fa-database" style="color: #3b82f6; margin-right: 6px;"></i> SQLite</span>
-                    <span><i class="fas fa-server" style="color: #dc2626; margin-right: 6px;"></i> Redis</span>
-                    <span><i class="fab fa-react" style="color: #06b6d4; margin-right: 6px;"></i> React</span>
-                    <span><i class="fab fa-node-js" style="color: #16a34a; margin-right: 6px;"></i> NodeJS</span>
-                    <span><i class="fas fa-code" style="color: #2563eb; margin-right: 6px;"></i> TypeScript</span>
-                    <span><i class="fab fa-discord" style="color: #5865F2; margin-right: 6px;"></i> Discord.js</span>
-                    <span><i class="fab fa-github" style="color: var(--text-primary); margin-right: 6px;"></i> GitHub</span>
-                    <span><i class="fas fa-cloud" style="color: #f97316; margin-right: 6px;"></i> Cloudflare</span>
-                    <span><i class="fab fa-docker" style="color: #0284c7; margin-right: 6px;"></i> Docker</span>
+                <div class="marquee-container" style="overflow: hidden; width: 100%; position: relative;">
+                    <div class="marquee-track track-left" style="display: flex; width: max-content; gap: 48px; animation: marqueeLeft 28s linear infinite; align-items: center; color: #352B3A; font-size: 0.96rem; font-weight: 700; font-family: var(--font-display);">
+                        <!-- Set 1 -->
+                        <span style="display: inline-flex; align-items: center; gap: 8px;"><i class="fas fa-database" style="color: #3b82f6;"></i> SQLite</span>
+                        <span style="display: inline-flex; align-items: center; gap: 8px;"><i class="fas fa-server" style="color: #dc2626;"></i> Redis</span>
+                        <span style="display: inline-flex; align-items: center; gap: 8px;"><i class="fab fa-react" style="color: #06b6d4;"></i> React</span>
+                        <span style="display: inline-flex; align-items: center; gap: 8px;"><i class="fab fa-node-js" style="color: #16a34a;"></i> NodeJS</span>
+                        <span style="display: inline-flex; align-items: center; gap: 8px;"><i class="fas fa-code" style="color: #2563eb;"></i> TypeScript</span>
+                        <span style="display: inline-flex; align-items: center; gap: 8px;"><i class="fab fa-discord" style="color: #5865F2;"></i> Discord.js</span>
+                        <span style="display: inline-flex; align-items: center; gap: 8px;"><i class="fab fa-github" style="color: #1C1422;"></i> GitHub</span>
+                        <span style="display: inline-flex; align-items: center; gap: 8px;"><i class="fas fa-cloud" style="color: #f97316;"></i> Cloudflare</span>
+                        <span style="display: inline-flex; align-items: center; gap: 8px;"><i class="fab fa-docker" style="color: #0284c7;"></i> Docker</span>
+
+                        <!-- Set 2 for seamless loop -->
+                        <span style="display: inline-flex; align-items: center; gap: 8px;"><i class="fas fa-database" style="color: #3b82f6;"></i> SQLite</span>
+                        <span style="display: inline-flex; align-items: center; gap: 8px;"><i class="fas fa-server" style="color: #dc2626;"></i> Redis</span>
+                        <span style="display: inline-flex; align-items: center; gap: 8px;"><i class="fab fa-react" style="color: #06b6d4;"></i> React</span>
+                        <span style="display: inline-flex; align-items: center; gap: 8px;"><i class="fab fa-node-js" style="color: #16a34a;"></i> NodeJS</span>
+                        <span style="display: inline-flex; align-items: center; gap: 8px;"><i class="fas fa-code" style="color: #2563eb;"></i> TypeScript</span>
+                        <span style="display: inline-flex; align-items: center; gap: 8px;"><i class="fab fa-discord" style="color: #5865F2;"></i> Discord.js</span>
+                        <span style="display: inline-flex; align-items: center; gap: 8px;"><i class="fab fa-github" style="color: #1C1422;"></i> GitHub</span>
+                        <span style="display: inline-flex; align-items: center; gap: 8px;"><i class="fas fa-cloud" style="color: #f97316;"></i> Cloudflare</span>
+                        <span style="display: inline-flex; align-items: center; gap: 8px;"><i class="fab fa-docker" style="color: #0284c7;"></i> Docker</span>
+                    </div>
                 </div>
             </div>
 
@@ -12045,8 +12073,8 @@ Our support team can assist you with:
     <!-- JS Execution libraries -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
-    <script src="js/dashboard.js?v=v8_razor_sharp_about_harmonized"></script>
-    <script src="js/moderation.js?v=v8_razor_sharp_about_harmonized"></script>
+    <script src="js/dashboard.js?v=v9_solid_dark_ui_restore"></script>
+    <script src="js/moderation.js?v=v9_solid_dark_ui_restore"></script>
     <!-- smokey fluid cursor removed -->
 
     <!-- WebGL Three.js Application Entry -->

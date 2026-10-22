@@ -2467,285 +2467,103 @@ input:checked + .slider:before {
 }
 
 /* =================================================================
-   VEYRA 100% HIGH-CONTRAST & CRYSTAL-CLEAR TEXT VISIBILITY OVERRIDES
+   VEYRA MASTER LIGHT & HIGH-CONTRAST TYPOGRAPHY SYSTEM
    ================================================================= */
 
-/* 1. Header Nav Buttons */
-.gen-btn-letter {
-    color: var(--text-primary) !important;
+/* 1. Global Zero Text-Shadow & Anti-Blur Engine */
+*, *::before, *::after,
+body, p, span, div, li, h1, h2, h3, h4, h5, h6, a, button {
+    text-shadow: none !important;
+    -webkit-font-smoothing: antialiased !important;
+    -moz-osx-font-smoothing: grayscale !important;
+}
+
+/* 2. Razor-Sharp Solid Dark Text Colors */
+p, .amari-feat-tab p, .glass-card p, .review-marquee-card p,
+.text-secondary, [style*="color: var(--text-secondary)"],
+[style*="color:#94a3b8"], [style*="color: #94a3b8"], [style*="color:#64748b"] {
+    color: #352B3A !important;
+    font-weight: 550 !important;
+    line-height: 1.65 !important;
+    text-shadow: none !important;
+}
+
+/* 3. Section Subtitles Clarity */
+.section-subtitle,
+.section-desc-landing,
+.amari-feature-grid + div p,
+#screen-dashboard p,
+#servers-container p {
+    color: #352B3A !important;
+    font-weight: 550 !important;
+    text-shadow: none !important;
+}
+
+/* 4. Headings Solid Dark Plum */
+h1, h2, h3, h4, h5, h6,
+.section-title,
+.section-title-landing {
+    color: #1C1422 !important;
+    font-weight: 800 !important;
+    letter-spacing: -0.02em !important;
+    text-shadow: none !important;
+}
+
+/* 5. Clean White FAQ Accordion Cards */
+.faq-item {
+    background: #FFFFFF !important;
+    border: 1.5px solid var(--border-color) !important;
+    border-radius: 14px !important;
+    box-shadow: 0 4px 16px rgba(53, 43, 58, 0.05) !important;
+    margin-bottom: 12px !important;
+    overflow: hidden !important;
+    cursor: pointer !important;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease !important;
+}
+
+.faq-item:hover {
+    border-color: var(--accent-primary) !important;
+    box-shadow: 0 8px 24px rgba(217, 108, 145, 0.12) !important;
+}
+
+.faq-question, .faq-item span {
+    color: #1C1422 !important;
     font-weight: 700 !important;
-    opacity: 1 !important;
-    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9) !important;
+    font-size: 1.05rem !important;
+    text-shadow: none !important;
 }
 
-.gen-btn:hover .gen-btn-letter, .gen-btn.active .gen-btn-letter {
-    color: #a855f7 !important;
-    text-shadow: 0 0 10px rgba(168, 85, 247, 0.8) !important;
+.faq-answer {
+    color: #352B3A !important;
+    font-weight: 500 !important;
+    font-size: 0.94rem !important;
+    line-height: 1.65 !important;
+    text-shadow: none !important;
 }
 
-/* 2. Global Text Colors */
-body, p, span, div, li, h1, h2, h3, h4, h5, h6 {
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
-}
-
-.text-secondary, [style*="color: var(--text-secondary)"], [style*="color:#94a3b8"], [style*="color: #94a3b8"], [style*="color:#64748b"] {
-    color: #cbd5e1 !important;
-}
-
-/* 3. Hero Section Buttons */
-.hero-grid-split .btn-secondary, [onclick="clickManageServers()"].btn-secondary {
-    background: var(--soft-pink) !important;
-    border: 1.5px solid rgba(255, 255, 255, 0.3) !important;
-    color: var(--text-primary) !important;
-    font-weight: 800 !important;
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.6) !important;
-}
-
-.hero-grid-split .btn-primary, [onclick="simulateAddBot()"].btn-primary {
-    background: var(--accent-primary) !important;
-    color: var(--text-primary) !important;
-    font-weight: 800 !important;
-    box-shadow: 0 8px 25px rgba(255, 110, 66, 0.4) !important;
-}
-
-/* 4. Pricing & Plan Card Items & Buttons */
-.pricing-card-inner p, .pricing-card-inner ul li span, .pricing-card p, .pricing-card ul li {
-    color: #f1f5f9 !important;
-    font-weight: 600 !important;
-    font-size: 0.92rem !important;
+/* 6. Pricing & Plan Cards */
+.pricing-card-inner p, .pricing-card p, .pricing-card ul li {
+    color: #352B3A !important;
+    font-weight: 550 !important;
+    text-shadow: none !important;
 }
 
 .pricing-card-inner ul li i, .pricing-card ul li i {
-    color: #4ade80 !important;
-    font-size: 1.05rem !important;
+    color: #287A55 !important;
 }
 
-/* Pricing Card Buttons */
-.pricing-card-inner button, .pricing-card button {
-    font-weight: 800 !important;
-    color: var(--text-primary) !important;
-    border-radius: 12px !important;
-    padding: 14px 20px !important;
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5) !important;
-    text-transform: uppercase !important;
-    letter-spacing: 0.05em !important;
+/* Prevent Badges Being Cut Off */
+.glass-card, .popular-plan-card {
+    overflow: visible !important;
 }
 
-/* Free Plan Button */
-[onclick*="Free"].btn-primary, button:contains("Deploy Free") {
-    background: linear-gradient(135deg, #0ea5e9, #0284c7) !important;
-    color: var(--text-primary) !important;
-}
-
-/* Pro Plan Button */
-[onclick*="199"].btn-primary, button:contains("Pay ₹199") {
-    background: linear-gradient(135deg, #f97316, #ea580c) !important;
-    color: var(--text-primary) !important;
-}
-
-/* Premium Plan Button */
-[onclick*="299"].btn-primary, button:contains("Pay ₹299") {
-    background: linear-gradient(135deg, #a855f7, #9333ea) !important;
-    color: var(--text-primary) !important;
-}
-
-/* 5. FAQ Question Boxes */
-.faq-item {
-    background: var(--surface) !important;
-    border: 1.5px solid rgba(255, 255, 255, 0.15) !important;
-    border-radius: 14px !important;
-    margin-bottom: 12px !important;
-}
-
-.faq-header, .faq-item button, .faq-question {
-    color: var(--text-primary) !important;
-    font-weight: 700 !important;
-    font-size: 1.05rem !important;
-}
-
-.faq-answer, .faq-content {
-    color: #cbd5e1 !important;
-    font-size: 0.95rem !important;
-    line-height: 1.6 !important;
-}
-
-/* 6. Server Cards on /manage */
-.guild-card-item, #screen-servers .glass-card, [id^="server-card-"] {
-    background: var(--surface) !important;
-    border: 1.5px solid rgba(255, 255, 255, 0.12) !important;
-    border-radius: 16px !important;
-    box-shadow: 0 15px 35px rgba(0,0,0,0.6) !important;
-}
-
-.guild-card-name, [id^="server-card-"] h3, #screen-servers h2, #screen-servers h3 {
-    color: var(--text-primary) !important;
-    font-weight: 800 !important;
-    font-size: 1.15rem !important;
-}
-
-.guild-card-status, .bot-active-tag {
-    color: #4ade80 !important;
-    font-weight: 700 !important;
-}
-
-[onclick*="selectServer"], [onclick*="clickManageServers"], button:contains("MANAGE SERVER") {
-    background: linear-gradient(135deg, #7c3aed, #6d28d9) !important;
-    color: var(--text-primary) !important;
-    font-weight: 800 !important;
-    border: none !important;
-    border-radius: 10px !important;
-    padding: 12px 24px !important;
-    box-shadow: 0 6px 18px rgba(124, 58, 237, 0.4) !important;
-}
-
-/* Disable dark spotlight blur overlays permanently */
+/* Disable dark overlays */
 #custom-cursor, .tutorial-spotlight, #tutorial-spotlight {
     display: none !important;
     opacity: 0 !important;
     visibility: hidden !important;
     pointer-events: none !important;
-    box-shadow: none !important;
 }
-
-/* =================================================================
-   ULTRA-HIGH CONTRAST TOP BAR & SERVER BUTTON VISIBILITY RULES
-   ================================================================= */
-
-/* Top Navbar Container */
-.navbar, #main-nav {
-    background: rgba(10, 12, 20, 0.95) !important;
-    border-bottom: 1.5px solid rgba(255, 255, 255, 0.15) !important;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8) !important;
-}
-
-/* Top Navbar Buttons & Letters */
-.gen-btn, .nav-item button {
-    background: rgba(255, 255, 255, 0.08) !important;
-    border: 1.5px solid rgba(255, 255, 255, 0.25) !important;
-    border-radius: 50px !important;
-    padding: 8px 18px !important;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5) !important;
-    transition: all 0.25s ease !important;
-}
-
-.gen-btn:hover, .nav-item.active .gen-btn, .gen-btn.active {
-    background: rgba(168, 85, 247, 0.25) !important;
-    border-color: #a855f7 !important;
-    box-shadow: 0 0 20px rgba(168, 85, 247, 0.5) !important;
-}
-
-.gen-btn-letter, .gen-btn span, .gen-txt-wrapper span, .gen-txt-wrapper .gen-btn-letter {
-    color: var(--text-primary) !important;
-    font-weight: 800 !important;
-    font-size: 0.95rem !important;
-    letter-spacing: 0.05em !important;
-    opacity: 1 !important;
-    visibility: visible !important;
-    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.9) !important;
-    -webkit-text-fill-color: var(--text-primary) !important;
-}
-
-.gen-btn:hover .gen-btn-letter, .gen-btn:hover span, .gen-btn.active .gen-btn-letter, .gen-btn.active span {
-    color: #f3e8ff !important;
-    text-shadow: 0 0 12px rgba(168, 85, 247, 0.9) !important;
-    -webkit-text-fill-color: #f3e8ff !important;
-}
-
-/* Search Bar in Top Nav */
-[onclick*="openCommandPalette"], .nav-auth button {
-    background: rgba(255, 255, 255, 0.1) !important;
-    border: 1.5px solid rgba(255, 255, 255, 0.25) !important;
-    color: var(--text-primary) !important;
-    font-weight: 700 !important;
-}
-
-[onclick*="openCommandPalette"] span {
-    color: var(--text-primary) !important;
-    font-weight: 700 !important;
-}
-
-/* Manage Server Buttons */
-button[onclick*="selectServer"], button[onclick*="clickManageServers"], button:contains("MANAGE SERVER"), [onclick*="manage"] button {
-    background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%) !important;
-    color: var(--text-primary) !important;
-    font-weight: 800 !important;
-    font-size: 0.95rem !important;
-    letter-spacing: 0.08em !important;
-    border: 1px solid rgba(255, 255, 255, 0.3) !important;
-    border-radius: 10px !important;
-    padding: 12px 28px !important;
-    text-transform: uppercase !important;
-    box-shadow: 0 6px 20px rgba(124, 58, 237, 0.5) !important;
-}
-
-button[onclick*="selectServer"]:hover, button:contains("MANAGE SERVER"):hover {
-    background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%) !important;
-    box-shadow: 0 8px 25px rgba(139, 92, 246, 0.7) !important;
-    transform: translateY(-2px) !important;
-}
-
-/* =================================================================
-   3D INTERACTIVE MOUSE TILT & UNIFORM BOX SPACING RULES
-   ================================================================= */
-
-/* 3D Hardware Accelerated Tilt Effects - DISABLED GLOBALLY */
-.tilt-card,
-.glass-card {
-    transform: none !important;
-    perspective: none !important;
-    transform-style: flat !important;
-    will-change: auto !important;
-}
-
-.tilt-card-reset {
-    transform: none !important;
-}
-
-.tilt-card:hover {
-    transform: none !important;
-}
-
-/* Uniform Section Padding & Grid Clearance */
-body {
-    padding-top: 70px !important;
-}
-
-.screen-section {
-    padding-top: 40px !important;
-}
-
-.features-section, .pricing-section, .reviews-section, .threat-testing-section, .toolkit-section {
-    margin: 80px auto !important;
-    padding: 0 24px !important;
-}
-
-.features-grid, .pricing-grid-new {
-    gap: 32px !important;
-}
-
-.pricing-row2 {
-    gap: 32px !important;
-    margin-top: 32px !important;
-}
-
-/* Card Internal Spacing Standardization */
-.glass-card, .feat-card, .review-card, .threat-btn-card {
-    padding: 32px 28px !important;
-    border-radius: 18px !important;
-}
-
-/* Clear vertical spacing for headlines and paragraphs */
-.section-title-landing {
-    margin-bottom: 14px !important;
-    letter-spacing: -0.01em !important;
-}
-
-.section-desc-landing {
-    margin-bottom: 48px !important;
-    line-height: 1.6 !important;
-}
-
-
 
 /* =========================================================================
    AUTHENTICATED DASHBOARD FULL REDESIGN - THEME-AWARE DESIGN SYSTEM
@@ -3120,4 +2938,72 @@ h1, h2, h3, h4, h5, h6 {
     color: var(--text-primary) !important;
     font-weight: 800 !important;
     letter-spacing: -0.02em !important;
+}
+
+/* =========================================================================
+   HOMEPAGE / LANDING PAGE PURGE OF ALL FAINT / GRAY / WHITE TEXT & SHADOWS
+   ========================================================================= */
+#screen-landing,
+#screen-landing body,
+#screen-landing .amari-hero-p,
+#screen-landing .amari-hero-left p,
+#screen-landing .amari-feature-grid p,
+#screen-landing .amari-feat-tab p,
+#screen-landing .glass-card p,
+#screen-landing .pricing-card-inner p,
+#screen-landing .pricing-card-inner li span,
+#screen-landing .pricing-card p,
+#screen-landing .pricing-card li,
+#screen-landing .review-marquee-card p,
+#screen-landing .faq-item p,
+#screen-landing .faq-answer,
+#screen-landing .section-subtitle,
+#screen-landing .section-desc-landing {
+    color: #352B3A !important;
+    text-shadow: none !important;
+    font-weight: 550 !important;
+    -webkit-font-smoothing: antialiased !important;
+}
+
+#screen-landing h1,
+#screen-landing h2,
+#screen-landing h3,
+#screen-landing h4,
+#screen-landing h5,
+#screen-landing h6,
+#screen-landing .amari-hero-title,
+#screen-landing .section-title,
+#screen-landing .faq-question,
+#screen-landing .pricing-card-inner h3 {
+    color: #1C1422 !important;
+    text-shadow: none !important;
+    font-weight: 800 !important;
+    -webkit-font-smoothing: antialiased !important;
+}
+
+#screen-landing .faq-item {
+    background: #FFFFFF !important;
+    border: 1.5px solid #EDE4E7 !important;
+    box-shadow: 0 4px 16px rgba(53, 43, 58, 0.05) !important;
+}
+
+#screen-landing .faq-question {
+    color: #1C1422 !important;
+}
+
+#screen-landing .faq-answer {
+    color: #352B3A !important;
+}
+
+#screen-landing .faq-item:hover {
+    border-color: #D96C91 !important;
+}
+
+#screen-landing .faq-item.active {
+    border-color: #D96C91 !important;
+    background: #FFFFFF !important;
+}
+
+#screen-landing .faq-item.active .faq-question {
+    color: #B94E76 !important;
 }
