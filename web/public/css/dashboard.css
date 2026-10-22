@@ -161,7 +161,7 @@ body {
     font-size: 1.1rem;
     font-weight: 700;
     letter-spacing: 0.25em;
-    color: #ffffff;
+    color: var(--text-primary);
     text-transform: uppercase;
     text-shadow: 0 0 10px rgba(var(--accent-rgb), 0.6), 0 0 20px rgba(var(--accent-rgb), 0.3);
     animation: textPulseGlow 2s infinite ease-in-out;
@@ -238,7 +238,7 @@ body {
     display: block;
     font-size: 0.85rem;
     font-weight: 600;
-    color: #fff;
+    color: var(--text-primary);
     margin-bottom: 8px;
     letter-spacing: 0.05em;
     text-transform: uppercase;
@@ -311,7 +311,7 @@ body {
     width: 16px;
     left: 2px;
     bottom: 2px;
-    background-color: #ffffff;
+    background-color: var(--text-primary);
     transition: .3s ease;
     border-radius: 50%;
     box-shadow: 0 1px 4px rgba(0,0,0,0.5);
@@ -325,7 +325,7 @@ input:checked + .slider {
 
 input:checked + .slider:before {
     transform: translateX(20px);
-    background-color: #ffffff;
+    background-color: var(--text-primary);
 }
 
 /* 2. SERVER DASHBOARD WORKSPACE LAYOUT */
@@ -429,11 +429,11 @@ input:checked + .slider:before {
 }
 
 .sidebar-item a:hover {
-    color: #FFFFFF !important;
+    color: var(--accent-secondary) !important;
     background: rgba(255, 255, 255, 0.04) !important;
 }
 .sidebar-item a:hover i {
-    color: #FFFFFF !important;
+    color: var(--accent-secondary) !important;
 }
 
 .sidebar-item a {
@@ -474,7 +474,7 @@ input:checked + .slider:before {
 .section-title {
     font-size: 1.8rem;
     font-weight: 700;
-    color: #fff;
+    color: var(--text-primary);
     margin-bottom: 4px;
 }
 
@@ -501,7 +501,7 @@ input:checked + .slider:before {
 .metric-value {
     font-size: 2.2rem;
     font-weight: 700;
-    color: #fff;
+    color: var(--text-primary);
     margin-top: 8px;
     font-family: var(--font-mono);
 }
@@ -557,7 +557,7 @@ input:checked + .slider:before {
 .embed-author {
     font-size: 0.85rem;
     font-weight: 600;
-    color: #fff;
+    color: var(--text-primary);
     margin-bottom: 4px;
 }
 
@@ -725,7 +725,7 @@ input:checked + .slider:before {
 .stat-num {
     font-size: 2.2rem;
     font-weight: 700;
-    color: #fff;
+    color: var(--text-primary);
     font-family: var(--font-mono);
 }
 .stat-lbl {
@@ -846,7 +846,7 @@ input:checked + .slider:before {
     font-size: 2.2rem;
     font-weight: 700;
     letter-spacing: -0.01em;
-    color: #fff;
+    color: var(--text-primary);
     margin-bottom: 10px;
 }
 .section-desc-landing {
@@ -1070,7 +1070,7 @@ input:checked + .slider:before {
 .plan-price {
     font-size: 3rem;
     font-weight: 800;
-    color: #fff;
+    color: var(--text-primary);
     margin-bottom: 10px;
 }
 .plan-price span {
@@ -1112,7 +1112,7 @@ input:checked + .slider:before {
     top: 15px;
     right: 15px;
     background: linear-gradient(135deg, #FF6E42, #e85830);
-    color: #fff;
+    color: var(--text-primary);
     font-size: 0.65rem;
     font-weight: 700;
     padding: 4px 10px;
@@ -1252,7 +1252,7 @@ input:checked + .slider:before {
 }
 .sec-nav-btn:hover, .sec-nav-btn.active {
     border-color: var(--accent-primary);
-    color: #fff;
+    color: var(--text-primary);
     background: rgba(var(--accent-rgb), 0.05);
     box-shadow: 0 0 10px rgba(var(--accent-rgb), 0.1);
 }
@@ -1301,7 +1301,7 @@ input:checked + .slider:before {
 .audit-card-content strong {
     font-size: 0.85rem;
     letter-spacing: 0.05em;
-    color: #fff;
+    color: var(--text-primary);
     display: block;
     margin-bottom: 4px;
 }
@@ -1318,7 +1318,7 @@ input:checked + .slider:before {
     font-family: var(--font-display);
     font-size: 0.85rem;
     font-weight: 700;
-    color: #fff;
+    color: var(--text-primary);
     letter-spacing: 0.1em;
     margin-bottom: 20px;
     border-left: 3px solid var(--accent-primary);
@@ -1351,7 +1351,7 @@ input:checked + .slider:before {
 .control-name {
     font-size: 0.85rem;
     font-weight: 700;
-    color: #fff;
+    color: var(--text-primary);
     letter-spacing: 0.05em;
 }
 .checkbox-container {
@@ -1379,7 +1379,7 @@ input:checked + .slider:before {
     transition: all 0.2s ease;
 }
 .checkbox-container:hover input ~ .checkmark-box {
-    border-color: #ffffff;
+    border-color: var(--text-primary);
     box-shadow: 0 0 10px rgba(255, 255, 255, 0.6);
 }
 .checkbox-container input:checked ~ .checkmark-box {
@@ -1423,7 +1423,7 @@ input:checked + .slider:before {
 .form-control-sec {
     background: #0c0c0d;
     border: 1px solid var(--border-color);
-    color: #fff;
+    color: var(--text-primary);
     padding: 8px 12px;
     border-radius: 6px;
     font-size: 0.85rem;
@@ -1481,7 +1481,7 @@ input:checked + .slider:before {
 .stat-box-large .stat-num {
     font-size: 1.6rem !important;
     font-weight: 700 !important;
-    color: #fff !important;
+    color: var(--text-primary) !important;
     line-height: 1.1 !important;
     white-space: nowrap !important;
     margin-bottom: 2px !important;
@@ -1533,7 +1533,7 @@ input:checked + .slider:before {
 }
 .user-meta .username {
     font-weight: 700;
-    color: #fff;
+    color: var(--text-primary);
     font-size: 0.95rem;
 }
 .user-meta .server-role {
@@ -1688,7 +1688,7 @@ input:checked + .slider:before {
     border-radius: 100px;
     font-size: 0.85rem;
     font-weight: 600;
-    color: #fff;
+    color: var(--text-primary);
     white-space: nowrap;
     cursor: pointer;
     pointer-events: auto;
@@ -1805,7 +1805,7 @@ input:checked + .slider:before {
     font-family: var(--font-display);
     font-weight: 800;
     letter-spacing: -0.01em;
-    color: #fff;
+    color: var(--text-primary);
     line-height: 0.9;
     margin-bottom: 20px;
 }
@@ -1862,7 +1862,7 @@ input:checked + .slider:before {
     letter-spacing: 0.35em;
     font-size: 0.85rem;
     font-weight: 700; /* High visible weight */
-    color: #ffffff;
+    color: var(--text-primary);
     text-transform: uppercase;
     text-shadow: 0 0 10px rgba(255, 255, 255, 0.6);
     box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6), 0 0 15px rgba(147, 51, 234, 0.2), inset 0 0 10px rgba(147, 51, 234, 0.15);
@@ -1930,7 +1930,7 @@ input:checked + .slider:before {
     justify-content: center;
     font-size: 2rem;
     font-weight: 800;
-    color: #fff;
+    color: var(--text-primary);
     background: #1e1e2d;
     transition: all 0.3s ease;
     overflow: hidden;
@@ -1954,7 +1954,7 @@ input:checked + .slider:before {
     letter-spacing: 0.02em;
 }
 .dyno-server-card:hover .dyno-server-name {
-    color: #fff;
+    color: var(--text-primary);
 }
 .dyno-status-badge {
     position: absolute;
@@ -2015,7 +2015,7 @@ input:checked + .slider:before {
 
 /* --- GLITCH TEXT COMPONENT STYLES --- */
 .glitch {
-    color: #fff;
+    color: var(--text-primary);
     white-space: nowrap;
     position: relative;
     margin: 0 auto;
@@ -2031,7 +2031,7 @@ input:checked + .slider:before {
     left: 0;
     width: 100%;
     height: 100%;
-    color: #fff;
+    color: var(--text-primary);
     background-color: #030303; /* Matches the exact reveal footer background color */
     overflow: hidden;
     clip-path: inset(0 0 0 0);
@@ -2216,7 +2216,7 @@ input:checked + .slider:before {
 }
 
 .gen-btn:hover .gen-btn-letter {
-    color: #fff;
+    color: var(--text-primary);
     text-shadow: 0 0 8px hsl(var(--highlight-color-hue), var(--highlight-color-sat), calc(var(--highlight-color-light) + 5%));
 }
 
@@ -2234,7 +2234,7 @@ input:checked + .slider:before {
     opacity: 0.5;
 }
 .gen-btn.active .gen-btn-letter {
-    color: #fff;
+    color: var(--text-primary);
     text-shadow: 0 0 5px hsl(var(--highlight-color-hue), var(--highlight-color-sat), calc(var(--highlight-color-light) + 10%));
 }
 
@@ -2271,7 +2271,7 @@ input:checked + .slider:before {
     z-index: 10;
     border-radius: 50px;
     background: #06080d;
-    color: #fff;
+    color: var(--text-primary);
     font-weight: 600;
     font-size: 0.92rem;
     padding: 10px 24px;
@@ -2285,7 +2285,7 @@ input:checked + .slider:before {
 
 .liquid-metal-btn:hover .liquid-metal-btn-inner {
     background: #111420;
-    color: #fff;
+    color: var(--text-primary);
 }
 
 @keyframes liquid-metal-flow {
@@ -2472,7 +2472,7 @@ input:checked + .slider:before {
 
 /* 1. Header Nav Buttons */
 .gen-btn-letter {
-    color: #ffffff !important;
+    color: var(--text-primary) !important;
     font-weight: 700 !important;
     opacity: 1 !important;
     text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9) !important;
@@ -2496,14 +2496,14 @@ body, p, span, div, li, h1, h2, h3, h4, h5, h6 {
 .hero-grid-split .btn-secondary, [onclick="clickManageServers()"].btn-secondary {
     background: rgba(255, 255, 255, 0.15) !important;
     border: 1.5px solid rgba(255, 255, 255, 0.3) !important;
-    color: #ffffff !important;
+    color: var(--text-primary) !important;
     font-weight: 800 !important;
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.6) !important;
 }
 
 .hero-grid-split .btn-primary, [onclick="simulateAddBot()"].btn-primary {
     background: linear-gradient(135deg, #FF6E42, #e85830) !important;
-    color: #ffffff !important;
+    color: var(--text-primary) !important;
     font-weight: 800 !important;
     box-shadow: 0 8px 25px rgba(255, 110, 66, 0.4) !important;
 }
@@ -2523,7 +2523,7 @@ body, p, span, div, li, h1, h2, h3, h4, h5, h6 {
 /* Pricing Card Buttons */
 .pricing-card-inner button, .pricing-card button {
     font-weight: 800 !important;
-    color: #ffffff !important;
+    color: var(--text-primary) !important;
     border-radius: 12px !important;
     padding: 14px 20px !important;
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5) !important;
@@ -2534,19 +2534,19 @@ body, p, span, div, li, h1, h2, h3, h4, h5, h6 {
 /* Free Plan Button */
 [onclick*="Free"].btn-primary, button:contains("Deploy Free") {
     background: linear-gradient(135deg, #0ea5e9, #0284c7) !important;
-    color: #ffffff !important;
+    color: var(--text-primary) !important;
 }
 
 /* Pro Plan Button */
 [onclick*="199"].btn-primary, button:contains("Pay ₹199") {
     background: linear-gradient(135deg, #f97316, #ea580c) !important;
-    color: #ffffff !important;
+    color: var(--text-primary) !important;
 }
 
 /* Premium Plan Button */
 [onclick*="299"].btn-primary, button:contains("Pay ₹299") {
     background: linear-gradient(135deg, #a855f7, #9333ea) !important;
-    color: #ffffff !important;
+    color: var(--text-primary) !important;
 }
 
 /* 5. FAQ Question Boxes */
@@ -2558,7 +2558,7 @@ body, p, span, div, li, h1, h2, h3, h4, h5, h6 {
 }
 
 .faq-header, .faq-item button, .faq-question {
-    color: #ffffff !important;
+    color: var(--text-primary) !important;
     font-weight: 700 !important;
     font-size: 1.05rem !important;
 }
@@ -2578,7 +2578,7 @@ body, p, span, div, li, h1, h2, h3, h4, h5, h6 {
 }
 
 .guild-card-name, [id^="server-card-"] h3, #screen-servers h2, #screen-servers h3 {
-    color: #ffffff !important;
+    color: var(--text-primary) !important;
     font-weight: 800 !important;
     font-size: 1.15rem !important;
 }
@@ -2590,7 +2590,7 @@ body, p, span, div, li, h1, h2, h3, h4, h5, h6 {
 
 [onclick*="selectServer"], [onclick*="clickManageServers"], button:contains("MANAGE SERVER") {
     background: linear-gradient(135deg, #7c3aed, #6d28d9) !important;
-    color: #ffffff !important;
+    color: var(--text-primary) !important;
     font-weight: 800 !important;
     border: none !important;
     border-radius: 10px !important;
@@ -2635,14 +2635,14 @@ body, p, span, div, li, h1, h2, h3, h4, h5, h6 {
 }
 
 .gen-btn-letter, .gen-btn span, .gen-txt-wrapper span, .gen-txt-wrapper .gen-btn-letter {
-    color: #ffffff !important;
+    color: var(--text-primary) !important;
     font-weight: 800 !important;
     font-size: 0.95rem !important;
     letter-spacing: 0.05em !important;
     opacity: 1 !important;
     visibility: visible !important;
     text-shadow: 0 1px 4px rgba(0, 0, 0, 0.9) !important;
-    -webkit-text-fill-color: #ffffff !important;
+    -webkit-text-fill-color: var(--text-primary) !important;
 }
 
 .gen-btn:hover .gen-btn-letter, .gen-btn:hover span, .gen-btn.active .gen-btn-letter, .gen-btn.active span {
@@ -2655,19 +2655,19 @@ body, p, span, div, li, h1, h2, h3, h4, h5, h6 {
 [onclick*="openCommandPalette"], .nav-auth button {
     background: rgba(255, 255, 255, 0.1) !important;
     border: 1.5px solid rgba(255, 255, 255, 0.25) !important;
-    color: #ffffff !important;
+    color: var(--text-primary) !important;
     font-weight: 700 !important;
 }
 
 [onclick*="openCommandPalette"] span {
-    color: #ffffff !important;
+    color: var(--text-primary) !important;
     font-weight: 700 !important;
 }
 
 /* Manage Server Buttons */
 button[onclick*="selectServer"], button[onclick*="clickManageServers"], button:contains("MANAGE SERVER"), [onclick*="manage"] button {
     background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%) !important;
-    color: #ffffff !important;
+    color: var(--text-primary) !important;
     font-weight: 800 !important;
     font-size: 0.95rem !important;
     letter-spacing: 0.08em !important;
