@@ -6,7 +6,7 @@
     <title>VEYRA - Premium Discord Protection & Automation Suite</title>
     
     <!-- Modern typography and FontAwesome icons -->
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Outfit:wght@300;400;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Syne:wght@700;800;900&family=JetBrains+Mono:wght@400;500;700&family=Space+Grotesk:wght@400;600;700&display=swap">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <!-- Import Maps for Modern ES Modules -->
@@ -501,6 +501,588 @@
         .section-desc-landing {
             color: rgba(255,255,255,0.6) !important;
         }
+    
+        /* ========================================================
+           UI/UX PRO MAX - MODERN HERO & SENTINEL COCKPIT REDESIGN
+           Dark Mode OLED + Bento Telemetry + Operations Cockpit
+        ======================================================== */
+        @keyframes livePulse {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.35); opacity: 0.6; }
+        }
+
+        .veyra-hero-container {
+            position: relative;
+            width: 100%;
+            min-height: calc(100vh - 70px);
+            padding: 120px 4% 60px 4%;
+            box-sizing: border-box;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            z-index: 10;
+        }
+
+        .hero-ambient-glow {
+            position: absolute;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 1;
+            filter: blur(120px);
+        }
+        .hero-glow-violet {
+            width: 550px;
+            height: 550px;
+            background: rgba(124, 58, 237, 0.16);
+            top: -60px;
+            left: 5%;
+        }
+        .hero-glow-ember {
+            width: 500px;
+            height: 500px;
+            background: rgba(255, 110, 66, 0.14);
+            top: 25%;
+            right: 2%;
+        }
+        .hero-grid-pattern {
+            position: absolute;
+            inset: 0;
+            background-image: radial-gradient(rgba(255, 255, 255, 0.08) 1px, transparent 1px);
+            background-size: 32px 32px;
+            opacity: 0.3;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .hero-content-grid {
+            display: grid;
+            grid-template-columns: 1.18fr 0.88fr;
+            gap: 56px;
+            max-width: 1400px;
+            width: 100%;
+            margin: 0 auto;
+            align-items: center;
+            position: relative;
+            z-index: 2;
+        }
+
+        .hero-left-column {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            text-align: left;
+            width: 100%;
+        }
+
+        .hero-live-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(13, 17, 28, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            padding: 6px 14px;
+            border-radius: 100px;
+            font-family: var(--font-mono, 'JetBrains Mono', monospace);
+            font-size: 0.72rem;
+            letter-spacing: 0.08em;
+            margin-bottom: 22px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+            backdrop-filter: blur(10px);
+        }
+        .live-pulse-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #10B981;
+            box-shadow: 0 0 10px #10B981;
+            animation: livePulse 2s infinite ease-in-out;
+        }
+        .live-pill-tag {
+            color: #A855F7;
+            font-weight: 800;
+        }
+        .live-pill-sep {
+            color: rgba(255,255,255,0.25);
+        }
+        .live-pill-label {
+            color: #E2E8F0;
+            font-weight: 600;
+        }
+
+        .hero-title {
+            font-family: 'Inter', var(--font-display, sans-serif);
+            font-size: clamp(2.6rem, 4.8vw, 4.2rem);
+            font-weight: 900;
+            line-height: 1.1;
+            letter-spacing: -0.035em;
+            color: #FFFFFF;
+            margin: 0 0 20px 0;
+            text-align: left;
+        }
+        .hero-title-gradient {
+            background: linear-gradient(135deg, #FFFFFF 15%, #C084FC 60%, #FF6E42 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            display: inline-block;
+        }
+
+        .hero-lead {
+            font-size: 1.05rem;
+            line-height: 1.65;
+            color: #94A3B8;
+            max-width: 580px;
+            margin: 0 0 30px 0;
+            font-weight: 400;
+            text-align: left;
+        }
+
+        .hero-cta-group {
+            display: flex;
+            gap: 14px;
+            flex-wrap: wrap;
+            align-items: center;
+            margin-bottom: 22px;
+        }
+        .btn-hero-primary {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: linear-gradient(135deg, #FF6E42 0%, #FF8F6B 100%);
+            color: #05060A;
+            font-family: var(--font-display, sans-serif);
+            font-size: 0.95rem;
+            font-weight: 800;
+            padding: 13px 28px;
+            border-radius: 100px;
+            text-decoration: none;
+            box-shadow: 0 8px 25px rgba(255, 110, 66, 0.35);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            cursor: pointer;
+            border: none;
+        }
+        .btn-hero-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 35px rgba(255, 110, 66, 0.5);
+        }
+        .btn-hero-secondary {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            color: #F8FAFC;
+            font-family: var(--font-display, sans-serif);
+            font-size: 0.95rem;
+            font-weight: 700;
+            padding: 13px 26px;
+            border-radius: 100px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            backdrop-filter: blur(8px);
+        }
+        .btn-hero-secondary:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(255, 255, 255, 0.25);
+            transform: translateY(-2px);
+        }
+        .btn-status-pip {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: #10B981;
+            box-shadow: 0 0 8px #10B981;
+        }
+
+        .hero-trust-bar {
+            display: flex;
+            gap: 18px;
+            flex-wrap: wrap;
+            margin-bottom: 32px;
+        }
+        .trust-item {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.78rem;
+            color: #64748B;
+            font-weight: 500;
+        }
+        .trust-item i {
+            color: #10B981;
+            font-size: 0.75rem;
+        }
+
+        .hero-bento-metrics {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            width: 100%;
+            max-width: 620px;
+            border-top: 1px solid rgba(255, 255, 255, 0.07);
+            padding-top: 24px;
+        }
+        .bento-metric-card {
+            background: rgba(13, 17, 28, 0.55);
+            border: 1px solid rgba(255, 255, 255, 0.07);
+            border-radius: 12px;
+            padding: 12px 14px;
+            backdrop-filter: blur(12px);
+            transition: border-color 0.2s, transform 0.2s;
+            text-align: left;
+        }
+        .bento-metric-card:hover {
+            border-color: rgba(255, 255, 255, 0.18);
+            transform: translateY(-2px);
+        }
+        .metric-icon-wrap {
+            font-size: 0.8rem;
+            color: #64748B;
+            margin-bottom: 4px;
+        }
+        .metric-val {
+            font-family: 'Inter', var(--font-display, sans-serif);
+            font-size: 1.35rem;
+            font-weight: 800;
+            color: #FFFFFF;
+            letter-spacing: -0.02em;
+            line-height: 1.1;
+        }
+        .metric-lbl {
+            font-family: var(--font-mono, monospace);
+            font-size: 0.65rem;
+            color: #64748B;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-top: 4px;
+        }
+        .text-ember { color: #FF6E42 !important; }
+        .text-emerald { color: #10B981 !important; }
+        .text-violet { color: #A855F7 !important; }
+
+        /* Sentinel Cockpit Window */
+        .cockpit-glass-window {
+            background: rgba(11, 15, 25, 0.82);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            box-shadow: 0 30px 70px -10px rgba(0,0,0,0.8), 0 0 40px rgba(124, 58, 237, 0.1);
+            backdrop-filter: blur(24px);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+        }
+        .cockpit-header {
+            background: #181b20;
+            padding: 12px 18px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        }
+        .cockpit-traffic-dots {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .cockpit-traffic-dots .dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+        }
+        .dot-red { background: #ff5f56; }
+        .dot-amber { background: #ffbd2e; }
+        .dot-green { background: #27c93f; }
+
+        .cockpit-title-tag {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-family: var(--font-mono, monospace);
+            font-size: 0.72rem;
+            color: #94A3B8;
+            font-weight: 600;
+        }
+        .cockpit-status-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #10B981;
+            box-shadow: 0 0 6px #10B981;
+        }
+        .cockpit-latency-pill {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.25);
+            color: #10B981;
+            font-family: var(--font-mono, monospace);
+            font-size: 0.65rem;
+            padding: 3px 8px;
+            border-radius: 20px;
+            font-weight: 700;
+        }
+        .latency-pulse {
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            background: #10B981;
+            animation: livePulse 1.5s infinite;
+        }
+
+        .cockpit-module-tabs {
+            display: flex;
+            background: #202225;
+            padding: 4px;
+            gap: 4px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+            overflow-x: auto;
+        }
+        .cockpit-tab {
+            flex: 1;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            background: transparent;
+            border: none;
+            color: #94A3B8;
+            font-family: var(--font-display, sans-serif);
+            font-size: 0.75rem;
+            font-weight: 700;
+            padding: 8px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            white-space: nowrap;
+        }
+        .cockpit-tab:hover {
+            color: #FFFFFF;
+            background: rgba(255, 255, 255, 0.04);
+        }
+        .cockpit-tab.active {
+            background: #5865F2;
+            color: #FFFFFF;
+            box-shadow: 0 2px 8px rgba(88, 101, 242, 0.4);
+        }
+
+        .cockpit-body {
+            padding: 18px 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            background: #2F3136;
+        }
+        .cockpit-cmd-line {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-family: var(--font-mono, monospace);
+            font-size: 0.75rem;
+            color: #94A3B8;
+        }
+        .cmd-user {
+            color: #FFFFFF;
+            font-weight: 700;
+        }
+        .cmd-used {
+            color: #64748B;
+        }
+        .cmd-code {
+            color: #38BDF8;
+            background: rgba(56, 189, 248, 0.1);
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+        }
+
+        .cockpit-bot-card {
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+        }
+        .cockpit-bot-avatar {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 1.5px solid #FF6E42;
+            flex-shrink: 0;
+        }
+        .cockpit-bot-content {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            width: 100%;
+        }
+        .cockpit-bot-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .bot-name {
+            font-weight: 800;
+            color: #FFFFFF;
+            font-size: 0.92rem;
+        }
+        .bot-badge {
+            background: #5865F2;
+            color: #FFFFFF;
+            font-size: 0.62rem;
+            font-weight: 800;
+            padding: 1px 5px;
+            border-radius: 4px;
+        }
+        .bot-time {
+            font-size: 0.68rem;
+            color: #94A3B8;
+            font-family: var(--font-mono, monospace);
+        }
+
+        .cockpit-embed {
+            background: #2B2D31;
+            border-left: 4px solid #FF6E42;
+            border-radius: 4px 8px 8px 4px;
+            padding: 14px 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .embed-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 800;
+            font-size: 0.92rem;
+            color: #FFFFFF;
+        }
+        .embed-desc {
+            font-size: 0.82rem;
+            color: #DCDDDE;
+            line-height: 1.5;
+        }
+        .embed-metrics-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-top: 4px;
+        }
+        .embed-metric-cell {
+            background: rgba(0, 0, 0, 0.25);
+            padding: 6px 10px;
+            border-radius: 6px;
+        }
+        .metric-cell-lbl {
+            font-size: 0.62rem;
+            color: #94A3B8;
+            font-weight: 700;
+            text-transform: uppercase;
+            display: block;
+        }
+        .metric-cell-val {
+            font-size: 0.78rem;
+            font-weight: 800;
+            margin-top: 2px;
+            display: block;
+        }
+
+        .cockpit-action-row {
+            display: flex;
+            gap: 8px;
+            margin-top: 4px;
+            flex-wrap: wrap;
+        }
+        .cockpit-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-family: var(--font-display, sans-serif);
+            font-size: 0.75rem;
+            font-weight: 700;
+            padding: 7px 12px;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+        .cockpit-btn-primary {
+            background: #5865F2;
+            color: #FFFFFF;
+        }
+        .cockpit-btn-primary:hover {
+            background: #4752C4;
+        }
+        .cockpit-btn-secondary {
+            background: #4E5058;
+            color: #FFFFFF;
+        }
+        .cockpit-btn-secondary:hover {
+            background: #6D6F78;
+        }
+        .cockpit-btn-success {
+            background: #248046;
+            color: #FFFFFF;
+        }
+        .cockpit-btn-success:hover {
+            background: #1A6334;
+        }
+
+        .cockpit-footer-telemetry {
+            background: #18191C;
+            border-top: 1px solid rgba(255, 255, 255, 0.06);
+            padding: 9px 18px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: var(--font-mono, monospace);
+            font-size: 0.68rem;
+            color: #94A3B8;
+        }
+        .telemetry-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .telemetry-lbl {
+            color: #64748B;
+        }
+        .telemetry-val {
+            color: #E2E8F0;
+            font-weight: 700;
+        }
+
+        @media (max-width: 1024px) {
+            .hero-content-grid {
+                grid-template-columns: 1fr;
+                gap: 40px;
+                text-align: center;
+            }
+            .hero-left-column {
+                align-items: center;
+                text-align: center;
+            }
+            .hero-title, .hero-lead {
+                text-align: center;
+            }
+            .hero-cta-group, .hero-trust-bar {
+                justify-content: center;
+            }
+            .hero-bento-metrics {
+                grid-template-columns: repeat(2, 1fr);
+                margin: 0 auto;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .hero-bento-metrics {
+                grid-template-columns: 1fr;
+            }
+            .cockpit-module-tabs {
+                flex-wrap: wrap;
+            }
+        }
+
     </style>
 
     <script>
@@ -1232,153 +1814,214 @@
         <!-- [SCREEN 1: PUBLIC LANDING PAGE] -->
         <section id="screen-landing" class="screen-section">
              <!-- VEYRA BOT upper text banner on homepage -->
-            <!-- HERO: Two-Column Left-Text Right-Terminal Layout -->
-            <div class="hero-grid-split" style="display: grid; grid-template-columns: 1.15fr 0.85fr; gap: 60px; max-width: 95vw; width: 100%; margin: 0 auto; padding: 120px 4% 60px 4%; align-items: center; min-height: calc(100vh - 70px); box-sizing: border-box; position: relative; z-index: 10;">
-                
-                <!-- LEFT: Brand Typography & Call to Actions -->
-                <div style="display: flex; flex-direction: column; align-items: flex-start; justify-content: center; width: 100%;">
-                    <div style="margin-bottom: 24px; background: rgba(255, 110, 66, 0.08); border: 1px solid rgba(255, 110, 66, 0.25); color: #FF6E42; font-family: var(--font-mono); font-size: 0.72rem; font-weight: 700; letter-spacing: 0.12em; padding: 7px 18px; border-radius: 50px; display: inline-flex; align-items: center; gap: 8px;">
-                        <i class="fas fa-shield-halved"></i>
-                        <span>EASY DISCORD MANAGEMENT, ENGAGEMENT &amp; SECURITY</span>
+            <!-- [NEW MODERN HERO SECTION: REAL-TIME OPERATIONS COCKPIT] -->
+            <div class="veyra-hero-container">
+                <!-- Ambient Glow Lights Behind Hero -->
+                <div class="hero-ambient-glow hero-glow-violet"></div>
+                <div class="hero-ambient-glow hero-glow-ember"></div>
+                <div class="hero-grid-pattern"></div>
+
+                <div class="hero-content-grid">
+                    <!-- LEFT COLUMN: Value Proposition & High-Conversion CTAs -->
+                    <div class="hero-left-column">
+                        <!-- Live Status Pill -->
+                        <div class="hero-live-pill">
+                            <span class="live-pulse-dot"></span>
+                            <span class="live-pill-tag">KERNEL v4.2</span>
+                            <span class="live-pill-sep">/</span>
+                            <span class="live-pill-label">AUTONOMOUS DISCORD DEFENSE</span>
+                        </div>
+
+                        <!-- Main Display Headline -->
+                        <h1 class="hero-title">
+                            Next-Gen Discord Engine.<br>
+                            <span class="hero-title-gradient">Zero-Latency Defense &amp; Automation.</span>
+                        </h1>
+
+                        <!-- Lead Paragraph -->
+                        <p class="hero-lead">
+                            Stop raids, rogue admins, and token breaches before they hit your audit log. VEYRA combines autonomous anti-nuke triggers, instant member verification gates, intelligent automod heuristics, and multi-channel ticket pipelines in one unified real-time cockpit.
+                        </p>
+
+                        <!-- High Conversion CTA Buttons -->
+                        <div class="hero-cta-group">
+                            <a href="https://discord.com/oauth2/authorize?client_id=1527243189860175933&permissions=8&integration_type=0&scope=bot+applications.commands" target="_blank" rel="noreferrer" class="btn-hero-primary">
+                                <i class="fab fa-discord"></i>
+                                <span>Add VEYRA to Discord</span>
+                                <i class="fas fa-arrow-right" style="font-size: 0.85rem; margin-left: 2px;"></i>
+                            </a>
+                            <button onclick="clickManageServers()" class="btn-hero-secondary">
+                                <span class="btn-status-pip"></span>
+                                <span>Open Dashboard</span>
+                            </button>
+                        </div>
+
+                        <!-- Micro Trust Guarantee -->
+                        <div class="hero-trust-bar">
+                            <div class="trust-item">
+                                <i class="fas fa-check-circle"></i>
+                                <span>Free Tier Included</span>
+                            </div>
+                            <div class="trust-item">
+                                <i class="fas fa-check-circle"></i>
+                                <span>Instant 1-Click Setup</span>
+                            </div>
+                            <div class="trust-item">
+                                <i class="fas fa-check-circle"></i>
+                                <span>No Credit Card Required</span>
+                            </div>
+                        </div>
+
+                        <!-- Live Telemetry Bento Grid (4 Cards) -->
+                        <div class="hero-bento-metrics">
+                            <div class="bento-metric-card">
+                                <div class="metric-icon-wrap">
+                                    <i class="fas fa-server"></i>
+                                </div>
+                                <div class="metric-val">28,491+</div>
+                                <div class="metric-lbl">Active Guilds</div>
+                            </div>
+
+                            <div class="bento-metric-card">
+                                <div class="metric-icon-wrap">
+                                    <i class="fas fa-shield-halved text-ember"></i>
+                                </div>
+                                <div class="metric-val text-ember">14.8M+</div>
+                                <div class="metric-lbl">Users Guarded</div>
+                            </div>
+
+                            <div class="bento-metric-card">
+                                <div class="metric-icon-wrap">
+                                    <i class="fas fa-bolt text-emerald"></i>
+                                </div>
+                                <div class="metric-val text-emerald">&lt; 0.04ms</div>
+                                <div class="metric-lbl">Edge Latency</div>
+                            </div>
+
+                            <div class="bento-metric-card">
+                                <div class="metric-icon-wrap">
+                                    <i class="fas fa-heart-pulse text-violet"></i>
+                                </div>
+                                <div class="metric-val text-violet">99.99%</div>
+                                <div class="metric-lbl">Uptime SLA</div>
+                            </div>
+                        </div>
                     </div>
-                    
-                    <h1 style="font-size: clamp(2.8rem, 5vw, 4.4rem); line-height: 1.08; font-weight: 900; font-family: var(--font-display); letter-spacing: -0.02em; color: #FFFFFF; margin: 0 0 10px 0; text-align: left; width: 100%;">The Ultimate Discord</h1>
-                    <h1 style="font-size: clamp(2.8rem, 5vw, 4.4rem); line-height: 1.08; font-weight: 900; font-family: var(--font-display); letter-spacing: -0.02em; background: linear-gradient(135deg, #ffffff 0%, #FF6E42 50%, #ff8f6b 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin: 0 0 24px 0; text-align: left; width: 100%;">VEYRA BOT</h1>
-                    
-                    <p style="font-size: 1.08rem; line-height: 1.7; color: rgba(249, 249, 249, 0.75); max-width: 580px; margin: 0 0 35px 0; text-align: left;">Manage and protect your Discord server with ease. VEYRA handles invites tracking, welcome greetings, custom embeds, moderation, leveling XP, giveaways, tickets, and anti-nuke security 24/7.</p>
-                    
-                    <div style="display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 45px; justify-content: flex-start; align-items: center; width: 100%;">
-                        <a href="https://discord.com/oauth2/authorize?client_id=1527243189860175933&permissions=8&integration_type=0&scope=bot+applications.commands" target="_blank" style="background: linear-gradient(135deg, #FF6E42, #ff8f6b); color: #000; padding: 14px 34px; border-radius: 50px; font-weight: 800; font-size: 0.95rem; text-decoration: none; display: inline-flex; align-items: center; gap: 10px; box-shadow: 0 6px 25px rgba(255, 110, 66, 0.45); transition: all 0.25s ease;" onmouseover="this.style.transform='translateY(-2px) scale(1.02)'; this.style.boxShadow='0 10px 30px rgba(255,110,66,0.6)';" onmouseout="this.style.transform='none'; this.style.boxShadow='0 6px 25px rgba(255, 110, 66, 0.45)';">
-                            <span>INVITE VEYRA BOT</span> <i class="fas fa-arrow-right"></i>
-                        </a>
-                        <button onclick="clickManageServers()" style="background: rgba(255, 255, 255, 0.05); border: 1.5px solid rgba(255, 255, 255, 0.15); color: #fff; padding: 14px 32px; border-radius: 50px; font-weight: 700; font-size: 0.95rem; cursor: pointer; transition: all 0.25s ease;" onmouseover="this.style.background='rgba(255,255,255,0.12)'; this.style.borderColor='rgba(255,255,255,0.3)';" onmouseout="this.style.background='rgba(255, 255, 255, 0.05)'; this.style.borderColor='rgba(255, 255, 255, 0.15)';">
-                            Open Dashboard
-                        </button>
-                    </div>
-                    
-                    <!-- 4-stat row -->
-                    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; width: 100%; max-width: 620px; margin-top: auto; border-top: 1px solid rgba(255,255,255,0.06); padding-top: 26px;">
-                        <div>
-                            <div style="font-size: 1.8rem; font-weight: 800; color: #FFFFFF; font-family: var(--font-display);">28,491</div>
-                            <div style="font-size: 0.68rem; color: rgba(249,249,249,0.5); margin-top: 4px; font-family: var(--font-mono); letter-spacing: 0.05em; text-transform: uppercase;">Servers Guarded</div>
-                        </div>
-                        <div>
-                            <div style="font-size: 1.8rem; font-weight: 800; color: #FF6E42; font-family: var(--font-display);">14.8M</div>
-                            <div style="font-size: 0.68rem; color: rgba(249,249,249,0.5); margin-top: 4px; font-family: var(--font-mono); letter-spacing: 0.05em; text-transform: uppercase;">Users Protected</div>
-                        </div>
-                        <div>
-                            <div style="font-size: 1.8rem; font-weight: 800; color: #10b981; font-family: var(--font-display);">0.04ms</div>
-                            <div style="font-size: 0.68rem; color: rgba(249,249,249,0.5); margin-top: 4px; font-family: var(--font-mono); letter-spacing: 0.05em; text-transform: uppercase;">Response Time</div>
-                        </div>
-                        <div>
-                            <div style="font-size: 1.8rem; font-weight: 800; color: #a855f7; font-family: var(--font-display);">99.99%</div>
-                            <div style="font-size: 0.68rem; color: rgba(249,249,249,0.5); margin-top: 4px; font-family: var(--font-mono); letter-spacing: 0.05em; text-transform: uppercase;">Uptime</div>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- RIGHT: High-End Live Interactive Discord Bot Simulator Terminal -->
-                <div style="width: 100%; display: flex; justify-content: center; align-items: center; position: relative;">
-                    <div class="discord-sim-window">
-                        <!-- Top macOS Bar -->
-                        <div class="discord-sim-topbar">
-                            <div class="discord-sim-dots">
-                                <span style="background: #fc5c57;"></span>
-                                <span style="background: #fdbb2d;"></span>
-                                <span style="background: #27c93f;"></span>
-                            </div>
-                            <div style="display: flex; align-items: center; gap: 7px; color: #f8fafc; font-family: var(--font-mono); font-size: 0.72rem; font-weight: 700;">
-                                <i class="fas fa-hashtag" style="color: #94a3b8;"></i>
-                                <span>veyra-command-feed</span>
-                            </div>
-                            <div style="display: flex; align-items: center; gap: 6px; font-family: var(--font-mono); font-size: 0.62rem; color: #10b981; background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.25); padding: 3px 8px; border-radius: 4px; font-weight: 700;">
-                                <span style="width: 6px; height: 6px; border-radius: 50%; background: #10b981; display: inline-block; animation: pulse 1s infinite;"></span>
-                                0.04ms • ACTIVE
-                            </div>
-                        </div>
 
-                        <!-- Interactive Category Filter Tabs -->
-                        <div class="discord-sim-tabs">
-                            <button onclick="switchHeroFeed('security')" class="discord-sim-tab active" id="tab-security">
-                                <i class="fas fa-shield-halved" style="color: #FF6E42;"></i> Anti-Nuke
-                            </button>
-                            <button onclick="switchHeroFeed('tickets')" class="discord-sim-tab" id="tab-tickets">
-                                <i class="fas fa-ticket" style="color: #a855f7;"></i> Tickets
-                            </button>
-                            <button onclick="switchHeroFeed('music')" class="discord-sim-tab" id="tab-music">
-                                <i class="fas fa-music" style="color: #00c2ff;"></i> 24/7 Voice
-                            </button>
-                            <button onclick="switchHeroFeed('automod')" class="discord-sim-tab" id="tab-automod">
-                                <i class="fas fa-bolt" style="color: #10b981;"></i> Auto-Mod
-                            </button>
-                        </div>
-
-                        <!-- Discord Message Body -->
-                        <div class="discord-sim-body" id="hero-discord-body">
-                            <!-- User Command Header -->
-                            <div style="display: flex; align-items: center; gap: 8px; font-size: 0.74rem; color: #94a3b8; font-family: var(--font-mono);">
-                                <i class="fas fa-chevron-right" style="color: #5865F2; font-size: 0.68rem;"></i>
-                                <span style="color: #fff; font-weight: 700;">@Admin</span> used <code style="color: #00c2ff; background: rgba(0,194,255,0.1); padding: 2px 6px; border-radius: 4px;" id="hero-sim-command">/security shield-status: true</code>
+                    <!-- RIGHT COLUMN: Interactive Control Cockpit -->
+                    <div class="hero-right-column">
+                        <div class="cockpit-glass-window">
+                            <!-- Window Header -->
+                            <div class="cockpit-header">
+                                <div class="cockpit-traffic-dots">
+                                    <span class="dot dot-red"></span>
+                                    <span class="dot dot-amber"></span>
+                                    <span class="dot dot-green"></span>
+                                </div>
+                                <div class="cockpit-title-tag">
+                                    <span class="cockpit-status-dot"></span>
+                                    <span class="cockpit-feed-title"># veyra-sentinel-feed</span>
+                                </div>
+                                <div class="cockpit-latency-pill">
+                                    <span class="latency-pulse"></span>
+                                    <span>0.04ms · SHARD #04</span>
+                                </div>
                             </div>
 
-                            <!-- Bot Response Card -->
-                            <div style="display: flex; gap: 12px; align-items: flex-start;">
-                                <img src="assets/bypass_logs_avatar.webp" style="width: 38px; height: 38px; border-radius: 50%; object-fit: cover; border: 1.5px solid #FF6E42; flex-shrink: 0;" onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png'">
-                                <div style="display: flex; flex-direction: column; gap: 6px; width: 100%;">
-                                    <div style="display: flex; align-items: center; gap: 8px;">
-                                        <span style="font-weight: 800; color: #fff; font-size: 0.92rem;">VEYRA</span>
-                                        <span class="discord-bot-badge">APP</span>
-                                        <span style="font-size: 0.68rem; color: #94a3b8;">Today at 12:45 PM</span>
-                                    </div>
+                            <!-- Segmented Module Selector Tabs -->
+                            <div class="cockpit-module-tabs">
+                                <button class="cockpit-tab active" onclick="switchHeroSimulatorTab('antinuke', this)">
+                                    <i class="fas fa-shield-halved"></i>
+                                    <span>Anti-Nuke</span>
+                                </button>
+                                <button class="cockpit-tab" onclick="switchHeroSimulatorTab('tickets', this)">
+                                    <i class="fas fa-ticket"></i>
+                                    <span>Tickets</span>
+                                </button>
+                                <button class="cockpit-tab" onclick="switchHeroSimulatorTab('voice', this)">
+                                    <i class="fas fa-music"></i>
+                                    <span>24/7 Voice</span>
+                                </button>
+                                <button class="cockpit-tab" onclick="switchHeroSimulatorTab('automod', this)">
+                                    <i class="fas fa-bolt"></i>
+                                    <span>Auto-Mod</span>
+                                </button>
+                            </div>
 
-                                    <!-- Embed Container -->
-                                    <div class="discord-embed-card" id="hero-embed-card">
-                                        <div style="display: flex; align-items: center; gap: 8px; font-weight: 800; font-size: 0.92rem; color: #fff;" id="hero-embed-title">
-                                            <i class="fas fa-shield-halved" style="color: #FF6E42;"></i>
-                                            <span>Anti-Nuke Sentinel System</span>
+                            <!-- Live Discord Interaction Stream -->
+                            <div class="cockpit-body">
+                                <div class="cockpit-cmd-line">
+                                    <span class="cmd-user">@Admin</span>
+                                    <span class="cmd-used">used</span>
+                                    <code class="cmd-code" id="hero-sim-command">/security shield-status: true</code>
+                                </div>
+
+                                <!-- Response Card -->
+                                <div class="cockpit-bot-card">
+                                    <img src="assets/bypass_logs_avatar.webp" class="cockpit-bot-avatar" onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png'">
+                                    <div class="cockpit-bot-content">
+                                        <div class="cockpit-bot-header">
+                                            <span class="bot-name">VEYRA</span>
+                                            <span class="bot-badge">APP</span>
+                                            <span class="bot-time">Today at 12:45 PM</span>
                                         </div>
-                                        <div style="font-size: 0.8rem; color: #dcddde; line-height: 1.45;" id="hero-embed-desc">
-                                            Real-time audit log scanner is actively intercepting rogue admin modifications. Mass channel deletion, role stripping, and webhook creation traps are armed.
-                                        </div>
-                                        
-                                        <!-- Inline Embed Fields Grid -->
-                                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 4px;" id="hero-embed-fields">
-                                            <div style="background: rgba(0,0,0,0.25); padding: 6px 10px; border-radius: 6px;">
-                                                <div style="font-size: 0.62rem; color: #94a3b8; font-weight: 700; text-transform: uppercase;">Raid Defense</div>
-                                                <div style="font-size: 0.78rem; font-weight: 800; color: #10b981;">100% SECURE</div>
+
+                                        <!-- Embed Card -->
+                                        <div class="cockpit-embed" id="hero-embed-card">
+                                            <div class="embed-title" id="hero-embed-title">
+                                                <i class="fas fa-shield-halved text-ember"></i>
+                                                <span>Anti-Nuke Sentinel System</span>
                                             </div>
-                                            <div style="background: rgba(0,0,0,0.25); padding: 6px 10px; border-radius: 6px;">
-                                                <div style="font-size: 0.62rem; color: #94a3b8; font-weight: 700; text-transform: uppercase;">Action Threshold</div>
-                                                <div style="font-size: 0.78rem; font-weight: 800; color: #FF6E42;">3 Ops / 10s</div>
+                                            <div class="embed-desc" id="hero-embed-desc">
+                                                Autonomous audit log scanner is actively intercepting rogue admin modifications. Mass channel deletion, role stripping, and webhook creation traps are armed.
+                                            </div>
+
+                                            <div class="embed-metrics-grid" id="hero-embed-fields">
+                                                <div class="embed-metric-cell">
+                                                    <span class="metric-cell-lbl">RAID DEFENSE</span>
+                                                    <span class="metric-cell-val text-emerald">100% SECURE</span>
+                                                </div>
+                                                <div class="embed-metric-cell">
+                                                    <span class="metric-cell-lbl">ACTION THRESHOLD</span>
+                                                    <span class="metric-cell-val text-ember">3 Ops / 10s</span>
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
 
-                                    <!-- Interactive Discord Action Button Row -->
-                                    <div style="display: flex; gap: 8px; margin-top: 4px; flex-wrap: wrap;" id="hero-embed-buttons">
-                                        <button onclick="handleHeroSimAction('scan')" class="discord-btn-action primary">
-                                            <i class="fas fa-radar"></i> Run Threat Scan
-                                        </button>
-                                        <button onclick="handleHeroSimAction('whitelist')" class="discord-btn-action">
-                                            <i class="fas fa-user-check"></i> Whitelist Admins
-                                        </button>
-                                        <button onclick="handleHeroSimAction('restore')" class="discord-btn-action success">
-                                            <i class="fas fa-rotate"></i> Auto-Repair
-                                        </button>
+                                        <!-- Live Action Controls -->
+                                        <div class="cockpit-action-row" id="hero-embed-buttons">
+                                            <button onclick="handleHeroSimAction('scan')" class="cockpit-btn cockpit-btn-primary">
+                                                <i class="fas fa-radar"></i> Run Threat Scan
+                                            </button>
+                                            <button onclick="handleHeroSimAction('whitelist')" class="cockpit-btn cockpit-btn-secondary">
+                                                <i class="fas fa-user-check"></i> Whitelist Admins
+                                            </button>
+                                            <button onclick="handleHeroSimAction('restore')" class="cockpit-btn cockpit-btn-success">
+                                                <i class="fas fa-rotate"></i> Auto-Repair
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
 
-                        <!-- Bottom Telemetry Bar -->
-                        <div style="background: #18191c; border-top: 1px solid rgba(255,255,255,0.06); padding: 8px 16px; display: flex; justify-content: space-between; align-items: center; font-family: var(--font-mono); font-size: 0.65rem; color: #94a3b8;">
-                            <span>Cluster: <strong style="color: #fff;">Asia-South</strong></span>
-                            <span>Memory: <strong style="color: #10b981;">28.4 MB</strong></span>
-                            <span>WebSocket: <strong style="color: #FF6E42;">0ms loss</strong></span>
+                            <!-- Cockpit Footer Telemetry Strip -->
+                            <div class="cockpit-footer-telemetry">
+                                <div class="telemetry-item">
+                                    <span class="telemetry-lbl">Cluster:</span>
+                                    <span class="telemetry-val">Asia-South</span>
+                                </div>
+                                <div class="telemetry-item">
+                                    <span class="telemetry-lbl">Memory:</span>
+                                    <span class="telemetry-val text-emerald">28.4 MB</span>
+                                </div>
+                                <div class="telemetry-item">
+                                    <span class="telemetry-lbl">WebSocket:</span>
+                                    <span class="telemetry-val text-emerald">0ms loss</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
-
             </div>
             
             <!-- [TICKET SHOWCASE SECTION] -->
