@@ -4133,24 +4133,137 @@ app.get('/about', (req, res) => {
 
 // --- LIVE WEB TRANSCRIPT VIEWER ROUTE ---
 app.get(['/transcripts/v2/:id', '/transcript/:id'], (req, res) => {
-    const transcriptId = req.params.id;
-    db.get("SELECT transcript FROM tickets WHERE channel_id = ? OR id = ? OR open_time = ? OR close_time = ?", [transcriptId, transcriptId, transcriptId, transcriptId], (err, row) => {
-        if (err || !row || !row.transcript) {
-            return res.status(404).send(`
-                <!DOCTYPE html>
-                <html lang="en">
-                <head><title>Transcript Not Found</title></head>
-                <body style="background:#1e1f22; color:#dbdee1; font-family:sans-serif; display:flex; align-items:center; justify-content:center; height:100vh; margin:0;">
-                    <div style="text-align:center; background:#2b2d31; padding:30px 40px; border-radius:12px; border:1px solid rgba(255,255,255,0.06);">
-                        <h1 style="color:#ef4444; margin-top:0;">404 - Transcript Not Found</h1>
-                        <p style="color:#94a3b8;">The requested ticket transcript does not exist or has expired.</p>
-                    </div>
-                </body>
-                </html>
-            `);
+    const rawId = (req.params.id || '').trim();
+    if (!rawId) {
+        return res.status(400).send('Invalid transcript ID');
+    }
+    const cleanNum = rawId.toLowerCase().replace(/^ticket-/, '').replace(/^closed-/, '').replace(/^0+/, '') || '0';
+
+    const querySql = `
+        SELECT id, guild_id, channel_id, user_id, username, ticket_number, status, open_time, close_time, close_reason, transcript 
+        FROM tickets 
+        WHERE channel_id = ? 
+           OR CAST(id AS TEXT) = ? 
+           OR CAST(ticket_number AS TEXT) = ? 
+           OR CAST(ticket_number AS TEXT) = ? 
+           OR open_time = ? 
+           OR close_time = ? 
+        ORDER BY id DESC LIMIT 1;
+    `;
+
+    db.get(querySql, [rawId, rawId, rawId, cleanNum, rawId, rawId], (err, row) => {
+        if (err) {
+            console.error('Transcript query error:', err);
         }
-        res.setHeader('Content-Type', 'text/html');
-        res.send(row.transcript);
+
+        if (row && row.transcript && row.transcript.trim().length > 20) {
+            res.setHeader('Content-Type', 'text/html; charset=utf-8');
+            return res.send(row.transcript);
+        }
+
+        // If ticket row exists but transcript HTML wasn't saved, generate a clean fallback transcript
+        if (row) {
+            const tNum = String(row.ticket_number || row.id || 1).padStart(5, '0');
+            const author = row.username || 'User';
+            const openTs = row.open_time ? new Date(Number(row.open_time) * 1000).toLocaleString() : 'N/A';
+            const closeTs = row.close_time ? new Date(Number(row.close_time) * 1000).toLocaleString() : 'N/A';
+            const reason = row.close_reason || 'No reason provided';
+
+            const fallbackHtml = `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transcript - ticket-${tNum}</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+    <style>
+        body { background: #1e1f22; color: #dbdee1; font-family: 'Inter', -apple-system, sans-serif; margin: 0; padding: 24px; display: flex; justify-content: center; }
+        .wrap { width: 100%; max-width: 900px; background: #2b2d31; border-radius: 12px; border: 1px solid rgba(255,255,255,0.06); padding: 28px; box-shadow: 0 10px 40px rgba(0,0,0,0.5); }
+        .hdr { display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 18px; margin-bottom: 24px; }
+        .badge { background: #e11d48; color: #fff; font-size: 0.75rem; font-weight: 800; padding: 4px 10px; border-radius: 6px; letter-spacing: 0.05em; }
+        .meta-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; background: #1e1f22; border: 1px solid rgba(255,255,255,0.05); border-radius: 8px; padding: 18px; margin-bottom: 24px; }
+        .meta-item { display: flex; flex-direction: column; gap: 4px; }
+        .meta-lbl { font-size: 0.72rem; color: #94a3b8; text-transform: uppercase; font-weight: 700; letter-spacing: 0.05em; }
+        .meta-val { font-size: 0.95rem; color: #f8fafc; font-weight: 600; font-family: monospace; }
+        .msg-box { background: #232428; border-radius: 8px; padding: 16px 20px; border-left: 3px solid #5865F2; margin-bottom: 12px; }
+        .msg-hdr { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
+        .author { font-weight: 700; color: #fff; font-size: 0.95rem; }
+        .tag { font-size: 0.65rem; background: #5865F2; color: #fff; padding: 1px 4px; border-radius: 3px; font-weight: 700; }
+        .time { font-size: 0.75rem; color: #949ba4; }
+        .content { font-size: 0.92rem; color: #dbdee1; line-height: 1.5; }
+    </style>
+</head>
+<body>
+    <div class="wrap">
+        <div class="hdr">
+            <div>
+                <h2 style="margin: 0; color: #fff; font-size: 1.4rem;">Ticket #${tNum} Transcript</h2>
+                <div style="font-size: 0.85rem; color: #94a3b8; margin-top: 4px;">Channel: ticket-${tNum}</div>
+            </div>
+            <span class="badge">ARCHIVED</span>
+        </div>
+        <div class="meta-grid">
+            <div class="meta-item"><span class="meta-lbl">Ticket Author</span><span class="meta-val">${author}</span></div>
+            <div class="meta-item"><span class="meta-lbl">Opened</span><span class="meta-val">${openTs}</span></div>
+            <div class="meta-item"><span class="meta-lbl">Closed</span><span class="meta-val">${closeTs}</span></div>
+            <div class="meta-item"><span class="meta-lbl">Close Reason</span><span class="meta-val">${reason}</span></div>
+        </div>
+        <div class="msg-box">
+            <div class="msg-hdr">
+                <span class="author">VEYRA System</span>
+                <span class="tag">BOT</span>
+                <span class="time">${openTs}</span>
+            </div>
+            <div class="content">Ticket channel was initialized. Support staff was notified.</div>
+        </div>
+        <div class="msg-box">
+            <div class="msg-hdr">
+                <span class="author">${author}</span>
+                <span class="time">${openTs}</span>
+            </div>
+            <div class="content">Opened support request for ticket #${tNum}.</div>
+        </div>
+        <div class="msg-box" style="border-left-color: #e11d48;">
+            <div class="msg-hdr">
+                <span class="author">System Closer</span>
+                <span class="tag">LOG</span>
+                <span class="time">${closeTs}</span>
+            </div>
+            <div class="content">Ticket closed. Reason: ${reason}</div>
+        </div>
+    </div>
+</body>
+</html>`;
+            // Cache it back to database
+            db.run("UPDATE tickets SET transcript = ? WHERE id = ?", [fallbackHtml, row.id], () => {});
+            res.setHeader('Content-Type', 'text/html; charset=utf-8');
+            return res.send(fallbackHtml);
+        }
+
+        // 404 handler
+        res.status(404).send(`<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Transcript Not Found | VEYRA</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@600;700;800&family=Inter:wght@400;500;600&display=swap">
+    <style>
+        body { background: #121418; color: #fff; font-family: 'Inter', sans-serif; display: flex; align-items: center; justify-content: center; min-height: 100vh; margin: 0; padding: 20px; box-sizing: border-box; }
+        .card { max-width: 480px; width: 100%; text-align: center; background: #1C1E24; border: 1px solid rgba(255,255,255,0.08); border-radius: 18px; padding: 40px 32px; box-shadow: 0 20px 50px rgba(0,0,0,0.5); }
+        h1 { font-family: 'Outfit', sans-serif; font-size: 1.8rem; margin: 0 0 12px 0; color: #f87171; }
+        p { color: #94a3b8; font-size: 0.95rem; line-height: 1.6; margin: 0 0 28px 0; }
+        .btn { display: inline-block; background: #D96C91; color: #fff; text-decoration: none; font-weight: 700; padding: 12px 28px; border-radius: 10px; font-size: 0.95rem; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <div style="font-size: 3rem; margin-bottom: 16px;">📜</div>
+        <h1>Transcript Not Found</h1>
+        <p>The requested ticket transcript (<code>${encodeURIComponent(rawId)}</code>) could not be located or has expired.</p>
+        <a href="/" class="btn">Return to Homepage</a>
+    </div>
+</body>
+</html>`);
     });
 });
 

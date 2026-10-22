@@ -9176,11 +9176,21 @@ async def handle_close_ticket_interaction(interaction: discord.Interaction):
     log_embed.add_field(name="Open Date", value=f"`{open_date_str}`", inline=True)
     log_embed.add_field(name="Close Date", value=f"`{close_date_str}`", inline=True)
     log_embed.add_field(name="Ticket Close Reason", value="No reason provided", inline=False)
+    log_embed.add_field(name="Staff Message Count", value=f"`[ {staff_msg_count} ]` - {staff_mentions_str}", inline=False)
+
+    view_transcript_url = f"https://veyra-bot.vercel.app/transcripts/v2/{channel.id}"
+    transcript_view = discord.ui.View()
+    transcript_view.add_item(discord.ui.Button(
+        label="View Transcript",
+        style=discord.ButtonStyle.link,
+        url=view_transcript_url
+    ))
+
     try:
         creator_user = await bot.fetch_user(int(ticket[4]))
         if creator_user:
             dm_payload = discord.File(fp=io.BytesIO(html_template.encode('utf-8')), filename=transcript_filename)
-            await creator_user.send(embed=log_embed, file=dm_payload)
+            await creator_user.send(embed=log_embed, file=dm_payload, view=transcript_view)
     except Exception as ex:
         print(f"Could not DM transcript: {ex}")
 
@@ -9193,7 +9203,7 @@ async def handle_close_ticket_interaction(interaction: discord.Interaction):
         if gs_row and gs_row[0] and gs_row[0] != 'none':
             log_channel = guild.get_channel(int(gs_row[0]))
             if log_channel:
-                await log_channel.send(embed=log_embed, file=file_payload)
+                await log_channel.send(embed=log_embed, file=file_payload, view=transcript_view)
     except Exception as ex:
         print(f"Could not post transcript: {ex}")
 
@@ -10257,7 +10267,7 @@ class TicketGroup(app_commands.Group):
 
         await interaction.response.defer()
         html_template = await generate_full_html_transcript(interaction.channel, ticket, closer_user=interaction.user, close_reason="Manual Transcript Generation")
-        transcript_filename = f"transcript-ticket-{ticket[7] if len(ticket) > 7 else 1:04d}.html"
+        transcript_filename = f"transcript-ticket-{int(ticket[6]) if len(ticket) > 6 else 1:04d}.html"
         file_payload = discord.File(fp=io.BytesIO(html_template.encode('utf-8')), filename=transcript_filename)
         await interaction.followup.send("📄 Transcript generated successfully.", file=file_payload)
 
