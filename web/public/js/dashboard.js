@@ -1569,10 +1569,13 @@ function logout() {
 }
 
 // --- 6. SWATCH THEMING ENGINE ---
-let activeTheme = 'slate';
+let activeTheme = 'dark';
 
 function changeSystemTheme(themeName, silent = false) {
+    if (!themeName || themeName === 'slate') themeName = 'dark';
     document.body.className = `theme-${themeName}`;
+    document.documentElement.setAttribute('data-theme', themeName === 'light' ? 'light' : 'dark');
+    localStorage.setItem('veyra_theme', themeName);
     activeTheme = themeName;
     
     document.querySelectorAll('.theme-swatch').forEach(swatch => {
@@ -1593,14 +1596,16 @@ function changeSystemTheme(themeName, silent = false) {
 }
 
 function loadActiveTheme() {
+    const savedTheme = localStorage.getItem('veyra_theme') || 'dark';
+    changeSystemTheme(savedTheme, true);
     fetch('/api/settings/theme')
         .then(res => res.json())
         .then(data => {
-            if (data.theme) {
+            if (data.theme && data.theme !== 'slate' && data.theme !== 'light') {
                 changeSystemTheme(data.theme, true);
             }
         }).catch(e => {
-            changeSystemTheme('slate', true);
+            changeSystemTheme('dark', true);
         });
 }
 

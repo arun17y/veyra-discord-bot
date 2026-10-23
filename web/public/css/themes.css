@@ -5,7 +5,7 @@
    Text: Deep Plum (#352B3A) | Secondary Text (#766C78) | Border (#EDE4E7)
    ========================================================================== */
 
-[data-theme="light"], body.theme-light, body.theme-slate {
+[data-theme="light"], body.theme-light {
     --bg-primary: #FFFCFA;
     --bg-secondary: #FFF6F4;
     --bg-tertiary: #FFFFFF;
@@ -41,7 +41,7 @@
     --error: #B43E4E;
 }
 
-:root, body, body.theme-dark, [data-theme="dark"] {
+:root, body, body.theme-dark, body.theme-slate, [data-theme="dark"] {
     --bg-primary: #07080a;
     --bg-secondary: #0c0e14;
     --bg-tertiary: #12151e;
