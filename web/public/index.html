@@ -14,7 +14,7 @@
     <!-- Local styles -->
         <script>
         (function() {
-            var theme = localStorage.getItem('veyra_theme') || 'light';
+            var theme = localStorage.getItem('veyra_theme') || 'dark';
             document.documentElement.setAttribute('data-theme', theme);
         })();
     </script>
@@ -1085,7 +1085,7 @@
            Headline: Dark Plum (#352B3A) | Accent: Rose Pink (#D96C91)
            Body: Crisp Slate Plum (#4A4250) | Background: Warm Cream (#FFFCFA)
         ======================================================== */
-        :root, body, body.theme-light, [data-theme="light"] {
+        [data-theme="light"], body.theme-light {
             --amari-bg-dark: #FFFCFA;
             --amari-card-dark: #FFFFFF;
             --amari-coral: #D96C91;
@@ -1105,9 +1105,9 @@
         }
 
         body {
-            background-color: #FFFCFA !important;
+            background-color: #07080a !important;
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;
-            color: #352B3A !important;
+            color: #ffffff !important;
             min-height: 100vh;
         }
 
@@ -1144,7 +1144,7 @@
             align-items: center;
             gap: 12px;
             text-decoration: none;
-            color: #352B3A !important;
+            color: #ffffff !important;
         }
         .amari-brand-icon {
             width: 38px;
@@ -1158,7 +1158,7 @@
             font-size: 1.35rem !important;
             font-weight: 800 !important;
             letter-spacing: -0.02em !important;
-            color: #352B3A !important;
+            color: #ffffff !important;
         }
         .amari-brand-sub {
             font-size: 0.75rem !important;
@@ -1173,7 +1173,7 @@
             list-style: none;
         }
         .amari-nav-links a, .amari-nav-links button {
-            color: #352B3A !important;
+            color: #ffffff !important;
             text-decoration: none !important;
             font-size: 0.95rem !important;
             font-weight: 600 !important;
@@ -1209,7 +1209,7 @@
             padding: 8px 12px;
             border-radius: 6px;
             font-size: 0.88rem;
-            color: #352B3A !important;
+            color: #ffffff !important;
             font-weight: 600 !important;
             text-decoration: none;
             transition: all 0.15s;
@@ -1221,7 +1221,7 @@
         .amari-login-btn {
             background: #FFFFFF !important;
             border: 1.5px solid #EDE4E7 !important;
-            color: #352B3A !important;
+            color: #ffffff !important;
             padding: 9px 24px !important;
             border-radius: 8px !important;
             font-size: 0.92rem !important;
@@ -1261,7 +1261,7 @@
             font-weight: 800 !important;
             line-height: 1.12 !important;
             letter-spacing: -0.03em !important;
-            color: #352B3A !important;
+            color: #ffffff !important;
             margin-bottom: 20px !important;
         }
         .amari-coral-text {
@@ -1302,7 +1302,7 @@
             box-shadow: 0 10px 28px rgba(217, 108, 145, 0.45) !important;
         }
         .btn-amari-link {
-            color: #352B3A !important;
+            color: #ffffff !important;
             font-size: 0.98rem !important;
             font-weight: 700 !important;
             text-decoration: none !important;
@@ -1352,7 +1352,7 @@
             font-family: 'Outfit', sans-serif !important;
             font-weight: 800 !important;
             font-size: 1rem !important;
-            color: #352B3A !important;
+            color: #ffffff !important;
         }
         .card-header-amari .hdr-sub {
             font-size: 0.75rem !important;
@@ -1396,7 +1396,7 @@
         .lb-name {
             font-size: 0.92rem !important;
             font-weight: 800 !important;
-            color: #352B3A !important;
+            color: #ffffff !important;
         }
         .lb-sub {
             font-size: 0.74rem !important;
@@ -1483,7 +1483,7 @@
         /* SECTION 2: Organic Curved White Container */
         .amari-white-section {
             background: #FFFFFF !important;
-            color: #352B3A !important;
+            color: #ffffff !important;
             border-top: 1px solid #EDE4E7 !important;
             border-top-left-radius: 40px;
             border-top-right-radius: 40px;
@@ -1510,7 +1510,7 @@
             font-family: 'Outfit', sans-serif !important;
             font-size: clamp(2rem, 4vw, 2.7rem) !important;
             font-weight: 800 !important;
-            color: #352B3A !important;
+            color: #ffffff !important;
             letter-spacing: -0.02em;
             line-height: 1.2;
             margin-bottom: 12px;
@@ -1556,7 +1556,7 @@
             font-family: 'Outfit', sans-serif !important;
             font-size: 1.15rem !important;
             font-weight: 800 !important;
-            color: #352B3A !important;
+            color: #ffffff !important;
             display: flex;
             align-items: center;
             gap: 10px;
@@ -1667,7 +1667,7 @@
         /* SECTION 4: Bottom CTA & Footer */
         .amari-bottom-cta {
             background: #FFF6F4 !important;
-            color: #352B3A !important;
+            color: #ffffff !important;
             border-top: 1px solid #EDE4E7 !important;
             border-top-left-radius: 40px;
             border-top-right-radius: 40px;
@@ -1689,7 +1689,7 @@
             font-family: 'Outfit', sans-serif !important;
             font-size: clamp(2rem, 4.5vw, 3.2rem) !important;
             font-weight: 800 !important;
-            color: #352B3A !important;
+            color: #ffffff !important;
             letter-spacing: -0.02em;
             margin-bottom: 30px;
         }
@@ -1715,7 +1715,7 @@
             font-weight: 500 !important;
         }
         .amari-minimal-footer a {
-            color: #352B3A !important;
+            color: #ffffff !important;
             font-weight: 600 !important;
             text-decoration: none;
             margin: 0 10px;
@@ -2275,7 +2275,7 @@
             overflow: hidden;
             transition: max-height 0.35s cubic-bezier(0.16, 1, 0.3, 1), padding 0.35s ease;
             padding: 0 24px;
-            color: #352B3A !important;
+            color: #ffffff !important;
             font-size: 0.94rem !important;
             line-height: 1.7 !important;
             font-weight: 550 !important;
@@ -2283,7 +2283,7 @@
         }
         .faq-answer p {
             margin: 0 !important;
-            color: #352B3A !important;
+            color: #ffffff !important;
             font-weight: 550 !important;
             text-shadow: none !important;
         }
@@ -2373,7 +2373,7 @@
     padding-bottom: 22px !important;
     font-family: 'Inter', sans-serif !important;
     font-size: 0.98rem !important;
-    color: #352B3A !important;
+    color: #ffffff !important;
     line-height: 1.7 !important;
     font-weight: 500 !important;
     border-top: 1px solid #F5EEF0 !important;
@@ -2404,7 +2404,7 @@
 }
 </style>
 </head>
-<body class="theme-light">
+<body class="theme-dark">
     
     <!-- Aurora Fixed Background Effect -->
     
@@ -2436,89 +2436,68 @@
     </div>
 
     <!-- Header Navigation Bar (Image 2 Replica) -->
-    <nav class="amari-nav">
-        <a href="/" class="amari-brand">
-            <img src="assets/bypass_logs_avatar.webp" class="amari-brand-icon" alt="VEYRA" onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png'">
-            <div>
-                <span class="amari-brand-name">veyra</span>
-                <span class="amari-brand-sub">bot</span>
+    <nav class="navbar" id="top-navbar" style="display: flex !important; align-items: center !important; justify-content: space-between !important; padding: 0 32px !important; height: 68px !important; background: #07080a !important; border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important; position: sticky !important; top: 0 !important; z-index: 1000 !important; box-sizing: border-box !important;">
+        <!-- Left Brand -->
+        <a href="/" class="nav-logo-box" style="display: flex; align-items: center; gap: 12px; text-decoration: none;">
+            <div style="width: 32px; height: 32px; border-radius: 50%; overflow: hidden; border: 1.5px solid rgba(255,255,255,0.2);">
+                <img src="assets/bypass_logs_avatar.webp" alt="VEYRA" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png'">
             </div>
+            <span style="font-family: var(--font-display); font-weight: 800; font-size: 1.25rem; letter-spacing: 0.1em; color: #ffffff;">VEYRA</span>
         </a>
 
-        <ul class="amari-nav-links">
-            <li><a href="/commands.html">Commands</a></li>
-            <li class="nav-item-dropdown">
-                <button type="button">About <i class="fas fa-chevron-down" style="font-size: 0.7rem; margin-left: 2px;"></i></button>
-                <div class="dropdown-menu">
-                    <a href="/about.html">Docs</a>
-                    <a href="/about.html#faq">FAQ</a>
-                    <a href="/about.html#api">API</a>
-                </div>
-            </li>
-            <li><a href="/premium.html">Premium</a></li>
-            <li><a href="https://discord.gg/77P5Cq837X" target="_blank" rel="noreferrer">Support</a></li>
+        <!-- Center Nav Capsule Cluster (Image 1 & 2 Exact Match) -->
+        <ul class="nav-links-center" style="display: flex; align-items: center; gap: 8px; list-style: none; margin: 0; padding: 0;">
+            <li><a href="/" class="nav-pill-btn" id="nav-pill-home" style="text-transform: uppercase;">HOME</a></li>
+            <li><a href="/manage" class="nav-pill-btn active" id="nav-pill-manage" style="text-transform: uppercase;">MANAGE SERVERS</a></li>
+            <li><a href="/#features" class="nav-pill-btn" id="nav-pill-features" style="text-transform: uppercase;">FEATURES</a></li>
+            <li><a href="/#tickets" onclick="switchTab('tickets')" class="nav-pill-btn" id="nav-pill-tickets" style="text-transform: uppercase;">TICKETS</a></li>
+            <li><a href="/#pricing" class="nav-pill-btn" id="nav-pill-pricing" style="text-transform: uppercase;">PRICING</a></li>
+            <li><a href="/#faq" class="nav-pill-btn" id="nav-pill-faq" style="text-transform: uppercase;">FAQ</a></li>
+            <li><a href="#" onclick="showScreen('admin')" class="nav-pill-btn" id="nav-pill-admin" style="display:none; text-transform: uppercase; color: #fbbf24;"><i class="fas fa-crown"></i> ADMIN</a></li>
         </ul>
 
+        <!-- Right Side: Login or User Avatar + Theme Toggle -->
         <div style="display: flex; align-items: center; gap: 12px;">
-            <a href="/manage" id="nav-dashboard-button" class="amari-login-btn" style="background: #D96C91 !important; color: #FFFFFF !important; border: 1.5px solid #D96C91 !important; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; font-weight: 700;">
-                <i class="fas fa-table-cells-large"></i> Dashboard
-            </a>
-            <a href="/api/auth/login" id="login-btn" class="amari-login-btn" style="background: #FFFFFF !important; border: 1.5px solid #D96C91 !important; color: #D96C91 !important; display: inline-flex; align-items: center; gap: 8px; text-decoration: none; font-weight: 700;">
-                <i class="fab fa-discord" style="font-size: 1.1rem;"></i> Login
+            <a href="/api/auth/login" id="login-btn" class="nav-pill-btn" style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.15); color: #fff; padding: 8px 18px; border-radius: 9999px; text-decoration: none; font-weight: 700; display: inline-flex; align-items: center; gap: 8px;">
+                <i class="fab fa-discord"></i> <span>Login with Discord</span>
             </a>
 
             <!-- Logged-in Header Dropdown Buttons -->
             <div id="header-user-widgets" style="display: none; align-items: center; gap: 10px; position: relative;">
-                <!-- Server Avatar Dropdown Trigger -->
-                <div id="header-server-dropdown-trigger-container" style="position: relative; display: none;">
-                    <div onclick="toggleHeaderDropdown('header-server-dropdown')" style="display: flex; align-items: center; gap: 6px; cursor: pointer; padding: 4px 10px; border-radius: 20px; background: #FFFFFF; border: 1px solid #EDE4E7; box-shadow: 0 2px 6px rgba(53, 43, 58, 0.04);">
-                        <div id="header-server-avatar-img" style="width: 26px; height: 26px; border-radius: 50%; overflow: hidden; background: #D96C91;">
-                            <img src="assets/bypass_logs_avatar.webp" style="width: 100%; height: 100%; object-fit: cover;">
-                        </div>
-                        <i class="fas fa-caret-down" style="color: #6B7280; font-size: 0.75rem;"></i>
-                    </div>
-                    <div id="header-server-dropdown" style="display: none; position: absolute; right: 0; top: 42px; width: 220px; background: #FFFFFF; border: 1px solid #EDE4E7; border-radius: 12px; box-shadow: 0 16px 36px rgba(53,43,58,0.12); z-index: 1000; overflow: hidden;">
-                        <div style="background: #FBE8EE; padding: 12px 14px; display: flex; align-items: center; gap: 10px;">
-                            <div id="header-server-dropdown-icon" style="width: 32px; height: 32px; border-radius: 50%; overflow: hidden; background: #D96C91;">
-                                <img src="assets/bypass_logs_avatar.webp" style="width: 100%; height: 100%; object-fit: cover;">
-                            </div>
-                            <div>
-                                <div style="font-size: 0.65rem; font-weight: 800; color: #D96C91; letter-spacing: 0.08em; text-transform: uppercase;">ACTIVE GUILD</div>
-                                <div style="font-size: 0.88rem; font-weight: 700; color: #1C1422;" id="header-server-dropdown-name">Select Server</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- User Avatar Dropdown Trigger -->
+                <!-- User Avatar Pill -->
                 <div style="position: relative;">
-                    <div onclick="toggleHeaderDropdown('header-user-dropdown')" style="display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 4px 12px 4px 6px; border-radius: 20px; background: #FFFFFF; border: 1px solid #EDE4E7; box-shadow: 0 2px 6px rgba(53, 43, 58, 0.04);">
-                        <div style="width: 28px; height: 28px; border-radius: 50%; overflow: hidden; background: #D96C91;" id="header-user-avatar-img">
+                    <div onclick="toggleHeaderDropdown('header-user-dropdown')" style="display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 3px 10px 3px 4px; border-radius: 9999px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.15);">
+                        <div style="width: 28px; height: 28px; border-radius: 50%; overflow: hidden;" id="header-user-avatar-img">
                             <img src="assets/bypass_logs_avatar.webp" style="width: 100%; height: 100%; object-fit: cover;">
                         </div>
-                        <span style="font-size: 0.88rem; font-weight: 700; color: #1C1422;" id="header-user-dropdown-name">User</span>
-                        <i class="fas fa-caret-down" style="color: #6B7280; font-size: 0.75rem;"></i>
+                        <span style="font-size: 0.86rem; font-weight: 700; color: #ffffff;" id="header-user-dropdown-name">User</span>
+                        <i class="fas fa-caret-down" style="color: rgba(255,255,255,0.6); font-size: 0.75rem;"></i>
                     </div>
-                    <div id="header-user-dropdown" style="display: none; position: absolute; right: 0; top: 42px; width: 220px; background: #FFFFFF; border: 1px solid #EDE4E7; border-radius: 12px; box-shadow: 0 16px 36px rgba(53,43,58,0.12); z-index: 1000; overflow: hidden;">
-                        <div style="background: #FBE8EE; padding: 12px 14px; display: flex; align-items: center; gap: 10px;">
-                            <div style="width: 32px; height: 32px; border-radius: 50%; overflow: hidden; background: #D96C91;" id="header-user-dropdown-avatar">
+                    <div id="header-user-dropdown" style="display: none; position: absolute; right: 0; top: 44px; width: 220px; background: #0c0e14; border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; box-shadow: 0 16px 36px rgba(0,0,0,0.8); z-index: 1000; overflow: hidden;">
+                        <div style="background: rgba(255,255,255,0.03); padding: 12px 14px; display: flex; align-items: center; gap: 10px; border-bottom: 1px solid rgba(255,255,255,0.06);">
+                            <div style="width: 32px; height: 32px; border-radius: 50%; overflow: hidden;" id="header-user-dropdown-avatar">
                                 <img src="assets/bypass_logs_avatar.webp" style="width: 100%; height: 100%; object-fit: cover;">
                             </div>
                             <div style="min-width: 0;">
-                                <div style="font-size: 0.65rem; font-weight: 800; color: #D96C91; letter-spacing: 0.08em; text-transform: uppercase;">LOGGED IN</div>
-                                <div style="font-size: 0.88rem; font-weight: 700; color: #1C1422; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" id="header-user-profile-handle">@user</div>
+                                <div style="font-size: 0.65rem; font-weight: 800; color: #a855f7; letter-spacing: 0.08em; text-transform: uppercase;">LOGGED IN</div>
+                                <div style="font-size: 0.88rem; font-weight: 700; color: #ffffff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" id="header-user-profile-handle">@user</div>
                             </div>
                         </div>
                         <div style="padding: 6px;">
-                            <a href="/manage" style="display: flex; align-items: center; gap: 8px; width: 100%; padding: 8px 12px; font-size: 0.85rem; font-weight: 600; color: #1C1422; text-decoration: none; border-radius: 6px; box-sizing: border-box;" onmouseover="this.style.background='#FBE8EE'" onmouseout="this.style.background='transparent'">
-                                <i class="fas fa-server" style="color: #D96C91;"></i> Manage Servers
+                            <a href="/manage" style="display: flex; align-items: center; gap: 8px; width: 100%; padding: 8px 12px; font-size: 0.85rem; font-weight: 600; color: #ffffff; text-decoration: none; border-radius: 6px; box-sizing: border-box;" onmouseover="this.style.background='rgba(255,255,255,0.08)'" onmouseout="this.style.background='transparent'">
+                                <i class="fas fa-server" style="color: #a855f7;"></i> Manage Servers
                             </a>
-                            <button onclick="logout()" style="width: 100%; text-align: left; background: transparent; border: none; padding: 8px 12px; font-size: 0.85rem; font-weight: 600; color: #DC2626; cursor: pointer; border-radius: 6px; display: flex; align-items: center; gap: 8px;" onmouseover="this.style.background='#FEE2E2'" onmouseout="this.style.background='transparent'">
-                                <i class="fas fa-right-from-bracket" style="font-size: 0.85rem; color: #DC2626;"></i> Logout
+                            <button onclick="logout()" style="width: 100%; text-align: left; background: transparent; border: none; padding: 8px 12px; font-size: 0.85rem; font-weight: 600; color: #ef4444; cursor: pointer; border-radius: 6px; display: flex; align-items: center; gap: 8px;" onmouseover="this.style.background='rgba(239,68,68,0.1)'" onmouseout="this.style.background='transparent'">
+                                <i class="fas fa-right-from-bracket" style="font-size: 0.85rem; color: #ef4444;"></i> Logout
                             </button>
                         </div>
                     </div>
                 </div>
+
+                <!-- Dark Mode Toggle Pill -->
+                <button type="button" onclick="toggleVeyraTheme()" style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.15); color: #fff; width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s;" title="Toggle Dark/Light Mode">
+                    <i class="fas fa-moon" id="theme-toggle-icon" style="font-size: 0.85rem;"></i>
+                </button>
             </div>
         </div>
     </nav>
@@ -5609,6 +5588,7 @@ Support: </pre>
                         <button class="sec-nav-btn active" onclick="switchSecTab('antinuke')">Anti Nuke</button>
                         <button class="sec-nav-btn" onclick="switchSecTab('beastmode')">Beast Mode</button>
                         <button class="sec-nav-btn" onclick="switchSecTab('antiraid')">Anti Raid</button>
+                        <button class="sec-nav-btn" onclick="switchSecTab('verification')">Verification</button>
                         <button class="sec-nav-btn" onclick="switchSecTab('moderation')">Moderation</button>
                         <button class="sec-nav-btn" onclick="switchSecTab('whitelist')">Whitelist</button>
                         <button class="sec-nav-btn" onclick="switchSecTab('logs')">Logs</button>
@@ -12797,7 +12777,7 @@ window.addEventListener('scroll', () => {
 
     <script>
         function initVeyraTheme() {
-            const saved = localStorage.getItem('veyra_theme') || 'light';
+            const saved = localStorage.getItem('veyra_theme') || 'dark';
             document.documentElement.setAttribute('data-theme', saved);
             if (saved === 'dark') {
                 document.body.classList.add('theme-dark');

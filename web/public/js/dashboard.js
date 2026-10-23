@@ -881,7 +881,7 @@ function loadServerDashboard(guildId) {
                     if (document.getElementById('welcome-embed-enable')) document.getElementById('welcome-embed-enable').checked = w.enabled === 1;
                     if (document.getElementById('welcome-embed-color-picker')) {
                         document.getElementById('welcome-embed-color-picker').value = w.color || '#a855f7';
-                        document.getElementById('welcome-color-hex').value = w.color || '#a855f7';
+                        if (document.getElementById('welcome-color-hex')) document.getElementById('welcome-color-hex').value = w.color || '#a855f7';
                     }
                     if (document.getElementById('welcome-embed-title')) document.getElementById('welcome-embed-title').value = w.title || '';
                     if (document.getElementById('welcome-embed-desc')) document.getElementById('welcome-embed-desc').value = w.description || '';
@@ -905,7 +905,7 @@ function loadServerDashboard(guildId) {
                     if (document.getElementById('leave-embed-enable')) document.getElementById('leave-embed-enable').checked = l.enabled === 1;
                     if (document.getElementById('leave-embed-color-picker')) {
                         document.getElementById('leave-embed-color-picker').value = l.color || '#a855f7';
-                        document.getElementById('leave-color-hex').value = l.color || '#a855f7';
+                        if (document.getElementById('leave-color-hex')) document.getElementById('leave-color-hex').value = l.color || '#a855f7';
                     }
                     if (document.getElementById('leave-embed-title')) document.getElementById('leave-embed-title').value = l.title || '';
                     if (document.getElementById('leave-embed-desc')) document.getElementById('leave-embed-desc').value = l.description || '';
@@ -944,7 +944,7 @@ function loadServerDashboard(guildId) {
                     if (document.getElementById('eb-footer-text')) document.getElementById('eb-footer-text').value = dm.footer || '';
                     if (document.getElementById('eb-color-picker')) {
                         document.getElementById('eb-color-picker').value = dm.color || '#a855f7';
-                        document.getElementById('eb-color-hex').value = dm.color || '#a855f7';
+                        if (document.getElementById('eb-color-hex')) document.getElementById('eb-color-hex').value = dm.color || '#a855f7';
                     }
                     if (typeof updateEmbedBuilderPreview === 'function') updateEmbedBuilderPreview();
                 });
@@ -958,7 +958,7 @@ function loadServerDashboard(guildId) {
                     if (document.getElementById('invitetracker-msg-outer-input')) document.getElementById('invitetracker-msg-outer-input').value = it.message || '';
                     if (document.getElementById('invitetracker-embed-color-picker')) {
                         document.getElementById('invitetracker-embed-color-picker').value = it.color || '#a855f7';
-                        document.getElementById('invitetracker-color-hex').value = it.color || '#a855f7';
+                        if (document.getElementById('invitetracker-color-hex')) document.getElementById('invitetracker-color-hex').value = it.color || '#a855f7';
                     }
                     if (document.getElementById('invitetracker-embed-title')) document.getElementById('invitetracker-embed-title').value = it.title || '';
                     if (document.getElementById('invitetracker-embed-desc')) document.getElementById('invitetracker-embed-desc').value = it.description || '';
@@ -2398,7 +2398,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Restore active screen on page refresh/reload if user has already entered
     const path = window.location.pathname.toLowerCase();
-    const isStaticSubpage = path.includes('/ticket') || path.includes('/manage') || path.includes('/admin');
+    const isStaticSubpage = path.includes('/ticket');
     
     if (sessionStorage.getItem('hasEntered') === 'true' && !isStaticSubpage && !hasSectionHash) {
         const webglCanvas = document.getElementById('webgl-canvas');
@@ -2653,6 +2653,8 @@ function checkSession(forceRefresh = false) {
                 
                 if ((activeScr === 'dashboard' || queryGuildId) && savedGuildId && typeof loadServerDashboard === 'function') {
                     loadServerDashboard(savedGuildId);
+                } else if (window.location.pathname.includes('/manage') || window.location.pathname.includes('/dashboard') || activeScr === 'servers') {
+                    showScreen('servers');
                 }
                 
                 if (urlParams.has('login')) {
