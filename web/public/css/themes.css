@@ -5,7 +5,7 @@
    Text: Deep Plum (#352B3A) | Secondary Text (#766C78) | Border (#EDE4E7)
    ========================================================================== */
 
-[data-theme="light"], body.theme-light {
+:root, body, body.theme-slate, body.theme-light, [data-theme="light"] {
     --bg-primary: #FFFCFA;
     --bg-secondary: #FFF6F4;
     --bg-tertiary: #FFFFFF;
@@ -41,11 +41,11 @@
     --error: #B43E4E;
 }
 
-:root, body, body.theme-dark, body.theme-slate, [data-theme="dark"] {
-    --bg-primary: #07080a;
-    --bg-secondary: #0c0e14;
-    --bg-tertiary: #12151e;
-    --surface: #0e1017;
+[data-theme="dark"], body.theme-dark {
+    --bg-primary: #121418;
+    --bg-secondary: #16181D;
+    --bg-tertiary: #1C1E24;
+    --surface: #1C1E24;
     --soft-pink: rgba(217, 108, 145, 0.16);
     --accent-primary: #D96C91;
     --accent-secondary: #B94E76;
