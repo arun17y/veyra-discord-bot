@@ -5,33 +5,33 @@
    Text: Deep Plum (#352B3A) | Secondary Text (#766C78) | Border (#EDE4E7)
    ========================================================================== */
 
-:root, body, body.theme-slate, body.theme-light, [data-theme="light"] {
-    --bg-primary: #FFFCFA;
-    --bg-secondary: #FFF6F4;
-    --bg-tertiary: #FFFFFF;
-    --surface: #FFFFFF;
-    --soft-pink: #FBE8EE;
-    --accent-primary: #D96C91;
-    --accent-secondary: #B94E76;
-    --accent-rgb: 217, 108, 145;
-    --accent-blue-rgb: 217, 108, 145;
-    --accent-lavender: #F0EBFF;
-    --text-primary: #1C1422;
-    --text-secondary: #3A303F;
-    --text-muted: #574B5B;
-    --border-color: #EDE4E7;
-    --border-subtle: #F2EBEE;
-    --border-glow: rgba(217, 108, 145, 0.25);
-    --glass-bg: rgba(255, 255, 255, 0.94);
-    --glass-blur: blur(16px);
+:root, body, body.theme-slate, body.theme-light, [data-theme="light"], [data-theme="dark"], body.theme-dark {
+    --bg-primary: #FFFCFA !important;
+    --bg-secondary: #FFF6F4 !important;
+    --bg-tertiary: #FFFFFF !important;
+    --surface: #FFFFFF !important;
+    --soft-pink: #FBE8EE !important;
+    --accent-primary: #D96C91 !important;
+    --accent-secondary: #B94E76 !important;
+    --accent-rgb: 217, 108, 145 !important;
+    --accent-blue-rgb: 217, 108, 145 !important;
+    --accent-lavender: #F0EBFF !important;
+    --text-primary: #1C1422 !important;
+    --text-secondary: #3A303F !important;
+    --text-muted: #574B5B !important;
+    --border-color: #EDE4E7 !important;
+    --border-subtle: #F2EBEE !important;
+    --border-glow: rgba(217, 108, 145, 0.25) !important;
+    --glass-bg: rgba(255, 255, 255, 0.94) !important;
+    --glass-blur: blur(16px) !important;
     --font-display: 'Outfit', 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
     --font-body: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
     --font-mono: 'JetBrains Mono', monospace;
     --theme-shadow: 0 10px 30px rgba(53, 43, 58, 0.05), 0 1px 3px rgba(53, 43, 58, 0.04);
     --card-shadow: 0 4px 20px rgba(53, 43, 58, 0.04);
-    --body-bg-gradient: #FFFCFA;
-    --grid-opacity: 0;
-    --scanline-opacity: 0;
+    --body-bg-gradient: #FFFCFA !important;
+    --grid-opacity: 0 !important;
+    --scanline-opacity: 0 !important;
     --highlight-color-hue: 340deg;
     --theme-highlight-hue: 340deg;
     --theme-highlight-sat: 55%;
@@ -39,33 +39,6 @@
     --success: #287A55;
     --warning: #9A6415;
     --error: #B43E4E;
-}
-
-[data-theme="dark"], body.theme-dark {
-    --bg-primary: #121418;
-    --bg-secondary: #16181D;
-    --bg-tertiary: #1C1E24;
-    --surface: #1C1E24;
-    --soft-pink: rgba(217, 108, 145, 0.16);
-    --accent-primary: #D96C91;
-    --accent-secondary: #B94E76;
-    --accent-rgb: 217, 108, 145;
-    --accent-blue-rgb: 217, 108, 145;
-    --accent-lavender: rgba(240, 235, 255, 0.12);
-    --text-primary: #FFFFFF;
-    --text-secondary: #D4D8E2;
-    --text-muted: #A0A8B8;
-    --border-color: rgba(255, 255, 255, 0.08);
-    --border-subtle: rgba(255, 255, 255, 0.05);
-    --border-glow: rgba(217, 108, 145, 0.25);
-    --glass-bg: rgba(22, 24, 29, 0.95);
-    --glass-blur: blur(16px);
-    --theme-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-    --card-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
-    --body-bg-gradient: #121418;
-    --success: #34D399;
-    --warning: #FBBF24;
-    --error: #F87171;
 }
 
 /* 2. THEME: Gold Matte Luxury (.theme-gold) */

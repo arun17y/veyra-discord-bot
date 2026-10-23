@@ -14,8 +14,9 @@
     <!-- Local styles -->
         <script>
         (function() {
-            var theme = localStorage.getItem('veyra_theme') || 'light';
-            document.documentElement.setAttribute('data-theme', theme);
+            var theme = 'light';
+            localStorage.setItem('veyra_theme', 'light');
+            document.documentElement.setAttribute('data-theme', 'light');
         })();
     </script>
     <link rel="stylesheet" href="css/themes.css?v=v13_dashboard_realtime_manage_fix">
@@ -1085,27 +1086,30 @@
            Headline: Dark Plum (#352B3A) | Accent: Rose Pink (#D96C91)
            Body: Crisp Slate Plum (#4A4250) | Background: Warm Cream (#FFFCFA)
         ======================================================== */
-        :root, body, body.theme-light, [data-theme="light"] {
-            --amari-bg-dark: #FFFCFA;
-            --amari-card-dark: #FFFFFF;
-            --amari-coral: #D96C91;
-            --amari-coral-hover: #B94E76;
-            --amari-coral-glow: rgba(217, 108, 145, 0.25);
-            --amari-text: #352B3A;
-            --amari-muted: #4A4250;
-            --amari-sub: #6B6272;
-            --bg-primary: #FFFCFA;
-            --surface: #FFFFFF;
-            --text-primary: #352B3A;
-            --text-secondary: #4A4250;
-            --text-muted: #6B6272;
-            --accent-primary: #D96C91;
-            --accent-secondary: #B94E76;
-            --border-color: #EDE4E7;
+        :root, html, body, body.theme-light, body.theme-dark, body.theme-slate, [data-theme="light"], [data-theme="dark"] {
+            --amari-bg-dark: #FFFCFA !important;
+            --amari-card-dark: #FFFFFF !important;
+            --amari-coral: #D96C91 !important;
+            --amari-coral-hover: #B94E76 !important;
+            --amari-coral-glow: rgba(217, 108, 145, 0.25) !important;
+            --amari-text: #352B3A !important;
+            --amari-muted: #4A4250 !important;
+            --amari-sub: #6B6272 !important;
+            --bg-primary: #FFFCFA !important;
+            --bg-secondary: #FFF6F4 !important;
+            --bg-tertiary: #FFFFFF !important;
+            --surface: #FFFFFF !important;
+            --text-primary: #352B3A !important;
+            --text-secondary: #4A4250 !important;
+            --text-muted: #6B6272 !important;
+            --accent-primary: #D96C91 !important;
+            --accent-secondary: #B94E76 !important;
+            --border-color: #EDE4E7 !important;
         }
 
         body {
             background-color: #FFFCFA !important;
+            background: #FFFCFA !important;
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;
             color: #352B3A !important;
             min-height: 100vh;
@@ -2623,7 +2627,7 @@
 
         
         <!-- [SECTION 2: ORGANIC CURVED WHITE FEATURE SHOWCASE CONTAINER] -->
-        <div style="position: relative; z-index: 20; background: var(--bg-primary); border-top: 1px solid var(--border-color); border-radius: 40px 40px 0 0; padding: 80px 24px 60px 24px; box-shadow: 0 -15px 40px rgba(53, 43, 58, 0.04); margin-top: -30px;">
+        <div style="position: relative; z-index: 20; background: #FFFCFA !important; border-top: 1px solid var(--border-color); border-radius: 40px 40px 0 0; padding: 80px 24px 60px 24px; box-shadow: 0 -15px 40px rgba(53, 43, 58, 0.04); margin-top: -30px;">
             <div style="max-width: 1200px; margin: 0 auto; text-align: center;">
                 <div style="font-family: var(--font-mono); font-size: 0.75rem; color: var(--accent-primary); letter-spacing: 0.16em; text-transform: uppercase; margin-bottom: 12px; font-weight: 700;">
                     SIMPLE ON THE SURFACE. POWERFUL UNDERNEATH.
@@ -12797,35 +12801,19 @@ window.addEventListener('scroll', () => {
 
     <script>
         function initVeyraTheme() {
-            const saved = localStorage.getItem('veyra_theme') || 'light';
-            document.documentElement.setAttribute('data-theme', saved);
-            if (saved === 'dark') {
-                document.body.classList.add('theme-dark');
-                document.body.classList.remove('theme-light', 'theme-slate');
-            } else {
-                document.body.classList.add('theme-light');
-                document.body.classList.remove('theme-dark');
-            }
-            updateVeyraThemeIcon(saved);
+            document.documentElement.setAttribute('data-theme', 'light');
+            document.body.classList.add('theme-light');
+            document.body.classList.remove('theme-dark', 'theme-slate', 'theme-gold', 'theme-cobalt', 'theme-crimson', 'theme-emerald');
+            localStorage.setItem('veyra_theme', 'light');
+            updateVeyraThemeIcon('light');
         }
         function toggleVeyraTheme() {
-            const curr = document.documentElement.getAttribute('data-theme') || 'light';
-            const next = curr === 'light' ? 'dark' : 'light';
-            document.documentElement.setAttribute('data-theme', next);
-            localStorage.setItem('veyra_theme', next);
-            if (next === 'dark') {
-                document.body.classList.add('theme-dark');
-                document.body.classList.remove('theme-light', 'theme-slate');
-            } else {
-                document.body.classList.add('theme-light');
-                document.body.classList.remove('theme-dark');
-            }
-            updateVeyraThemeIcon(next);
+            initVeyraTheme();
         }
         function updateVeyraThemeIcon(theme) {
             const icon = document.getElementById('theme-toggle-icon-top');
             if (icon) {
-                icon.className = theme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
+                icon.className = 'fas fa-sun';
             }
         }
         window.addEventListener('DOMContentLoaded', initVeyraTheme);

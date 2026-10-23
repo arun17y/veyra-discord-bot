@@ -1337,20 +1337,12 @@ app.post('/api/simulate/leave/:guild_id', (req, res) => {
 
 // 1. Get Visual Swatch Theme
 app.get('/api/settings/theme', (req, res) => {
-    db.get("SELECT setting_value FROM global_settings WHERE setting_key = 'active_theme'", (err, row) => {
-        if (err) return res.status(500).json({ error: err.message });
-        res.json({ theme: row ? row.setting_value : 'slate' });
-    });
+    res.json({ theme: 'light' });
 });
 
 // 2. Set Visual Swatch Theme
 app.post('/api/settings/theme', (req, res) => {
-    const { theme } = req.body;
-    if (!theme) return res.status(400).json({ error: 'Theme variable is required' });
-    db.run("INSERT OR REPLACE INTO global_settings (setting_key, setting_value) VALUES ('active_theme', ?)", [theme], function(err) {
-        if (err) return res.status(500).json({ error: err.message });
-        res.json({ success: true, theme });
-    });
+    res.json({ success: true, theme: 'light' });
 });
 
 // 3. Get Guild General Settings & Security Modules

@@ -1569,39 +1569,27 @@ function logout() {
 }
 
 // --- 6. SWATCH THEMING ENGINE ---
-let activeTheme = 'slate';
+let activeTheme = 'light';
 
 function changeSystemTheme(themeName, silent = false) {
-    document.body.className = `theme-${themeName}`;
-    activeTheme = themeName;
+    document.body.className = 'theme-light';
+    document.documentElement.setAttribute('data-theme', 'light');
+    localStorage.setItem('veyra_theme', 'light');
+    activeTheme = 'light';
     
     document.querySelectorAll('.theme-swatch').forEach(swatch => {
         swatch.classList.remove('active');
     });
-    const activeSwatch = document.getElementById(`swatch-${themeName}`);
+    const activeSwatch = document.getElementById('swatch-light') || document.getElementById('swatch-slate');
     if (activeSwatch) activeSwatch.classList.add('active');
     
     if (!silent) {
-        showToast("Theme Selected", `Visual layout theme set to: ${themeName.toUpperCase()}`);
+        showToast("Theme Selected", `Visual layout theme set to: LIGHT`);
     }
-    
-    fetch('/api/settings/theme', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ theme: themeName })
-    }).catch(e => console.log("Offline mode default active."));
 }
 
 function loadActiveTheme() {
-    fetch('/api/settings/theme')
-        .then(res => res.json())
-        .then(data => {
-            if (data.theme) {
-                changeSystemTheme(data.theme, true);
-            }
-        }).catch(e => {
-            changeSystemTheme('slate', true);
-        });
+    changeSystemTheme('light', true);
 }
 
 // --- 7. EMBED BUILDER PREVIEWS ---
