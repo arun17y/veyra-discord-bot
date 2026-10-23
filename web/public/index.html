@@ -18,8 +18,8 @@
             document.documentElement.setAttribute('data-theme', theme);
         })();
     </script>
-    <link rel="stylesheet" href="css/themes.css?v=v12_restore_homepage_dashboard_realtime">
-    <link rel="stylesheet" href="css/dashboard.css?v=v12_restore_homepage_dashboard_realtime">
+    <link rel="stylesheet" href="css/themes.css?v=v13_dashboard_realtime_manage_fix">
+    <link rel="stylesheet" href="css/dashboard.css?v=v13_dashboard_realtime_manage_fix">
     <style>
         /* =============================================
            VEYRA BRAND PALETTE OVERRIDE — A to Z
@@ -1759,7 +1759,7 @@
             initialScreen = 'servers';
         } else if (urlParams.has('guild_id')) {
             initialScreen = 'dashboard';
-        } else if (window.location.pathname.includes('/manage')) {
+        } else if (window.location.pathname.includes('/manage') || window.location.pathname.includes('/dashboard')) {
             initialScreen = 'servers';
         }
         let style = '#webgl-canvas, #ui-layer { display: none !important; } #main-content { opacity: 1 !important; pointer-events: auto !important; }';
@@ -12223,8 +12223,8 @@ Our support team can assist you with:
     <!-- JS Execution libraries -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
-    <script src="js/dashboard.js?v=v12_restore_homepage_dashboard_realtime"></script>
-    <script src="js/moderation.js?v=v12_restore_homepage_dashboard_realtime"></script>
+    <script src="js/dashboard.js?v=v13_dashboard_realtime_manage_fix"></script>
+    <script src="js/moderation.js?v=v13_dashboard_realtime_manage_fix"></script>
     <!-- smokey fluid cursor removed -->
 
 

@@ -4113,8 +4113,8 @@ app.post('/api/bot/message', async (req, res) => {
 });
 
 // Explicit page routes
-app.get('/manage', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public/manage.html'));
+app.get(['/manage', '/dashboard'], (req, res) => {
+    res.sendFile(path.join(__dirname, 'public/index.html'));
 });
 
 app.get('/admin', (req, res) => {
@@ -4267,7 +4267,7 @@ app.get(['/transcripts/v2/:id', '/transcript/:id'], (req, res) => {
     });
 });
 
-app.get('/manage', (req, res) => res.sendFile(path.join(__dirname, 'public/manage.html')));
+app.get(['/manage', '/dashboard'], (req, res) => res.sendFile(path.join(__dirname, 'public/index.html')));
 app.get('/admin', (req, res) => res.sendFile(path.join(__dirname, 'public/admin.html')));
 app.get('/tickets', (req, res) => res.sendFile(path.join(__dirname, 'public/ticket.html')));
 app.get('/ticket', (req, res) => res.sendFile(path.join(__dirname, 'public/ticket.html')));
