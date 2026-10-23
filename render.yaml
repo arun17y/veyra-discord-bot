@@ -9,3 +9,15 @@ services:
     envVars:
       - key: PORT
         value: "3000"
+      - key: PYTHONUNBUFFERED
+        value: "1"
+      - key: WEBSITE_URL
+        value: "https://veyra-bot.vercel.app"
+      - key: DISCORD_BOT_TOKEN
+        sync: false
+      - key: DISCORD_CLIENT_ID
+        sync: false
+      - key: DISCORD_CLIENT_SECRET
+        sync: false
+      - key: DATABASE_URL
+        sync: false
