@@ -3303,3 +3303,18 @@ pre[id*="sim-embed-desc"],
     font-weight: 700 !important;
     border-radius: 8px !important;
 }
+
+/* SPECIFICITY OVERRIDE FOR DISCORD SIMULATOR EMBED TITLE */
+#screen-dashboard [id*="preview-container"] h3,
+#screen-dashboard [id*="preview-container"] [id*="sim-embed-title"],
+#screen-dashboard #welcome-sim-embed-title,
+#screen-dashboard #leave-sim-embed-title,
+#screen-dashboard #invitetracker-sim-embed-title,
+#screen-dashboard .embed-title,
+#welcome-sim-embed-title,
+#leave-sim-embed-title,
+#invitetracker-sim-embed-title {
+    color: #00b0f4 !important;
+    font-weight: 700 !important;
+    font-size: 1.05rem !important;
+}
