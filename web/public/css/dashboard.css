@@ -333,10 +333,10 @@ input:checked + .slider:before {
     display: flex;
     max-width: 100% !important;
     width: 100% !important;
-    margin: 80px 0 0 0 !important;
+    margin: 0 !important;
     padding: 0 !important;
     gap: 0 !important;
-    min-height: calc(100vh - 80px) !important;
+    min-height: calc(100vh - 76px) !important;
     height: auto !important;
     overflow: visible !important;
 }
@@ -345,15 +345,15 @@ input:checked + .slider:before {
     width: 260px !important;
     flex-shrink: 0 !important;
     position: sticky !important;
-    top: 70px !important;
-    height: calc(100vh - 70px) !important;
+    top: 0 !important;
+    height: 100vh !important;
     display: flex !important;
     flex-direction: column !important;
     justify-content: space-between !important;
-    background: var(--bg-tertiary) !important;
+    background: var(--surface) !important;
     border-right: 1px solid var(--border-color) !important;
     box-sizing: border-box !important;
-    padding: 20px 14px !important;
+    padding: 16px 10px !important;
     overflow-y: auto !important;
     scrollbar-width: none !important;
     z-index: 40 !important;

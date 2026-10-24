@@ -686,6 +686,7 @@ function loadServerDashboard(guildId) {
             const members = activeGuild.member_count || (guildName === 'GHOST' ? 1452 : 2083);
             ticketsSidebarMembers.innerText = `${members.toLocaleString()} members`;
         }
+        if (typeof renderSidebarGuilds === 'function') renderSidebarGuilds();
     }
     
     showScreen('dashboard');
@@ -2808,6 +2809,7 @@ function renderUserGuilds(guilds, loggedIn = false) {
     container.appendChild(listGrid);
 
     window.allGuildsCache = guilds;
+    if (typeof renderSidebarGuilds === 'function') renderSidebarGuilds();
 
     // Search event
     const searchField = document.getElementById('guild-search-input');
@@ -3002,6 +3004,162 @@ if (!window._serversRealtimeTimer) {
         }
     }, 12000);
 }
+
+// --- IN-SIDEBAR SERVER SWITCHER ENGINE ---
+function toggleSidebarServerDropdown(e) {
+    if (e) e.stopPropagation();
+    const dropdown = document.getElementById('sidebar-server-dropdown');
+    const chevron = document.getElementById('sidebar-guild-chevron');
+    if (!dropdown) return;
+
+    const isShowing = dropdown.style.display === 'block';
+    if (isShowing) {
+        dropdown.style.display = 'none';
+        if (chevron) chevron.style.transform = 'rotate(0deg)';
+    } else {
+        dropdown.style.display = 'block';
+        if (chevron) chevron.style.transform = 'rotate(180deg)';
+        const searchInput = document.getElementById('sidebar-guild-search');
+        if (searchInput) {
+            searchInput.value = '';
+            setTimeout(() => searchInput.focus(), 60);
+        }
+        renderSidebarGuilds();
+    }
+}
+
+function renderSidebarGuilds(query = '') {
+    const list = document.getElementById('sidebar-guilds-list');
+    if (!list) return;
+
+    const guilds = window.allGuildsCache || [];
+    if (guilds.length === 0) {
+        list.innerHTML = `
+            <div style="padding: 16px 12px; text-align: center; color: var(--text-muted); font-size: 0.8rem; font-family: var(--font-body);">
+                No servers loaded yet.<br>
+                <a href="#" onclick="checkSession(true); return false;" style="color: var(--accent-primary); font-weight: 700; text-decoration: none; margin-top: 6px; display: inline-block;">
+                    <i class="fas fa-arrows-rotate"></i> Refresh Session
+                </a>
+            </div>
+        `;
+        return;
+    }
+
+    const q = query.toLowerCase().trim();
+    const filtered = guilds.filter(g => (g.name || '').toLowerCase().includes(q));
+
+    // Sort: Current server first, then bot-active servers, then others
+    filtered.sort((a, b) => {
+        if (a.id === activeGuildId) return -1;
+        if (b.id === activeGuildId) return 1;
+        const aActive = a.active === true && a.missing !== true;
+        const bActive = b.active === true && b.missing !== true;
+        if (aActive && !bActive) return -1;
+        if (!aActive && bActive) return 1;
+        return (a.name || '').localeCompare(b.name || '');
+    });
+
+    if (filtered.length === 0) {
+        list.innerHTML = `<div style="padding: 16px 12px; text-align: center; color: var(--text-muted); font-size: 0.8rem; font-family: var(--font-body);">No matching servers</div>`;
+        return;
+    }
+
+    list.innerHTML = '';
+    filtered.forEach(g => {
+        const isCurrent = g.id === activeGuildId;
+        const isBotActive = g.active === true && g.missing !== true;
+        const canInvite = g.can_invite !== false;
+
+        let iconHtml = '';
+        if (g.icon) {
+            iconHtml = `<img src="https://cdn.discordapp.com/icons/${g.id}/${g.icon}.png?size=64" style="width: 30px; height: 30px; border-radius: 8px; object-fit: cover; flex-shrink: 0;" onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png'">`;
+        } else {
+            const initial = (g.name || 'S').charAt(0).toUpperCase();
+            iconHtml = `<div style="width: 30px; height: 30px; border-radius: 8px; background: var(--soft-pink); border: 1px solid var(--border-color); display: flex; align-items: center; justify-content: center; font-weight: 800; color: var(--accent-primary); font-size: 0.82rem; flex-shrink: 0;">${initial}</div>`;
+        }
+
+        const row = document.createElement('div');
+        row.style.display = 'flex';
+        row.style.alignItems = 'center';
+        row.style.justifyContent = 'space-between';
+        row.style.padding = '8px 10px';
+        row.style.borderRadius = '8px';
+        row.style.cursor = isBotActive ? 'pointer' : (canInvite ? 'pointer' : 'not-allowed');
+        row.style.transition = 'all 0.15s ease';
+        row.style.gap = '8px';
+        row.style.userSelect = 'none';
+
+        if (isCurrent) {
+            row.style.background = 'var(--soft-pink)';
+            row.style.border = '1px solid rgba(217, 108, 145, 0.35)';
+        } else {
+            row.style.background = 'transparent';
+            row.onmouseover = () => { row.style.background = 'var(--bg-secondary)'; };
+            row.onmouseout = () => { row.style.background = 'transparent'; };
+        }
+
+        row.innerHTML = `
+            <div style="display: flex; align-items: center; gap: 8px; min-width: 0; flex: 1;">
+                ${iconHtml}
+                <div style="min-width: 0; flex: 1;">
+                    <div style="font-size: 0.82rem; font-weight: ${isCurrent ? '800' : '600'}; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-family: var(--font-display);">
+                        ${g.name}
+                    </div>
+                    <div style="font-size: 0.65rem; color: ${isCurrent ? '#287A55' : (isBotActive ? '#287A55' : 'var(--text-muted)')}; display: flex; align-items: center; gap: 4px; font-family: var(--font-mono); font-weight: 700;">
+                        <span style="width: 5px; height: 5px; border-radius: 50%; background: ${isCurrent ? '#287A55' : (isBotActive ? '#287A55' : 'var(--text-muted)')}; display: inline-block;"></span>
+                        <span>${isCurrent ? 'ACTIVE NOW' : (isBotActive ? 'ONLINE' : (canInvite ? 'READY TO ADD' : 'NO ACCESS'))}</span>
+                    </div>
+                </div>
+            </div>
+            ${isCurrent ? '<i class="fas fa-circle-check" style="color: #287A55; font-size: 0.85rem; flex-shrink: 0;"></i>' : 
+              (isBotActive ? '<i class="fas fa-arrow-right" style="color: var(--accent-primary); font-size: 0.75rem; flex-shrink: 0; opacity: 0.7;"></i>' : 
+              (canInvite ? `<button onclick="event.stopPropagation(); simulateAddBot('${g.name.replace(/'/g, "\'")}', '${g.id}')" style="background: var(--soft-pink); border: 1px solid var(--border-color); color: var(--accent-secondary); font-size: 0.68rem; font-weight: 700; padding: 3px 8px; border-radius: 6px; cursor: pointer; flex-shrink: 0;">+ Add</button>` : '<i class="fas fa-lock" style="color: var(--text-muted); font-size: 0.7rem; flex-shrink: 0;"></i>'))}
+        `;
+
+        if (isBotActive && !isCurrent) {
+            row.onclick = (e) => {
+                e.stopPropagation();
+                selectSidebarGuild(g.id);
+            };
+        } else if (!isBotActive && canInvite && !isCurrent) {
+            row.onclick = (e) => {
+                e.stopPropagation();
+                simulateAddBot(g.name, g.id);
+            };
+        }
+
+        list.appendChild(row);
+    });
+}
+
+function filterSidebarGuilds(val) {
+    renderSidebarGuilds(val);
+}
+
+function selectSidebarGuild(guildId) {
+    const dropdown = document.getElementById('sidebar-server-dropdown');
+    const chevron = document.getElementById('sidebar-guild-chevron');
+    if (dropdown) dropdown.style.display = 'none';
+    if (chevron) chevron.style.transform = 'rotate(0deg)';
+
+    const guild = (window.allGuildsCache || []).find(g => g.id === guildId);
+    if (guild) {
+        showToast("Switched Server", `Now managing ${guild.name}`);
+    }
+    loadServerDashboard(guildId);
+}
+
+// Global click listener to close sidebar server dropdown when clicking outside
+document.addEventListener('click', (e) => {
+    if (!e.target.closest('#sidebar-current-guild-box') && !e.target.closest('#sidebar-server-dropdown')) {
+        const dropdown = document.getElementById('sidebar-server-dropdown');
+        const chevron = document.getElementById('sidebar-guild-chevron');
+        if (dropdown && dropdown.style.display === 'block') {
+            dropdown.style.display = 'none';
+            if (chevron) chevron.style.transform = 'rotate(0deg)';
+        }
+    }
+});
 
 // Dynamic Animations
 const styleNode = document.createElement('style');

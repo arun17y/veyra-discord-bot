@@ -5249,19 +5249,46 @@
                         </button>
                     </div>
 
-                    <!-- Current Server Context & Switcher Card -->
-                    <div id="sidebar-current-guild-box" onclick="showScreen('servers')" style="margin: 0 14px 16px 14px; padding: 10px 12px; border-radius: 10px; background: var(--bg-secondary); border: 1px solid var(--border-color); display: flex; align-items: center; justify-content: space-between; cursor: pointer; transition: all 0.2s ease;" title="Click to Switch Server">
-                        <div style="display: flex; align-items: center; gap: 10px; min-width: 0;">
-                            <img id="sidebar-guild-avatar-img" src="assets/bypass_logs_avatar.webp" style="width: 32px; height: 32px; border-radius: 8px; object-fit: cover; border: 1px solid var(--border-color); flex-shrink: 0;" onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png'">
-                            <div style="min-width: 0;">
-                                <div id="sidebar-guild-name" style="font-size: 0.86rem; font-weight: 700; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Select Server</div>
-                                <div style="font-size: 0.68rem; color: var(--text-muted); display: flex; align-items: center; gap: 4px;">
-                                    <span style="width: 6px; height: 6px; border-radius: 50%; background: #287A55; display: inline-block;"></span>
-                                    <span>Active Server</span>
+                    <!-- Current Server Context & Switcher Card with Instant In-Place Dropdown -->
+                    <div style="position: relative; margin: 0 10px 14px 10px;">
+                        <div id="sidebar-current-guild-box" onclick="toggleSidebarServerDropdown(event)" style="padding: 10px 12px; border-radius: 12px; background: var(--bg-secondary); border: 1.5px solid var(--border-color); display: flex; align-items: center; justify-content: space-between; cursor: pointer; transition: all 0.2s ease; user-select: none;" title="Click to Switch Server (In-Sidebar)">
+                            <div style="display: flex; align-items: center; gap: 10px; min-width: 0;">
+                                <div style="position: relative; flex-shrink: 0;">
+                                    <img id="sidebar-guild-avatar-img" src="assets/bypass_logs_avatar.webp" style="width: 34px; height: 34px; border-radius: 10px; object-fit: cover; border: 1px solid var(--border-color); display: block;" onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png'">
+                                    <span style="position: absolute; bottom: -2px; right: -2px; width: 10px; height: 10px; border-radius: 50%; background: #287A55; border: 2px solid var(--surface); display: inline-block;"></span>
+                                </div>
+                                <div style="min-width: 0;">
+                                    <div id="sidebar-guild-name" style="font-size: 0.88rem; font-weight: 800; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-family: var(--font-display);">Select Server</div>
+                                    <div style="font-size: 0.68rem; color: #287A55; font-weight: 700; display: flex; align-items: center; gap: 4px; font-family: var(--font-mono);">
+                                        <span>ACTIVE SERVER</span>
+                                    </div>
                                 </div>
                             </div>
+                            <div style="display: flex; align-items: center; gap: 6px;">
+                                <i id="sidebar-guild-chevron" class="fas fa-chevron-down" style="font-size: 0.78rem; color: var(--accent-primary); transition: transform 0.25s ease;" title="Switch Server"></i>
+                            </div>
                         </div>
-                        <i class="fas fa-repeat" style="font-size: 0.75rem; color: var(--accent-primary); flex-shrink: 0;" title="Switch Server"></i>
+
+                        <!-- Dropdown List of All User Servers (Direct In-Place Switcher) -->
+                        <div id="sidebar-server-dropdown" style="display: none; position: absolute; left: 0; right: 0; top: 100%; margin-top: 6px; background: var(--surface); border: 1.5px solid var(--border-color); border-radius: 14px; box-shadow: 0 16px 36px rgba(53, 43, 58, 0.14); z-index: 1000; overflow: hidden;">
+                            <div style="padding: 10px 10px 8px 10px; background: var(--bg-secondary); border-bottom: 1px solid var(--border-color);">
+                                <div style="position: relative;">
+                                    <input type="text" id="sidebar-guild-search" placeholder="Search servers..." oninput="filterSidebarGuilds(this.value)" style="width: 100%; padding: 8px 28px 8px 10px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--surface); color: var(--text-primary); font-size: 0.8rem; font-family: var(--font-body); box-sizing: border-box; outline: none;">
+                                    <i class="fas fa-search" style="position: absolute; right: 9px; top: 9px; font-size: 0.75rem; color: var(--text-muted); pointer-events: none;"></i>
+                                </div>
+                            </div>
+                            <div id="sidebar-guilds-list" style="max-height: 260px; overflow-y: auto; padding: 6px; display: flex; flex-direction: column; gap: 4px;">
+                                <div style="padding: 16px; text-align: center; color: var(--text-muted); font-size: 0.8rem;">Loading servers...</div>
+                            </div>
+                            <div style="padding: 8px 10px; border-top: 1px solid var(--border-color); background: var(--bg-secondary); display: flex; align-items: center; justify-content: space-between;">
+                                <a href="https://discord.com/oauth2/authorize?client_id=1527243189860175933&permissions=8&integration_type=0&scope=bot+applications.commands" target="_blank" style="font-size: 0.74rem; font-weight: 700; color: var(--accent-primary); text-decoration: none; display: flex; align-items: center; gap: 5px;">
+                                    <i class="fas fa-plus"></i> Add Server
+                                </a>
+                                <a href="#" onclick="showScreen('servers'); toggleSidebarServerDropdown(); return false;" style="font-size: 0.74rem; font-weight: 600; color: var(--text-muted); text-decoration: none;">
+                                    Full Grid &rarr;
+                                </a>
+                            </div>
+                        </div>
                     </div>
 
                     <div class="sidebar-title" style="padding: 6px 18px 4px 18px; font-size: 0.68rem; font-family: var(--font-mono); font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em;">Server Management</div>
