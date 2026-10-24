@@ -2627,7 +2627,7 @@ h1, h2, h3, h4, h5, h6,
 #screen-dashboard .command-box,
 #screen-dashboard .audit-card,
 #screen-dashboard .table-responsive,
-#screen-dashboard .tab-pane > div:not(.section-header) {
+#screen-dashboard .tab-pane > .glass-card:not(.section-header) {
     background: var(--surface) !important;
     border: 1px solid var(--border-color) !important;
     border-radius: 14px !important;
@@ -3244,7 +3244,7 @@ pre[id*="sim-embed-desc"],
 .control-box-sec,
 .command-box,
 .audit-card,
-#screen-dashboard .tab-pane > div:not(.section-header),
+#screen-dashboard .tab-pane > .glass-card:not(.section-header),
 #screen-dashboard .config-card {
     background: #FFFFFF !important;
     border: 1.5px solid #E2E8F0 !important;
@@ -3477,4 +3477,71 @@ input:checked + .slider:before,
         transform: none !important;
         width: 260px !important;
     }
+}
+
+/* ==========================================================================
+   SECURITY TAB HEADER & NUMBER INPUT CLEANUP (FIX DJ SCREENSHOT ISSUES)
+   ========================================================================== */
+
+/* Remove any background/border capsules from Managing Server and Sub-Nav */
+#tab-security > div:first-child,
+#tab-security div[style*="text-align: center"],
+#tab-security .security-top-nav,
+.security-top-nav {
+    background: transparent !important;
+    border: none !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    padding: 0 0 15px 0 !important;
+}
+
+#tab-security div[style*="position:relative; margin-top:40px"],
+#tab-security div[style*="position: relative; margin-top: 40px"],
+#tab-security div[style*="margin-top:40px"],
+#tab-security div[style*="margin-top: 40px"] {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+}
+
+/* Hide all text-stroke watermark texts */
+span[style*="-webkit-text-stroke"] {
+    display: none !important;
+}
+
+/* Number Inputs: Perfectly Centered, No Spinners, No Cutoff */
+#tab-security input[type="number"],
+input[type="number"]#sec-limit-ban,
+input[type="number"][id^="sec-limit-"] {
+    background: #FFFFFF !important;
+    border: 1.5px solid #CBD5E1 !important;
+    color: #0F172A !important;
+    border-radius: 6px !important;
+    padding: 4px 2px !important;
+    font-size: 0.95rem !important;
+    font-weight: 800 !important;
+    text-align: center !important;
+    width: 50px !important;
+    min-width: 48px !important;
+    height: 32px !important;
+    box-sizing: border-box !important;
+    -moz-appearance: textfield !important;
+}
+
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none !important;
+    margin: 0 !important;
+}
+
+/* Managing Server Tag */
+#managing-server-name {
+    color: #E11D48 !important;
+    font-weight: 800 !important;
+    background: #FFF1F5 !important;
+    padding: 3px 10px !important;
+    border-radius: 6px !important;
+    border: 1px solid #FBCFE8 !important;
+    display: inline-block !important;
 }
