@@ -2995,15 +2995,82 @@ window.addEventListener('focus', () => {
     }
 });
 
-// Periodic background check every 12 seconds when viewing server list
-if (!window._serversRealtimeTimer) {
-    window._serversRealtimeTimer = setInterval(() => {
-        const serversScreen = document.getElementById('screen-servers');
-        if (window.isUserLoggedIn && serversScreen && serversScreen.style.display !== 'none' && typeof checkSession === 'function') {
-            checkSession(false);
+// --- 24/7 SILENT REAL-TIME BACKGROUND REFRESH & BOT-JOIN AUTO-DETECTOR ---
+(function initSilentRealtimeWatcher() {
+    if (window._silentRealtimeWatcherActive) return;
+    window._silentRealtimeWatcherActive = true;
+
+    // Silent poller runs continuously every 3.5 seconds
+    setInterval(async () => {
+        if (!window.isUserLoggedIn) return;
+
+        // 1. Silent sync for bot addition to user servers
+        try {
+            const res = await fetch('/api/user/guilds?t=' + Date.now(), { cache: 'no-store' });
+            if (res.ok) {
+                const data = await res.json();
+                if (data.success && Array.isArray(data.guilds)) {
+                    const freshGuilds = data.guilds;
+                    const prevGuilds = window.allGuildsCache || [];
+
+                    // Check if any server newly got the bot added
+                    freshGuilds.forEach(fg => {
+                        const prev = prevGuilds.find(pg => pg.id === fg.id);
+                        if (prev && !prev.active && fg.active) {
+                            showToast("Bot Joined Server", `VEYRA is now online in ${fg.name}!`);
+                        }
+                    });
+
+                    const prevActiveCount = prevGuilds.filter(g => g.active).length;
+                    const newActiveCount = freshGuilds.filter(g => g.active).length;
+                    
+                    window.allGuildsCache = freshGuilds;
+
+                    // Silently refresh in-sidebar server dropdown
+                    if (typeof renderSidebarGuilds === 'function') {
+                        const searchInput = document.getElementById('sidebar-guild-search');
+                        const query = searchInput ? searchInput.value : '';
+                        renderSidebarGuilds(query);
+                    }
+
+                    // If viewing server list and user is not actively typing in search, update grid smoothly
+                    const serversScreen = document.getElementById('screen-servers');
+                    const searchBox = document.getElementById('guild-search-input');
+                    const isSearching = searchBox && document.activeElement === searchBox;
+                    if (serversScreen && serversScreen.style.display !== 'none' && !isSearching) {
+                        if (prevActiveCount !== newActiveCount || prevGuilds.length !== freshGuilds.length) {
+                            if (typeof filterGuildsList === 'function') filterGuildsList();
+                        }
+                    }
+                }
+            }
+        } catch (e) {
+            // Silently ignore background polling errors
         }
-    }, 12000);
-}
+
+        // 2. Silent sync for dashboard metrics when on dashboard screen
+        try {
+            const isDash = currentScreen === 'dashboard' || sessionStorage.getItem('activeScreen') === 'dashboard';
+            if (activeGuildId && isDash) {
+                // Silently refresh Whitelist Capacity
+                fetch('/api/whitelist/' + activeGuildId, { cache: 'no-store' })
+                    .then(r => r.json())
+                    .then(wl => {
+                        const capacityEl = document.getElementById('overview-whitelist-capacity');
+                        if (capacityEl && Array.isArray(wl)) {
+                            capacityEl.innerText = `${wl.length} / 100`;
+                        }
+                    })
+                    .catch(() => {});
+
+                // Silently refresh bot telemetry
+                if (typeof pollBotTelemetry === 'function') {
+                    pollBotTelemetry();
+                }
+            }
+        } catch (e) {}
+    }, 3500);
+})();
 
 // --- IN-SIDEBAR SERVER SWITCHER ENGINE ---
 function toggleSidebarServerDropdown(e) {

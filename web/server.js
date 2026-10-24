@@ -2791,7 +2791,7 @@ app.all('/api/auth/logout', (req, res) => {
 // In-memory cache for live Discord bot guilds to prevent rate limits while ensuring real-time accuracy
 let _cachedBotGuilds = null;
 let _cachedBotGuildsTime = 0;
-const BOT_GUILDS_CACHE_TTL = 8000; // 8 seconds TTL for instant real-time detection
+const BOT_GUILDS_CACHE_TTL = 3000; // 3 seconds TTL for ultra-fast bot-add detection
 
 // Helper to fetch live guilds the bot is currently in directly from Discord REST API
 async function getBotGuilds(forceRefresh = false) {
