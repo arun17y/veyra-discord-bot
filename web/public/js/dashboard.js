@@ -690,7 +690,7 @@ function loadServerDashboard(guildId) {
     }
     
     showScreen('dashboard');
-    const pendingTab = sessionStorage.getItem('pendingTab') || 'overview';
+    const pendingTab = window.currentTab || sessionStorage.getItem('activeTab') || sessionStorage.getItem('pendingTab') || 'overview';
     if (typeof switchTab === 'function') {
         switchTab(pendingTab);
     }
@@ -736,23 +736,17 @@ function loadServerDashboard(guildId) {
                     footerEl.style.color = '#a855f7';
                 }
             }
-            const pendingTab = sessionStorage.getItem('pendingTab');
-            if (pendingTab) {
-                switchTab(pendingTab);
-                sessionStorage.removeItem('pendingTab');
-            } else {
-                switchTab('overview');
+            const targetTab = window.currentTab || sessionStorage.getItem('activeTab') || sessionStorage.getItem('pendingTab') || 'overview';
+            if (typeof switchTab === 'function') {
+                switchTab(targetTab);
             }
             if (typeof updateSidebarLocks === 'function') updateSidebarLocks();
         })
         .catch(() => {
             window.currentServerPlan = 'Premium';
-            const pendingTab = sessionStorage.getItem('pendingTab');
-            if (pendingTab) {
-                switchTab(pendingTab);
-                sessionStorage.removeItem('pendingTab');
-            } else {
-                switchTab('overview');
+            const targetTab = window.currentTab || sessionStorage.getItem('activeTab') || sessionStorage.getItem('pendingTab') || 'overview';
+            if (typeof switchTab === 'function') {
+                switchTab(targetTab);
             }
             if (typeof updateSidebarLocks === 'function') updateSidebarLocks();
         });
@@ -1113,6 +1107,10 @@ function switchTab(tabId) {
     if (targetMenu) targetMenu.classList.add('active');
     
     currentTab = tabId;
+    try {
+        sessionStorage.setItem('pendingTab', tabId);
+        sessionStorage.setItem('activeTab', tabId);
+    } catch (e) {}
 
     // Dynamically adjust padding of workspace content area for tickets tab to start flush from the left edge
     const workspaceContent = document.getElementById('workspace-content');
@@ -2640,8 +2638,11 @@ function checkSession(forceRefresh = false) {
                 const savedGuildId = queryGuildId || sessionStorage.getItem('activeGuildId');
                 const activeScr = sessionStorage.getItem('activeScreen');
                 
+                const isAlreadyViewingGuild = (currentScreen === 'dashboard' || activeScr === 'dashboard') && window.activeGuildId && String(window.activeGuildId) === String(savedGuildId);
                 if ((activeScr === 'dashboard' || queryGuildId) && savedGuildId && typeof loadServerDashboard === 'function') {
-                    loadServerDashboard(savedGuildId);
+                    if (!isAlreadyViewingGuild) {
+                        loadServerDashboard(savedGuildId);
+                    }
                 } else if (window.location.pathname.includes('/manage') || window.location.pathname.includes('/dashboard') || activeScr === 'servers') {
                     showScreen('servers');
                 }
@@ -2988,10 +2989,14 @@ window.manualRefreshServers = function() {
     }, 1200);
 };
 
-// Window focus listener: immediately update bot status when returning to dashboard tab
+// Window focus listener: silently refresh telemetry if already on dashboard, avoid resetting active tabs
 window.addEventListener('focus', () => {
-    if (window.isUserLoggedIn && typeof checkSession === 'function') {
-        checkSession(true);
+    if (window.isUserLoggedIn) {
+        if (currentScreen === 'dashboard' && window.activeGuildId) {
+            if (typeof pollBotTelemetry === 'function') pollBotTelemetry();
+        } else if (typeof checkSession === 'function') {
+            checkSession(true);
+        }
     }
 });
 

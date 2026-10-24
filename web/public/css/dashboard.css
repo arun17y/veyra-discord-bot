@@ -353,23 +353,48 @@ input:checked + .slider:before {
     background: var(--surface) !important;
     border-right: 1px solid var(--border-color) !important;
     box-sizing: border-box !important;
-    padding: 16px 10px !important;
-    overflow-y: auto !important;
-    scrollbar-width: none !important;
+    padding: 0 !important;
+    overflow: visible !important;
     z-index: 40 !important;
 }
-.sidebar::-webkit-scrollbar {
-    display: none !important;
+
+.sidebar-pinned-top {
+    flex-shrink: 0 !important;
+    width: 100% !important;
+    background: var(--surface) !important;
+    position: relative !important;
+    z-index: 100 !important;
 }
 
-.sidebar > div:first-child {
+.sidebar-menu-scroll {
     flex: 1 !important;
     min-height: 0 !important;
     overflow-y: auto !important;
-    scrollbar-width: none !important;
+    overflow-x: hidden !important;
+    padding: 6px 6px 12px 6px !important;
+    scrollbar-width: thin !important;
+    scrollbar-color: rgba(255, 79, 154, 0.25) transparent !important;
 }
-.sidebar > div:first-child::-webkit-scrollbar {
-    display: none !important;
+.sidebar-menu-scroll::-webkit-scrollbar {
+    width: 5px !important;
+}
+.sidebar-menu-scroll::-webkit-scrollbar-track {
+    background: transparent !important;
+}
+.sidebar-menu-scroll::-webkit-scrollbar-thumb {
+    background: rgba(255, 79, 154, 0.25) !important;
+    border-radius: 4px !important;
+}
+.sidebar-menu-scroll::-webkit-scrollbar-thumb:hover {
+    background: var(--accent-primary) !important;
+}
+
+.sidebar-pinned-bottom {
+    flex-shrink: 0 !important;
+    width: 100% !important;
+    background: var(--surface) !important;
+    position: relative !important;
+    z-index: 50 !important;
 }
 
 /* Workspace content area */
