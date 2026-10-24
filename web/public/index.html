@@ -12064,22 +12064,22 @@ Our support team can assist you with:
 
                             <!-- Custom Prefix Section -->
                             <div style="margin-bottom: 25px;">
-                                <h3 style="font-size: 1.3rem; font-weight: 800; color: #fff; margin: 0 0 4px 0;">Custom Prefix</h3>
-                                <p style="font-size: 0.8rem; color: var(--text-secondary); margin: 0 0 12px 0;">Set one or more prefix</p>
-                                <div style="display: flex; gap: 10px; margin-bottom: 12px;">
-                                    <input type="text" class="form-control" id="bot-prefix-input" placeholder="Enter a prefix" style="background: rgba(0,0,0,0.25);">
-                                    <button class="btn-primary" onclick="addBotPrefix()" style="background:#a855f7; border:none; padding:10px 20px; border-radius:6px; font-weight:700;">Add</button>
+                                <h3 style="font-size: 1.25rem; font-weight: 800; color: #0F172A; margin: 0 0 4px 0;">Custom Prefix</h3>
+                                <p style="font-size: 0.85rem; color: #475569; margin: 0 0 12px 0;">Set one or more command prefixes for your server bot triggers.</p>
+                                <div style="display: flex; gap: 10px; margin-bottom: 14px;">
+                                    <input type="text" class="form-control" id="bot-prefix-input" placeholder="Enter a prefix (e.g. ! or ? or .)" style="max-width: 260px; background: #FFFFFF; border: 1.5px solid #CBD5E1; color: #0F172A; font-weight: 700; border-radius: 8px;">
+                                    <button class="btn-primary" onclick="addBotPrefix()" style="background:#E11D48; border:none; padding:10px 22px; border-radius:8px; font-weight:700; color:#fff; cursor:pointer;">Add</button>
                                 </div>
-                                <!-- Prefix List -->
-                                <div style="background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.03); border-radius: 8px; padding: 12px; display: flex; justify-content: space-between; align-items: center;">
-                                    <span style="font-family: var(--font-mono); color: #fff; font-size: 1rem; font-weight: 700;">!</span>
-                                    <button onclick="removeBotPrefix()" style="background: transparent; border: none; color: var(--text-secondary); cursor: pointer;" onmouseover="this.style.color='#ef4444'" onmouseout="this.style.color='var(--text-secondary)'">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
+                                <!-- Dynamic Prefix List -->
+                                <div id="bot-prefixes-list" style="display: flex; flex-wrap: wrap; gap: 8px;">
+                                    <div style="background: #FFFFFF; border: 1.5px solid #E2E8F0; border-radius: 8px; padding: 8px 14px; display: inline-flex; align-items: center; gap: 10px; box-shadow: 0 2px 6px rgba(15,23,42,0.04);">
+                                        <span style="font-family: var(--font-mono); color: #E11D48; font-size: 1.05rem; font-weight: 800; background: #FFF1F5; padding: 2px 10px; border-radius: 4px;">!</span>
+                                        <button onclick="removeBotPrefix('!')" style="background: transparent; border: none; color: #94A3B8; cursor: pointer; padding: 2px; font-size: 0.85rem; transition: color 0.15s;" onmouseover="this.style.color='#DC2626'" onmouseout="this.style.color='#94A3B8'" title="Delete prefix">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
-
-
                         </div>
 
                         <!-- Right Pane: Last Actions / Recent Actions -->

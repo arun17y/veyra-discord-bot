@@ -2056,29 +2056,56 @@ function saveGeneralSettings() {
 }
 
 // --- 10. SYSTEM NOTIFICATION TOASTS ---
-function showToast(title, msg) {
+function showToast(title, msg, type = 'info') {
     const toast = document.createElement('div');
-    toast.className = 'glass-card';
     toast.style.position = 'fixed';
-    toast.style.bottom = '20px';
-    toast.style.right = '20px';
+    toast.style.bottom = '24px';
+    toast.style.right = '24px';
     toast.style.zIndex = '999999';
-    toast.style.width = '320px';
-    toast.style.padding = '16px';
-    toast.style.borderLeft = '4px solid var(--accent-primary)';
-    toast.style.animation = 'slideIn 0.5s ease forwards';
-    
+    toast.style.maxWidth = '380px';
+    toast.style.minWidth = '280px';
+    toast.style.padding = '14px 18px';
+    toast.style.background = '#0F172A';
+    toast.style.color = '#FFFFFF';
+    toast.style.borderRadius = '12px';
+    toast.style.boxShadow = '0 16px 36px rgba(0, 0, 0, 0.35)';
+    toast.style.border = '1px solid rgba(255, 255, 255, 0.12)';
+    toast.style.display = 'flex';
+    toast.style.alignItems = 'flex-start';
+    toast.style.gap = '12px';
+    toast.style.animation = 'slideIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards';
+
+    let iconHtml = '<i class="fas fa-circle-check" style="color: #10B981; font-size: 1.15rem; margin-top: 2px;"></i>';
+    let borderColor = '#10B981';
+    if (type === 'error') {
+        iconHtml = '<i class="fas fa-circle-xmark" style="color: #DC2626; font-size: 1.15rem; margin-top: 2px;"></i>';
+        borderColor = '#DC2626';
+    } else if (type === 'warning') {
+        iconHtml = '<i class="fas fa-triangle-exclamation" style="color: #F59E0B; font-size: 1.15rem; margin-top: 2px;"></i>';
+        borderColor = '#F59E0B';
+    } else if (type === 'info') {
+        iconHtml = '<i class="fas fa-bell" style="color: #E11D48; font-size: 1.15rem; margin-top: 2px;"></i>';
+        borderColor = '#E11D48';
+    }
+    toast.style.borderLeft = `4.5px solid ${borderColor}`;
+
     toast.innerHTML = `
-        <h4 style="color:var(--accent-primary); font-size:0.95rem; margin-bottom:4px;">${title}</h4>
-        <p style="font-size:0.8rem; color:var(--text-secondary);">${msg}</p>
+        ${iconHtml}
+        <div style="flex: 1; min-width: 0;">
+            <div style="font-weight: 700; color: #FFFFFF; font-size: 0.92rem; margin-bottom: 2px;">${title}</div>
+            <div style="font-size: 0.82rem; color: #CBD5E1; line-height: 1.4;">${msg}</div>
+        </div>
+        <button onclick="this.parentElement.remove()" style="background: none; border: none; color: #64748B; cursor: pointer; padding: 2px; font-size: 0.85rem;" onmouseover="this.style.color='#FFFFFF'" onmouseout="this.style.color='#64748B'">
+            <i class="fas fa-times"></i>
+        </button>
     `;
-    
+
     document.body.appendChild(toast);
-    
+
     setTimeout(() => {
-        toast.style.animation = 'fadeOut 0.5s ease forwards';
-        setTimeout(() => toast.remove(), 500);
-    }, 3800);
+        toast.style.animation = 'fadeOut 0.35s ease forwards';
+        setTimeout(() => toast.remove(), 350);
+    }, 4000);
 }
 
 // --- 11. AUDIT WEBLOGS STREAM RENDERER ---
@@ -4520,6 +4547,25 @@ function applyBotNickname() {
     renderAuditLogs();
 }
 
+window.currentServerPrefixes = ['!'];
+
+function renderPrefixesList() {
+    const list = document.getElementById('bot-prefixes-list');
+    if (!list) return;
+    list.innerHTML = '';
+    (window.currentServerPrefixes || ['!']).forEach(p => {
+        const div = document.createElement('div');
+        div.style.cssText = "background: #FFFFFF; border: 1.5px solid #E2E8F0; border-radius: 8px; padding: 8px 14px; display: inline-flex; align-items: center; gap: 10px; box-shadow: 0 2px 6px rgba(15,23,42,0.04);";
+        div.innerHTML = `
+            <span style="font-family: var(--font-mono); color: #E11D48; font-size: 1.05rem; font-weight: 800; background: #FFF1F5; padding: 2px 10px; border-radius: 4px;">${p}</span>
+            <button onclick="removeBotPrefix('${p}')" style="background: transparent; border: none; color: #94A3B8; cursor: pointer; padding: 2px; font-size: 0.85rem; transition: color 0.15s;" onmouseover="this.style.color='#DC2626'" onmouseout="this.style.color='#94A3B8'" title="Delete prefix">
+                <i class="fas fa-trash"></i>
+            </button>
+        `;
+        list.appendChild(div);
+    });
+}
+
 function addBotPrefix() {
     const prefixInput = document.getElementById('bot-prefix-input');
     const val = prefixInput?.value.trim();
@@ -4527,12 +4573,40 @@ function addBotPrefix() {
         showToast("Error", "Please input a valid command prefix character.", "error");
         return;
     }
-    showToast("Prefix Added", `Command trigger registry updated with prefix: ${val}`);
-    prefixInput.value = '';
+    if (!window.currentServerPrefixes) window.currentServerPrefixes = ['!'];
+    if (window.currentServerPrefixes.includes(val)) {
+        showToast("Notice", `Prefix '${val}' already exists.`, "warning");
+        return;
+    }
+    window.currentServerPrefixes.push(val);
+    renderPrefixesList();
+    if (prefixInput) prefixInput.value = '';
+    showToast("Prefix Added", `Command trigger registry updated with prefix: '${val}'`, "success");
+    if (activeGuildId) {
+        fetch(`/api/settings/prefix/${activeGuildId}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ prefixes: window.currentServerPrefixes })
+        }).catch(() => {});
+    }
 }
 
-function removeBotPrefix() {
-    showToast("Prefix Revoked", "Successfully removed command prefix triger '!'");
+function removeBotPrefix(p) {
+    if (!window.currentServerPrefixes) window.currentServerPrefixes = ['!'];
+    if (window.currentServerPrefixes.length <= 1) {
+        showToast("Cannot Delete", "At least one command prefix must remain active.", "warning");
+        return;
+    }
+    window.currentServerPrefixes = window.currentServerPrefixes.filter(item => item !== p);
+    renderPrefixesList();
+    showToast("Prefix Removed", `Removed command prefix: '${p}'`, "success");
+    if (activeGuildId) {
+        fetch(`/api/settings/prefix/${activeGuildId}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ prefixes: window.currentServerPrefixes })
+        }).catch(() => {});
+    }
 }
 
 // --- EMBED BUILDER EVENT HANDLERS ---
@@ -5254,6 +5328,7 @@ function populateServerRolesAndChannels(guildId) {
                     if (currentVal) select.value = currentVal;
                 }
             });
+            if (typeof refreshLoadedRolePills === 'function') refreshLoadedRolePills();
         })
         .catch(err => console.error("Error fetching live roles:", err));
 
@@ -5919,42 +5994,94 @@ function toggleEmbedBuilderBox(prefix) {
     }
 }
 
-function addAutorolePill(roleName, showToastFlag = true) {
-    if (!roleName) return;
+function resolveRoleData(roleIdOrName) {
+    if (!roleIdOrName) return { id: '', name: 'Unknown', color: '#E11D48' };
+    const roles = window.guildRoles || [];
+    const cleanRaw = String(roleIdOrName).trim();
+    const found = roles.find(r => String(r.id) === cleanRaw || r.name.toLowerCase() === cleanRaw.toLowerCase() || `@${r.name.toLowerCase()}` === cleanRaw.toLowerCase());
+    if (found) {
+        let hex = '#94a3b8';
+        if (found.color) {
+            hex = typeof found.color === 'string' ? found.color : ('#' + found.color.toString(16).padStart(6, '0'));
+            if (!hex.startsWith('#')) hex = '#' + hex;
+            if (hex === '#000000' || hex === '#0') hex = '#E11D48';
+        } else {
+            hex = '#E11D48';
+        }
+        return { id: String(found.id), name: found.name, color: hex };
+    }
+    return { id: cleanRaw, name: cleanRaw, color: '#E11D48' };
+}
+
+function refreshLoadedRolePills() {
+    ['autoroles-pills-container', 'sticky-blacklisted-pills'].forEach(cId => {
+        const container = document.getElementById(cId);
+        if (!container) return;
+        Array.from(container.children).forEach(pill => {
+            const raw = pill.dataset.roleId || pill.dataset.roleRaw;
+            if (raw) {
+                const resolved = resolveRoleData(raw);
+                pill.dataset.roleId = resolved.id;
+                pill.style.background = `${resolved.color}15`;
+                pill.style.borderColor = `${resolved.color}55`;
+                const dot = pill.querySelector('.role-color-dot');
+                if (dot) {
+                    dot.style.background = resolved.color;
+                    dot.style.boxShadow = `0 0 6px ${resolved.color}`;
+                }
+                const nameSpan = pill.querySelector('.role-pill-name');
+                if (nameSpan && resolved.name && resolved.name !== raw) {
+                    nameSpan.textContent = `@${resolved.name.replace(/^@/, '')}`;
+                }
+            }
+        });
+    });
+}
+
+function addAutorolePill(roleIdentifier, showToastFlag = true) {
+    if (!roleIdentifier) return;
     const container = document.getElementById('autoroles-pills-container');
     if (!container) return;
     
-    const existing = Array.from(container.children).find(el => el.textContent.includes(roleName));
+    const role = resolveRoleData(roleIdentifier);
+    const existing = Array.from(container.children).find(el => el.dataset.roleId === role.id || el.querySelector('.role-pill-name')?.textContent === `@${role.name.replace(/^@/, '')}`);
     if (existing) return;
 
     const div = document.createElement('div');
-    div.style.cssText = "background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.15); border-radius: 20px; padding: 4px 12px; font-size: 0.82rem; color: #fff; display: flex; align-items: center; gap: 8px;";
+    div.className = "role-badge-pill";
+    div.dataset.roleId = role.id;
+    div.dataset.roleRaw = roleIdentifier;
+    div.style.cssText = `background: ${role.color}15; border: 1.5px solid ${role.color}55; border-radius: 20px; padding: 5px 12px; font-size: 0.82rem; color: #0F172A; display: inline-flex; align-items: center; gap: 8px; font-weight: 700; box-shadow: 0 1px 3px rgba(0,0,0,0.04);`;
     div.innerHTML = `
-        <span style="width: 8px; height: 8px; border-radius: 50%; background: #94a3b8;"></span>
-        <span class="role-pill-name">${roleName}</span>
-        <i class="fas fa-times" style="cursor: pointer; font-size: 0.75rem; color: #94a3b8;" onclick="this.parentElement.remove()"></i>
+        <span class="role-color-dot" style="width: 10px; height: 10px; border-radius: 50%; background: ${role.color}; box-shadow: 0 0 6px ${role.color}; flex-shrink: 0;"></span>
+        <span class="role-pill-name" style="color: #0F172A;">@${role.name.replace(/^@/, '')}</span>
+        <i class="fas fa-times" style="cursor: pointer; font-size: 0.75rem; color: #64748b; margin-left: 2px; transition: color 0.15s;" onmouseover="this.style.color='#DC2626'" onmouseout="this.style.color='#64748b'" onclick="this.parentElement.remove()" title="Remove role"></i>
     `;
     container.appendChild(div);
-    if (showToastFlag) showToast("Role Added", `Added @${roleName} to autoroles queue.`);
+    if (showToastFlag) showToast("Role Added", `Added @${role.name.replace(/^@/, '')} to autoroles queue.`);
 }
 
-function addStickyBlacklistPill(roleName, showToastFlag = true) {
-    if (!roleName) return;
+function addStickyBlacklistPill(roleIdentifier, showToastFlag = true) {
+    if (!roleIdentifier) return;
     const container = document.getElementById('sticky-blacklisted-pills');
     if (!container) return;
     
-    const existing = Array.from(container.children).find(el => el.textContent.includes(roleName));
+    const role = resolveRoleData(roleIdentifier);
+    const existing = Array.from(container.children).find(el => el.dataset.roleId === role.id || el.querySelector('.role-pill-name')?.textContent === `@${role.name.replace(/^@/, '')}`);
     if (existing) return;
 
     const div = document.createElement('div');
-    div.style.cssText = "background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.15); border-radius: 20px; padding: 4px 12px; font-size: 0.82rem; color: #fff; display: flex; align-items: center; gap: 8px;";
+    div.className = "role-badge-pill";
+    div.dataset.roleId = role.id;
+    div.dataset.roleRaw = roleIdentifier;
+    div.style.cssText = `background: ${role.color}15; border: 1.5px solid ${role.color}55; border-radius: 20px; padding: 5px 12px; font-size: 0.82rem; color: #0F172A; display: inline-flex; align-items: center; gap: 8px; font-weight: 700; box-shadow: 0 1px 3px rgba(0,0,0,0.04);`;
     div.innerHTML = `
-        <span style="width: 8px; height: 8px; border-radius: 50%; background: #94a3b8;"></span>
-        <span class="role-pill-name">${roleName}</span>
-        <i class="fas fa-times" style="cursor: pointer; font-size: 0.75rem; color: #94a3b8;" onclick="this.parentElement.remove()"></i>
+        <span class="role-color-dot" style="width: 10px; height: 10px; border-radius: 50%; background: ${role.color}; box-shadow: 0 0 6px ${role.color}; flex-shrink: 0;"></span>
+        <span class="role-pill-name" style="color: #0F172A;">@${role.name.replace(/^@/, '')}</span>
+        <i class="fas fa-times" style="cursor: pointer; font-size: 0.75rem; color: #64748b; margin-left: 2px; transition: color 0.15s;" onmouseover="this.style.color='#DC2626'" onmouseout="this.style.color='#64748b'" onclick="this.parentElement.remove()" title="Remove role"></i>
     `;
     container.appendChild(div);
-    if (showToastFlag) showToast("Role Blacklisted", `Blacklisted @${roleName} from sticky role restoration.`);
+    if (showToastFlag) showToast("Role Blacklisted", `Blacklisted @${role.name.replace(/^@/, '')} from sticky restoration.`);
 }
 
 window.loadAutorolesSettings = function(guildId) {
@@ -5989,7 +6116,7 @@ window.loadAutorolesSettings = function(guildId) {
 function saveAutorolesConfig() {
     if (!activeGuildId) return;
     const container = document.getElementById('autoroles-pills-container');
-    const roles = Array.from(container.querySelectorAll('.role-pill-name')).map(el => el.textContent.trim());
+    const roles = Array.from(container.querySelectorAll('.role-badge-pill')).map(el => el.dataset.roleId || el.dataset.roleRaw || el.querySelector('.role-pill-name').textContent.replace(/^@/, '').trim());
 
     fetch(`/api/settings/autoroles/${activeGuildId}`, {
         method: 'POST',
@@ -6011,7 +6138,7 @@ function saveStickyRolesConfig() {
     if (!activeGuildId) return;
     const enabled = document.getElementById('sticky-roles-enable')?.checked || false;
     const container = document.getElementById('sticky-blacklisted-pills');
-    const blacklisted_roles = Array.from(container.querySelectorAll('.role-pill-name')).map(el => el.textContent.trim());
+    const blacklisted_roles = Array.from(container.querySelectorAll('.role-badge-pill')).map(el => el.dataset.roleId || el.dataset.roleRaw || el.querySelector('.role-pill-name').textContent.replace(/^@/, '').trim());
 
     fetch(`/api/settings/sticky/${activeGuildId}`, {
         method: 'POST',
