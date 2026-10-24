@@ -3032,3 +3032,274 @@ h1, h2, h3, h4, h5, h6 {
 #screen-landing .faq-item.active .faq-question {
     color: #B94E76 !important;
 }
+
+/* ==========================================================================
+   VEYRA DASHBOARD HIGH-CONTRAST VISUAL OVERHAUL & DISCORD SIMULATOR FIXES
+   ========================================================================== */
+
+/* 1. DISCORD LIVE SIMULATORS (Welcome, Leave, Invite, Embeds) */
+[id*="preview-container"],
+#welcome-preview-container,
+#leave-preview-container,
+#ebm-live-preview-container,
+.mock-discord-container {
+    background: #1e1f22 !important;
+    border-radius: 12px !important;
+    border: 1.5px solid rgba(255, 255, 255, 0.08) !important;
+    box-shadow: 0 16px 36px rgba(0, 0, 0, 0.45) !important;
+    color: #dbdee1 !important;
+}
+
+/* Discord Outer Message Body */
+[id*="sim-outer-body"],
+[id*="sim-outer"],
+#welcome-sim-outer-body,
+#leave-sim-outer-body {
+    color: #f2f3f5 !important;
+    font-size: 0.95rem !important;
+    font-weight: 500 !important;
+}
+[id*="sim-outer-body"] span,
+[id*="sim-outer"] span {
+    color: #00aff4 !important;
+    background: rgba(0, 175, 244, 0.12) !important;
+    border-radius: 3px !important;
+    padding: 0 4px !important;
+    font-weight: 600 !important;
+}
+
+/* Discord Rich Embed */
+[id*="sim-embed"],
+#welcome-sim-embed,
+#leave-sim-embed,
+#invitetracker-sim-embed {
+    background: #2b2d31 !important;
+    border-radius: 4px !important;
+    padding: 16px !important;
+}
+
+/* Embed Title — DISCORD BLUE LINK (High-Contrast, Fixes unreadable dark title) */
+[id*="sim-embed-title"],
+h3[id*="sim-embed-title"],
+#welcome-sim-embed-title,
+#leave-sim-embed-title,
+#invitetracker-sim-embed-title,
+.embed-title {
+    color: #00b0f4 !important;
+    font-size: 1.05rem !important;
+    font-weight: 700 !important;
+    line-height: 1.35 !important;
+    margin-bottom: 8px !important;
+    text-shadow: none !important;
+    display: block !important;
+}
+
+/* Embed Description */
+[id*="sim-embed-desc"],
+pre[id*="sim-embed-desc"],
+#welcome-sim-embed-desc,
+#leave-sim-embed-desc,
+#invitetracker-sim-embed-desc,
+.embed-desc {
+    color: #dbdee1 !important;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;
+    font-size: 0.9rem !important;
+    line-height: 1.5 !important;
+    white-space: pre-wrap !important;
+}
+
+/* Embed Footer & Timestamp */
+[id*="sim-embed-footer-text"],
+[id*="sim-embed-footer-wrapper"],
+.sim-footer {
+    color: #949ba4 !important;
+    font-size: 0.76rem !important;
+    font-weight: 500 !important;
+}
+
+/* 2. SIDEBAR HIGH-CONTRAST NAVIGATION */
+.sidebar {
+    background: #FFFFFF !important;
+    border-right: 1.5px solid #E2E8F0 !important;
+}
+
+.sidebar-title {
+    font-size: 0.74rem !important;
+    font-family: var(--font-mono), monospace !important;
+    font-weight: 800 !important;
+    color: #475569 !important;
+    letter-spacing: 0.08em !important;
+    text-transform: uppercase !important;
+    padding: 10px 14px 4px 14px !important;
+}
+
+/* Inactive Sidebar Navigation Links */
+.sidebar-item a {
+    display: flex !important;
+    align-items: center !important;
+    gap: 12px !important;
+    color: #1E293B !important;
+    font-weight: 600 !important;
+    font-size: 0.92rem !important;
+    padding: 9px 12px !important;
+    border-radius: 8px !important;
+    transition: all 0.15s ease !important;
+}
+.sidebar-item a i {
+    font-size: 1rem !important;
+    width: 20px !important;
+    text-align: center !important;
+    color: #475569 !important;
+    transition: color 0.15s ease !important;
+}
+
+.sidebar-item a:hover {
+    background: #FFF1F5 !important;
+    color: #E11D48 !important;
+}
+.sidebar-item a:hover i {
+    color: #E11D48 !important;
+}
+
+/* Active Sidebar Navigation Link */
+.sidebar-item.active a {
+    background: #FCE7F3 !important;
+    color: #BE123C !important;
+    font-weight: 700 !important;
+    border-left: 3.5px solid #E11D48 !important;
+}
+.sidebar-item.active a i {
+    color: #E11D48 !important;
+}
+
+/* Sidebar Badges (PRO, PREMIUM, NEW, TICKET) - SOLID HIGH-CONTRAST PILLS */
+.nav-badge-pro {
+    font-size: 0.62rem !important;
+    font-weight: 800 !important;
+    color: #FFFFFF !important;
+    background: #E11D48 !important;
+    padding: 2px 7px !important;
+    border-radius: 6px !important;
+    margin-left: auto !important;
+    letter-spacing: 0.05em !important;
+    box-shadow: 0 2px 6px rgba(225, 29, 72, 0.25) !important;
+}
+
+.nav-badge-prem {
+    font-size: 0.62rem !important;
+    font-weight: 800 !important;
+    color: #FFFFFF !important;
+    background: #D97706 !important;
+    padding: 2px 7px !important;
+    border-radius: 6px !important;
+    margin-left: auto !important;
+    letter-spacing: 0.05em !important;
+    box-shadow: 0 2px 6px rgba(217, 119, 6, 0.25) !important;
+}
+
+.nav-badge-new {
+    font-size: 0.62rem !important;
+    font-weight: 800 !important;
+    color: #FFFFFF !important;
+    background: #059669 !important;
+    padding: 2px 7px !important;
+    border-radius: 6px !important;
+    margin-left: auto !important;
+    letter-spacing: 0.05em !important;
+    box-shadow: 0 2px 6px rgba(5, 150, 105, 0.25) !important;
+}
+
+/* In-Sidebar Server Switcher Card */
+#sidebar-current-guild-box {
+    background: #FFFFFF !important;
+    border: 1.5px solid #E2E8F0 !important;
+    box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04) !important;
+}
+#sidebar-guild-name {
+    color: #0F172A !important;
+    font-weight: 800 !important;
+    font-size: 0.92rem !important;
+}
+
+/* 3. WORKSPACE HEADINGS, CARDS & FORM INPUTS */
+#screen-dashboard {
+    background: #F8F9FA !important;
+}
+
+#screen-dashboard h1,
+#screen-dashboard h2,
+#screen-dashboard .section-title {
+    color: #0F172A !important;
+    font-weight: 800 !important;
+}
+
+#screen-dashboard p,
+#screen-dashboard .section-desc {
+    color: #334155 !important;
+    font-weight: 500 !important;
+}
+
+/* Config cards and panels */
+.glass-card,
+.control-box-sec,
+.command-box,
+.audit-card,
+#screen-dashboard .tab-pane > div:not(.section-header),
+#screen-dashboard .config-card {
+    background: #FFFFFF !important;
+    border: 1.5px solid #E2E8F0 !important;
+    border-radius: 14px !important;
+    box-shadow: 0 4px 16px rgba(15, 23, 42, 0.04) !important;
+}
+
+/* Form Labels */
+#screen-dashboard label,
+#screen-dashboard .control-header span,
+#screen-dashboard .form-label {
+    color: #1E293B !important;
+    font-weight: 700 !important;
+    font-size: 0.8rem !important;
+    letter-spacing: 0.05em !important;
+    text-transform: uppercase !important;
+}
+
+/* Inputs, Textareas, Selects */
+#screen-dashboard input[type="text"],
+#screen-dashboard input[type="number"],
+#screen-dashboard select,
+#screen-dashboard textarea,
+#screen-dashboard .form-control {
+    background: #FFFFFF !important;
+    border: 1.5px solid #CBD5E1 !important;
+    color: #0F172A !important;
+    font-weight: 600 !important;
+    font-size: 0.92rem !important;
+    border-radius: 10px !important;
+    padding: 10px 14px !important;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.03) !important;
+}
+
+#screen-dashboard input[type="text"]:focus,
+#screen-dashboard input[type="number"]:focus,
+#screen-dashboard select:focus,
+#screen-dashboard textarea:focus {
+    border-color: #E11D48 !important;
+    box-shadow: 0 0 0 3px rgba(225, 29, 72, 0.15) !important;
+    outline: none !important;
+}
+
+/* Button & Action Pills */
+#welcome-btn-toggle-color {
+    background: linear-gradient(135deg, #EC4899, #E11D48) !important;
+    color: #FFFFFF !important;
+    font-weight: 700 !important;
+    border-radius: 8px !important;
+    box-shadow: 0 4px 12px rgba(225, 29, 72, 0.25) !important;
+}
+
+#screen-dashboard .btn-primary {
+    background: linear-gradient(135deg, #EC4899, #E11D48) !important;
+    color: #FFFFFF !important;
+    font-weight: 700 !important;
+    border-radius: 8px !important;
+}

@@ -6,22 +6,22 @@
    ========================================================================== */
 
 :root, body, body.theme-slate, body.theme-light, [data-theme="light"], [data-theme="dark"], body.theme-dark {
-    --bg-primary: #FFFCFA !important;
-    --bg-secondary: #FFF6F4 !important;
+    --bg-primary: #F8F9FA !important;
+    --bg-secondary: #FFF1F5 !important;
     --bg-tertiary: #FFFFFF !important;
     --surface: #FFFFFF !important;
-    --soft-pink: #FBE8EE !important;
-    --accent-primary: #D96C91 !important;
-    --accent-secondary: #B94E76 !important;
-    --accent-rgb: 217, 108, 145 !important;
-    --accent-blue-rgb: 217, 108, 145 !important;
-    --accent-lavender: #F0EBFF !important;
-    --text-primary: #1C1422 !important;
-    --text-secondary: #3A303F !important;
-    --text-muted: #574B5B !important;
-    --border-color: #EDE4E7 !important;
-    --border-subtle: #F2EBEE !important;
-    --border-glow: rgba(217, 108, 145, 0.25) !important;
+    --soft-pink: #FCE7F3 !important;
+    --accent-primary: #E11D48 !important;
+    --accent-secondary: #BE123C !important;
+    --accent-rgb: 225, 29, 72 !important;
+    --accent-blue-rgb: 225, 29, 72 !important;
+    --accent-lavender: #FDF2F8 !important;
+    --text-primary: #0F172A !important;
+    --text-secondary: #334155 !important;
+    --text-muted: #475569 !important;
+    --border-color: #E2E8F0 !important;
+    --border-subtle: #CBD5E1 !important;
+    --border-glow: rgba(225, 29, 72, 0.25) !important;
     --glass-bg: rgba(255, 255, 255, 0.94) !important;
     --glass-blur: blur(16px) !important;
     --font-display: 'Outfit', 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
