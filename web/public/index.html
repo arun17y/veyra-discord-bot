@@ -4636,65 +4636,130 @@
                     <!-- FAQ 1 -->
                     <div class="faq-card-modern faq-item" onclick="toggleFaq(this)">
                         <div class="faq-card-header">
-                            <span class="faq-card-question">Is the bot online 24/7?</span>
+                            <span class="faq-card-question">How does VEYRA's Anti-Nuke system prevent rogue admins and token leaks?</span>
                             <div class="faq-card-icon-pill">
                                 <i class="fas fa-plus"></i>
                             </div>
                         </div>
                         <div class="faq-card-content">
-                            <p>Yes. Veyra runs on high-availability cloud infrastructure across redundant clusters with automated failover, guaranteeing 99.99% operational uptime and sub-15ms response latency.</p>
+                            <p>VEYRA monitors Discord audit logs in sub-15ms real-time. If an admin or compromised account deletes channels, strips roles, or spam-kicks members beyond your configured safety thresholds, VEYRA immediately strips their permissions, auto-restores destroyed channels and roles, and quarantines their account.</p>
                         </div>
                     </div>
 
                     <!-- FAQ 2 -->
                     <div class="faq-card-modern faq-item" onclick="toggleFaq(this)">
                         <div class="faq-card-header">
-                            <span class="faq-card-question">How does the Anti-Nuke system prevent malicious admins?</span>
+                            <span class="faq-card-question">Can I whitelist co-owners, trusted bots, and staff members?</span>
                             <div class="faq-card-icon-pill">
                                 <i class="fas fa-plus"></i>
                             </div>
                         </div>
                         <div class="faq-card-content">
-                            <p>Veyra monitors Discord audit logs in real-time. If an admin deletes channels, removes roles, or creates rogue webhooks beyond strict rate thresholds, Veyra immediately strips their permissions, restores destroyed assets, and quarantines their account.</p>
+                            <p>Yes. The Whitelist management suite allows you to exempt trusted staff members, specific roles, or designated channels from anti-raid, mass-ban, and channel deletion locks with granular tier-based permissions.</p>
                         </div>
                     </div>
 
                     <!-- FAQ 3 -->
                     <div class="faq-card-modern faq-item" onclick="toggleFaq(this)">
                         <div class="faq-card-header">
-                            <span class="faq-card-question">Can I whitelist my co-owners and staff?</span>
+                            <span class="faq-card-question">How does the Verification Gate stop bot raids and alt accounts?</span>
                             <div class="faq-card-icon-pill">
                                 <i class="fas fa-plus"></i>
                             </div>
                         </div>
                         <div class="faq-card-content">
-                            <p>Absolutely. The Whitelist tab allows you to exempt trusted staff members from anti-raid, mass-ban, and channel deletion blocks with customizable tier-based granular permissions.</p>
+                            <p>VEYRA locks your server channels behind an interactive verification portal. New members must solve an interactive button or web-captcha gate before accessing the community. You can also enforce a minimum account age requirement to filter out freshly generated raid alts.</p>
                         </div>
                     </div>
 
                     <!-- FAQ 4 -->
                     <div class="faq-card-modern faq-item" onclick="toggleFaq(this)">
                         <div class="faq-card-header">
-                            <span class="faq-card-question">What is the difference between Anti-Nuke and Anti-Raid modules?</span>
+                            <span class="faq-card-question">Can I create and manage Giveaways directly from the Web Dashboard?</span>
                             <div class="faq-card-icon-pill">
                                 <i class="fas fa-plus"></i>
                             </div>
                         </div>
                         <div class="faq-card-content">
-                            <p>Anti-Raid protects against external attacks (token raids, mass-join alt accounts, spam links, bot flood joins). Anti-Nuke protects against internal rogue threats (compromised staff tokens, unauthorized mass deletions, role overrides, webhook abuses).</p>
+                            <p>Absolutely! The Giveaway Manager tab features a real-time live Discord embed preview simulator. You can customize prizes, duration timers, winner counts, role requirements, bonus entry multipliers, and draw or reroll winners with a single click.</p>
                         </div>
                     </div>
 
                     <!-- FAQ 5 -->
                     <div class="faq-card-modern faq-item" onclick="toggleFaq(this)">
                         <div class="faq-card-header">
-                            <span class="faq-card-question">Can I build custom embeds using the Embed Builder?</span>
+                            <span class="faq-card-question">How does the Ticket System work and can staff export HTML transcripts?</span>
                             <div class="faq-card-icon-pill">
                                 <i class="fas fa-plus"></i>
                             </div>
                         </div>
                         <div class="faq-card-content">
-                            <p>Yes! The web dashboard includes an interactive live visual embed designer where you can customize title, description, banner images, footer text, button links, and color hex before posting directly to any server channel.</p>
+                            <p>VEYRA provides an enterprise-grade ticketing suite with one-click button or dropdown panels. Staff can claim, transfer, add members, and close tickets. Upon closure, VEYRA automatically generates and archives complete interactive HTML transcripts with attachments and timestamps.</p>
+                        </div>
+                    </div>
+
+                    <!-- FAQ 6 -->
+                    <div class="faq-card-modern faq-item" onclick="toggleFaq(this)">
+                        <div class="faq-card-header">
+                            <span class="faq-card-question">What are Sticky Roles and how do they restore member roles on rejoin?</span>
+                            <div class="faq-card-icon-pill">
+                                <i class="fas fa-plus"></i>
+                            </div>
+                        </div>
+                        <div class="faq-card-content">
+                            <p>Sticky Roles cache every role a user holds in the database. If a member leaves or gets temporarily kicked, VEYRA automatically restores all their previous roles when they rejoin, while keeping muted or penalty roles isolated via blacklist rules.</p>
+                        </div>
+                    </div>
+
+                    <!-- FAQ 7 -->
+                    <div class="faq-card-modern faq-item" onclick="toggleFaq(this)">
+                        <div class="faq-card-header">
+                            <span class="faq-card-question">Does VEYRA support temporary VoiceMaster channels and 24/7 Voice?</span>
+                            <div class="faq-card-icon-pill">
+                                <i class="fas fa-plus"></i>
+                            </div>
+                        </div>
+                        <div class="faq-card-content">
+                            <p>Yes. With VoiceMaster, members who join a "Join to Create" voice room automatically get an isolated, private voice channel where they can customize the room name, lock the channel, adjust bitrates, or set user limits. VEYRA also supports 24/7 locked voice channel connections.</p>
+                        </div>
+                    </div>
+
+                    <!-- FAQ 8 -->
+                    <div class="faq-card-modern faq-item" onclick="toggleFaq(this)">
+                        <div class="faq-card-header">
+                            <span class="faq-card-question">Can I customize the bot's prefix, welcome cards, and embed colors per server?</span>
+                            <div class="faq-card-icon-pill">
+                                <i class="fas fa-plus"></i>
+                            </div>
+                        </div>
+                        <div class="faq-card-content">
+                            <p>Every server has independent custom configuration. You can change command prefixes, design rich welcome and goodbye embeds with dynamic tags (like {user}, {server}, {count}), upload custom banner graphics, and customize embed accent colors to match your server identity.</p>
+                        </div>
+                    </div>
+
+                    <!-- FAQ 9 -->
+                    <div class="faq-card-modern faq-item" onclick="toggleFaq(this)">
+                        <div class="faq-card-header">
+                            <span class="faq-card-question">Is VEYRA free to use, and what do Pro and Premium tiers unlock?</span>
+                            <div class="faq-card-icon-pill">
+                                <i class="fas fa-plus"></i>
+                            </div>
+                        </div>
+                        <div class="faq-card-content">
+                            <p>VEYRA is 100% free with core moderation, anti-nuke protection, autoroles, and utility commands included. Pro and Premium tiers unlock unlimited ticket panels, advanced captcha verification, high-frequency audit logs, custom bot branding, and priority cloud cluster routing.</p>
+                        </div>
+                    </div>
+
+                    <!-- FAQ 10 -->
+                    <div class="faq-card-modern faq-item" onclick="toggleFaq(this)">
+                        <div class="faq-card-header">
+                            <span class="faq-card-question">What is VEYRA's uptime guarantee and operational response speed?</span>
+                            <div class="faq-card-icon-pill">
+                                <i class="fas fa-plus"></i>
+                            </div>
+                        </div>
+                        <div class="faq-card-content">
+                            <p>VEYRA runs on distributed multi-region cloud infrastructure with automated health monitors and failover worker nodes, ensuring a 99.99% operational uptime SLA and ultra-fast sub-15ms response latency for all commands and security audits.</p>
                         </div>
                     </div>
                 </div>
