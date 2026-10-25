@@ -2441,7 +2441,7 @@
 
     <!-- Header Navigation Bar (Image 2 Replica) -->
     <nav class="amari-nav">
-        <a href="/" class="amari-brand">
+        <a href="/" class="amari-brand" onclick="navigateToHome(event)">
             <img src="assets/bypass_logs_avatar.webp" class="amari-brand-icon" alt="VEYRA" onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png'">
             <div>
                 <span class="amari-brand-name">veyra</span>
@@ -5186,44 +5186,44 @@
         </section>
 
         <!-- [SCREEN 2: SERVER SELECTION SCREEN] -->
-        <section id="screen-servers" class="content-area" style="display:none; max-width:1050px; margin: 40px auto; padding: 20px;">
-            <!-- Dyno Profile Header Block -->
-            <div class="dyno-account-header" style="background: rgba(15, 17, 26, 0.4); border: 1px solid rgba(255,255,255,0.02); border-radius: 16px; padding: 24px; margin-bottom: 30px;">
-                <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 24px;">
-                    <!-- User Avatar -->
-                    <div id="servers-user-avatar" style="width: 54px; height: 54px; border-radius: 50%; background: #9333ea; border: 2px solid rgba(255,255,255,0.1); overflow: hidden; display: flex; align-items: center; justify-content: center; font-size: 1.6rem; font-weight: 700; color: #fff;">
-                        A
-                    </div>
+        <section id="screen-servers" class="content-area" style="display:none; max-width:800px; margin: 40px auto; padding: 20px;">
+            <div style="display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-bottom: 20px; border-bottom: 1px solid var(--border-color); padding-bottom: 16px;">
+                <div style="display: flex; align-items: center; gap: 14px;">
+                    <a href="/" onclick="navigateToHome(event)" class="back-home-btn" title="Back to Home" style="display: inline-flex; align-items: center; gap: 8px; background: #FFFFFF; border: 1.5px solid var(--border-color); color: var(--text-primary); font-size: 0.88rem; font-weight: 700; padding: 7px 14px; border-radius: 10px; text-decoration: none; cursor: pointer; transition: all 0.2s;">
+                        <i class="fas fa-arrow-left" style="color: #D96C91;"></i>
+                        <span>Home</span>
+                    </a>
                     <div>
-                        <h2 id="servers-user-displayname" style="font-size: 1.25rem; color: #fff; font-weight: 800; font-family: var(--font-display); margin: 0;">!! ARUN</h2>
-                        <p id="servers-user-handle" style="font-size: 0.78rem; color: #a855f7; margin: 2px 0 0 0; font-family: var(--font-mono); font-weight: 600;">@itzarun170</p>
+                        <h1 style="font-size: 1.8rem; color: var(--text-primary); font-family: var(--font-display); font-weight: 800; margin: 0;">Select a Server</h1>
+                        <p style="font-size: 0.88rem; color: var(--text-secondary); margin: 2px 0 0 0; font-family: var(--font-body); font-weight: 500;">Choose a Discord server to manage with Veyra</p>
                     </div>
                 </div>
-                
-                <!-- Main navigation tabs -->
-                <div style="display: flex; gap: 40px; border-bottom: 1px solid rgba(255,255,255,0.06); padding-bottom: 12px; margin-bottom: 12px; font-family: var(--font-mono); font-size: 0.85rem; font-weight: 700; text-transform: uppercase;">
-                    <a href="#" onclick="showScreen('servers')" style="color: #D96C91; text-decoration: none; border-bottom: 2px solid #D96C91; padding-bottom: 12px;">Servers</a>
-                    <a href="#" style="color: var(--text-secondary); text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='var(--text-secondary)'">Membership</a>
-                    <a href="#" style="color: var(--text-secondary); text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='var(--text-secondary)'">Settings</a>
-                </div>
-                
-                <!-- Sub-tabs -->
-                <div style="display: flex; gap: 20px; font-family: var(--font-mono); font-size: 0.76rem; font-weight: 700; text-transform: uppercase;">
-                    <a href="#" style="color: #ea580c; text-decoration: none; border-bottom: 1px solid #ea580c; padding-bottom: 4px;">List</a>
-                    <a href="#" style="color: var(--text-secondary); text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='var(--text-secondary)'">Premium</a>
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <button onclick="simulateAddBot('New Guild')" class="invite-bot-btn" style="background: #FFFFFF; color: #D96C91; border: 1.5px solid var(--border-color); padding: 8px 16px; border-radius: 8px; font-family: var(--font-display); font-weight: 700; font-size: 0.82rem; cursor: pointer; transition: all 0.2s;">
+                        <i class="fas fa-plus" style="margin-right: 4px;"></i> Invite Bot
+                    </button>
+                    <button id="refresh-servers-btn" onclick="manualRefreshServers()" style="background: var(--soft-pink); color: var(--accent-primary); border: 1px solid var(--border-color); padding: 8px 14px; border-radius: 8px; font-family: var(--font-display); font-weight: 700; font-size: 0.82rem; cursor: pointer; transition: all 0.2s; display: inline-flex; align-items: center; gap: 6px;">
+                        <i class="fas fa-arrows-rotate" id="refresh-servers-icon"></i>
+                        <span>Refresh</span>
+                    </button>
                 </div>
             </div>
-            
-            <!-- Servers title and subcopy -->
-            <div style="margin-bottom: 24px;">
-                <h1 style="font-size: 1.8rem; color: #fff; font-family: var(--font-display); font-weight: 800; margin: 0 0 4px 0;">Servers</h1>
-                <p style="font-size: 0.82rem; color: var(--text-secondary); margin: 0; font-family: var(--font-mono);">Servers you're in (21 servers)</p>
+
+            <!-- Search bar -->
+            <div style="position: relative; margin-bottom: 18px;">
+                <input type="text" id="guild-search-input" placeholder="Search servers by name..." style="width: 100%; padding: 12px 42px 12px 16px; background: #FFFFFF; border: 1.5px solid var(--border-color); border-radius: 10px; color: var(--text-primary); font-size: 0.92rem; font-family: var(--font-body); box-sizing: border-box; box-shadow: var(--card-shadow); outline: none;">
+                <i class="fas fa-magnifying-glass" style="position: absolute; right: 16px; top: 15px; color: var(--text-muted); font-size: 0.92rem; pointer-events: none;"></i>
             </div>
-            
-            <!-- Square servers selection grid -->
-            <!-- Square servers selection grid -->
-            <div class="dyno-servers-grid" id="servers-selection-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 24px; margin-top: 20px;">
-                <!-- Dynamic server card grid elements filled by dashboard.js -->
+
+            <!-- Stats row -->
+            <div id="servers-stats-row" style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap; font-family: var(--font-mono); font-size: 0.82rem; color: var(--text-secondary); font-weight: 700; margin-bottom: 22px;"></div>
+
+            <!-- Servers selection list -->
+            <div id="servers-selection-grid" style="display: flex; flex-direction: column; gap: 14px;">
+                <div style="text-align: center; padding: 40px; color: var(--text-muted); font-size: 0.95rem;">
+                    <i class="fas fa-circle-notch fa-spin" style="font-size: 1.4rem; color: #D96C91; margin-bottom: 10px; display: block;"></i>
+                    Loading your Discord servers...
+                </div>
             </div>
         </section>
 
@@ -5235,7 +5235,7 @@
                 <div class="sidebar-pinned-top">
                     <!-- Brand Area Header -->
                     <div style="padding: 18px 20px 14px 20px; border-bottom: 1px solid var(--border-color); display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
-                        <a href="/" style="display: flex; align-items: center; gap: 10px; text-decoration: none;">
+                        <a href="/" onclick="navigateToHome(event)" style="display: flex; align-items: center; gap: 10px; text-decoration: none;">
                             <div style="width: 32px; height: 32px; border-radius: 8px; background: var(--soft-pink); overflow: hidden; display: flex; align-items: center; justify-content: center; border: 1.5px solid var(--border-color);">
                                 <img src="assets/bypass_logs_avatar.webp" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png'">
                             </div>

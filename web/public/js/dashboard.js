@@ -1,4 +1,19 @@
 
+function navigateToHome(e) {
+    if (e && typeof e.preventDefault === 'function') e.preventDefault();
+    sessionStorage.setItem('activeScreen', 'landing');
+    if (window.location.pathname.includes('/manage') || window.location.pathname.includes('/dashboard')) {
+        window.location.href = '/';
+        return;
+    }
+    if (typeof showScreen === 'function') {
+        showScreen('landing');
+    }
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+window.navigateToHome = navigateToHome;
+
+
 // --- 11b. NEW SECURITY SUB-PANES HANDLERS ---
 function loadVerificationSettings(guildId) {
     if (!guildId) return;
@@ -2440,15 +2455,18 @@ document.addEventListener('DOMContentLoaded', () => {
             activeScreen = 'servers';
             sessionStorage.setItem('activeScreen', 'servers');
         } else {
-            const savedScreen = sessionStorage.getItem('activeScreen');
-            const savedGuild = sessionStorage.getItem('activeGuildId');
-            if (savedScreen === 'dashboard' && savedGuild) {
-                activeScreen = 'dashboard';
-                window.activeGuildId = savedGuild;
-            } else if (savedScreen === 'servers') {
-                activeScreen = 'servers';
+            if (isManagePath) {
+                const savedScreen = sessionStorage.getItem('activeScreen');
+                const savedGuild = sessionStorage.getItem('activeGuildId');
+                if (savedScreen === 'dashboard' && savedGuild) {
+                    activeScreen = 'dashboard';
+                    window.activeGuildId = savedGuild;
+                } else {
+                    activeScreen = 'servers';
+                }
             } else {
                 activeScreen = 'landing';
+                sessionStorage.setItem('activeScreen', 'landing');
             }
         }
         
@@ -2670,8 +2688,12 @@ function checkSession(forceRefresh = false) {
                     if (!isAlreadyViewingGuild) {
                         loadServerDashboard(savedGuildId);
                     }
-                } else if (window.location.pathname.includes('/manage') || window.location.pathname.includes('/dashboard') || activeScr === 'servers') {
+                } else if (window.location.pathname.includes('/manage') || window.location.pathname.includes('/dashboard')) {
                     showScreen('servers');
+                } else {
+                    if (!queryGuildId && currentScreen !== 'dashboard') {
+                        showScreen('landing');
+                    }
                 }
                 
                 if (urlParams.has('login')) {
@@ -2771,8 +2793,14 @@ function renderUserGuilds(guilds, loggedIn = false) {
     const headerDiv = document.createElement('div');
     headerDiv.style.marginBottom = '24px';
     headerDiv.innerHTML = `
-        <div style="display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-bottom: 6px;">
-            <h1 style="font-size: 2rem; color: var(--text-primary); font-family: var(--font-display); font-weight: 800; margin: 0;">Select a Server</h1>
+        <div style="display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-bottom: 12px;">
+            <div style="display: flex; align-items: center; gap: 14px;">
+                <a href="/" onclick="navigateToHome(event)" class="back-home-btn" title="Back to Home" style="display: inline-flex; align-items: center; gap: 8px; background: var(--surface); border: 1.5px solid var(--border-color); color: var(--text-primary); font-size: 0.88rem; font-weight: 700; padding: 7px 14px; border-radius: 10px; text-decoration: none; cursor: pointer; transition: all 0.2s;">
+                    <i class="fas fa-arrow-left" style="color: var(--accent-primary);"></i>
+                    <span>Home</span>
+                </a>
+                <h1 style="font-size: 1.8rem; color: var(--text-primary); font-family: var(--font-display); font-weight: 800; margin: 0;">Select a Server</h1>
+            </div>
             <div style="display: flex; align-items: center; gap: 10px;">
                 <button onclick="simulateAddBot('New Guild')" class="invite-bot-btn" style="background: var(--surface); color: var(--accent-primary); border: 1.5px solid var(--border-color); padding: 8px 16px; border-radius: 8px; font-family: var(--font-display); font-weight: 700; font-size: 0.82rem; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.borderColor='var(--accent-primary)'" onmouseout="this.style.borderColor='var(--border-color)'">
                     <i class="fas fa-plus" style="margin-right: 4px;"></i> Invite Bot
