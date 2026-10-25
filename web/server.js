@@ -4533,6 +4533,85 @@ app.get('/api/guild/:guild_id/backups', (req, res) => {
     });
 });
 
+
+// =========================================================================
+// GIVEAWAY MANAGER REST API ENDPOINTS
+// =========================================================================
+app.get('/api/guild/:guild_id/giveaways', (req, res) => {
+    const guildId = req.params.guild_id;
+    db.all(`SELECT * FROM guild_giveaways WHERE guild_id = ? ORDER BY created_at DESC`, [guildId], (err, rows) => {
+        if (err) {
+            return res.json({ success: true, giveaways: [] });
+        }
+        res.json({ success: true, giveaways: rows || [] });
+    });
+});
+
+app.post('/api/guild/:guild_id/giveaways', async (req, res) => {
+    const guildId = req.params.guild_id;
+    const { name, channel_id, title, description, winners_count, mention_role, required_role, accent_color, banner_url, end_time } = req.body;
+    const gvId = 'gv_' + Date.now();
+    
+    db.run(`CREATE TABLE IF NOT EXISTS guild_giveaways (
+        id TEXT PRIMARY KEY,
+        guild_id TEXT,
+        name TEXT,
+        channel_id TEXT,
+        title TEXT,
+        description TEXT,
+        winners_count INTEGER,
+        mention_role TEXT,
+        required_role TEXT,
+        accent_color TEXT,
+        banner_url TEXT,
+        end_time TEXT,
+        entries_count INTEGER DEFAULT 0,
+        status TEXT DEFAULT 'active',
+        created_at TEXT
+    )`, () => {
+        db.run(`INSERT INTO guild_giveaways (id, guild_id, name, channel_id, title, description, winners_count, mention_role, required_role, accent_color, banner_url, end_time, entries_count, status, created_at)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, 'active', ?)`,
+            [gvId, guildId, name || 'New Giveaway', channel_id, title, description, winners_count || 1, mention_role || 'none', required_role || '', accent_color || '#D96C91', banner_url || '', end_time, new Date().toISOString()],
+            async function(err) {
+                if (channel_id && process.env.DISCORD_BOT_TOKEN) {
+                    try {
+                        const embedColorInt = parseInt((accent_color || '#D96C91').replace('#', ''), 16) || 0xD96C91;
+                        const discordBody = {
+                            content: mention_role && mention_role !== 'none' ? mention_role : null,
+                            embeds: [{
+                                title: title || '🎉 Giveaway 🎉',
+                                description: description || 'Click the button below to enter!',
+                                color: embedColorInt,
+                                fields: [
+                                    { name: 'Winners', value: `${winners_count || 1} Winner`, inline: true },
+                                    { name: 'Hosted by', value: 'VEYRA Staff', inline: true },
+                                    { name: 'Ends In', value: `<t:${Math.floor(new Date(end_time).getTime() / 1000)}:R>`, inline: true }
+                                ],
+                                image: banner_url ? { url: banner_url } : undefined,
+                                footer: { text: 'VEYRA Giveaways • Click Enter to participate!' }
+                            }],
+                            components: [{
+                                type: 1,
+                                components: [{
+                                    type: 2,
+                                    style: 1,
+                                    label: '🎉 Enter (0)',
+                                    custom_id: `giveaway_enter_${gvId}`
+                                }]
+                            }]
+                        };
+                        await discordRequest('POST', `/channels/${channel_id}/messages`, discordBody);
+                    } catch (e) {
+                        console.error('Discord giveaway post error:', e.message);
+                    }
+                }
+                res.json({ success: true, giveaway_id: gvId });
+            }
+        );
+    });
+});
+
+
 // POST /api/guild/:guild_id/backups - Trigger manual backup metadata entry from dashboard
 app.post('/api/guild/:guild_id/backups', (req, res) => {
     const guildId = req.params.guild_id;

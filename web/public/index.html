@@ -20,7 +20,7 @@
         })();
     </script>
     <link rel="stylesheet" href="css/themes.css?v=v13_dashboard_realtime_manage_fix">
-    <link rel="stylesheet" href="css/dashboard.css?v=v13_dashboard_realtime_manage_fix">
+    <link rel="stylesheet" href="css/dashboard.css?v=v16_giveaways_suite">
     <style>
         /* =============================================
            VEYRA BRAND PALETTE OVERRIDE — A to Z
@@ -2995,9 +2995,9 @@
             </section>
 
             <!-- ==================== 30+ CONTINUOUS MOVING REVIEWS ==================== -->
-            <section class="reviews-section" style="max-width: 100%; overflow: hidden; margin: 80px 0; padding: 0; text-align: center;">
-                <div style="max-width: 900px; margin: 0 auto 36px auto; padding: 0 20px;">
-                    <h2 style="font-size: 2.5rem; font-weight: 800; color: var(--text-primary); margin: 0 0 10px 0; letter-spacing: -0.02em; font-family: var(--font-display);">
+            <section class="reviews-section" style="max-width: 100%; overflow: visible; margin: 90px 0 60px 0; padding: 40px 0 20px 0; text-align: center;">
+                <div style="max-width: 900px; margin: 0 auto 36px auto; padding: 16px 20px 0 20px;">
+                    <h2 style="font-size: 2.5rem; font-weight: 800; color: var(--text-primary); line-height: 1.35; padding: 14px 0 6px 0; margin: 0 0 12px 0; letter-spacing: -0.02em; font-family: var(--font-display);">
                         TRUSTED BY WORLD-CLASS GUILDS
                     </h2>
                     <p style="font-size: 1.05rem; color: var(--text-secondary); margin: 0; font-family: var(--font-body);">
@@ -5311,6 +5311,11 @@
                         <li class="sidebar-item" id="menu-reports"><a href="#" onclick="switchTab('reports')"><i class="fas fa-file-contract"></i> <span>Server Reports <span class="nav-badge-prem">PREMIUM</span></span></a></li>
                         <li class="sidebar-item" id="menu-levels"><a href="#" onclick="switchTab('levels')"><i class="fas fa-award"></i> <span>Levels & XP <span class="nav-badge-prem">PREMIUM</span></span></a></li>
                         <li class="sidebar-item" id="menu-commands"><a href="#" onclick="switchTab('commands')"><i class="fas fa-terminal"></i> <span>Commands <span class="nav-badge-pro">PRO</span></span></a></li>
+                    </ul>
+
+                    <div class="sidebar-title" style="padding: 12px 18px 4px 18px; font-size: 0.68rem; font-family: var(--font-mono); font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em;">Community & Engagement</div>
+                    <ul class="sidebar-menu">
+                        <li class="sidebar-item" id="menu-giveaways"><a href="#" onclick="switchTab('giveaways')"><i class="fas fa-gift"></i> <span>Giveaways <span class="nav-badge-new">NEW</span></span></a></li>
                     </ul>
 
                     <div class="sidebar-title" style="padding: 12px 18px 4px 18px; font-size: 0.68rem; font-family: var(--font-mono); font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em;">Messages & Automation</div>
@@ -8566,7 +8571,287 @@ We hope to see you back soon!
                     </div>
                 </div>
 
-                <div class="tab-pane" id="tab-tickets" style="display:none; width: 100%; padding: 0; margin: 0; background: transparent; border: none; backdrop-filter: none; box-shadow: none; border-radius: 0; overflow: visible !important; height: auto !important; min-height: 0 !important;">
+                
+                <!-- [TAB: GIVEAWAYS MANAGER] -->
+                <div class="tab-pane" id="tab-giveaways" style="display:none; width: 100%; padding: 20px;">
+                    <!-- Top Header -->
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 14px;">
+                        <div>
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <h1 style="font-size: 1.8rem; font-weight: 800; color: var(--text-primary); margin: 0; font-family: var(--font-display);">Giveaway Manager</h1>
+                                <span style="background: var(--soft-pink); color: var(--accent-primary); font-size: 0.72rem; padding: 3px 8px; border-radius: 6px; font-weight: 800; font-family: var(--font-mono); text-transform: uppercase;">PRO</span>
+                            </div>
+                            <p style="font-size: 0.88rem; color: var(--text-secondary); margin: 4px 0 0 0; font-family: var(--font-body);">
+                                Create, customize, schedule, and automatically draw winners for interactive community giveaways.
+                            </p>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <button type="button" id="gv-view-create-btn" onclick="switchGiveawayView('create')" class="btn-primary" style="background: var(--accent-primary); color: #fff; padding: 8px 16px; border-radius: 8px; font-size: 0.85rem; font-weight: 700; border: none; cursor: pointer; display: flex; align-items: center; gap: 6px; box-shadow: 0 4px 14px rgba(217, 108, 145, 0.3);">
+                                <i class="fas fa-plus"></i> New Giveaway
+                            </button>
+                            <button type="button" id="gv-view-list-btn" onclick="switchGiveawayView('list')" class="btn-secondary" style="background: var(--surface); color: var(--text-primary); border: 1.5px solid var(--border-color); padding: 8px 16px; border-radius: 8px; font-size: 0.85rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 6px;">
+                                <i class="fas fa-list-check"></i> Active Giveaways (<span id="gv-active-count">0</span>)
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- VIEW 1: CREATE / EDIT GIVEAWAY (SPLIT LAYOUT) -->
+                    <div id="gv-create-view" style="display: grid; grid-template-columns: 1.15fr 0.95fr; gap: 28px; align-items: start;">
+                        <!-- Left Form Controls Card -->
+                        <div class="glass-card" style="background: var(--surface); border: 1.5px solid var(--border-color); border-radius: 16px; padding: 24px; box-shadow: var(--card-shadow); display: flex; flex-direction: column; gap: 18px;">
+                            <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border-color); padding-bottom: 12px;">
+                                <span style="font-weight: 800; font-size: 1.05rem; color: var(--text-primary); font-family: var(--font-display);">Giveaway Configuration</span>
+                                <span style="font-size: 0.74rem; font-family: var(--font-mono); color: var(--text-muted);">Step 1 of 1</span>
+                            </div>
+
+                            <!-- Giveaway Name -->
+                            <div>
+                                <label style="display: block; font-size: 0.82rem; font-weight: 700; color: var(--text-primary); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.05em; font-family: var(--font-mono);">
+                                    Giveaway Internal Name
+                                </label>
+                                <input type="text" id="gv-name-input" value="Discord Nitro Boost" placeholder="e.g. Discord Nitro Boost" class="form-control" style="width: 100%; background: var(--bg-secondary); border: 1.5px solid var(--border-color); border-radius: 8px; padding: 10px 14px; font-size: 0.9rem; color: var(--text-primary); outline: none;" oninput="updateGiveawayPreview()">
+                            </div>
+
+                            <!-- Target Channel -->
+                            <div>
+                                <label style="display: block; font-size: 0.82rem; font-weight: 700; color: var(--text-primary); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.05em; font-family: var(--font-mono);">
+                                    Target Announcement Channel
+                                </label>
+                                <select id="gv-channel-select" class="form-control" style="width: 100%; background: var(--bg-secondary); border: 1.5px solid var(--border-color); border-radius: 8px; padding: 10px 14px; font-size: 0.9rem; color: var(--text-primary); outline: none;">
+                                    <option value="">Select Channel (#giveaways)...</option>
+                                </select>
+                            </div>
+
+                            <!-- Embed Title -->
+                            <div>
+                                <label style="display: block; font-size: 0.82rem; font-weight: 700; color: var(--text-primary); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.05em; font-family: var(--font-mono);">
+                                    Giveaway Title
+                                </label>
+                                <input type="text" id="gv-title-input" value="🎉 1 Month Discord Nitro Boost 🎉" placeholder="e.g. 🎉 1 Month Discord Nitro 🎉" class="form-control" style="width: 100%; background: var(--bg-secondary); border: 1.5px solid var(--border-color); border-radius: 8px; padding: 10px 14px; font-size: 0.9rem; color: var(--text-primary); outline: none;" oninput="updateGiveawayPreview()">
+                            </div>
+
+                            <!-- Description / Prize -->
+                            <div>
+                                <label style="display: block; font-size: 0.82rem; font-weight: 700; color: var(--text-primary); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.05em; font-family: var(--font-mono);">
+                                    Prize & Description
+                                </label>
+                                <textarea id="gv-desc-input" rows="3" class="form-control" style="width: 100%; background: var(--bg-secondary); border: 1.5px solid var(--border-color); border-radius: 8px; padding: 10px 14px; font-size: 0.9rem; color: var(--text-primary); outline: none; resize: vertical;" oninput="updateGiveawayPreview()">Click the enter button below to join! Win 1 month of Discord Nitro with 2 Server Boosts, HD streaming, and 500+ custom emojis!</textarea>
+                            </div>
+
+                            <!-- Timing: Duration or End Date -->
+                            <div>
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                                    <label style="font-size: 0.82rem; font-weight: 700; color: var(--text-primary); text-transform: uppercase; letter-spacing: 0.05em; font-family: var(--font-mono);">
+                                        Giveaway Duration
+                                    </label>
+                                    <div style="display: flex; gap: 6px;">
+                                        <button type="button" onclick="setGvPresetDuration(60)" class="gv-preset-btn" style="background: var(--soft-pink); color: var(--accent-primary); border: 1px solid var(--border-color); padding: 2px 8px; border-radius: 4px; font-size: 0.72rem; font-weight: 700; cursor: pointer;">1h</button>
+                                        <button type="button" onclick="setGvPresetDuration(720)" class="gv-preset-btn" style="background: var(--soft-pink); color: var(--accent-primary); border: 1px solid var(--border-color); padding: 2px 8px; border-radius: 4px; font-size: 0.72rem; font-weight: 700; cursor: pointer;">12h</button>
+                                        <button type="button" onclick="setGvPresetDuration(1440)" class="gv-preset-btn active" style="background: var(--accent-primary); color: #fff; border: 1px solid var(--accent-primary); padding: 2px 8px; border-radius: 4px; font-size: 0.72rem; font-weight: 700; cursor: pointer;">24h</button>
+                                        <button type="button" onclick="setGvPresetDuration(4320)" class="gv-preset-btn" style="background: var(--soft-pink); color: var(--accent-primary); border: 1px solid var(--border-color); padding: 2px 8px; border-radius: 4px; font-size: 0.72rem; font-weight: 700; cursor: pointer;">3d</button>
+                                        <button type="button" onclick="setGvPresetDuration(10080)" class="gv-preset-btn" style="background: var(--soft-pink); color: var(--accent-primary); border: 1px solid var(--border-color); padding: 2px 8px; border-radius: 4px; font-size: 0.72rem; font-weight: 700; cursor: pointer;">7d</button>
+                                    </div>
+                                </div>
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                                    <div>
+                                        <span style="font-size: 0.74rem; color: var(--text-muted); display: block; margin-bottom: 4px;">Start Date & Time</span>
+                                        <input type="datetime-local" id="gv-start-date" class="form-control" style="width: 100%; background: var(--bg-secondary); border: 1.5px solid var(--border-color); border-radius: 8px; padding: 8px 12px; font-size: 0.85rem; color: var(--text-primary); outline: none;" onchange="updateGiveawayPreview()">
+                                    </div>
+                                    <div>
+                                        <span style="font-size: 0.74rem; color: var(--text-muted); display: block; margin-bottom: 4px;">End Date & Time</span>
+                                        <input type="datetime-local" id="gv-end-date" class="form-control" style="width: 100%; background: var(--bg-secondary); border: 1.5px solid var(--border-color); border-radius: 8px; padding: 8px 12px; font-size: 0.85rem; color: var(--text-primary); outline: none;" onchange="updateGiveawayPreview()">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Number of Winners & Mentioned Role -->
+                            <div style="display: grid; grid-template-columns: 1fr 1.4fr; gap: 12px;">
+                                <div>
+                                    <label style="display: block; font-size: 0.82rem; font-weight: 700; color: var(--text-primary); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.05em; font-family: var(--font-mono);">
+                                        Winners Count
+                                    </label>
+                                    <input type="number" id="gv-winners-input" value="1" min="1" max="50" class="form-control" style="width: 100%; background: var(--bg-secondary); border: 1.5px solid var(--border-color); border-radius: 8px; padding: 10px 14px; font-size: 0.9rem; color: var(--text-primary); outline: none;" oninput="updateGiveawayPreview()">
+                                </div>
+                                <div>
+                                    <label style="display: block; font-size: 0.82rem; font-weight: 700; color: var(--text-primary); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.05em; font-family: var(--font-mono);">
+                                        Role Mention (Ping)
+                                    </label>
+                                    <select id="gv-mention-select" class="form-control" style="width: 100%; background: var(--bg-secondary); border: 1.5px solid var(--border-color); border-radius: 8px; padding: 10px 14px; font-size: 0.9rem; color: var(--text-primary); outline: none;">
+                                        <option value="none">No Mention (Quiet)</option>
+                                        <option value="@everyone">@everyone</option>
+                                        <option value="@here">@here</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <!-- Advanced Collapsible Accordion -->
+                            <div style="border: 1.5px solid var(--border-color); border-radius: 12px; overflow: hidden; background: var(--bg-secondary);">
+                                <button type="button" onclick="toggleGvAdvancedOptions()" style="width: 100%; padding: 12px 16px; background: none; border: none; display: flex; justify-content: space-between; align-items: center; cursor: pointer; color: var(--text-primary); font-weight: 700; font-size: 0.88rem; font-family: var(--font-display);">
+                                    <span style="display: flex; align-items: center; gap: 8px;">
+                                        <i class="fas fa-sliders" style="color: var(--accent-primary);"></i> Advanced Options & Bonus Entries
+                                    </span>
+                                    <i id="gv-adv-chevron" class="fas fa-chevron-down" style="transition: transform 0.2s ease;"></i>
+                                </button>
+                                <div id="gv-adv-content" style="display: none; padding: 16px; border-top: 1px solid var(--border-color); background: var(--surface); display: flex; flex-direction: column; gap: 14px;">
+                                    <!-- Required Role Gate -->
+                                    <div>
+                                        <label style="display: block; font-size: 0.78rem; font-weight: 700; color: var(--text-secondary); margin-bottom: 4px; text-transform: uppercase;">
+                                            Required Role to Enter (Optional Gate)
+                                        </label>
+                                        <select id="gv-required-role" class="form-control" style="width: 100%; background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 6px; padding: 8px 10px; font-size: 0.85rem; color: var(--text-primary);">
+                                            <option value="">None (Everyone can join)</option>
+                                        </select>
+                                    </div>
+
+                                    <!-- Button Customization -->
+                                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                                        <div>
+                                            <label style="display: block; font-size: 0.78rem; font-weight: 700; color: var(--text-secondary); margin-bottom: 4px; text-transform: uppercase;">
+                                                Enter Button Label
+                                            </label>
+                                            <input type="text" id="gv-btn-label" value="🎉 Enter" class="form-control" style="width: 100%; background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 6px; padding: 8px 10px; font-size: 0.85rem; color: var(--text-primary);" oninput="updateGiveawayPreview()">
+                                        </div>
+                                        <div>
+                                            <label style="display: block; font-size: 0.78rem; font-weight: 700; color: var(--text-secondary); margin-bottom: 4px; text-transform: uppercase;">
+                                                Embed Accent Color
+                                            </label>
+                                            <div style="display: flex; align-items: center; gap: 8px;">
+                                                <input type="color" id="gv-color-picker" value="#D96C91" style="width: 38px; height: 34px; border: 1px solid var(--border-color); border-radius: 6px; cursor: pointer; background: none;" onchange="updateGiveawayPreview()">
+                                                <input type="text" id="gv-color-hex" value="#D96C91" class="form-control" style="flex: 1; background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 6px; padding: 8px 10px; font-size: 0.85rem; color: var(--text-primary); font-family: var(--font-mono);" oninput="document.getElementById('gv-color-picker').value=this.value; updateGiveawayPreview()">
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Banner Image URL -->
+                                    <div>
+                                        <label style="display: block; font-size: 0.78rem; font-weight: 700; color: var(--text-secondary); margin-bottom: 4px; text-transform: uppercase;">
+                                            Embed Banner Image / Artwork URL
+                                        </label>
+                                        <div style="display: flex; gap: 8px;">
+                                            <input type="url" id="gv-image-url" value="https://images-ext-1.discordapp.net/external/v50e6B9-N-f5kXoDk2o-N6p3u/https/i.imgur.com/2sXF5Z8.png" placeholder="https://..." class="form-control" style="flex: 1; background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 6px; padding: 8px 10px; font-size: 0.85rem; color: var(--text-primary);" oninput="updateGiveawayPreview()">
+                                            <button type="button" onclick="setGvDefaultArtwork()" class="btn-secondary" style="background: var(--bg-secondary); border: 1px solid var(--border-color); padding: 6px 12px; border-radius: 6px; font-size: 0.78rem; font-weight: 600; cursor: pointer;">
+                                                Default
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Action Buttons -->
+                            <div style="display: flex; gap: 12px; margin-top: 6px;">
+                                <button type="button" onclick="launchLiveGiveaway()" class="btn-primary" style="flex: 1; background: linear-gradient(135deg, #EC4899 0%, #D96C91 100%); color: #fff; font-size: 1rem; font-weight: 800; padding: 14px 20px; border-radius: 10px; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 6px 20px rgba(217, 108, 145, 0.4); transition: transform 0.15s ease;">
+                                    <i class="fas fa-bullhorn"></i>
+                                    <span>Launch Giveaway 🎉</span>
+                                </button>
+                                <button type="button" onclick="saveGiveawayDraft()" class="btn-secondary" style="background: var(--surface); border: 1.5px solid var(--border-color); color: var(--text-primary); font-size: 0.9rem; font-weight: 700; padding: 12px 18px; border-radius: 10px; cursor: pointer;">
+                                    Save Draft
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Right Live Discord Embed Simulator Card -->
+                        <div style="position: sticky; top: 20px;">
+                            <div style="margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center;">
+                                <span style="font-size: 0.78rem; font-family: var(--font-mono); font-weight: 800; color: var(--accent-primary); text-transform: uppercase; letter-spacing: 0.08em;">
+                                    Live Discord Simulator
+                                </span>
+                                <span style="font-size: 0.72rem; color: var(--text-muted); font-family: var(--font-mono);">
+                                    Real-time Preview
+                                </span>
+                            </div>
+
+                            <!-- Discord Message Box Replica -->
+                            <div style="background: #313338; border-radius: 12px; padding: 18px 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); font-family: 'Inter', sans-serif;">
+                                <!-- Bot Header -->
+                                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+                                    <img src="assets/bypass_logs_avatar.webp" style="width: 36px; height: 36px; border-radius: 50%; object-fit: cover;" onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png'">
+                                    <div style="display: flex; align-items: center; gap: 6px;">
+                                        <span style="font-weight: 700; font-size: 0.95rem; color: #F2F3F5;">VEYRA</span>
+                                        <span style="background: #5865F2; color: #fff; font-size: 0.62rem; font-weight: 700; padding: 1px 4px; border-radius: 3px; text-transform: uppercase;">BOT</span>
+                                        <span style="font-size: 0.72rem; color: #949BA4; margin-left: 4px;" id="gv-sim-timestamp">Today at 8:29 PM</span>
+                                    </div>
+                                </div>
+
+                                <!-- Embed Container -->
+                                <div id="gv-sim-embed" style="background: #2B2D31; border-left: 4px solid #D96C91; border-radius: 4px; padding: 16px 18px; display: flex; flex-direction: column; gap: 12px; max-width: 100%; box-sizing: border-box;">
+                                    <!-- Title -->
+                                    <div id="gv-sim-title" style="font-size: 1.08rem; font-weight: 800; color: #00AFF4; line-height: 1.35; font-family: 'Outfit', sans-serif;">
+                                        🎉 1 Month Discord Nitro Boost 🎉
+                                    </div>
+
+                                    <!-- Description -->
+                                    <div id="gv-sim-desc" style="font-size: 0.88rem; color: #DBDEE1; line-height: 1.6; white-space: pre-wrap;">
+Click the enter button below to join! Win 1 month of Discord Nitro with 2 Server Boosts, HD streaming, and 500+ custom emojis!
+                                    </div>
+
+                                    <!-- Meta Information Fields -->
+                                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 10px 12px; background: rgba(0,0,0,0.18); border-radius: 6px; font-size: 0.82rem;">
+                                        <div>
+                                            <div style="color: #949BA4; font-size: 0.72rem; text-transform: uppercase; font-weight: 700; margin-bottom: 2px;">Ends In</div>
+                                            <div style="color: #F2F3F5; font-weight: 600;" id="gv-sim-time-left">23 hours, 59 mins</div>
+                                        </div>
+                                        <div>
+                                            <div style="color: #949BA4; font-size: 0.72rem; text-transform: uppercase; font-weight: 700; margin-bottom: 2px;">Winners</div>
+                                            <div style="color: #F2F3F5; font-weight: 600;" id="gv-sim-winners-count">1 Winner</div>
+                                        </div>
+                                        <div>
+                                            <div style="color: #949BA4; font-size: 0.72rem; text-transform: uppercase; font-weight: 700; margin-bottom: 2px;">Hosted By</div>
+                                            <div style="color: #00AFF4; font-weight: 600;">@Host</div>
+                                        </div>
+                                        <div>
+                                            <div style="color: #949BA4; font-size: 0.72rem; text-transform: uppercase; font-weight: 700; margin-bottom: 2px;">Entries</div>
+                                            <div style="color: #57F287; font-weight: 700;" id="gv-sim-entries-count">0 Participants</div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Banner Image Preview -->
+                                    <div id="gv-sim-image-box" style="width: 100%; border-radius: 8px; overflow: hidden; margin-top: 2px;">
+                                        <img id="gv-sim-image" src="https://images-ext-1.discordapp.net/external/v50e6B9-N-f5kXoDk2o-N6p3u/https/i.imgur.com/2sXF5Z8.png" style="width: 100%; height: auto; display: block; max-height: 220px; object-fit: cover;" onerror="this.style.display='none'">
+                                    </div>
+
+                                    <!-- Footer -->
+                                    <div style="font-size: 0.72rem; color: #949BA4; display: flex; align-items: center; gap: 6px; padding-top: 4px; border-top: 1px solid rgba(255,255,255,0.06);">
+                                        <i class="fas fa-gift" style="color: var(--accent-primary);"></i>
+                                        <span>VEYRA Giveaway System</span>
+                                        <span>&bull;</span>
+                                        <span id="gv-sim-footer-time">Ends Tomorrow</span>
+                                    </div>
+                                </div>
+
+                                <!-- Discord Action Button Below Embed -->
+                                <div style="margin-top: 12px; display: flex; align-items: center; gap: 10px;">
+                                    <button type="button" id="gv-sim-action-btn" onclick="simulateGiveawayEntryClick()" style="background: #5865F2; color: #fff; border: none; border-radius: 4px; padding: 9px 16px; font-size: 0.88rem; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: background 0.15s ease;" onmouseover="this.style.background='#4752C4'" onmouseout="this.style.background='#5865F2'">
+                                        <span id="gv-sim-btn-emoji">🎉</span>
+                                        <span id="gv-sim-btn-text">Enter</span>
+                                        <span style="background: rgba(0,0,0,0.25); padding: 1px 6px; border-radius: 10px; font-size: 0.76rem;" id="gv-sim-btn-counter">0</span>
+                                    </button>
+                                    <span style="font-size: 0.75rem; color: #949BA4; font-style: italic;">(Click button to test live entry)</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- VIEW 2: ACTIVE GIVEAWAYS LIST -->
+                    <div id="gv-list-view" style="display: none;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px;">
+                            <div>
+                                <h2 style="font-size: 1.3rem; font-weight: 800; color: var(--text-primary); margin: 0; font-family: var(--font-display);">Active & Recent Giveaways</h2>
+                                <p style="font-size: 0.85rem; color: var(--text-secondary); margin: 2px 0 0 0;">Manage ongoing raffles, pick early winners, reroll or terminate giveaways.</p>
+                            </div>
+                            <button type="button" onclick="loadGuildGiveaways()" class="btn-secondary" style="background: var(--surface); border: 1.5px solid var(--border-color); color: var(--text-primary); padding: 7px 14px; border-radius: 8px; font-size: 0.82rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 6px;">
+                                <i class="fas fa-arrows-rotate"></i> Refresh
+                            </button>
+                        </div>
+
+                        <!-- Giveaways Grid List -->
+                        <div id="gv-active-cards-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 18px;">
+                            <!-- Dynamically populated or default sample cards -->
+                        </div>
+                    </div>
+                </div>
+
+
+<div class="tab-pane" id="tab-tickets" style="display:none; width: 100%; padding: 0; margin: 0; background: transparent; border: none; backdrop-filter: none; box-shadow: none; border-radius: 0; overflow: visible !important; height: auto !important; min-height: 0 !important;">
                     
                     <style>
                         /* Nested Ticketing Workspace styles */
@@ -12258,7 +12543,7 @@ Our support team can assist you with:
     <!-- JS Execution libraries -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
-    <script src="js/dashboard.js?v=v13_dashboard_realtime_manage_fix"></script>
+    <script src="js/dashboard.js?v=v16_giveaways_suite"></script>
     <script src="js/moderation.js?v=v13_dashboard_realtime_manage_fix"></script>
     <!-- smokey fluid cursor removed -->
 
