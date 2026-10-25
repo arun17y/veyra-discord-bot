@@ -513,18 +513,6 @@
                 </ul>
             </div>
 
-            <div>
-                <div class="nav-section-title">API</div>
-                <ul class="nav-link-list">
-                    <li class="nav-link-item" id="nav-tab-api">
-                        <button onclick="switchDocTab('api')">
-                            <span class="nav-icon"><i class="fas fa-code"></i></span>
-                            <span>API Documentation</span>
-                        </button>
-                    </li>
-                </ul>
-            </div>
-
             <div class="sidebar-footer">
                 <i class="fab fa-gitbook" style="color: var(--gb-coral);"></i>
                 <span>Powered by VEYRA Docs</span>
@@ -919,37 +907,7 @@
                     </a>
                 </div>
             </div>
-
-            <!-- TAB 12: API DOCUMENTATION -->
-            <div id="pane-api" class="doc-tab-pane">
-                <div class="doc-category-tag">Developers</div>
-                <div class="doc-title">
-                    <span>🔌 API Documentation</span>
-                </div>
-                <p class="doc-p">
-                    VEYRA offers a REST/JSON API for developers to programmatically interact with guild security and statistics.
-                </p>
-
-                <h2 class="doc-section-h2">Base URL</h2>
-                <div style="background: var(--gb-code-bg); border: 1px solid var(--gb-border); border-radius: 8px; padding: 14px 18px; font-family: var(--font-mono); font-size: 0.9rem; color: #1F2937; margin: 16px 0;">
-                    https://veyra-bot.vercel.app/api/v1/...
-                </div>
-
-                <h2 class="doc-section-h2">Authentication</h2>
-                <p class="doc-p">
-                    All API authentication is verified via bearer tokens passed in the <code class="doc-code">Authorization</code> HTTP header:
-                </p>
-                <div style="background: var(--gb-code-bg); border: 1px solid var(--gb-border); border-radius: 8px; padding: 12px 18px; font-family: var(--font-mono); font-size: 0.85rem; color: #1F2937; margin: 12px 0;">
-                    Authorization: Bearer YOUR_API_KEY
-                </div>
-
-                <h2 class="doc-section-h2">Rate Limiting</h2>
-                <p class="doc-p">
-                    Rate limiting prevents abuse and ensures equal resource distribution. Standard tier is limited to <strong>60 requests per minute</strong>. Hitting the limit returns an HTTP <code class="doc-code">429 Too Many Requests</code> response.
-                </p>
-            </div>
-
-        </main>
+</main>
 
         <!-- Right Table of Contents -->
         <aside class="gitbook-toc">
