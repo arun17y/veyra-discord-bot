@@ -4649,6 +4649,24 @@ async def on_member_join(member):
 
     log_system_event(guild.id, member.name, "Member Join", f"User joined. Method: {how_joined_msg} | Code: {invite_code_str}")
 
+    # 2b. Auto-assign Role from Invite Labels
+    if invite_code_str and invite_code_str != "N/A":
+        try:
+            conn = get_db()
+            cursor = conn.cursor()
+            clean_c = invite_code_str.lower().strip()
+            cursor.execute("SELECT role_id, role_name, label FROM invite_labels WHERE guild_id = ? AND (LOWER(invite_code) = ? OR LOWER(invite_code) = ?)", (str(guild.id), clean_c, f"discord.gg/{clean_c}"))
+            matched_label = cursor.fetchone()
+            conn.close()
+            if matched_label and matched_label[0]:
+                target_role = guild.get_role(int(matched_label[0]))
+                if target_role and guild.me.top_role > target_role:
+                    await member.add_roles(target_role, reason=f"Veyra Invite Label Auto-Role: {matched_label[2]}")
+                    print(f"✅ [INVITE LABEL] Awarded role @{target_role.name} to {member.name} for invite code {invite_code_str}")
+        except Exception as il_err:
+            print(f"⚠️ [INVITE LABEL ERROR]: {il_err}")
+
+
     # 3. Welcome Message & Embed Delivery
     w_settings = fetch_welcome_settings(guild.id)
     is_welcome_enabled = True

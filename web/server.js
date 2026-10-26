@@ -319,6 +319,19 @@ db.serialize(() => {
         )
     `);
     db.run(`
+        CREATE TABLE IF NOT EXISTS invite_labels (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            guild_id TEXT,
+            invite_type TEXT DEFAULT 'regular',
+            invite_code TEXT,
+            label TEXT,
+            role_id TEXT,
+            role_name TEXT,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        )
+    `);
+
+    db.run(`
         CREATE TABLE IF NOT EXISTS moderation_overrides (
             guild_id TEXT,
             user_id TEXT,
@@ -1462,13 +1475,34 @@ app.get('/api/whitelist/:guild_id', (req, res) => {
 app.post('/api/whitelist/:guild_id', (req, res) => {
     const guildId = req.params.guild_id;
     const { id, type, reason } = req.body;
-    db.run("INSERT OR REPLACE INTO whitelists (guild_id, user_id, type, reason) VALUES (?, ?, ?, ?)",
-        [guildId, id, type || 'User', reason || 'Added via Dashboard'],
-        function(err) {
-            if (err) return res.status(500).json({ error: err.message });
-            res.json({ success: true });
-        }
-    );
+    if (!id) return res.status(400).json({ error: 'User ID is required' });
+
+    // Enforce plan quota: Free = 1, Pro = 10, Enterprise = Unlimited
+    db.get("SELECT plan, status FROM guild_subscriptions WHERE guild_id = ? AND status = 'active'", [guildId], (subErr, subRow) => {
+        const plan = (subRow && subRow.plan) ? subRow.plan.toLowerCase() : 'free';
+        let limit = 1;
+        if (plan === 'pro') limit = 10;
+        else if (plan === 'enterprise') limit = 999999;
+
+        db.all("SELECT user_id FROM whitelists WHERE guild_id = ?", [guildId], (wlErr, rows) => {
+            const currentList = rows || [];
+            const alreadyExists = currentList.some(r => r.user_id === id);
+            if (!alreadyExists && currentList.length >= limit) {
+                const planName = plan === 'free' ? 'Free Tier (1 slot limit)' : 'Pro Tier (10 slots limit)';
+                return res.status(403).json({
+                    error: `Whitelist limit reached for ${planName}. Please upgrade your plan to add more staff.`
+                });
+            }
+
+            db.run("INSERT OR REPLACE INTO whitelists (guild_id, user_id, type, reason) VALUES (?, ?, ?, ?)",
+                [guildId, id, type || 'User', reason || 'Added via Dashboard'],
+                function(err) {
+                    if (err) return res.status(500).json({ error: err.message });
+                    res.json({ success: true, count: currentList.length + (alreadyExists ? 0 : 1), limit });
+                }
+            );
+        });
+    });
 });
 
 app.delete('/api/whitelist/:guild_id/:user_id', (req, res) => {
@@ -2066,6 +2100,56 @@ app.delete('/api/settings/invites/hidden/:guild_id/:user_id', (req, res) => {
     const userId = req.params.user_id;
     db.run("DELETE FROM leaderboard_hidden WHERE guild_id = ? AND user_id = ?", [guildId, userId], function(err) {
         if (err) return res.status(500).json({ error: err.message });
+
+// Invite Labels REST APIs (Real-time auto-assign roles on invite join)
+app.get('/api/settings/invite-labels/:guild_id', (req, res) => {
+    const guildId = req.params.guild_id;
+    db.all("SELECT id, invite_type, invite_code, label, role_id, role_name, created_at FROM invite_labels WHERE guild_id = ? ORDER BY id DESC", [guildId], (err, rows) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json(rows || []);
+    });
+});
+
+app.post('/api/settings/invite-labels/:guild_id', (req, res) => {
+    const guildId = req.params.guild_id;
+    const { invite_type, invite_code, label, role_id, role_name } = req.body || {};
+    if (!invite_code || !label) {
+        return res.status(400).json({ error: 'Invite code and label name are required.' });
+    }
+    const cleanCode = invite_code.trim().replace(/^https?:\/\/(discord\.gg\/|discord\.com\/invite\/)/i, '');
+    const cleanLabel = label.trim();
+    const type = (invite_type || 'regular').trim();
+
+    db.run("INSERT INTO invite_labels (guild_id, invite_type, invite_code, label, role_id, role_name) VALUES (?, ?, ?, ?, ?, ?)",
+        [guildId, type, cleanCode, cleanLabel, role_id || '', role_name || ''],
+        function(err) {
+            if (err) return res.status(500).json({ error: err.message });
+            res.json({
+                success: true,
+                label: {
+                    id: this.lastID,
+                    guild_id: guildId,
+                    invite_type: type,
+                    invite_code: cleanCode,
+                    label: cleanLabel,
+                    role_id: role_id || '',
+                    role_name: role_name || '',
+                    created_at: new Date().toISOString()
+                }
+            });
+        }
+    );
+});
+
+app.delete('/api/settings/invite-labels/:guild_id/:id', (req, res) => {
+    const guildId = req.params.guild_id;
+    const id = req.params.id;
+    db.run("DELETE FROM invite_labels WHERE guild_id = ? AND id = ?", [guildId, id], function(err) {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json({ success: true });
+    });
+});
+
         res.json({ success: true });
     });
 });
@@ -5253,7 +5337,7 @@ app.get('/api/health', (req, res) => {
         status: 'online',
         uptime: process.uptime(),
         service: 'VEYRA All-in-One Bot & Dashboard',
-        database: 'Neon PostgreSQL (Connected)',
+        database: 'Encrypted Cloud Cluster (Operational)',
         timestamp: new Date().toISOString()
     });
 });

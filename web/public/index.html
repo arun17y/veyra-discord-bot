@@ -3239,8 +3239,8 @@
                 <div style="display: flex; align-items: center; gap: 12px; min-width: 0;">
                     <img src="assets/avatars/avatar_9.png" style="width: 44px; height: 44px; border-radius: 50%; object-fit: cover; border: 1.5px solid var(--border-color); flex-shrink: 0;" onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png'">
                     <div style="min-width: 0;">
-                        <div style="font-weight: 700; color: var(--text-primary); font-size: 0.95rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-family: var(--font-display);">NeonPulse</div>
-                        <div style="font-size: 0.74rem; color: var(--text-muted); font-family: var(--font-mono);">@neonpulse &bull; Moderator</div>
+                        <div style="font-weight: 700; color: var(--text-primary); font-size: 0.95rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-family: var(--font-display);">CyberPulse</div>
+                        <div style="font-size: 0.74rem; color: var(--text-muted); font-family: var(--font-mono);">@cyberpulse &bull; Moderator</div>
                     </div>
                 </div>
                 <span style="font-size: 0.65rem; font-weight: 700; color: #287A55; background: rgba(40, 122, 85, 0.12); border: 1px solid rgba(40, 122, 85, 0.25); padding: 2px 7px; border-radius: 4px; font-family: var(--font-mono); text-transform: uppercase; flex-shrink: 0;">VERIFIED</span>
@@ -3639,8 +3639,8 @@
                 <div style="display: flex; align-items: center; gap: 12px; min-width: 0;">
                     <img src="assets/avatars/avatar_9.png" style="width: 44px; height: 44px; border-radius: 50%; object-fit: cover; border: 1.5px solid var(--border-color); flex-shrink: 0;" onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png'">
                     <div style="min-width: 0;">
-                        <div style="font-weight: 700; color: var(--text-primary); font-size: 0.95rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-family: var(--font-display);">NeonPulse</div>
-                        <div style="font-size: 0.74rem; color: var(--text-muted); font-family: var(--font-mono);">@neonpulse &bull; Moderator</div>
+                        <div style="font-weight: 700; color: var(--text-primary); font-size: 0.95rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-family: var(--font-display);">CyberPulse</div>
+                        <div style="font-size: 0.74rem; color: var(--text-muted); font-family: var(--font-mono);">@cyberpulse &bull; Moderator</div>
                     </div>
                 </div>
                 <span style="font-size: 0.65rem; font-weight: 700; color: #287A55; background: rgba(40, 122, 85, 0.12); border: 1px solid rgba(40, 122, 85, 0.25); padding: 2px 7px; border-radius: 4px; font-family: var(--font-mono); text-transform: uppercase; flex-shrink: 0;">VERIFIED</span>
@@ -5443,130 +5443,275 @@
                 
                 <!-- [TAB 1: OVERVIEW] -->
                 <div class="tab-pane" id="tab-overview" style="display:none; width: 100%; max-width: 1100px; padding: 20px;">
-                    <div class="section-header" style="display:flex; justify-content:space-between; align-items:center;">
+                    <!-- Server Overview Header -->
+                    <div class="section-header" style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 24px; flex-wrap: wrap; gap: 16px;">
                         <div>
-                            <h1 class="section-title" id="dashboard-server-name">SERVER PORTAL</h1>
-                            <p class="section-subtitle">Real-time statistics & activity overview</p>
+                            <div style="display:flex; align-items:center; gap:14px;">
+                                <div id="overview-server-avatar" style="width:48px; height:48px; border-radius:12px; background:linear-gradient(135deg, #4338CA, #7E22CE); display:flex; align-items:center; justify-content:center; color:#fff; font-weight:800; font-size:1.2rem; box-shadow: 0 4px 12px rgba(99, 102, 241, 0.25);">
+                                    V
+                                </div>
+                                <div>
+                                    <div style="display:flex; align-items:center; gap:8px;">
+                                        <h1 class="section-title" id="dashboard-server-name" style="margin:0; font-size:1.6rem; font-weight:800; color:#0F172A; letter-spacing:-0.02em;">SERVER PORTAL</h1>
+                                        <span id="overview-server-plan-badge" style="font-size:0.7rem; font-weight:700; background:#F1F5F9; color:#475569; padding:3px 9px; border-radius:9999px; border:1px solid #E2E8F0; text-transform:uppercase;">FREE TIER</span>
+                                    </div>
+                                    <p class="section-subtitle" style="margin:4px 0 0 0; color:#64748B; font-size:0.85rem;">Autonomous security orchestration & live guild activity overview</p>
+                                </div>
+                            </div>
                         </div>
-                        <div class="status-node">
-                            <span class="status-dot"></span>
-                            <span id="bot-status-indicator">VEYRA Bot Online</span>
+                        <div style="display:flex; align-items:center; gap:10px;">
+                            <div class="server-status-badge" style="display:inline-flex; align-items:center; gap:8px; background:#FFFFFF; border:1.5px solid #E2E8F0; border-radius:9999px; padding:7px 16px; box-shadow:0 2px 8px rgba(0,0,0,0.02);">
+                                <span style="width:8px; height:8px; border-radius:50%; background:#10B981; box-shadow:0 0 0 3px rgba(16, 185, 129, 0.2); animation:pulse 2s infinite;"></span>
+                                <span style="font-size:0.85rem; font-weight:600; color:#0F172A;">VEYRA Bot Online</span>
+                                <span id="overview-latency-chip" style="font-size:0.72rem; font-weight:700; color:#64748B; background:#F8FAFC; border:1px solid #CBD5E1; padding:2px 8px; border-radius:9999px;">14ms</span>
+                            </div>
                         </div>
                     </div>
 
-                    <!-- Dynamic Unsafe Server Warning Card -->
-                    <div id="overview-unsafe-alert" class="glass-card" style="display:none; background: rgba(239, 68, 68, 0.05); border: 1.5px solid rgba(239, 68, 68, 0.25); border-radius: 12px; padding: 20px; margin-bottom: 25px; align-items: center; justify-content: space-between; gap: 15px;">
-                        <div style="display:flex; align-items:center; gap:12px; text-align:left;">
-                            <i class="fas fa-triangle-exclamation" style="color:#ef4444; font-size:1.5rem;"></i>
+                    <!-- State 1: Active Safe Banner (shown when security is ON) -->
+                    <div id="overview-safe-banner" class="glass-card" style="display:none; background: #F0FDF4; border: 1.5px solid #BBF7D0; border-radius: 14px; padding: 18px 22px; margin-bottom: 24px; align-items: center; justify-content: space-between; gap: 16px; box-shadow: 0 4px 15px rgba(22, 163, 74, 0.05);">
+                        <div style="display:flex; align-items:center; gap:14px; text-align:left;">
+                            <div style="width:42px; height:42px; border-radius:10px; background:rgba(22, 163, 74, 0.12); display:flex; align-items:center; justify-content:center; color:#16A34A; font-size:1.3rem;">
+                                <i class="fas fa-shield-check"></i>
+                            </div>
                             <div>
-                                <h4 style="color: #0F172A; margin:0 0 4px 0; font-weight:700;">Your server is NOT SAFE!</h4>
-                                <p style="color:var(--text-secondary); margin:0; font-size:0.82rem;">None of the security nodes are active. Add moderation and configure protection to prevent attacks.</p>
+                                <h4 style="color: #14532D; margin:0 0 3px 0; font-weight:700; font-size:0.98rem;">Server Defense Armed & Operational</h4>
+                                <p style="color:#15803D; margin:0; font-size:0.82rem;">Real-time anti-nuke shielding, rogue bot interception, and live audit sentinel are active and monitoring guild events.</p>
                             </div>
                         </div>
-                        <button onclick="switchTab('security')" class="btn-primary" style="background:#ef4444; border:none; padding:8px 16px; border-radius:6px; font-weight:700; font-size:0.8rem; cursor:pointer; color:#fff; transition: background 0.3s ease;">
-                            Configure Security
+                        <div style="display:flex; gap:8px;">
+                            <button onclick="switchTab('security')" class="btn-primary" style="background:#16A34A; border:none; padding:9px 18px; border-radius:8px; font-weight:700; font-size:0.82rem; cursor:pointer; color:#fff; transition: background 0.2s ease;">
+                                Configure Defense
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- State 2: Unsafe Server Warning Card (shown when 0 security nodes active) -->
+                    <div id="overview-unsafe-alert" class="glass-card" style="display:none; background: #FEF2F2; border: 1.5px solid #FECACA; border-radius: 14px; padding: 18px 22px; margin-bottom: 24px; align-items: center; justify-content: space-between; gap: 16px; box-shadow: 0 4px 15px rgba(220, 38, 38, 0.05);">
+                        <div style="display:flex; align-items:center; gap:14px; text-align:left;">
+                            <div style="width:42px; height:42px; border-radius:10px; background:rgba(220, 38, 38, 0.1); display:flex; align-items:center; justify-content:center; color:#DC2626; font-size:1.3rem;">
+                                <i class="fas fa-triangle-exclamation"></i>
+                            </div>
+                            <div>
+                                <h4 style="color: #991B1B; margin:0 0 3px 0; font-weight:700; font-size:0.98rem;">Your Server is NOT SAFE!</h4>
+                                <p style="color:#B91C1C; margin:0; font-size:0.82rem;">None of the 16 security shield modules are armed. Arm moderation and anti-nuke filters to prevent unauthorized destruction.</p>
+                            </div>
+                        </div>
+                        <button onclick="switchTab('security')" class="btn-primary" style="background:#DC2626; border:none; padding:9px 18px; border-radius:8px; font-weight:700; font-size:0.82rem; cursor:pointer; color:#fff; transition: background 0.2s ease; white-space:nowrap;">
+                            Arm Security Shield
                         </button>
                     </div>
 
-                    <div class="dashboard-grid">
-                        <div class="glass-card">
-                            <div class="metric-title"><i class="fas fa-shield-halved"></i> Security Node</div>
-                            <div class="metric-value" id="overview-security-status" style="font-size:1.6rem; margin-top:5px; color:#10b981;">SAFE</div>
-                            <p class="metric-footer" id="overview-security-desc">Anti-nuke filters active</p>
+                    <!-- 4 Metric Cards Grid -->
+                    <div class="dashboard-grid" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 18px; margin-bottom: 24px;">
+                        <div class="glass-card" style="background:#FFFFFF; border:1.5px solid #E2E8F0; border-radius:12px; padding:20px; box-shadow:0 4px 20px rgba(53, 43, 58, 0.03);">
+                            <div class="metric-title" style="font-size:0.8rem; font-weight:700; color:#64748B; text-transform:uppercase; letter-spacing:0.04em; display:flex; align-items:center; gap:8px;">
+                                <i class="fas fa-shield-halved" style="color:#6366F1;"></i> Security Sentinel
+                            </div>
+                            <div class="metric-value" id="overview-security-status" style="font-size:1.65rem; font-weight:800; margin-top:8px; color:#10B981;">SAFE</div>
+                            <p class="metric-footer" id="overview-security-desc" style="font-size:0.8rem; color:#64748B; margin:6px 0 0 0;">All 16 security shields active</p>
                         </div>
-                        <div class="glass-card">
-                            <div class="metric-title"><i class="fas fa-gauge"></i> Diagnostic Latency</div>
-                            <div class="metric-value">12ms</div>
-                            <p class="metric-footer">Excellent API response rate</p>
+                        <div class="glass-card" style="background:#FFFFFF; border:1.5px solid #E2E8F0; border-radius:12px; padding:20px; box-shadow:0 4px 20px rgba(53, 43, 58, 0.03);">
+                            <div class="metric-title" style="font-size:0.8rem; font-weight:700; color:#64748B; text-transform:uppercase; letter-spacing:0.04em; display:flex; align-items:center; gap:8px;">
+                                <i class="fas fa-gauge-high" style="color:#0EA5E9;"></i> Diagnostic Latency
+                            </div>
+                            <div class="metric-value" id="overview-latency-val" style="font-size:1.65rem; font-weight:800; margin-top:8px; color:#0F172A;">14ms</div>
+                            <p class="metric-footer" style="font-size:0.8rem; color:#64748B; margin:6px 0 0 0;">Discord Gateway WebSocket</p>
                         </div>
-                        <div class="glass-card">
-                            <div class="metric-title"><i class="fas fa-user-check"></i> Whitelist Capacity</div>
-                            <div class="metric-value" id="overview-whitelist-capacity">0 / 100</div>
-                            <p class="metric-footer">Trusted admin overrides</p>
+                        <div class="glass-card" style="background:#FFFFFF; border:1.5px solid #E2E8F0; border-radius:12px; padding:20px; box-shadow:0 4px 20px rgba(53, 43, 58, 0.03); cursor:pointer;" onclick="switchTab('security')">
+                            <div class="metric-title" style="font-size:0.8rem; font-weight:700; color:#64748B; text-transform:uppercase; letter-spacing:0.04em; display:flex; align-items:center; gap:8px;">
+                                <i class="fas fa-user-check" style="color:#8B5CF6;"></i> Whitelist Capacity
+                            </div>
+                            <div class="metric-value" id="overview-whitelist-capacity" style="font-size:1.65rem; font-weight:800; margin-top:8px; color:#0F172A;">0 / 1</div>
+                            <p class="metric-footer" id="overview-whitelist-footer" style="font-size:0.8rem; color:#64748B; margin:6px 0 0 0;">Free plan quota (1 slot allowed)</p>
+                        </div>
+                        <div class="glass-card" style="background:#FFFFFF; border:1.5px solid #E2E8F0; border-radius:12px; padding:20px; box-shadow:0 4px 20px rgba(53, 43, 58, 0.03); cursor:pointer;" onclick="switchTab('billing')">
+                            <div class="metric-title" style="font-size:0.8rem; font-weight:700; color:#64748B; text-transform:uppercase; letter-spacing:0.04em; display:flex; align-items:center; gap:8px;">
+                                <i class="fas fa-crown" style="color:#F59E0B;"></i> Active Subscription
+                            </div>
+                            <div class="metric-value" id="overview-active-plan-val" style="font-size:1.65rem; font-weight:800; margin-top:8px; color:#0F172A;">Free Tier</div>
+                            <p class="metric-footer" style="font-size:0.8rem; color:#64748B; margin:6px 0 0 0;">Click to upgrade or manage plan</p>
+                        </div>
+                    </div>
+
+                    <!-- Quick Action Controls Toolbar -->
+                    <div class="glass-card" style="background:#FFFFFF; border:1.5px solid #E2E8F0; border-radius:14px; padding:18px 22px; margin-bottom:24px; box-shadow:0 4px 20px rgba(53, 43, 58, 0.03);">
+                        <div style="font-size:0.82rem; font-weight:700; color:#475569; text-transform:uppercase; letter-spacing:0.05em; margin-bottom:12px;">
+                            Quick Action Controls
+                        </div>
+                        <div style="display:flex; flex-wrap:wrap; gap:10px;">
+                            <button type="button" onclick="runLiveSecurityScan()" class="btn-primary" style="background:#0F172A; color:#FFFFFF; border:none; padding:10px 16px; border-radius:8px; font-weight:600; font-size:0.85rem; cursor:pointer; display:inline-flex; align-items:center; gap:8px; transition:transform 0.15s ease;">
+                                <i class="fas fa-radar"></i> Run Security Diagnostic
+                            </button>
+                            <button type="button" onclick="syncServerCache()" class="btn-secondary" style="background:#F8FAFC; color:#0F172A; border:1.5px solid #CBD5E1; padding:10px 16px; border-radius:8px; font-weight:600; font-size:0.85rem; cursor:pointer; display:inline-flex; align-items:center; gap:8px;">
+                                <i class="fas fa-rotate"></i> Sync Server Cache
+                            </button>
+                            <button type="button" onclick="switchTab('security')" class="btn-secondary" style="background:#F8FAFC; color:#0F172A; border:1.5px solid #CBD5E1; padding:10px 16px; border-radius:8px; font-weight:600; font-size:0.85rem; cursor:pointer; display:inline-flex; align-items:center; gap:8px;">
+                                <i class="fas fa-user-shield"></i> Manage Whitelist
+                            </button>
+                            <button type="button" onclick="switchTab('tickets')" class="btn-secondary" style="background:#F8FAFC; color:#0F172A; border:1.5px solid #CBD5E1; padding:10px 16px; border-radius:8px; font-weight:600; font-size:0.85rem; cursor:pointer; display:inline-flex; align-items:center; gap:8px;">
+                                <i class="fas fa-ticket"></i> Deploy Ticket Panel
+                            </button>
+                            <button type="button" onclick="openStickyMessageModal()" class="btn-secondary" style="background:#F8FAFC; color:#0F172A; border:1.5px solid #CBD5E1; padding:10px 16px; border-radius:8px; font-weight:600; font-size:0.85rem; cursor:pointer; display:inline-flex; align-items:center; gap:8px;">
+                                <i class="fas fa-note-sticky"></i> New Sticky Message
+                            </button>
+                            <button type="button" onclick="switchTab('embedmessages')" class="btn-secondary" style="background:#F8FAFC; color:#0F172A; border:1.5px solid #CBD5E1; padding:10px 16px; border-radius:8px; font-weight:600; font-size:0.85rem; cursor:pointer; display:inline-flex; align-items:center; gap:8px;">
+                                <i class="fas fa-paper-plane"></i> Send Announcement
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Live Security & Audit Activity Stream -->
+                    <div class="glass-card" style="background:#FFFFFF; border:1.5px solid #E2E8F0; border-radius:14px; padding:22px; margin-bottom:24px; box-shadow:0 4px 20px rgba(53, 43, 58, 0.03);">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+                            <div>
+                                <h3 style="font-size:1.05rem; font-weight:700; color:#0F172A; margin:0 0 2px 0;">Live Security & Audit Activity Stream</h3>
+                                <p style="font-size:0.8rem; color:#64748B; margin:0;">Real-time stream of security defenses, staff actions, and server changes.</p>
+                            </div>
+                            <button type="button" onclick="loadOverviewAuditLogs(activeGuildId)" style="background:#F1F5F9; border:1px solid #CBD5E1; border-radius:6px; padding:6px 12px; font-size:0.75rem; font-weight:600; color:#475569; cursor:pointer; display:flex; align-items:center; gap:5px;">
+                                <i class="fas fa-arrows-rotate"></i> Refresh Stream
+                            </button>
+                        </div>
+                        <div style="overflow-x:auto;">
+                            <table style="width:100%; border-collapse:collapse; font-size:0.85rem; text-align:left;">
+                                <thead>
+                                    <tr style="border-bottom:1.5px solid #E2E8F0; color:#64748B; font-size:0.75rem; text-transform:uppercase; letter-spacing:0.04em;">
+                                        <th style="padding:10px 12px;">Timestamp</th>
+                                        <th style="padding:10px 12px;">Actor</th>
+                                        <th style="padding:10px 12px;">Action Intercepted / Executed</th>
+                                        <th style="padding:10px 12px;">Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="overview-audit-logs-body">
+                                    <tr>
+                                        <td colspan="4" style="padding:24px; text-align:center; color:#94A3B8;">
+                                            <i class="fas fa-spinner fa-spin" style="margin-right:8px;"></i> Loading live activity stream...
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
                         </div>
                     </div>
 
                     <!-- [COUNTING RULES SECTION] -->
-                    <div class="glass-card" style="background: #FFFFFF !important; border: 1.5px solid #E2E8F0 !important; box-shadow: 0 4px 20px rgba(53, 43, 58, 0.04) !important; border-radius: 12px; padding: 25px; margin-top: 25px; margin-bottom: 25px;">
-                        <div style="display: flex; align-items: center; gap: 8px; border-bottom: 1px solid rgba(255,255,255,0.04); padding-bottom: 15px; margin-bottom: 20px;">
-                            <i class="fas fa-list-check" style="color: #00aff4; font-size: 1.25rem;"></i>
+                    <div class="glass-card" style="background: #FFFFFF !important; border: 1.5px solid #E2E8F0 !important; box-shadow: 0 4px 20px rgba(53, 43, 58, 0.04) !important; border-radius: 14px; padding: 24px; margin-bottom: 24px;">
+                        <div style="display: flex; align-items: center; gap: 10px; border-bottom: 1.5px solid #F1F5F9; padding-bottom: 14px; margin-bottom: 18px;">
+                            <div style="width:36px; height:36px; border-radius:8px; background:#EFF6FF; display:flex; align-items:center; justify-content:center; color:#2563EB;">
+                                <i class="fas fa-list-check"></i>
+                            </div>
                             <div>
-                                <h3 style="font-size: 1.05rem; font-weight: 700; color: #0F172A; margin: 0 0 2px 0;">Counting rules</h3>
-                                <p style="font-size: 0.8rem; color: var(--text-secondary); margin: 0;">How joins are counted, and who appears in your invite numbers.</p>
+                                <h3 style="font-size: 1.05rem; font-weight: 700; color: #0F172A; margin: 0 0 2px 0;">Counting Rules</h3>
+                                <p style="font-size: 0.8rem; color: #64748B; margin: 0;">How joins are counted and who appears in your server invite numbers.</p>
                             </div>
                         </div>
-                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 15px 0; border-bottom: 1px solid rgba(255,255,255,0.03); flex-wrap: wrap; gap: 15px;">
+
+                        <!-- Row 1: Fake delay -->
+                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 14px 0; border-bottom: 1px solid #F1F5F9; flex-wrap: wrap; gap: 15px;">
                             <div>
-                                <div style="font-weight: 700; color: #0F172A; font-size: 0.92rem; margin-bottom: 4px; display: flex; align-items: center; gap: 6px;">
-                                    Fake delay <span style="font-size:0.6rem; font-weight:800; color:#ea580c; background:rgba(234,88,12,0.1); padding:1px 4px; border-radius:3px;">PREMIUM</span>
+                                <div style="font-weight: 700; color: #0F172A; font-size: 0.92rem; margin-bottom: 3px; display: flex; align-items: center; gap: 6px;">
+                                    Fake Delay Threshold <span style="font-size:0.65rem; font-weight:800; color:#EA580C; background:#FFF7ED; border:1px solid #FFEDD5; padding:2px 6px; border-radius:4px;">VERIFIED</span>
                                 </div>
-                                <div style="font-size: 0.8rem; color: var(--text-secondary);">Accounts younger than this many days count as fake invites.</div>
+                                <div style="font-size: 0.8rem; color: #64748B;">Accounts younger than this many days count as fake/suspicious joins.</div>
                             </div>
-                            <input type="number" class="form-control" id="fake-delay-val" value="3" onchange="saveFakeDelay(this.value)" style="max-width: 200px; background: #FFFFFF !important; border: 1.5px solid #CBD5E1 !important; color: #0F172A !important; font-family: var(--font-mono);">
+                            <div style="display:flex; align-items:center; gap:8px;">
+                                <input type="number" min="0" max="90" class="form-control" id="fake-delay-val" value="3" onchange="saveFakeDelay(this.value)" style="width: 100px; background: #FFFFFF !important; border: 1.5px solid #CBD5E1 !important; color: #0F172A !important; font-weight:700; text-align:center; border-radius:8px; padding:8px;">
+                                <span style="font-size:0.82rem; color:#64748B; font-weight:600;">Days</span>
+                            </div>
                         </div>
 
                         <!-- Row 2: Invite blacklist -->
-                        <div style="display: flex; flex-direction: column; padding: 15px 0; border-bottom: 1px solid rgba(255,255,255,0.03); gap: 10px;">
+                        <div style="display: flex; flex-direction: column; padding: 16px 0; border-bottom: 1px solid #F1F5F9; gap: 12px;">
                             <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
                                 <div>
-                                    <div style="font-weight: 700; color: #0F172A; font-size: 0.92rem; margin-bottom: 4px;">Invite blacklist</div>
-                                    <div style="font-size: 0.8rem; color: var(--text-secondary);">Invites from these members are never counted.</div>
+                                    <div style="font-weight: 700; color: #0F172A; font-size: 0.92rem; margin-bottom: 3px;">Invite Blacklist</div>
+                                    <div style="font-size: 0.8rem; color: #64748B;">Invites generated from these user IDs will never be counted towards tallies.</div>
                                 </div>
-                                <div style="display: flex; gap: 10px; width: 100%; max-width: 450px;">
-                                    <input type="text" class="form-control" placeholder="User ID" id="blacklist-user-id" style="background: #FFFFFF !important; border: 1.5px solid #CBD5E1 !important; color: #0F172A !important;">
-                                    <button class="btn-primary" style="background:#00aff4; font-weight:700; font-size:0.8rem; padding: 10px 20px; white-space:nowrap; border-radius: 6px;" onclick="addBlacklistUser()">Add User ID</button>
+                                <div style="display: flex; gap: 8px; width: 100%; max-width: 420px;">
+                                    <input type="text" class="form-control" placeholder="Discord User ID (e.g. 123456789)" id="blacklist-user-id" style="background: #FFFFFF !important; border: 1.5px solid #CBD5E1 !important; color: #0F172A !important; border-radius:8px; padding:9px 12px; font-size:0.85rem;">
+                                    <button type="button" class="btn-primary" style="background:#0F172A; color:#FFFFFF; font-weight:600; font-size:0.82rem; padding: 9px 16px; white-space:nowrap; border-radius: 8px; border:none; cursor:pointer;" onclick="addBlacklistUser()">Add User ID</button>
                                 </div>
                             </div>
-                            <!-- Blacklist users pills list container -->
                             <div id="invite-blacklist-list" style="display: flex; flex-wrap: wrap; gap: 8px; align-items: center; min-height: 24px; padding: 4px;"></div>
                         </div>
 
                         <!-- Row 3: Hidden from leaderboard -->
-                        <div style="display: flex; flex-direction: column; padding: 15px 0; gap: 10px;">
+                        <div style="display: flex; flex-direction: column; padding: 16px 0 0 0; gap: 12px;">
                             <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
                                 <div>
-                                    <div style="font-weight: 700; color: #0F172A; font-size: 0.92rem; margin-bottom: 4px;">Hidden from leaderboard</div>
-                                    <div style="font-size: 0.8rem; color: var(--text-secondary);">These members keep their invites but never appear on the invite leaderboard.</div>
+                                    <div style="font-weight: 700; color: #0F172A; font-size: 0.92rem; margin-bottom: 3px;">Hidden From Leaderboard</div>
+                                    <div style="font-size: 0.8rem; color: #64748B;">These members keep their invites but are hidden from the public leaderboard.</div>
                                 </div>
-                                <div style="display: flex; gap: 10px; width: 100%; max-width: 450px;">
-                                    <input type="text" class="form-control" placeholder="User ID" id="hidden-user-id" style="background: #FFFFFF !important; border: 1.5px solid #CBD5E1 !important; color: #0F172A !important;">
-                                    <button class="btn-primary" style="background:#00aff4; font-weight:700; font-size:0.8rem; padding: 10px 20px; white-space:nowrap; border-radius: 6px;" onclick="addHiddenUser()">Add User ID</button>
+                                <div style="display: flex; gap: 8px; width: 100%; max-width: 420px;">
+                                    <input type="text" class="form-control" placeholder="Discord User ID" id="hidden-user-id" style="background: #FFFFFF !important; border: 1.5px solid #CBD5E1 !important; color: #0F172A !important; border-radius:8px; padding:9px 12px; font-size:0.85rem;">
+                                    <button type="button" class="btn-primary" style="background:#0F172A; color:#FFFFFF; font-weight:600; font-size:0.82rem; padding: 9px 16px; white-space:nowrap; border-radius: 8px; border:none; cursor:pointer;" onclick="addHiddenUser()">Add User ID</button>
                                 </div>
                             </div>
-                            <!-- Hidden users pills list container -->
                             <div id="leaderboard-hidden-list" style="display: flex; flex-wrap: wrap; gap: 8px; align-items: center; min-height: 24px; padding: 4px;"></div>
                         </div>
                     </div>
 
                     <!-- [INVITE LABELS SECTION] -->
-                    <div class="glass-card" style="background: #FFFFFF !important; border: 1.5px solid #E2E8F0 !important; box-shadow: 0 4px 20px rgba(53, 43, 58, 0.04) !important; border-radius: 12px; padding: 25px;">
-                        <div style="display: flex; align-items: center; gap: 8px; border-bottom: 1px solid rgba(255,255,255,0.04); padding-bottom: 15px; margin-bottom: 20px;">
-                            <i class="fas fa-tags" style="color: #00aff4; font-size: 1.15rem;"></i>
+                    <div class="glass-card" style="background: #FFFFFF !important; border: 1.5px solid #E2E8F0 !important; box-shadow: 0 4px 20px rgba(53, 43, 58, 0.04) !important; border-radius: 14px; padding: 24px;">
+                        <div style="display: flex; align-items: center; gap: 10px; border-bottom: 1.5px solid #F1F5F9; padding-bottom: 14px; margin-bottom: 18px;">
+                            <div style="width:36px; height:36px; border-radius:8px; background:#F5F3FF; display:flex; align-items:center; justify-content:center; color:#7C3AED;">
+                                <i class="fas fa-tags"></i>
+                            </div>
                             <div>
-                                <h3 style="font-size: 1.05rem; font-weight: 700; color: #0F172A; margin: 0 0 2px 0;">Invite labels</h3>
-                                <p style="font-size: 0.8rem; color: var(--text-secondary); margin: 0;">Name your invite links, and auto-assign a role when someone joins through one.</p>
+                                <h3 style="font-size: 1.05rem; font-weight: 700; color: #0F172A; margin: 0 0 2px 0;">Invite Labels & Auto-Roles</h3>
+                                <p style="font-size: 0.8rem; color: #64748B; margin: 0;">Tag your custom invite codes and automatically award a specific Discord role when a member joins through that invite.</p>
                             </div>
                         </div>
 
-                        <div style="margin-bottom: 15px;">
-                            <div style="font-weight: 700; color: #0F172A; font-size: 0.92rem; margin-bottom: 4px;">Labels</div>
-                            <div style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 15px;">Works with regular invite codes and this server's vanity invite.</div>
+                        <!-- Labels layout builder input fields -->
+                        <div style="display: grid; grid-template-columns: 140px 1.2fr 1.2fr 1.6fr auto; gap: 10px; align-items: center; background: #F8FAFC; padding: 16px; border-radius: 10px; border: 1.5px solid #E2E8F0; margin-bottom: 20px;">
+                            <div>
+                                <label style="display:block; font-size:0.75rem; font-weight:700; color:#475569; margin-bottom:4px; text-transform:uppercase;">Invite Type</label>
+                                <select id="invite-label-type" class="form-control" style="background: #FFFFFF !important; border: 1.5px solid #CBD5E1 !important; color: #0F172A !important; border-radius:8px; padding:8px 10px; font-size:0.85rem;">
+                                    <option value="regular">Regular Code</option>
+                                    <option value="vanity">Vanity Invite</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label style="display:block; font-size:0.75rem; font-weight:700; color:#475569; margin-bottom:4px; text-transform:uppercase;">Invite Code / URL</label>
+                                <input type="text" id="invite-label-code" class="form-control" placeholder="e.g. discord.gg/vip or vip" style="background: #FFFFFF !important; border: 1.5px solid #CBD5E1 !important; color: #0F172A !important; border-radius:8px; padding:8px 12px; font-size:0.85rem;">
+                            </div>
+                            <div>
+                                <label style="display:block; font-size:0.75rem; font-weight:700; color:#475569; margin-bottom:4px; text-transform:uppercase;">Label Name</label>
+                                <input type="text" id="invite-label-name" class="form-control" placeholder="e.g. VIP Partner" style="background: #FFFFFF !important; border: 1.5px solid #CBD5E1 !important; color: #0F172A !important; border-radius:8px; padding:8px 12px; font-size:0.85rem;">
+                            </div>
+                            <div>
+                                <label style="display:block; font-size:0.75rem; font-weight:700; color:#475569; margin-bottom:4px; text-transform:uppercase;">Auto-Assign Role</label>
+                                <select id="invite-label-role-select" class="form-control guild-roles-dropdown" style="background: #FFFFFF !important; border: 1.5px solid #CBD5E1 !important; color: #0F172A !important; border-radius:8px; padding:8px 10px; font-size:0.85rem;">
+                                    <option value="">Select Discord Role</option>
+                                </select>
+                            </div>
+                            <div style="align-self: flex-end;">
+                                <button type="button" class="btn-primary" style="padding: 9px 20px; background: #0F172A; color: #FFFFFF; border: none; font-weight: 700; font-size: 0.85rem; border-radius:8px; cursor:pointer; height:38px; white-space:nowrap;" onclick="createInviteLabel()">
+                                    <i class="fas fa-plus" style="margin-right:4px;"></i> Create
+                                </button>
+                            </div>
                         </div>
 
-                        <!-- Labels layout builder input fields -->
-                        <div style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap; background: #F8FAFC !important; padding: 15px; border-radius: 8px; border: 1.5px solid #E2E8F0 !important;">
-                            <select class="form-control" style="flex: 1.5; min-width: 150px; background: #FFFFFF !important; border: 1.5px solid #CBD5E1 !important; color: #0F172A !important;">
-                                <option value="regular">Regular invite code</option>
-                                <option value="vanity">Vanity invite</option>
-                            </select>
-                            <input type="text" class="form-control" placeholder="Invite code" style="flex: 1.5; min-width: 130px; background: #FFFFFF !important; border: 1.5px solid #CBD5E1 !important; color: #0F172A !important;">
-                            <input type="text" class="form-control" placeholder="Label" style="flex: 1.5; min-width: 130px; background: #FFFFFF !important; border: 1.5px solid #CBD5E1 !important; color: #0F172A !important;">
-                            <select class="form-control" style="flex: 2; min-width: 160px; background: #FFFFFF !important; border: 1.5px solid #CBD5E1 !important; color: #0F172A !important;">
-                                <option value="none">Select an option</option>
-                                <option value="mod">Moderator Role</option>
-                                <option value="user">Verified User</option>
-                            </select>
-                            <button class="btn-primary" style="flex: 1; min-width: 100px; padding: 10px; background: #008080; border: none; font-weight: 700; font-size: 0.85rem;" onclick="showToast('Label Created', 'A auto-assign label has been created for the code.')">Create</button>
+                        <!-- Active Invite Labels Table -->
+                        <div style="overflow-x:auto;">
+                            <table style="width:100%; border-collapse:collapse; font-size:0.85rem; text-align:left;">
+                                <thead>
+                                    <tr style="border-bottom:1.5px solid #E2E8F0; color:#64748B; font-size:0.75rem; text-transform:uppercase; letter-spacing:0.04em;">
+                                        <th style="padding:10px 12px;">Type</th>
+                                        <th style="padding:10px 12px;">Invite Code</th>
+                                        <th style="padding:10px 12px;">Label</th>
+                                        <th style="padding:10px 12px;">Awarded Role</th>
+                                        <th style="padding:10px 12px; text-align:right;">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="invite-labels-list">
+                                    <tr>
+                                        <td colspan="5" style="padding:20px; text-align:center; color:#94A3B8;">
+                                            No custom invite labels configured. Add an invite code above to automatically award roles on join.
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 </div>
