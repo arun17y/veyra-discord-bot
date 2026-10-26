@@ -4212,7 +4212,7 @@ async def auto_send_reports_task():
                         
                         embed = discord.Embed(
                             title=f"📊 VEYRA {frequency.toUpperCase() if hasattr(str(frequency), 'toUpperCase') else str(frequency).upper()} Server Growth Report",
-                            color=discord.Color.from_rgb(124, 58, 237)
+                            color=discord.Color.from_rgb(225, 29, 72)
                         )
                         if guild.icon:
                             embed.set_thumbnail(url=guild.icon.url)

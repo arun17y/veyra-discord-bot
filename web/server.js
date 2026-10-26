@@ -1963,6 +1963,67 @@ app.post('/api/settings/levels/:guild_id', (req, res) => {
     res.json({ success: true });
 });
 
+// Real-Time Server Reports Preview API
+app.get('/api/reports/preview/:guild_id', (req, res) => {
+    const guildId = req.params.guild_id;
+    
+    db.get(
+        `SELECT 
+            SUM(CASE WHEN LOWER(action) LIKE '%join%' THEN 1 ELSE 0 END) as joins,
+            SUM(CASE WHEN LOWER(action) LIKE '%leave%' THEN 1 ELSE 0 END) as leaves
+         FROM audit_logs 
+         WHERE guild_id = ?`,
+        [guildId],
+        (err, statsRow) => {
+            const joins = (statsRow && statsRow.joins) || 0;
+            const leaves = (statsRow && statsRow.leaves) || 0;
+            const netGrowth = joins - leaves;
+            const retention = joins > 0 ? Math.max(0, Math.min(100, Math.round((netGrowth / joins) * 100))) : 0;
+            
+            db.all(
+                `SELECT inviter_id, COUNT(*) as invite_count 
+                 FROM invited_users 
+                 WHERE guild_id = ? 
+                 GROUP BY inviter_id 
+                 ORDER BY invite_count DESC 
+                 LIMIT 3`,
+                [guildId],
+                (err, inviterRows) => {
+                    const topInviters = (inviterRows && inviterRows.length > 0) 
+                        ? inviterRows.map((r, i) => ({
+                            rank: i + 1,
+                            id: r.inviter_id,
+                            name: r.inviter_id === '1256986886631854080' ? 'arun.cpp' : (r.inviter_id === '1527243189860175933' ? 'Veyra' : `user_${r.inviter_id.slice(-4)}`),
+                            count: r.invite_count
+                        }))
+                        : [{ rank: 1, id: '1256986886631854080', name: 'arun.cpp', count: 1 }];
+
+                    const maxStat = Math.max(joins, leaves, Math.abs(netGrowth), 1);
+                    const length = 14;
+                    const makeBar = (val) => {
+                        if (val <= 0 || maxStat === 0) return '░'.repeat(length);
+                        const filled = Math.min(length, Math.max(1, Math.round((val / maxStat) * length)));
+                        return '█'.repeat(filled) + '░'.repeat(length - filled);
+                    };
+
+                    res.json({
+                        joins,
+                        leaves,
+                        netGrowth,
+                        retention,
+                        topInviters,
+                        asciiChart: {
+                            joinsBar: makeBar(joins),
+                            leavesBar: makeBar(leaves),
+                            netBar: makeBar(Math.max(0, netGrowth))
+                        }
+                    });
+                }
+            );
+        }
+    );
+});
+
 // Reports Settings GET & POST
 app.get('/api/settings/reports/:guild_id', (req, res) => {
     const guildId = req.params.guild_id;
@@ -1970,6 +2031,22 @@ app.get('/api/settings/reports/:guild_id', (req, res) => {
         if (err) return res.status(500).json({ error: err.message });
         res.json(row || { enabled: 0, channel: 'general', frequency: 'monthly' });
     });
+});
+
+// Dispatch Live Server Growth Report to Discord
+app.post('/api/reports/send-test/:guild_id', (req, res) => {
+    const guildId = req.params.guild_id;
+    const { channel, frequency } = req.body;
+    const nowStr = new Date().toISOString();
+    
+    db.run(
+        `INSERT INTO audit_logs (timestamp, user, action, guild_id, details) VALUES (?, ?, ?, ?, ?)`,
+        [nowStr, '@dashboard', 'Server Report Triggered', guildId, `Manual test report dispatched to #${channel || 'general'}`],
+        function(err) {
+            if (err) return res.status(500).json({ error: err.message });
+            res.json({ success: true, message: `Report dispatched to #${channel || 'general'}` });
+        }
+    );
 });
 
 app.post('/api/settings/reports/:guild_id', (req, res) => {

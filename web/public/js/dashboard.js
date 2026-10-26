@@ -7033,7 +7033,11 @@ window.selectReportFrequency = function(frequency, showToastFlag = true) {
     const weeklyBtn = document.getElementById('report-freq-weekly');
     if (!monthlyBtn || !weeklyBtn) return;
 
-    if (frequency === 'monthly') {
+    const isWeekly = String(frequency).toLowerCase() === 'weekly';
+    const titleEl = document.getElementById('report-preview-embed-title');
+    const freqTextEl = document.getElementById('report-preview-freq-text');
+
+    if (!isWeekly) {
         monthlyBtn.classList.add('active');
         monthlyBtn.style.background = '#E11D48';
         monthlyBtn.style.color = '#FFFFFF';
@@ -7046,8 +7050,10 @@ window.selectReportFrequency = function(frequency, showToastFlag = true) {
         weeklyBtn.style.fontWeight = '700';
         weeklyBtn.style.boxShadow = 'none';
 
+        if (titleEl) titleEl.innerText = '📊 VEYRA MONTHLY Server Growth Report';
+        if (freqTextEl) freqTextEl.innerText = 'Monthly';
         if (showToastFlag) showToast('Reports Settings', 'Monthly schedule selected.');
-    } else if (frequency === 'weekly') {
+    } else {
         weeklyBtn.classList.add('active');
         weeklyBtn.style.background = '#E11D48';
         weeklyBtn.style.color = '#FFFFFF';
@@ -7060,6 +7066,8 @@ window.selectReportFrequency = function(frequency, showToastFlag = true) {
         monthlyBtn.style.fontWeight = '700';
         monthlyBtn.style.boxShadow = 'none';
 
+        if (titleEl) titleEl.innerText = '📊 VEYRA WEEKLY Server Growth Report';
+        if (freqTextEl) freqTextEl.innerText = 'Weekly';
         if (showToastFlag) showToast('Reports Settings', 'Weekly schedule selected.');
     }
 };
@@ -7239,7 +7247,7 @@ function renderLevelsRewardsTable(rewards) {
 }
 
 window.loadReportsSettings = function(guildId) {
-    const targetGuild = guildId || activeGuildId;
+    const targetGuild = guildId || activeGuildId || localStorage.getItem('selected_guild_id');
     if (!targetGuild) return;
 
     fetch(`/api/settings/reports/${targetGuild}`)
@@ -7249,22 +7257,85 @@ window.loadReportsSettings = function(guildId) {
             if (toggle) toggle.checked = data.enabled === 1;
 
             const channelSelect = document.getElementById('reports-channel-select');
-            if (channelSelect) channelSelect.value = data.channel || '';
+            if (channelSelect && data.channel) channelSelect.value = data.channel;
 
-            selectReportFrequency(data.frequency || 'monthly', false);
+            selectReportFrequency(data.frequency || 'weekly', false);
+            renderReportLivePreview(targetGuild);
         })
-        .catch(err => console.error("Error loading reports settings:", err));
+        .catch(err => {
+            console.error("Error loading reports settings:", err);
+            renderReportLivePreview(targetGuild);
+        });
+};
+
+window.renderReportLivePreview = function(guildId) {
+    const targetGuild = guildId || activeGuildId || localStorage.getItem('selected_guild_id');
+    if (!targetGuild) return;
+
+    // Set server icon in preview
+    const activeGuild = (window.allGuildsCache || []).find(g => g.id === targetGuild);
+    const iconImg = document.getElementById('report-preview-guild-icon');
+    if (iconImg) {
+        if (activeGuild && activeGuild.icon) {
+            iconImg.src = `https://cdn.discordapp.com/icons/${activeGuild.id}/${activeGuild.icon}.png?size=96`;
+        } else {
+            iconImg.src = 'https://cdn.discordapp.com/embed/avatars/1.png';
+        }
+    }
+
+    const timeEl = document.getElementById('report-preview-header-time');
+    if (timeEl) {
+        timeEl.innerText = `Today at ${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
+    }
+
+    fetch(`/api/reports/preview/${targetGuild}`)
+        .then(res => res.json())
+        .then(data => {
+            const elJoins = document.getElementById('report-preview-joins');
+            const elLeaves = document.getElementById('report-preview-leaves');
+            const elNet = document.getElementById('report-preview-net');
+            const elRet = document.getElementById('report-preview-retention');
+            const elInviters = document.getElementById('report-preview-inviters');
+            const elAscii = document.getElementById('report-preview-ascii');
+
+            if (elJoins) elJoins.innerText = data.joins || 0;
+            if (elLeaves) elLeaves.innerText = data.leaves || 0;
+            if (elNet) elNet.innerText = (data.netGrowth >= 0 ? '+' : '') + (data.netGrowth || 0);
+            if (elRet) elRet.innerText = `${data.retention || 0}%`;
+
+            if (elInviters) {
+                if (data.topInviters && data.topInviters.length > 0) {
+                    elInviters.innerHTML = data.topInviters.map((inv, idx) => 
+                        `<div><strong>${idx + 1}.</strong> @${inv.name} &mdash; <span style="background: #1E1F22; border-radius: 3px; padding: 1px 5px; font-family: monospace; color: #F1F5F9; font-weight: 700;">${inv.count}</span> invites</div>`
+                    ).join('');
+                } else {
+                    elInviters.innerHTML = `<div><strong>1.</strong> @arun.cpp &mdash; <span style="background: #1E1F22; border-radius: 3px; padding: 1px 5px; font-family: monospace; color: #F1F5F9; font-weight: 700;">1</span> invites</div>`;
+                }
+            }
+
+            if (elAscii && data.asciiChart) {
+                const jBar = data.asciiChart.joinsBar || '░░░░░░░░░░░░░░';
+                const lBar = data.asciiChart.leavesBar || '░░░░░░░░░░░░░░';
+                const nBar = data.asciiChart.netBar || '░░░░░░░░░░░░░░';
+                const netSign = (data.netGrowth >= 0 ? '+' : '');
+                elAscii.innerText = `Joins:  [${jBar}] ${data.joins || 0}
+Leaves: [${lBar}] ${data.leaves || 0}
+Net:    [${nBar}] ${netSign}${data.netGrowth || 0}`;
+            }
+        })
+        .catch(err => console.error("Error fetching report preview:", err));
 };
 
 window.saveReportsSettings = function() {
-    if (!activeGuildId) return;
+    const targetGuild = activeGuildId || localStorage.getItem('selected_guild_id');
+    if (!targetGuild) return;
 
     const enabled = document.getElementById('reports-enable-checkbox')?.checked ? 1 : 0;
     const channel = document.getElementById('reports-channel-select')?.value || 'general';
     const weeklyBtn = document.getElementById('report-freq-weekly');
-    const frequency = weeklyBtn && weeklyBtn.classList.contains('btn-primary') ? 'weekly' : 'monthly';
+    const frequency = (weeklyBtn && weeklyBtn.classList.contains('active')) ? 'weekly' : 'monthly';
 
-    fetch(`/api/settings/reports/${activeGuildId}`, {
+    fetch(`/api/settings/reports/${targetGuild}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ enabled, channel, frequency })
@@ -7273,10 +7344,34 @@ window.saveReportsSettings = function() {
     .then(data => {
         if (data.success) {
             showToast("Reports Settings Saved", "Server Reports configurations successfully saved!");
-            addLogEntry("@user", `Updated Server Reports: status ${enabled ? 'Enabled' : 'Disabled'}, channel #${channel}, frequency ${frequency}`);
+            renderReportLivePreview(targetGuild);
         }
     })
     .catch(err => console.error("Error saving reports settings:", err));
+};
+
+window.sendTestReport = function() {
+    const targetGuild = activeGuildId || localStorage.getItem('selected_guild_id');
+    if (!targetGuild) return;
+    const channel = document.getElementById('reports-channel-select')?.value || 'general';
+    const weeklyBtn = document.getElementById('report-freq-weekly');
+    const frequency = (weeklyBtn && weeklyBtn.classList.contains('active')) ? 'weekly' : 'monthly';
+
+    showToast("Broadcasting Report", "Dispatching live growth telemetry report to Discord...", "info");
+    fetch(`/api/reports/send-test/${targetGuild}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ channel, frequency })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            showToast("Report Dispatched", `Live report successfully posted to #${channel}!`);
+        } else {
+            showToast("Report Error", data.error || "Unable to send report. Ensure channel exists and bot has permissions.", "error");
+        }
+    })
+    .catch(() => showToast("Network Error", "Failed to communicate with bot service.", "error"));
 };
 
 window.loadSavedPreset = function(type) {

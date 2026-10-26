@@ -8448,85 +8448,152 @@ We hope to see you back soon!
                 </div>
 
                 <!-- [TAB 5c: SERVER REPORTS] -->
-                <div class="tab-pane" id="tab-reports" style="display:none; width: 100%; padding: 20px;"><div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
-                        <h1 style="font-size: 1.8rem; font-weight: 800; color: #0F172A; margin: 0;">Server Reports</h1>
+                <div class="tab-pane" id="tab-reports" style="display:none; width: 100%; padding: 20px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
+                        <div>
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <h1 style="font-size: 1.8rem; font-weight: 800; color: #0F172A !important; margin: 0;">Server Reports</h1>
+                                <span style="font-size: 0.72rem; font-weight: 800; background: #FAF5FF; color: #7E22CE; padding: 3px 9px; border-radius: 9999px; border: 1px solid #E9D5FF; text-transform: uppercase;">PREMIUM VISUALIZER</span>
+                            </div>
+                            <p style="margin: 4px 0 0 0; color: #64748B; font-size: 0.85rem;">Automatic guild growth summaries and ASCII telemetry posted to Discord on schedule.</p>
+                        </div>
                         <a href="https://discord.gg/ghostfamily" target="_blank" class="dash-help-support-link" style="color: #0F172A !important; font-weight: 700 !important; text-decoration: none; font-size: 0.82rem; font-family: var(--font-mono); display: flex; align-items: center; gap: 5px; transition: color 0.15s ease;" onmouseover="this.style.color='#E11D48'" onmouseout="this.style.color='#0F172A'">
                             Help & Support <i class="fas fa-arrow-up-right-from-square" style="font-size: 0.7rem;"></i>
                         </a>
                     </div>
 
-                    <!-- Server Reports Card -->
-                    <div class="glass-card" style="background: #FFFFFF !important; border: 1.5px solid #E2E8F0 !important; box-shadow: 0 4px 20px rgba(53, 43, 58, 0.04) !important; border-radius: 12px; padding: 25px; margin-bottom: 25px;">
-                        <div style="display: flex; align-items: center; gap: 8px; border-bottom: 1px solid rgba(255,255,255,0.04); padding-bottom: 15px; margin-bottom: 20px;">
-                            <i class="fa-solid fa-file-contract" style="color: #00aff4; font-size: 1.25rem;"></i>
-                            <div>
-                                <h3 style="font-size: 1.05rem; font-weight: 700; color: #0F172A; margin: 0 0 2px 0;">Server reports</h3>
-                                <p style="font-size: 0.8rem; color: var(--text-secondary); margin: 0;">Automatic growth summaries posted to a channel on a schedule.</p>
+                    <!-- 2-Column Reports Layout -->
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; align-items: start;">
+                        
+                        <!-- Left Column: Report Controls & Schedule Settings -->
+                        <div class="glass-card" style="background: #FFFFFF !important; border: 1.5px solid #E2E8F0 !important; border-radius: 14px; padding: 25px; box-shadow: 0 4px 20px rgba(53, 43, 58, 0.04);">
+                            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 20px; border-bottom: 1.5px solid #F1F5F9; padding-bottom: 15px;">
+                                <i class="fa-solid fa-file-contract" style="color: #E11D48; font-size: 1.25rem;"></i>
+                                <h3 style="font-size: 1.15rem; font-weight: 800; color: #0F172A !important; margin: 0;">Report Configuration</h3>
+                            </div>
+
+                            <!-- Automatic Reports Toggle -->
+                            <div style="display: flex; justify-content: space-between; align-items: center; padding: 15px 0; border-bottom: 1.5px solid #F1F5F9;">
+                                <div>
+                                    <div style="font-weight: 800; color: #0F172A; font-size: 0.92rem; margin-bottom: 2px;">Automatic Schedule</div>
+                                    <div style="font-size: 0.8rem; color: #64748B;">Broadcast growth telemetry summaries to your designated channel.</div>
+                                </div>
+                                <label class="switch">
+                                    <input type="checkbox" id="reports-enable-checkbox" onchange="showToast('Reports Updated', 'Automatic server reports status altered.')">
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+
+                            <!-- Report Channel Dropdown -->
+                            <div style="padding: 18px 0; border-bottom: 1.5px solid #F1F5F9;">
+                                <div style="font-weight: 800; color: #0F172A; font-size: 0.92rem; margin-bottom: 4px;">Destination Channel</div>
+                                <div style="font-size: 0.8rem; color: #64748B; margin-bottom: 10px;">Discord channel where the bot posts the rich embed report.</div>
+                                <select class="form-control" style="width: 100%; background: #F8FAFC !important; border: 1.5px solid #CBD5E1 !important; color: #0F172A !important; font-weight: 700; border-radius: 8px; padding: 10px 14px;" id="reports-channel-select">
+                                    <option value=""># Select a channel</option>
+                                    <option value="general">#general</option>
+                                    <option value="announcements">#announcements</option>
+                                </select>
+                            </div>
+
+                            <!-- Frequency Selection Buttons -->
+                            <div style="padding: 18px 0; border-bottom: 1.5px solid #F1F5F9;">
+                                <div style="font-weight: 800; color: #0F172A; font-size: 0.92rem; margin-bottom: 4px;">Broadcast Frequency</div>
+                                <div style="font-size: 0.8rem; color: #64748B; margin-bottom: 12px;">Choose interval. Weekly reports deliver rapid growth velocity metrics.</div>
+                                <div class="report-freq-pill-container" style="display: inline-flex; gap: 4px; background: #F1F5F9; border: 1.5px solid #CBD5E1; padding: 4px; border-radius: 10px; width: 100%;">
+                                    <button id="report-freq-weekly" class="btn-freq active" style="flex: 1; background: #E11D48; color: #FFFFFF; border: none; padding: 9px 16px; border-radius: 7px; font-weight: 800; font-size: 0.82rem; cursor: pointer; box-shadow: 0 2px 8px rgba(225,29,72,0.25); transition: all 0.15s ease;" onclick="selectReportFrequency('weekly')">Weekly <i class="fas fa-bolt" style="color: #EAB308; font-size: 0.72rem; margin-left: 3px;"></i></button>
+                                    <button id="report-freq-monthly" class="btn-freq" style="flex: 1; background: transparent; color: #0F172A; border: none; padding: 9px 16px; border-radius: 7px; font-weight: 700; font-size: 0.82rem; cursor: pointer; transition: all 0.15s ease;" onclick="selectReportFrequency('monthly')">Monthly</button>
+                                </div>
+                            </div>
+
+                            <!-- Actions Row -->
+                            <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 20px;">
+                                <button onclick="saveReportsSettings()" style="width: 100%; font-weight: 800; background: #0F172A; color: #FFFFFF; border: none; border-radius: 8px; font-size: 0.9rem; padding: 12px 20px; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.background='#1E293B'" onmouseout="this.style.background='#0F172A'">
+                                    <i class="fas fa-floppy-disk" style="margin-right: 6px;"></i> Save Reports Configuration
+                                </button>
+                                <button onclick="sendTestReport()" style="width: 100%; font-weight: 800; background: #E11D48; color: #FFFFFF; border: none; border-radius: 8px; font-size: 0.9rem; padding: 12px 20px; cursor: pointer; box-shadow: 0 2px 8px rgba(225,29,72,0.25); transition: all 0.2s;" onmouseover="this.style.background='#BE185D'" onmouseout="this.style.background='#E11D48'">
+                                    <i class="fas fa-paper-plane" style="margin-right: 6px;"></i> Post Live Report to Discord
+                                </button>
                             </div>
                         </div>
 
-                        <!-- Automatic reports toggle -->
-                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 15px 0; border-bottom: 1px solid rgba(255,255,255,0.03); flex-wrap: wrap; gap: 15px;">
-                            <div style="max-width: 600px;">
-                                <div style="font-weight: 700; color: #0F172A; font-size: 0.92rem; margin-bottom: 4px;">Automatic reports</div>
-                                <div style="font-size: 0.8rem; color: var(--text-secondary); line-height: 1.4;">Post a growth summary in a channel: joins, leaves, net growth and your top inviters. The first report arrives shortly after enabling.</div>
+                        <!-- Right Column: Live Visualizer (Pixel-Perfect New Veyra UI Embed) -->
+                        <div class="glass-card" style="background: #FFFFFF !important; border: 1.5px solid #E2E8F0 !important; border-radius: 14px; padding: 25px; box-shadow: 0 4px 20px rgba(53, 43, 58, 0.04);">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <i class="fa-solid fa-chart-column" style="color: #059669; font-size: 1.2rem;"></i>
+                                    <h3 style="font-size: 1.15rem; font-weight: 800; color: #0F172A !important; margin: 0;">Live Embed Visualizer</h3>
+                                </div>
+                                <span style="font-family: var(--font-mono); font-size: 0.72rem; color: #059669; background: #ECFDF5; border: 1px solid #A7F3D0; padding: 2px 8px; border-radius: 6px; font-weight: 800;"><i class="fas fa-circle" style="font-size: 0.5rem; margin-right: 4px;"></i> LIVE TELEMETRY</span>
                             </div>
-                            <label class="switch">
-                                <input type="checkbox" id="reports-enable-checkbox" onchange="showToast('Reports Updated', 'Automatic server reports status altered.')">
-                                <span class="slider"></span>
-                            </label>
-                        </div>
 
-                        <!-- Report channel drop box -->
-                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 15px 0; border-bottom: 1px solid rgba(255,255,255,0.03); flex-wrap: wrap; gap: 15px;">
-                            <div>
-                                <div style="font-weight: 700; color: #0F172A; font-size: 0.92rem; margin-bottom: 4px;">Report channel</div>
-                                <div style="font-size: 0.8rem; color: var(--text-secondary);">The channel the report is posted in.</div>
-                            </div>
-                            <select class="form-control" style="max-width: 250px; background: #FFFFFF !important; border: 1.5px solid #CBD5E1 !important; color: #0F172A !important;" id="reports-channel-select">
-                                <option value=""># Select an option</option>
-                                <option value="general">#general</option>
-                                <option value="announcements">#announcements</option>
-                            </select>
-                        </div>
+                            <!-- Native Discord Message Wrapper -->
+                            <div style="background: #313338; border-radius: 10px; padding: 18px; color: #DBDEE1; font-family: 'gg sans', 'Noto Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif; box-shadow: inset 0 2px 6px rgba(0,0,0,0.25);">
+                                <!-- Message Header -->
+                                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
+                                    <div style="width: 40px; height: 40px; border-radius: 50%; overflow: hidden; background: #1E1F22; flex-shrink: 0; display: flex; align-items: center; justify-content: center;">
+                                        <img src="/assets/veyra-logo.png" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.onerror=null; this.src='https://cdn.discordapp.com/embed/avatars/0.png';">
+                                    </div>
+                                    <div style="display: flex; align-items: baseline; gap: 6px; flex-wrap: wrap;">
+                                        <span style="font-weight: 700; color: #FFFFFF; font-size: 1rem;">VEYRA</span>
+                                        <span style="background: #5865F2; color: #FFFFFF; font-size: 0.62rem; font-weight: 800; padding: 1px 4px; border-radius: 3px; letter-spacing: 0.04em;">APP</span>
+                                        <span style="font-size: 0.75rem; color: #94A3B8;" id="report-preview-header-time">Today at 11:06 AM</span>
+                                    </div>
+                                </div>
 
-                        <!-- Frequency selection buttons -->
-                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 15px 0; border-bottom: 1px solid rgba(255,255,255,0.03); flex-wrap: wrap; gap: 15px;">
-                            <div>
-                                <div style="font-weight: 700; color: #0F172A; font-size: 0.92rem; margin-bottom: 4px;">Frequency</div>
-                                <div style="font-size: 0.8rem; color: var(--text-secondary);">How often the report is sent. Weekly reports are a premium feature.</div>
-                            </div>
-                            <div class="report-freq-pill-container" style="display: inline-flex; gap: 4px; background: #F1F5F9; border: 1.5px solid #CBD5E1; padding: 4px; border-radius: 10px;">
-                                <button id="report-freq-monthly" class="btn-freq active" style="background: #E11D48; color: #FFFFFF; border: none; padding: 7px 20px; border-radius: 7px; font-weight: 800; font-size: 0.82rem; cursor: pointer; box-shadow: 0 2px 8px rgba(225,29,72,0.25); transition: all 0.15s ease;" onclick="selectReportFrequency('monthly')">Monthly</button>
-                                <button id="report-freq-weekly" class="btn-freq" style="background: transparent; color: #0F172A; border: none; padding: 7px 20px; border-radius: 7px; font-weight: 700; font-size: 0.82rem; cursor: pointer; transition: all 0.15s ease;" onclick="selectReportFrequency('weekly')">Weekly <i class="fas fa-bolt" style="color: #EAB308; font-size: 0.72rem; margin-left: 3px;"></i></button>
-                            </div>
-                        </div>
+                                <!-- Discord Embed Body -->
+                                <div style="margin-left: 50px; background: #2B2D31; border-left: 4px solid #E11D48; border-radius: 4px 8px 8px 4px; padding: 14px 16px; position: relative;">
+                                    
+                                    <!-- Title & Thumbnail -->
+                                    <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; margin-bottom: 12px;">
+                                        <div style="font-size: 1rem; font-weight: 700; color: #FFFFFF; line-height: 1.3;" id="report-preview-embed-title">
+                                            📊 VEYRA WEEKLY Server Growth Report
+                                        </div>
+                                        <div id="report-preview-avatar-box" style="width: 48px; height: 48px; border-radius: 8px; overflow: hidden; background: #1E1F22; flex-shrink: 0;">
+                                            <img src="https://cdn.discordapp.com/embed/avatars/1.png" style="width: 100%; height: 100%; object-fit: cover;" id="report-preview-guild-icon">
+                                        </div>
+                                    </div>
 
-                        <!-- What's inside Checklist -->
-                        <div style="padding-top: 15px;">
-                            <div style="font-weight: 700; color: #0F172A; font-size: 0.92rem; margin-bottom: 12px;">What's inside</div>
-                            <p style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 15px;">Premium reports include retention insights, top invite links and a growth graph.</p>
-                            
-                            <div style="display: flex; flex-direction: column; gap: 10px; font-size: 0.85rem;">
-                                <div style="display: flex; align-items: center; gap: 8px; color: #0F172A;">
-                                    <i class="fa-solid fa-circle-check" style="color: #00aff4;"></i> Joins, leaves and net growth
-                                </div>
-                                <div style="display: flex; align-items: center; gap: 8px; color: #0F172A;">
-                                    <i class="fa-solid fa-circle-check" style="color: #00aff4;"></i> Top inviters of the period
-                                </div>
-                                <div style="display: flex; align-items: center; gap: 8px; color: var(--text-secondary);">
-                                    <i class="fas fa-bolt" style="color: #eab308; font-size: 0.85rem; width: 14px; text-align: center;"></i> Member retention rate
-                                </div>
-                                <div style="display: flex; align-items: center; gap: 8px; color: var(--text-secondary);">
-                                    <i class="fas fa-bolt" style="color: #eab308; font-size: 0.85rem; width: 14px; text-align: center;"></i> Top invite links with labels
-                                </div>
-                                <div style="display: flex; align-items: center; gap: 8px; color: var(--text-secondary);">
-                                    <i class="fas fa-bolt" style="color: #eab308; font-size: 0.85rem; width: 14px; text-align: center;"></i> Joins and leaves growth graph
+                                    <!-- Membership Stats Field -->
+                                    <div style="margin-bottom: 12px;">
+                                        <div style="font-weight: 700; color: #FFFFFF; font-size: 0.88rem; margin-bottom: 6px; display: flex; align-items: center; gap: 6px;">
+                                            📈 Membership Stats
+                                        </div>
+                                        <div style="font-size: 0.84rem; line-height: 1.6; color: #DBDEE1;">
+                                            <div>&bull; <strong>Joins:</strong> <span style="background: #1E1F22; border-radius: 3px; padding: 1px 5px; font-family: monospace; color: #F1F5F9; font-weight: 700;" id="report-preview-joins">0</span></div>
+                                            <div>&bull; <strong>Leaves:</strong> <span style="background: #1E1F22; border-radius: 3px; padding: 1px 5px; font-family: monospace; color: #F1F5F9; font-weight: 700;" id="report-preview-leaves">0</span></div>
+                                            <div>&bull; <strong>Net Growth:</strong> <span style="background: #1E1F22; border-radius: 3px; padding: 1px 5px; font-family: monospace; color: #F1F5F9; font-weight: 700;" id="report-preview-net">+0</span></div>
+                                            <div>&bull; <strong>Retention Rate:</strong> <span style="background: #1E1F22; border-radius: 3px; padding: 1px 5px; font-family: monospace; color: #F1F5F9; font-weight: 700;" id="report-preview-retention">0%</span></div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Top Inviters Field -->
+                                    <div style="margin-bottom: 12px;">
+                                        <div style="font-weight: 700; color: #FFFFFF; font-size: 0.88rem; margin-bottom: 4px; display: flex; align-items: center; gap: 6px;">
+                                            🏆 Top Inviters
+                                        </div>
+                                        <div id="report-preview-inviters" style="font-size: 0.84rem; color: #DBDEE1; line-height: 1.5;">
+                                            <strong>1.</strong> @arun.cpp &mdash; <span style="background: #1E1F22; border-radius: 3px; padding: 1px 5px; font-family: monospace; color: #F1F5F9; font-weight: 700;">1</span> invites
+                                        </div>
+                                    </div>
+
+                                    <!-- Growth Chart (ASCII Visualizer) Field -->
+                                    <div style="margin-bottom: 14px;">
+                                        <div style="font-weight: 700; color: #FFFFFF; font-size: 0.88rem; margin-bottom: 6px; display: flex; align-items: center; gap: 6px;">
+                                            📊 Growth Chart (ASCII Visualizer)
+                                        </div>
+                                        <pre id="report-preview-ascii" style="margin: 0; background: #1E1F22; border-radius: 6px; padding: 10px 12px; font-family: 'Consolas', 'Courier New', monospace; font-size: 0.8rem; color: #DBDEE1; line-height: 1.5; overflow-x: auto;">Joins:  [░░░░░░░░░░░░░░] 0
+Leaves: [░░░░░░░░░░░░░░] 0
+Net:    [░░░░░░░░░░░░░░] +0</pre>
+                                    </div>
+
+                                    <!-- Footer -->
+                                    <div style="display: flex; align-items: center; gap: 8px; font-size: 0.72rem; color: #94A3B8; border-top: 1px solid rgba(255,255,255,0.06); padding-top: 8px; margin-top: 6px;">
+                                        <div style="width: 14px; height: 14px; border-radius: 50%; overflow: hidden; background: #E11D48; display: flex; align-items: center; justify-content: center; font-size: 0.55rem; color: #fff; font-weight: 900;">V</div>
+                                        <span>VEYRA Advanced Analytics &bull; Scheduled: <span id="report-preview-freq-text">Weekly</span> &bull; <span id="report-preview-footer-time">Live Sync</span></span>
+                                    </div>
+
                                 </div>
                             </div>
-                            
-                            <!-- Save reports configurations -->
-                            <button onclick="saveReportsSettings()" class="btn-primary" style="width: 100%; font-weight: 700; background: linear-gradient(90deg, #7c3aed, #a855f7); letter-spacing: 0.05em; font-size: 0.95rem; padding: 12px 24px; margin-top: 25px; cursor: pointer;">Save Reports Settings</button>
                         </div>
 
                     </div>
