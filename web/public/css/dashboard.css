@@ -3660,3 +3660,59 @@ input[type="number"]::-webkit-inner-spin-button {
     border-radius: 12px !important;
     box-shadow: 0 8px 24px rgba(0,0,0,0.35) !important;
 }
+
+
+/* High-Contrast Command Registers Filter Buttons */
+#tab-commands .tab-selector button.btn-secondary {
+    background: #F1F5F9 !important;
+    border: 1.5px solid #CBD5E1 !important;
+    color: #0F172A !important;
+    font-weight: 700 !important;
+    border-radius: 20px !important;
+    padding: 7px 18px !important;
+}
+
+#tab-commands .tab-selector button.btn-secondary:hover {
+    background: #E2E8F0 !important;
+    border-color: #94A3B8 !important;
+    color: #0F172A !important;
+}
+
+#tab-commands .tab-selector button.btn-secondary.active {
+    background: #E11D48 !important;
+    border-color: #E11D48 !important;
+    color: #FFFFFF !important;
+    font-weight: 800 !important;
+}
+
+/* High-Contrast Analytics Metric Card Subtext & Axis Labels */
+#tab-analytics .metric-card-dark div {
+    /* Ensure all text inside black metric cards is high contrast */
+}
+
+#tab-analytics #analytics-graph-container span {
+    color: #FFFFFF !important;
+    font-weight: 800 !important;
+}
+
+/* Ticket System High-Contrast Cards */
+#tab-tickets .stat-card,
+#tab-tickets .ticket-counter-card,
+#tab-tickets div[style*="background: rgba(15, 23, 42"],
+#tab-tickets div[style*="background:rgba(15, 23, 42"] {
+    background: #FFFFFF !important;
+    border: 1.5px solid #E2E8F0 !important;
+    border-radius: 14px !important;
+    box-shadow: 0 4px 16px rgba(15, 23, 42, 0.04) !important;
+}
+
+/* High-Contrast Managing Server Badge */
+#managing-server-name {
+    color: #E11D48 !important;
+    font-weight: 800 !important;
+    background: #FFF1F5 !important;
+    padding: 3px 12px !important;
+    border-radius: 8px !important;
+    border: 1.5px solid #FBCFE8 !important;
+    display: inline-block !important;
+}

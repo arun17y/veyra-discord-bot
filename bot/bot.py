@@ -1335,16 +1335,18 @@ def log_system_event(guild_id, user_tag, action, details):
 # --- 2. AUDIT LOG EXECUTOR RESOLUTION ---
 async def get_audit_executor(guild, action_type):
     """
-    Looks up the audit logs to find the executor of the action within the last 5 seconds.
+    Looks up the audit logs to find the executor of the action with fast response and clock-skew tolerance.
     """
-    await asyncio.sleep(1) # wait brief moment for log to write
+    await asyncio.sleep(0.15) # fast minimal non-blocking settle
     now = datetime.now(timezone.utc)
     
     try:
-        async for entry in guild.audit_logs(limit=3, action=action_type):
-            # Check if entry happened within the last 5 seconds
-            delta = now - entry.created_at.replace(tzinfo=timezone.utc)
-            if delta.total_seconds() < 6:
+        async for entry in guild.audit_logs(limit=5, action=action_type):
+            entry_time = entry.created_at
+            if entry_time.tzinfo is None:
+                entry_time = entry_time.replace(tzinfo=timezone.utc)
+            delta = abs((now - entry_time).total_seconds())
+            if delta < 15: # clock-skew tolerant window
                 if entry.user and entry.user.id == bot.user.id:
                     return None
                 return entry.user
@@ -1356,28 +1358,41 @@ async def get_audit_executor(guild, action_type):
 # --- 3. SECURITY PENALTY DISPATCHER ---
 async def apply_penalty(guild, executor, module_name, action_desc, punishment_type):
     """
-    Applies the penalty (Kick, Ban, or Quarantine) to the rogue administrator account.
+    Applies the penalty (Ban, Kick, Timeout, Quarantine/Strip Roles) to the rogue administrator account.
+    Reference: Security-Plus real-time enforcement engine.
     """
-    if executor.id == guild.owner_id:
-        return # owner is immune to penalties
+    if executor.id == guild.owner_id or executor.id == bot.user.id:
+        return # owner and bot immune
         
     try:
-        if punishment_type == 'Ban':
+        p_type = (punishment_type or 'Ban').strip().lower()
+        if p_type == 'ban':
             await guild.ban(executor, reason=f"VEYRA Antinuke: Exceeded {module_name} limit.")
             log_system_event(guild.id, "VEYRA Bot", "Ban Action", f"Banned rogue administrator {executor.name} for {action_desc}")
-            print(f"✅ Banned {executor.name} for {action_desc}")
-        elif punishment_type == 'Kick':
+            print(f"[ANTINUKE] Banned rogue admin {executor.name} for {action_desc}")
+        elif p_type == 'kick':
             await guild.kick(executor, reason=f"VEYRA Antinuke: Exceeded {module_name} limit.")
             log_system_event(guild.id, "VEYRA Bot", "Kick Action", f"Kicked rogue administrator {executor.name} for {action_desc}")
-            print(f"✅ Kicked {executor.name} for {action_desc}")
-        elif punishment_type in ['Quarantine', 'Strip Roles', 'Strip']:
+            print(f"[ANTINUKE] Kicked rogue admin {executor.name} for {action_desc}")
+        elif p_type in ['timeout', 'mute']:
+            from datetime import timedelta
+            try:
+                await executor.timeout(timedelta(days=28), reason=f"VEYRA Antinuke: Exceeded {module_name} limit.")
+                log_system_event(guild.id, "VEYRA Bot", "Timeout Action", f"Timed out rogue administrator {executor.name} for {action_desc}")
+                print(f"[ANTINUKE] Timed out rogue admin {executor.name} for {action_desc}")
+            except Exception as t_err:
+                print(f"[ANTINUKE] Timeout failed ({t_err}), falling back to role strip...")
+                roles_to_remove = [r for r in executor.roles if r < guild.me.top_role and r != guild.default_role]
+                if roles_to_remove:
+                    await executor.remove_roles(*roles_to_remove, reason=f"VEYRA Antinuke: Fallback role strip.")
+        elif p_type in ['quarantine', 'strip roles', 'strip']:
             roles_to_remove = [r for r in executor.roles if r < guild.me.top_role and r != guild.default_role]
             if roles_to_remove:
                 await executor.remove_roles(*roles_to_remove, reason=f"VEYRA Antinuke: Quarantine/Strip roles for exceeding limit.")
                 log_system_event(guild.id, "VEYRA Bot", "Quarantine Action", f"Stripped roles from rogue administrator {executor.name} for {action_desc}")
-                print(f"✅ Stripped roles from {executor.name}")
+                print(f"[ANTINUKE] Stripped roles from rogue admin {executor.name} for {action_desc}")
     except Exception as ex:
-        print(f"❌ Failed to penalize rogue admin {executor}: {ex}")
+        print(f"[ANTINUKE] Failed to penalize rogue admin {executor}: {ex}")
 
 # --- 4. RATE LIMIT & THRESHOLD CHECKER ---
 async def process_rate_limit(guild, executor, db_key, limit_name, count_increment, action_desc):

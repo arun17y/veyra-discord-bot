@@ -5721,7 +5721,7 @@ Support: </pre>
                     
                     <!-- Managing Header -->
                     <div style="text-align: center; margin-bottom: 25px; font-family: var(--font-display); font-size: 1.25rem; color: rgba(255,255,255,0.7); font-weight: 500;">
-                        You are managing <span style="font-weight: 800; color: #0F172A;" id="managing-server-name">GHOST</span>
+                        You are managing <span style="font-weight: 800; color: #E11D48; background: #FFF1F5; padding: 2px 10px; border-radius: 6px; border: 1px solid #FBCFE8;" id="managing-server-name">SERVER</span>
                     </div>
 
                     <!-- Tabs Selector Container -->
@@ -8586,11 +8586,11 @@ We hope to see you back soon!
                         </div>
                         
                         <!-- Toggle Filters -->
-                        <div class="tab-selector" style="display:flex; gap:10px;">
-                            <button class="btn-secondary" onclick="filterCommands('all')" style="padding:6px 14px; font-size:0.8rem;">All</button>
-                            <button class="btn-secondary" onclick="filterCommands('security')" style="padding:6px 14px; font-size:0.8rem;">Security</button>
-                            <button class="btn-secondary" onclick="filterCommands('moderation')" style="padding:6px 14px; font-size:0.8rem;">Moderation</button>
-                            <button class="btn-secondary" onclick="filterCommands('utility')" style="padding:6px 14px; font-size:0.8rem;">Utility</button>
+                        <div class="tab-selector" style="display:flex; gap:8px;">
+                            <button class="btn-secondary active" onclick="filterCommands('all', this)" style="padding:7px 16px; font-size:0.82rem; font-weight: 800; border-radius: 20px; background: #E11D48 !important; color: #FFFFFF !important; border: 1.5px solid #E11D48 !important; cursor: pointer;">All</button>
+                            <button class="btn-secondary" onclick="filterCommands('security', this)" style="padding:7px 16px; font-size:0.82rem; font-weight: 700; border-radius: 20px; background: #F1F5F9 !important; color: #0F172A !important; border: 1.5px solid #CBD5E1 !important; cursor: pointer;">Security</button>
+                            <button class="btn-secondary" onclick="filterCommands('moderation', this)" style="padding:7px 16px; font-size:0.82rem; font-weight: 700; border-radius: 20px; background: #F1F5F9 !important; color: #0F172A !important; border: 1.5px solid #CBD5E1 !important; cursor: pointer;">Moderation</button>
+                            <button class="btn-secondary" onclick="filterCommands('utility', this)" style="padding:7px 16px; font-size:0.82rem; font-weight: 700; border-radius: 20px; background: #F1F5F9 !important; color: #0F172A !important; border: 1.5px solid #CBD5E1 !important; cursor: pointer;">Utility</button>
                         </div>
                     </div>
 

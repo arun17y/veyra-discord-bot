@@ -662,11 +662,19 @@ function loadServerDashboard(guildId) {
     } catch(e) {}
     
     // Find active server and update UI headers dynamically
+    // Persist selected guild ID immediately
+    localStorage.setItem('selected_guild_id', guildId);
+    sessionStorage.setItem('activeGuildId', guildId);
+
     const activeGuild = (window.allGuildsCache || []).find(g => g.id === guildId);
     if (activeGuild) {
         const guildName = activeGuild.name;
+        localStorage.setItem('selected_guild_name', guildName);
         if (document.getElementById('sidebar-guild-name')) {
             document.getElementById('sidebar-guild-name').innerText = guildName;
+        }
+        if (document.getElementById('managing-server-name')) {
+            document.getElementById('managing-server-name').innerText = guildName;
         }
         if (document.getElementById('dashboard-server-name')) {
             document.getElementById('dashboard-server-name').innerText = guildName;
@@ -682,6 +690,7 @@ function loadServerDashboard(guildId) {
         const iconUrl = activeGuild.icon 
             ? `https://cdn.discordapp.com/icons/${activeGuild.id}/${activeGuild.icon}.png?size=128`
             : 'assets/bypass_logs_avatar.webp';
+        try { localStorage.setItem('selected_guild_icon', iconUrl); } catch(e) {}
             
         const headerImg = document.querySelector('#header-server-avatar-img img');
         if (headerImg) headerImg.src = iconUrl;
@@ -1897,10 +1906,33 @@ const commandsData = [
     { name: "space", desc: "Sends a spacer message.", cat: "utility", enabled: true }
 ];
 
-function filterCommands(category) {
+function filterCommands(category, btnElement) {
     const container = document.getElementById('commands-toggle-container');
     if (!container) return;
     container.innerHTML = '';
+    
+    // Toggle active state on category filter buttons
+    const filterBtns = document.querySelectorAll('#tab-commands .tab-selector button');
+    filterBtns.forEach(b => {
+        b.classList.remove('active');
+        b.style.background = '#F1F5F9';
+        b.style.color = '#0F172A';
+        b.style.borderColor = '#CBD5E1';
+    });
+    if (btnElement) {
+        btnElement.classList.add('active');
+        btnElement.style.background = '#E11D48';
+        btnElement.style.color = '#FFFFFF';
+        btnElement.style.borderColor = '#E11D48';
+    } else {
+        const match = Array.from(filterBtns).find(b => b.textContent.toLowerCase().trim() === category.toLowerCase().trim());
+        if (match) {
+            match.classList.add('active');
+            match.style.background = '#E11D48';
+            match.style.color = '#FFFFFF';
+            match.style.borderColor = '#E11D48';
+        }
+    }
     
     commandsData.forEach((cmd, idx) => {
         if (category !== 'all' && cmd.cat !== category) return;
@@ -2411,6 +2443,42 @@ window.initAnimatedRevealFooter = initAnimatedRevealFooter;
 
 // --- 12. INITIALIZATION ON LOAD ---
 document.addEventListener('DOMContentLoaded', () => {
+
+// --- INSTANT PERSISTENT SERVER SELECTION RESTORATION ON LOAD ---
+(function restoreActiveServerInstant() {
+    try {
+        const urlParams = new URLSearchParams(window.location.search);
+        const queryGid = urlParams.get('guild_id');
+        const savedGid = queryGid || localStorage.getItem('selected_guild_id') || sessionStorage.getItem('activeGuildId');
+        const savedName = localStorage.getItem('selected_guild_name');
+        const savedIcon = localStorage.getItem('selected_guild_icon');
+
+        if (savedName) {
+            const sideName = document.getElementById('sidebar-guild-name');
+            if (sideName) sideName.innerText = savedName;
+            const mgName = document.getElementById('managing-server-name');
+            if (mgName) mgName.innerText = savedName;
+            const dsName = document.getElementById('dashboard-server-name');
+            if (dsName) dsName.innerText = savedName;
+            const hdName = document.getElementById('header-server-dropdown-name');
+            if (hdName) hdName.innerText = savedName;
+            const tkName = document.getElementById('tickets-sidebar-guild-name');
+            if (tkName) tkName.innerText = savedName;
+        }
+        if (savedIcon) {
+            const sideImg = document.getElementById('sidebar-guild-avatar-img');
+            if (sideImg) sideImg.src = savedIcon;
+            const tkImg = document.getElementById('tickets-sidebar-guild-icon');
+            if (tkImg) tkImg.src = savedIcon;
+        }
+        // Ensure sidebar server dropdown is closed by default
+        const sDrop = document.getElementById('sidebar-server-dropdown');
+        if (sDrop) sDrop.style.display = 'none';
+        const sChev = document.getElementById('sidebar-guild-chevron');
+        if (sChev) sChev.style.transform = 'rotate(0deg)';
+    } catch(e) {}
+})();
+
     loadActiveTheme();
     filterCommands('all');
     updateEmbedPreview();
@@ -4461,6 +4529,42 @@ function setLeavePresetImage(preset) {
 
 // Initial binding of previews when dashboard is shown
 document.addEventListener('DOMContentLoaded', () => {
+
+// --- INSTANT PERSISTENT SERVER SELECTION RESTORATION ON LOAD ---
+(function restoreActiveServerInstant() {
+    try {
+        const urlParams = new URLSearchParams(window.location.search);
+        const queryGid = urlParams.get('guild_id');
+        const savedGid = queryGid || localStorage.getItem('selected_guild_id') || sessionStorage.getItem('activeGuildId');
+        const savedName = localStorage.getItem('selected_guild_name');
+        const savedIcon = localStorage.getItem('selected_guild_icon');
+
+        if (savedName) {
+            const sideName = document.getElementById('sidebar-guild-name');
+            if (sideName) sideName.innerText = savedName;
+            const mgName = document.getElementById('managing-server-name');
+            if (mgName) mgName.innerText = savedName;
+            const dsName = document.getElementById('dashboard-server-name');
+            if (dsName) dsName.innerText = savedName;
+            const hdName = document.getElementById('header-server-dropdown-name');
+            if (hdName) hdName.innerText = savedName;
+            const tkName = document.getElementById('tickets-sidebar-guild-name');
+            if (tkName) tkName.innerText = savedName;
+        }
+        if (savedIcon) {
+            const sideImg = document.getElementById('sidebar-guild-avatar-img');
+            if (sideImg) sideImg.src = savedIcon;
+            const tkImg = document.getElementById('tickets-sidebar-guild-icon');
+            if (tkImg) tkImg.src = savedIcon;
+        }
+        // Ensure sidebar server dropdown is closed by default
+        const sDrop = document.getElementById('sidebar-server-dropdown');
+        if (sDrop) sDrop.style.display = 'none';
+        const sChev = document.getElementById('sidebar-guild-chevron');
+        if (sChev) sChev.style.transform = 'rotate(0deg)';
+    } catch(e) {}
+})();
+
     // Make sure initial values propagate to the preview screens on render
     setTimeout(() => {
         updateWelcomeLivePreview();
@@ -5611,6 +5715,42 @@ function updateGraphTooltipByIndex(index, maxValCalculated) {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+
+// --- INSTANT PERSISTENT SERVER SELECTION RESTORATION ON LOAD ---
+(function restoreActiveServerInstant() {
+    try {
+        const urlParams = new URLSearchParams(window.location.search);
+        const queryGid = urlParams.get('guild_id');
+        const savedGid = queryGid || localStorage.getItem('selected_guild_id') || sessionStorage.getItem('activeGuildId');
+        const savedName = localStorage.getItem('selected_guild_name');
+        const savedIcon = localStorage.getItem('selected_guild_icon');
+
+        if (savedName) {
+            const sideName = document.getElementById('sidebar-guild-name');
+            if (sideName) sideName.innerText = savedName;
+            const mgName = document.getElementById('managing-server-name');
+            if (mgName) mgName.innerText = savedName;
+            const dsName = document.getElementById('dashboard-server-name');
+            if (dsName) dsName.innerText = savedName;
+            const hdName = document.getElementById('header-server-dropdown-name');
+            if (hdName) hdName.innerText = savedName;
+            const tkName = document.getElementById('tickets-sidebar-guild-name');
+            if (tkName) tkName.innerText = savedName;
+        }
+        if (savedIcon) {
+            const sideImg = document.getElementById('sidebar-guild-avatar-img');
+            if (sideImg) sideImg.src = savedIcon;
+            const tkImg = document.getElementById('tickets-sidebar-guild-icon');
+            if (tkImg) tkImg.src = savedIcon;
+        }
+        // Ensure sidebar server dropdown is closed by default
+        const sDrop = document.getElementById('sidebar-server-dropdown');
+        if (sDrop) sDrop.style.display = 'none';
+        const sChev = document.getElementById('sidebar-guild-chevron');
+        if (sChev) sChev.style.transform = 'rotate(0deg)';
+    } catch(e) {}
+})();
+
     const graphContainer = document.getElementById('analytics-graph-container');
     if (graphContainer) {
         const handleGraphHover = (e) => {
@@ -8586,6 +8726,42 @@ function postMultiEmbedMessage() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+
+// --- INSTANT PERSISTENT SERVER SELECTION RESTORATION ON LOAD ---
+(function restoreActiveServerInstant() {
+    try {
+        const urlParams = new URLSearchParams(window.location.search);
+        const queryGid = urlParams.get('guild_id');
+        const savedGid = queryGid || localStorage.getItem('selected_guild_id') || sessionStorage.getItem('activeGuildId');
+        const savedName = localStorage.getItem('selected_guild_name');
+        const savedIcon = localStorage.getItem('selected_guild_icon');
+
+        if (savedName) {
+            const sideName = document.getElementById('sidebar-guild-name');
+            if (sideName) sideName.innerText = savedName;
+            const mgName = document.getElementById('managing-server-name');
+            if (mgName) mgName.innerText = savedName;
+            const dsName = document.getElementById('dashboard-server-name');
+            if (dsName) dsName.innerText = savedName;
+            const hdName = document.getElementById('header-server-dropdown-name');
+            if (hdName) hdName.innerText = savedName;
+            const tkName = document.getElementById('tickets-sidebar-guild-name');
+            if (tkName) tkName.innerText = savedName;
+        }
+        if (savedIcon) {
+            const sideImg = document.getElementById('sidebar-guild-avatar-img');
+            if (sideImg) sideImg.src = savedIcon;
+            const tkImg = document.getElementById('tickets-sidebar-guild-icon');
+            if (tkImg) tkImg.src = savedIcon;
+        }
+        // Ensure sidebar server dropdown is closed by default
+        const sDrop = document.getElementById('sidebar-server-dropdown');
+        if (sDrop) sDrop.style.display = 'none';
+        const sChev = document.getElementById('sidebar-guild-chevron');
+        if (sChev) sChev.style.transform = 'rotate(0deg)';
+    } catch(e) {}
+})();
+
     setTimeout(renderMultiEmbedCardsUI, 300);
 });
 
@@ -8695,6 +8871,42 @@ document.addEventListener('DOMContentLoaded', () => {
     // Only connect SSE when actively in dashboard workspace
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', () => {
+
+// --- INSTANT PERSISTENT SERVER SELECTION RESTORATION ON LOAD ---
+(function restoreActiveServerInstant() {
+    try {
+        const urlParams = new URLSearchParams(window.location.search);
+        const queryGid = urlParams.get('guild_id');
+        const savedGid = queryGid || localStorage.getItem('selected_guild_id') || sessionStorage.getItem('activeGuildId');
+        const savedName = localStorage.getItem('selected_guild_name');
+        const savedIcon = localStorage.getItem('selected_guild_icon');
+
+        if (savedName) {
+            const sideName = document.getElementById('sidebar-guild-name');
+            if (sideName) sideName.innerText = savedName;
+            const mgName = document.getElementById('managing-server-name');
+            if (mgName) mgName.innerText = savedName;
+            const dsName = document.getElementById('dashboard-server-name');
+            if (dsName) dsName.innerText = savedName;
+            const hdName = document.getElementById('header-server-dropdown-name');
+            if (hdName) hdName.innerText = savedName;
+            const tkName = document.getElementById('tickets-sidebar-guild-name');
+            if (tkName) tkName.innerText = savedName;
+        }
+        if (savedIcon) {
+            const sideImg = document.getElementById('sidebar-guild-avatar-img');
+            if (sideImg) sideImg.src = savedIcon;
+            const tkImg = document.getElementById('tickets-sidebar-guild-icon');
+            if (tkImg) tkImg.src = savedIcon;
+        }
+        // Ensure sidebar server dropdown is closed by default
+        const sDrop = document.getElementById('sidebar-server-dropdown');
+        if (sDrop) sDrop.style.display = 'none';
+        const sChev = document.getElementById('sidebar-guild-chevron');
+        if (sChev) sChev.style.transform = 'rotate(0deg)';
+    } catch(e) {}
+})();
+
             if (sessionStorage.getItem('activeScreen') === 'dashboard') connectSSE();
         });
     } else {
