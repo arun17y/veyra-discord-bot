@@ -3545,3 +3545,118 @@ input[type="number"]::-webkit-inner-spin-button {
     border: 1px solid #FBCFE8 !important;
     display: inline-block !important;
 }
+
+
+/* ==========================================================================
+   GLOBAL DASHBOARD THEME OVERHAUL — HIGH CONTRAST DARK TEXT & BLACK GRAPH
+   ========================================================================== */
+
+/* Universal text hierarchy for dashboard */
+#screen-dashboard,
+#screen-dashboard .tab-pane,
+#screen-dashboard .glass-card,
+#screen-dashboard .dashboard-content,
+#screen-dashboard .main-content {
+    color: #0F172A !important;
+}
+
+/* Headings in dashboard (outside pitch black graph) */
+#screen-dashboard h1:not(#analytics-graph-container *):not(.metric-card-dark *),
+#screen-dashboard h2:not(#analytics-graph-container *):not(.metric-card-dark *),
+#screen-dashboard h3:not(#analytics-graph-container *):not(.metric-card-dark *),
+#screen-dashboard h4:not(#analytics-graph-container *):not(.metric-card-dark *),
+#screen-dashboard h5:not(#analytics-graph-container *):not(.metric-card-dark *),
+#screen-dashboard h6:not(#analytics-graph-container *):not(.metric-card-dark *),
+#screen-dashboard .glass-card h1:not(#analytics-graph-container *):not(.metric-card-dark *),
+#screen-dashboard .glass-card h2:not(#analytics-graph-container *):not(.metric-card-dark *),
+#screen-dashboard .glass-card h3:not(#analytics-graph-container *):not(.metric-card-dark *),
+#screen-dashboard .glass-card h4:not(#analytics-graph-container *):not(.metric-card-dark *),
+#screen-dashboard .glass-card h5:not(#analytics-graph-container *):not(.metric-card-dark *),
+#screen-dashboard .glass-card h6:not(#analytics-graph-container *) {
+    color: #0F172A !important;
+    text-shadow: none !important;
+}
+
+/* Form labels and subtitles */
+#screen-dashboard label:not(#analytics-graph-container *):not(.metric-card-dark *),
+#screen-dashboard .glass-card label:not(#analytics-graph-container *):not(.metric-card-dark *) {
+    color: #0F172A !important;
+    font-weight: 700 !important;
+}
+
+#screen-dashboard p:not(#analytics-graph-container *):not(.metric-card-dark *),
+#screen-dashboard .glass-card p:not(#analytics-graph-container *):not(.metric-card-dark *) {
+    color: #334155 !important;
+}
+
+#screen-dashboard .section-subtitle {
+    color: #475569 !important;
+}
+
+/* Cards on white surface */
+#screen-dashboard .glass-card:not(#analytics-graph-container):not(.metric-card-dark) {
+    background: #FFFFFF !important;
+    border: 1.5px solid #E2E8F0 !important;
+    box-shadow: 0 4px 20px rgba(53, 43, 58, 0.04) !important;
+}
+
+/* Form Controls: Inputs, Selects, Textareas */
+#screen-dashboard input.form-control:not([type="checkbox"]):not([type="radio"]):not(#analytics-graph-container *),
+#screen-dashboard select.form-control:not(#analytics-graph-container *),
+#screen-dashboard textarea.form-control:not(#analytics-graph-container *),
+#screen-dashboard input[type="text"]:not(#analytics-graph-container *),
+#screen-dashboard input[type="number"]:not(#analytics-graph-container *),
+#screen-dashboard input[type="search"]:not(#analytics-graph-container *) {
+    background: #FFFFFF !important;
+    border: 1.5px solid #CBD5E1 !important;
+    color: #0F172A !important;
+}
+
+#screen-dashboard input.form-control:focus,
+#screen-dashboard select.form-control:focus,
+#screen-dashboard textarea.form-control:focus {
+    border-color: #E11D48 !important;
+    box-shadow: 0 0 0 3px rgba(225, 29, 72, 0.12) !important;
+    outline: none !important;
+}
+
+#screen-dashboard select.form-control option {
+    background: #FFFFFF !important;
+    color: #0F172A !important;
+}
+
+#screen-dashboard input::placeholder,
+#screen-dashboard textarea::placeholder {
+    color: #94A3B8 !important;
+}
+
+/* Help & Support Links across all tabs */
+.dash-help-support-link,
+#screen-dashboard a.dash-help-support-link,
+#screen-dashboard a[href*="discord.gg/ghostfamily"] {
+    color: #0F172A !important;
+    font-weight: 700 !important;
+    text-decoration: none !important;
+    transition: color 0.15s ease !important;
+}
+
+.dash-help-support-link:hover,
+#screen-dashboard a.dash-help-support-link:hover,
+#screen-dashboard a[href*="discord.gg/ghostfamily"]:hover {
+    color: #E11D48 !important;
+}
+
+/* Dedicated Analytics Pitch Black Graph & Metric Cards */
+#tab-analytics #analytics-graph-container {
+    background: #000000 !important;
+    border: 1.5px solid #1F222E !important;
+    border-radius: 14px !important;
+    box-shadow: 0 12px 36px rgba(0,0,0,0.45) !important;
+}
+
+#tab-analytics .metric-card-dark {
+    background: #0A0B10 !important;
+    border: 1.5px solid #1F222E !important;
+    border-radius: 12px !important;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.35) !important;
+}
