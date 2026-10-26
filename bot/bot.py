@@ -12503,48 +12503,6 @@ async def on_voice_state_update(member: discord.Member, before: discord.VoiceSta
 
 
 # =========================================================================
-# TTS (TEXT-TO-SPEECH) ENGINE COMMANDS (BOT-ONLY, ZERO DASHBOARD UI)
-# =========================================================================
-# Voice connect/disconnect handled seamlessly by Veyra music core / existing ,join & ,leave
-
-@bot.command(name="speak")
-async def prefix_speak(ctx, *, text: str):
-    if not ctx.author.voice or not ctx.author.voice.channel:
-        return await ctx.send("❌ Join a voice channel first!")
-    vc = ctx.guild.voice_client
-    if not vc:
-        vc = await ctx.author.voice.channel.connect()
-    elif vc.channel.id != ctx.author.voice.channel.id:
-        await vc.move_to(ctx.author.voice.channel)
-
-    try:
-        from gtts import gTTS
-        import tempfile
-        tts = gTTS(text=text, lang="en")
-        temp_audio = tempfile.NamedTemporaryFile(suffix=".mp3", delete=False)
-        tts.save(temp_audio.name)
-        temp_audio.close()
-
-        if vc.is_playing():
-            vc.stop()
-
-        vc.play(discord.FFmpegPCMAudio(temp_audio.name))
-        await ctx.send(f"🗣️ Speaking in **{vc.channel.name}**: *\"{text}\"*")
-    except Exception as e:
-        await ctx.send(f"❌ TTS Error: {e}")
-
-@bot.command(name="ttsstop")
-async def prefix_stop(ctx):
-    if ctx.guild.voice_client and ctx.guild.voice_client.is_playing():
-        ctx.guild.voice_client.stop()
-        await ctx.send("⏹️ Playback stopped.")
-    else:
-        await ctx.send("❌ Nothing is currently playing.")
-
-@bot.command(name="tts")
-async def prefix_tts_help(ctx):
-    await ctx.send("🗣️ **VEYRA TTS Commands:** `,join`, `,leave`, `,say <text>`, `,stop`")
-
 # =========================================================================
 # GIVEAWAYS INTERACTIVE BUTTON ENTRY HANDLER
 # =========================================================================
