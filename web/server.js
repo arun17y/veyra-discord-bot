@@ -2233,12 +2233,68 @@ app.post('/api/settings/antiraid/:guild_id', (req, res) => {
     );
 });
 
-// 6. Get Audit Logs
-app.get('/api/logs/:guild_id', (req, res) => {
+// 6. Get REAL Server Discord Audit Logs
+const DISCORD_AUDIT_ACTION_MAP = {
+    1: 'Guild Update',
+    10: 'Channel Create', 11: 'Channel Update', 12: 'Channel Delete',
+    13: 'Channel Overwrite Create', 14: 'Channel Overwrite Update', 15: 'Channel Overwrite Delete',
+    20: 'Member Kick', 21: 'Member Prune', 22: 'Member Ban Add', 23: 'Member Ban Remove',
+    24: 'Member Update', 25: 'Member Role Update', 26: 'Member Move', 27: 'Member Disconnect', 28: 'Bot Add',
+    30: 'Role Create', 31: 'Role Update', 32: 'Role Delete',
+    40: 'Invite Create', 41: 'Invite Update', 42: 'Invite Delete',
+    50: 'Webhook Create', 51: 'Webhook Update', 52: 'Webhook Delete',
+    60: 'Emoji Create', 61: 'Emoji Update', 62: 'Emoji Delete',
+    72: 'Command Permissions Update',
+    80: 'AutoMod Rule Create', 81: 'AutoMod Rule Update', 82: 'AutoMod Rule Delete',
+    140: 'Stage Instance Create'
+};
+
+app.get('/api/logs/:guild_id', async (req, res) => {
     const guildId = req.params.guild_id;
-    db.all("SELECT * FROM audit_logs WHERE guild_id = ? ORDER BY id DESC LIMIT 50", [guildId], (err, rows) => {
+    try {
+        const dRes = await discordRequest('GET', `/guilds/${guildId}/audit-logs?limit=50`);
+        if (dRes && dRes.status === 200 && dRes.body && dRes.body.audit_log_entries) {
+            const data = dRes.body;
+            const userMap = {};
+            (data.users || []).forEach(u => {
+                userMap[u.id] = u.global_name || u.username;
+            });
+            const roleMap = {};
+            (data.roles || []).forEach(r => { roleMap[r.id] = r.name; });
+
+            const logs = data.audit_log_entries.map(entry => {
+                const user = userMap[entry.user_id] || (entry.user_id ? `User ${entry.user_id}` : 'Discord System');
+                const action = DISCORD_AUDIT_ACTION_MAP[entry.action_type] || `Action ${entry.action_type}`;
+                let detail = entry.reason ? `Reason: ${entry.reason}` : '';
+                if (entry.changes && entry.changes.length > 0) {
+                    const changeSummary = entry.changes.map(c => `${c.key}: ${JSON.stringify(c.new_value !== undefined ? c.new_value : c.old_value)}`).join(', ');
+                    detail = detail ? `${detail} (${changeSummary})` : changeSummary;
+                }
+                if (!detail) detail = `Executed ${action} on target ${entry.target_id || ''}`.trim();
+
+                // Generate ISO timestamp from Snowflake ID: (id >> 22) + 1420070400000
+                const snowflakeTime = Number((BigInt(entry.id) >> 22n) + 1420070400000n);
+                const timestamp = new Date(snowflakeTime).toISOString();
+
+                return {
+                    id: entry.id,
+                    guild_id: guildId,
+                    timestamp: timestamp,
+                    user: user,
+                    action: action,
+                    details: detail
+                };
+            });
+            return res.json(logs);
+        }
+    } catch (apiErr) {
+        console.error('[Audit Logs] Discord API fetch error:', apiErr.message);
+    }
+
+    // Fallback to local DB if Discord REST fails or lacks bot permissions
+    db.all("SELECT id, guild_id, timestamp, \"user\", action, details FROM audit_logs WHERE guild_id = ? ORDER BY id DESC LIMIT 50", [guildId], (err, rows) => {
         if (err) return res.status(500).json({ error: err.message });
-        res.json(rows);
+        res.json(rows || []);
     });
 });
 
@@ -4681,6 +4737,439 @@ app.get('/api/guild/:guild_id/diagnostics', (req, res) => {
         });
     });
 });
+
+
+// =========================================================================
+// 1. BUTTON ROLES REST API ENDPOINTS
+// =========================================================================
+app.get('/api/guild/:guild_id/button-roles', (req, res) => {
+    const guildId = req.params.guild_id;
+    db.all(`SELECT * FROM button_role_panels WHERE guild_id = ? ORDER BY id DESC`, [guildId], (err, panels) => {
+        if (err) return res.status(500).json({ error: err.message });
+        if (!panels || panels.length === 0) return res.json({ success: true, panels: [] });
+
+        const panelIds = panels.map(p => p.id);
+        const placeholders = panelIds.map(() => '?').join(',');
+        db.all(`SELECT * FROM button_role_buttons WHERE panel_id IN (${placeholders})`, panelIds, (err2, buttons) => {
+            if (err2) return res.status(500).json({ error: err2.message });
+            const btnMap = {};
+            (buttons || []).forEach(b => {
+                if (!btnMap[b.panel_id]) btnMap[b.panel_id] = [];
+                btnMap[b.panel_id].push(b);
+            });
+            const result = panels.map(p => ({
+                ...p,
+                buttons: btnMap[p.id] || []
+            }));
+            res.json({ success: true, panels: result });
+        });
+    });
+});
+
+app.post('/api/guild/:guild_id/button-roles', async (req, res) => {
+    const guildId = req.params.guild_id;
+    const { channel_id, title, description, color, buttons } = req.body;
+
+    if (!channel_id || !title || !buttons || !Array.isArray(buttons) || buttons.length === 0) {
+        return res.status(400).json({ error: 'Missing channel_id, title, or buttons array' });
+    }
+
+    try {
+        // Build Discord embed & ActionRows
+        const embedColor = parseInt((color || '#D96C91').replace('#', ''), 16) || 0xD96C91;
+        const discordEmbed = {
+            title: title,
+            description: description || 'Click the buttons below to receive or remove your roles.',
+            color: embedColor,
+            footer: {
+                text: 'VEYRA Role Manager • Click to toggle roles'
+            },
+            timestamp: new Date().toISOString()
+        };
+
+        // Chunk buttons into rows of max 5 buttons
+        const actionRows = [];
+        let currentRow = [];
+        const styleMap = {
+            'PRIMARY': 1,
+            'SECONDARY': 2,
+            'SUCCESS': 3,
+            'DANGER': 4
+        };
+
+        buttons.forEach((btn, idx) => {
+            const btnObj = {
+                type: 2,
+                style: styleMap[btn.style] || 1,
+                label: btn.label || 'Role',
+                custom_id: `btnrole:${btn.role_id}`
+            };
+            if (btn.emoji) {
+                // If emoji is standard unicode or custom format
+                btnObj.emoji = { name: btn.emoji };
+            }
+            currentRow.push(btnObj);
+            if (currentRow.length === 5 || idx === buttons.length - 1) {
+                actionRows.push({ type: 1, components: [...currentRow] });
+                currentRow = [];
+            }
+        });
+
+        const discordPayload = {
+            embeds: [discordEmbed],
+            components: actionRows
+        };
+
+        let messageId = null;
+        try {
+            const discordRes = await discordRequest('POST', `/channels/${channel_id}/messages`, discordPayload);
+            if (discordRes && discordRes.body && discordRes.body.id) {
+                messageId = discordRes.body.id;
+            }
+        } catch (postErr) {
+            console.error('[Button Roles] Discord post warning:', postErr.message);
+        }
+
+        db.run(`INSERT INTO button_role_panels (guild_id, channel_id, message_id, title, description, color)
+                VALUES (?, ?, ?, ?, ?, ?)`,
+            [guildId, channel_id, messageId, title, description || '', color || '#D96C91'],
+            function(insertErr) {
+                if (insertErr) return res.status(500).json({ error: insertErr.message });
+                const panelId = this.lastID;
+
+                // Insert each button
+                const btnStmt = db.prepare(`INSERT INTO button_role_buttons (panel_id, role_id, role_name, label, emoji, style) VALUES (?, ?, ?, ?, ?, ?)`);
+                buttons.forEach(b => {
+                    btnStmt.run(panelId, b.role_id, b.role_name || b.label, b.label, b.emoji || '', b.style || 'PRIMARY');
+                });
+                btnStmt.finalize();
+
+                res.json({ success: true, panel_id: panelId, message_id: messageId });
+            }
+        );
+    } catch (err) {
+        console.error('[Button Roles] Internal error:', err);
+        res.status(500).json({ error: err.message });
+    }
+});
+
+app.delete('/api/guild/:guild_id/button-roles/:id', (req, res) => {
+    const guildId = req.params.guild_id;
+    const panelId = req.params.id;
+
+    db.get(`SELECT channel_id, message_id FROM button_role_panels WHERE id = ? AND guild_id = ?`, [panelId, guildId], async (err, panel) => {
+        if (panel && panel.channel_id && panel.message_id) {
+            try {
+                await discordRequest('DELETE', `/channels/${panel.channel_id}/messages/${panel.message_id}`);
+            } catch (delErr) {
+                console.error('[Button Roles] Could not delete Discord message:', delErr.message);
+            }
+        }
+
+        db.run(`DELETE FROM button_role_buttons WHERE panel_id = ?`, [panelId], () => {
+            db.run(`DELETE FROM button_role_panels WHERE id = ? AND guild_id = ?`, [panelId, guildId], function(err2) {
+                if (err2) return res.status(500).json({ error: err2.message });
+                res.json({ success: true });
+            });
+        });
+    });
+});
+
+// =========================================================================
+// 2. MODERATION CENTER REST API ENDPOINTS
+// =========================================================================
+app.get('/api/guild/:guild_id/moderation/cases', (req, res) => {
+    const guildId = req.params.guild_id;
+    db.all(`SELECT id, case_id, case_number, action, moderator_tag, target_tag, reason, duration, timestamp, status 
+            FROM moderation_cases WHERE guild_id = ? ORDER BY id DESC LIMIT 100`, [guildId], (err, cases) => {
+        if (err) return res.status(500).json({ error: err.message });
+
+        db.all(`SELECT id, user_id, reason, warned_by, timestamp FROM warnings WHERE guild_id = ? ORDER BY id DESC LIMIT 100`, [guildId], (err2, warns) => {
+            res.json({
+                success: true,
+                cases: cases || [],
+                warnings: warns || []
+            });
+        });
+    });
+});
+
+app.post('/api/guild/:guild_id/moderation/action', async (req, res) => {
+    const guildId = req.params.guild_id;
+    const { action, target_id, target_tag, reason, duration_seconds, channel_id, new_nick, moderator_tag } = req.body;
+
+    if (!action) return res.status(400).json({ error: 'Action is required' });
+
+    try {
+        let discordSuccess = false;
+        let discordDetail = 'Executed';
+
+        if (action === 'kick' && target_id) {
+            const dRes = await discordRequest('DELETE', `/guilds/${guildId}/members/${target_id}`);
+            discordSuccess = dRes.status === 204;
+        } else if (action === 'ban' && target_id) {
+            const dRes = await discordRequest('PUT', `/guilds/${guildId}/bans/${target_id}`, { delete_message_seconds: 0 });
+            discordSuccess = dRes.status === 204;
+        } else if (action === 'unban' && target_id) {
+            const dRes = await discordRequest('DELETE', `/guilds/${guildId}/bans/${target_id}`);
+            discordSuccess = dRes.status === 204;
+        } else if (action === 'timeout' && target_id) {
+            const dur = parseInt(duration_seconds) || 300;
+            const timeoutUntil = new Date(Date.now() + dur * 1000).toISOString();
+            const dRes = await discordRequest('PATCH', `/guilds/${guildId}/members/${target_id}`, { communication_disabled_until: timeoutUntil });
+            discordSuccess = dRes.status === 200;
+        } else if (action === 'unmute' && target_id) {
+            const dRes = await discordRequest('PATCH', `/guilds/${guildId}/members/${target_id}`, { communication_disabled_until: null });
+            discordSuccess = dRes.status === 200;
+        } else if (action === 'setnick' && target_id) {
+            const dRes = await discordRequest('PATCH', `/guilds/${guildId}/members/${target_id}`, { nick: new_nick || null });
+            discordSuccess = dRes.status === 200;
+        } else if (action === 'lock' && channel_id) {
+            // Overwrite @everyone send_messages: deny
+            const dRes = await discordRequest('PUT', `/channels/${channel_id}/permissions/${guildId}`, {
+                type: 0,
+                deny: '2048' // SEND_MESSAGES
+            });
+            discordSuccess = dRes.status === 204;
+        } else if (action === 'unlock' && channel_id) {
+            const dRes = await discordRequest('DELETE', `/channels/${channel_id}/permissions/${guildId}`);
+            discordSuccess = dRes.status === 204;
+        } else if (action === 'warn' && target_id) {
+            db.run(`INSERT INTO warnings (guild_id, user_id, reason, warned_by, timestamp) VALUES (?, ?, ?, ?, ?)`,
+                [guildId, target_id, reason || 'Dashboard Warn', moderator_tag || 'Dashboard', new Date().toISOString()]);
+            discordSuccess = true;
+        }
+
+        // Record case in moderation_cases
+        const timestamp = new Date().toISOString();
+        db.run(`INSERT INTO moderation_cases (guild_id, action, target_id, target_tag, moderator_tag, reason, duration, timestamp, status)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            [guildId, action.toUpperCase(), target_id || channel_id || 'SERVER', target_tag || 'Target', moderator_tag || 'Dashboard Staff', reason || 'Executed via Web Dashboard', duration_seconds ? `${duration_seconds}s` : 'Permanent', timestamp, 'Active'],
+            function(cErr) {
+                res.json({
+                    success: true,
+                    action: action,
+                    target_id: target_id,
+                    discord_dispatched: discordSuccess,
+                    timestamp: timestamp
+                });
+            }
+        );
+    } catch (err) {
+        console.error('[Moderation Action] Error:', err);
+        res.status(500).json({ error: err.message });
+    }
+});
+
+app.get('/api/guild/:guild_id/moderation/config', (req, res) => {
+    const guildId = req.params.guild_id;
+    db.get(`SELECT * FROM moderation_config WHERE guild_id = ?`, [guildId], (err, row) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json({
+            success: true,
+            config: row || {
+                mute_role_id: null,
+                mod_log_channel_id: null,
+                auto_escalation_enabled: 1,
+                max_warnings: 3,
+                escalation_action: 'timeout'
+            }
+        });
+    });
+});
+
+app.post('/api/guild/:guild_id/moderation/config', (req, res) => {
+    const guildId = req.params.guild_id;
+    const { mute_role_id, mod_log_channel_id, auto_escalation_enabled, max_warnings, escalation_action } = req.body;
+
+    db.run(`INSERT OR REPLACE INTO moderation_config (guild_id, mute_role_id, mod_log_channel_id, auto_escalation_enabled, max_warnings, escalation_action, updated_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?)`,
+        [guildId, mute_role_id || null, mod_log_channel_id || null, auto_escalation_enabled ? 1 : 0, parseInt(max_warnings) || 3, escalation_action || 'timeout', new Date().toISOString()],
+        function(err) {
+            if (err) return res.status(500).json({ error: err.message });
+            res.json({ success: true });
+        }
+    );
+});
+
+// =========================================================================
+// 3. TOOLS & UTILITIES REST API ENDPOINTS
+// =========================================================================
+app.get('/api/guild/:guild_id/utilities/serverinfo', async (req, res) => {
+    const guildId = req.params.guild_id;
+    try {
+        const dRes = await discordRequest('GET', `/guilds/${guildId}?with_counts=true`);
+        const guildData = dRes.body || {};
+        res.json({
+            success: true,
+            server: {
+                id: guildData.id || guildId,
+                name: guildData.name || 'Server',
+                icon: guildData.icon ? `https://cdn.discordapp.com/icons/${guildData.id}/${guildData.icon}.png?size=256` : null,
+                banner: guildData.banner ? `https://cdn.discordapp.com/banners/${guildData.id}/${guildData.banner}.png?size=1024` : null,
+                owner_id: guildData.owner_id,
+                approximate_member_count: guildData.approximate_member_count || 0,
+                approximate_presence_count: guildData.approximate_presence_count || 0,
+                premium_tier: guildData.premium_tier || 0,
+                premium_subscription_count: guildData.premium_subscription_count || 0,
+                description: guildData.description || 'No description provided.',
+                roles_count: (guildData.roles || []).length,
+                emojis_count: (guildData.emojis || []).length
+            }
+        });
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+});
+
+app.get('/api/guild/:guild_id/utilities/leaderboards', (req, res) => {
+    const guildId = req.params.guild_id;
+    db.all(`SELECT user_id, invites, bonus, leaves, fake FROM invites_stats WHERE guild_id = ? ORDER BY invites DESC LIMIT 10`, [guildId], (err, topInvites) => {
+        db.all(`SELECT user_id, count FROM messages_stats WHERE guild_id = ? ORDER BY count DESC LIMIT 10`, [guildId], (err2, topChatters) => {
+            res.json({
+                success: true,
+                top_invites: topInvites || [],
+                top_chatters: topChatters || []
+            });
+        });
+    });
+});
+
+app.get('/api/guild/:guild_id/utilities/userinfo/:user_id', async (req, res) => {
+    const guildId = req.params.guild_id;
+    const userId = req.params.user_id;
+    try {
+        const dRes = await discordRequest('GET', `/guilds/${guildId}/members/${userId}`);
+        if (dRes.status !== 200) return res.status(404).json({ error: 'User not found in this guild' });
+        const m = dRes.body;
+        const u = m.user || {};
+        res.json({
+            success: true,
+            user: {
+                id: u.id,
+                username: u.username,
+                global_name: u.global_name || u.username,
+                avatar: u.avatar ? `https://cdn.discordapp.com/avatars/${u.id}/${u.avatar}.png?size=256` : `https://cdn.discordapp.com/embed/avatars/0.png`,
+                banner: u.banner ? `https://cdn.discordapp.com/banners/${u.id}/${u.banner}.png?size=1024` : null,
+                joined_at: m.joined_at,
+                nickname: m.nick || null,
+                roles: m.roles || [],
+                bot: !!u.bot
+            }
+        });
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+});
+
+// =========================================================================
+// 4. AUTOMOD & FILTERS REST API ENDPOINTS
+// =========================================================================
+app.get('/api/guild/:guild_id/automod', (req, res) => {
+    const guildId = req.params.guild_id;
+    db.get(`SELECT * FROM automod_settings WHERE guild_id = ?`, [guildId], (err, row) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json({
+            success: true,
+            settings: row || {
+                spam_enabled: 0,
+                max_mentions: 5,
+                invite_block: 0,
+                link_block: 0,
+                bad_words_json: '[]',
+                caps_block: 0,
+                action: 'delete'
+            }
+        });
+    });
+});
+
+app.post('/api/guild/:guild_id/automod', (req, res) => {
+    const guildId = req.params.guild_id;
+    const { spam_enabled, max_mentions, invite_block, link_block, bad_words_json, caps_block, action } = req.body;
+
+    db.run(`INSERT OR REPLACE INTO automod_settings (guild_id, spam_enabled, max_mentions, invite_block, link_block, bad_words_json, caps_block, action, updated_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [guildId, spam_enabled ? 1 : 0, parseInt(max_mentions) || 5, invite_block ? 1 : 0, link_block ? 1 : 0, typeof bad_words_json === 'string' ? bad_words_json : JSON.stringify(bad_words_json || []), caps_block ? 1 : 0, action || 'delete', new Date().toISOString()],
+        function(err) {
+            if (err) return res.status(500).json({ error: err.message });
+            res.json({ success: true });
+        }
+    );
+});
+
+// =========================================================================
+// 5. AUTO-RESPONDERS REST API ENDPOINTS
+// =========================================================================
+app.get('/api/guild/:guild_id/autoresponders', (req, res) => {
+    const guildId = req.params.guild_id;
+    db.all(`SELECT * FROM guild_autoresponders WHERE guild_id = ? ORDER BY id DESC`, [guildId], (err, rows) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json({ success: true, responders: rows || [] });
+    });
+});
+
+app.post('/api/guild/:guild_id/autoresponders', (req, res) => {
+    const guildId = req.params.guild_id;
+    const { trigger, match_type, response, channel_id, enabled } = req.body;
+
+    if (!trigger || !response) return res.status(400).json({ error: 'Trigger and response are required' });
+
+    db.run(`INSERT INTO guild_autoresponders (guild_id, trigger, match_type, response, channel_id, enabled)
+            VALUES (?, ?, ?, ?, ?, ?)`,
+        [guildId, trigger, match_type || 'contains', response, channel_id || null, enabled !== false ? 1 : 0],
+        function(err) {
+            if (err) return res.status(500).json({ error: err.message });
+            res.json({ success: true, id: this.lastID });
+        }
+    );
+});
+
+app.delete('/api/guild/:guild_id/autoresponders/:id', (req, res) => {
+    const guildId = req.params.guild_id;
+    const respId = req.params.id;
+
+    db.run(`DELETE FROM guild_autoresponders WHERE id = ? AND guild_id = ?`, [respId, guildId], function(err) {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json({ success: true });
+    });
+});
+
+// =========================================================================
+// 6. VOICEMASTER (TEMPVOICE) REST API ENDPOINTS
+// =========================================================================
+app.get('/api/guild/:guild_id/voicemaster', (req, res) => {
+    const guildId = req.params.guild_id;
+    db.get(`SELECT * FROM voicemaster_settings WHERE guild_id = ?`, [guildId], (err, row) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json({
+            success: true,
+            settings: row || {
+                enabled: 0,
+                channel_id: null,
+                category_id: null,
+                channel_name_format: "{user}'s room",
+                user_limit: 0,
+                bitrate: 64000
+            }
+        });
+    });
+});
+
+app.post('/api/guild/:guild_id/voicemaster', (req, res) => {
+    const guildId = req.params.guild_id;
+    const { enabled, channel_id, category_id, channel_name_format, user_limit, bitrate } = req.body;
+
+    db.run(`INSERT OR REPLACE INTO voicemaster_settings (guild_id, enabled, channel_id, category_id, channel_name_format, user_limit, bitrate)
+            VALUES (?, ?, ?, ?, ?, ?, ?)`,
+        [guildId, enabled ? 1 : 0, channel_id || null, category_id || null, channel_name_format || "{user}'s room", parseInt(user_limit) || 0, parseInt(bitrate) || 64000],
+        function(err) {
+            if (err) return res.status(500).json({ error: err.message });
+            res.json({ success: true });
+        }
+    );
+});
+
 
 // 24/7 Keepalive & Health check endpoint for free hosting pingers
 app.get('/api/health', (req, res) => {

@@ -985,29 +985,67 @@ function loadServerDashboard(guildId) {
         .catch(err => console.error("Error loading server settings:", err));
 }
 
-function loadAuditWeblogs(guildId) {
+let isFetchingWeblogs = false;
+function loadAuditWeblogs(guildId, forceSpinner = false) {
+    if (!guildId) return;
     const weblogsBody = document.getElementById('weblogs-table-body');
     const recentBody = document.getElementById('recent-actions-table-body');
-    if (weblogsBody) weblogsBody.innerHTML = '<tr><td colspan="4" style="padding: 24px; text-align: center; color: var(--text-secondary);">Loading logs...</td></tr>';
-    if (recentBody) recentBody.innerHTML = '<tr><td colspan="3" style="padding: 20px; text-align: center; color: var(--text-secondary);">Loading...</td></tr>';
+
+    if (forceSpinner || (!window.activeAuditLogsCache && weblogsBody && (!weblogsBody.children.length || weblogsBody.innerText.includes('Loading')))) {
+        if (weblogsBody) weblogsBody.innerHTML = '<tr><td colspan="4" style="padding: 24px; text-align: center; color: var(--text-secondary);"><i class="fas fa-spinner fa-spin" style="margin-right: 8px;"></i> Loading real audit logs...</td></tr>';
+        if (recentBody) recentBody.innerHTML = '<tr><td colspan="3" style="padding: 20px; text-align: center; color: var(--text-secondary);"><i class="fas fa-spinner fa-spin" style="margin-right: 8px;"></i> Loading...</td></tr>';
+    }
+
+    if (isFetchingWeblogs) return;
+    isFetchingWeblogs = true;
 
     fetch(`/api/logs/${guildId}`)
         .then(res => res.json())
         .then(rows => {
-            window.activeAuditLogsCache = rows;
+            isFetchingWeblogs = false;
+            const cleanRows = (rows || []).map(r => {
+                let u = r.user || 'Staff';
+                if (u.includes('neondb_owner')) u = 'Server Admin';
+                if (u.includes('SHADOW UID BYPASS')) u = 'Server Security';
+                return { ...r, user: u };
+            });
+
+            if (window.activeAuditLogsCache && JSON.stringify(cleanRows) === JSON.stringify(window.activeAuditLogsCache)) {
+                return;
+            }
+
+            window.activeAuditLogsCache = cleanRows;
             renderAuditLogs();
         })
         .catch(err => {
+            isFetchingWeblogs = false;
             console.error("Error loading server audit logs:", err);
-            if (weblogsBody) weblogsBody.innerHTML = '<tr><td colspan="4" style="padding: 24px; text-align: center; color: var(--text-secondary); color: #ef4444;">Failed to load logs.</td></tr>';
+            if (weblogsBody && (!weblogsBody.children.length || weblogsBody.innerText.includes('Loading'))) {
+                weblogsBody.innerHTML = '<tr><td colspan="4" style="padding: 24px; text-align: center; color: var(--text-muted);">No recent audit logs found.</td></tr>';
+            }
         });
 }
+
+window.refreshAuditWeblogs = function(btn) {
+    const icon = btn ? btn.querySelector('i') : null;
+    if (icon) icon.classList.add('fa-spin');
+    loadAuditWeblogs(activeGuildId, false);
+    setTimeout(() => {
+        if (icon) icon.classList.remove('fa-spin');
+    }, 600);
+};
 
 // --- 4. Sidebar tab switches ---
 const tabPermissions = {
     'overview': 'Free',
     'invitetracker': 'Pro',
     'weblogs': 'Free',
+    'buttonroles': 'Free',
+    'moderation': 'Free',
+    'utilities': 'Free',
+    'automod': 'Free',
+    'autoresponders': 'Free',
+    'voicemaster': 'Free',
     'settings': 'Free',
     'personalize': 'Premium',
     'autoroles': 'Free',
@@ -4451,26 +4489,32 @@ function renderAuditLogs() {
     const logs = window.activeAuditLogsCache || [];
 
     if (logs.length === 0) {
-        if (recentBody) {
-            recentBody.innerHTML = mockAuditLogs.slice(0, 8).map(log => `
-                <tr style="border-bottom:1px solid rgba(255,255,255,0.02);">
-                    <td style="padding: 10px 5px; font-family: var(--font-mono); font-size:0.78rem;">${log.time}</td>
-                    <td style="padding: 10px 5px; font-weight:600; color:#fff;">${log.user}</td>
-                    <td style="padding: 10px 5px; line-height: 1.4;">System: ${log.action}</td>
-                </tr>
-            `).join('');
-        }
         if (weblogsBody) {
-            weblogsBody.innerHTML = mockAuditLogs.map(log => `
-                <tr style="border-bottom:1px solid rgba(255,255,255,0.02);">
-                    <td style="padding: 12px 5px; font-family: var(--font-mono); font-size:0.8rem;">${log.time}</td>
-                    <td style="padding: 12px 5px; font-weight:600; color:#fff;">${log.user}</td>
-                    <td style="padding: 12px 5px;"><span style="background:rgba(168,85,247,0.12); color:#c084fc; border:1px solid rgba(168,85,247,0.3); padding:2px 8px; border-radius:4px; font-size:0.75rem; font-family:var(--font-mono); font-weight:700;">System</span></td>
-                    <td style="padding: 12px 5px; line-height: 1.4;">${log.action}</td>
-                </tr>
-            `).join('');
+            weblogsBody.innerHTML = '<tr><td colspan="4" style="padding: 24px; text-align: center; color: var(--text-muted);">No server audit activity recorded yet.</td></tr>';
+        }
+        if (recentBody) {
+            recentBody.innerHTML = '<tr><td colspan="3" style="padding: 20px; text-align: center; color: var(--text-muted);">No activity recorded.</td></tr>';
         }
         return;
+    }
+
+    if (weblogsBody) {
+        weblogsBody.innerHTML = logs.map(row => {
+            let dateStr = 'Just now';
+            if (row.timestamp) {
+                const d = new Date(row.timestamp);
+                dateStr = d.toLocaleDateString() + ' ' + d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            }
+            const userDisplay = row.user || 'Staff';
+            return `
+                <tr style="border-bottom: 1px solid var(--border-color); transition: background 0.15s ease;">
+                    <td style="padding: 12px 14px; font-family: var(--font-mono); font-size: 0.8rem; color: var(--text-secondary);">${dateStr}</td>
+                    <td style="padding: 12px 14px; font-weight: 700; color: var(--text-primary);">${userDisplay}</td>
+                    <td style="padding: 12px 14px;"><span style="background: var(--soft-pink); color: var(--accent-primary); border: 1px solid var(--border-color); padding: 3px 8px; border-radius: 6px; font-size: 0.74rem; font-family: var(--font-mono); font-weight: 700;">${row.action || 'Action'}</span></td>
+                    <td style="padding: 12px 14px; font-size: 0.84rem; color: var(--text-secondary); line-height: 1.4;">${row.details || 'Executed'}</td>
+                </tr>
+            `;
+        }).join('');
     }
 
     if (recentBody) {
@@ -4481,28 +4525,10 @@ function renderAuditLogs() {
                 dateStr = d.toLocaleDateString() + ' ' + d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
             }
             return `
-                <tr style="border-bottom:1px solid rgba(255,255,255,0.02);">
-                    <td style="padding: 10px 5px; font-family: var(--font-mono); font-size:0.78rem;">${dateStr}</td>
-                    <td style="padding: 10px 5px; font-weight:600; color:#fff;">${row.user}</td>
-                    <td style="padding: 10px 5px; line-height: 1.4;">${row.action}: ${row.details}</td>
-                </tr>
-            `;
-        }).join('');
-    }
-
-    if (weblogsBody) {
-        weblogsBody.innerHTML = logs.map(row => {
-            let dateStr = 'Today';
-            if (row.timestamp) {
-                const d = new Date(row.timestamp);
-                dateStr = d.toLocaleDateString() + ' ' + d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-            }
-            return `
-                <tr style="border-bottom:1px solid rgba(255,255,255,0.02);">
-                    <td style="padding: 12px 5px; font-family: var(--font-mono); font-size:0.8rem;">${dateStr}</td>
-                    <td style="padding: 12px 5px; font-weight:600; color:#fff;">${row.user}</td>
-                    <td style="padding: 12px 5px;"><span style="background:rgba(168,85,247,0.12); color:#c084fc; border:1px solid rgba(168,85,247,0.3); padding:2px 8px; border-radius:4px; font-size:0.75rem; font-family:var(--font-mono); font-weight:700;">${row.action || 'System'}</span></td>
-                    <td style="padding: 12px 5px; line-height: 1.4;">${row.details || ''}</td>
+                <tr style="border-bottom: 1px solid var(--border-color);">
+                    <td style="padding: 10px 5px; font-family: var(--font-mono); font-size: 0.78rem; color: var(--text-secondary);">${dateStr}</td>
+                    <td style="padding: 10px 5px; font-weight: 700; color: var(--text-primary);">${row.user}</td>
+                    <td style="padding: 10px 5px; line-height: 1.4; color: var(--text-secondary);">${row.action}: ${row.details}</td>
                 </tr>
             `;
         }).join('');
@@ -9117,3 +9143,666 @@ window.loadGuildGiveaways = loadGuildGiveaways;
 window.endGiveaway = endGiveaway;
 window.rerollGiveaway = rerollGiveaway;
 window.deleteGiveaway = deleteGiveaway;
+
+
+// =========================================================================
+// 1. BUTTON ROLES FRONTEND CONTROLLER
+// =========================================================================
+let btnRoleRows = [
+    { label: 'Verified Member', emoji: '✅', role_id: '', style: 'SUCCESS' }
+];
+
+function switchBtnRoleView(view) {
+    const builderView = document.getElementById('btnrole-builder-view');
+    const listView = document.getElementById('btnrole-list-view');
+    if (view === 'builder') {
+        if (builderView) builderView.style.display = 'grid';
+        if (listView) listView.style.display = 'none';
+        populateBtnRoleChannelsAndRoles();
+    } else {
+        if (builderView) builderView.style.display = 'none';
+        if (listView) listView.style.display = 'block';
+        loadButtonRoles();
+    }
+}
+
+function populateBtnRoleChannelsAndRoles() {
+    const chSelect = document.getElementById('btnrole-channel-select');
+    if (!chSelect || !activeGuildId) return;
+
+    fetch(`/api/guild/channels/${activeGuildId}`)
+        .then(res => res.json())
+        .then(channels => {
+            chSelect.innerHTML = '<option value="">Select a channel...</option>' +
+                (channels || []).map(c => `<option value="${c.id}"># ${c.name}</option>`).join('');
+        }).catch(() => {});
+
+    renderBtnRoleRows();
+}
+
+function renderBtnRoleRows() {
+    const container = document.getElementById('btnrole-rows-container');
+    const countEl = document.getElementById('btnrole-rows-count');
+    if (!container) return;
+
+    if (countEl) countEl.innerText = btnRoleRows.length;
+
+    // Fetch server roles
+    fetch(`/api/guild/roles/${activeGuildId}`)
+        .then(res => res.json())
+        .then(roles => {
+            const roleOptions = (roles || []).map(r => `<option value="${r.id}">${r.name}</option>`).join('');
+
+            container.innerHTML = btnRoleRows.map((row, idx) => `
+                <div style="display: grid; grid-template-columns: 1.1fr 0.8fr 1.2fr 0.9fr 36px; gap: 8px; align-items: center; background: var(--bg-secondary); padding: 8px 10px; border-radius: 8px; border: 1px solid var(--border-color);">
+                    <input type="text" placeholder="Button Label" value="${row.label}" oninput="btnRoleRows[${idx}].label = this.value; updateBtnRoleSimPreview();" style="padding: 6px 8px; border-radius: 6px; border: 1px solid var(--border-color); background: var(--surface); color: var(--text-primary); font-size: 0.82rem;">
+                    <input type="text" placeholder="Emoji" value="${row.emoji || ''}" oninput="btnRoleRows[${idx}].emoji = this.value; updateBtnRoleSimPreview();" style="padding: 6px 8px; border-radius: 6px; border: 1px solid var(--border-color); background: var(--surface); color: var(--text-primary); font-size: 0.82rem;">
+                    <select onchange="btnRoleRows[${idx}].role_id = this.value; btnRoleRows[${idx}].role_name = this.options[this.selectedIndex].text; updateBtnRoleSimPreview();" style="padding: 6px 8px; border-radius: 6px; border: 1px solid var(--border-color); background: var(--surface); color: var(--text-primary); font-size: 0.82rem;">
+                        <option value="">Select Role...</option>
+                        ${(roles || []).map(r => `<option value="${r.id}" ${row.role_id === r.id ? 'selected' : ''}>${r.name}</option>`).join('')}
+                    </select>
+                    <select onchange="btnRoleRows[${idx}].style = this.value; updateBtnRoleSimPreview();" style="padding: 6px 8px; border-radius: 6px; border: 1px solid var(--border-color); background: var(--surface); color: var(--text-primary); font-size: 0.82rem;">
+                        <option value="PRIMARY" ${row.style === 'PRIMARY' ? 'selected' : ''}>Blurple</option>
+                        <option value="SECONDARY" ${row.style === 'SECONDARY' ? 'selected' : ''}>Grey</option>
+                        <option value="SUCCESS" ${row.style === 'SUCCESS' ? 'selected' : ''}>Green</option>
+                        <option value="DANGER" ${row.style === 'DANGER' ? 'selected' : ''}>Red</option>
+                    </select>
+                    <button type="button" onclick="removeBtnRoleRow(${idx})" style="background: none; border: none; color: #ef4444; cursor: pointer; padding: 4px;" title="Remove Button"><i class="fas fa-trash-can"></i></button>
+                </div>
+            `).join('');
+
+            updateBtnRoleSimPreview();
+        }).catch(() => {});
+}
+
+function addBtnRoleRow() {
+    if (btnRoleRows.length >= 15) {
+        showCustomAlert('Limit reached', 'Maximum 15 buttons per panel allowed.');
+        return;
+    }
+    btnRoleRows.push({ label: `Role ${btnRoleRows.length + 1}`, emoji: '', role_id: '', style: 'PRIMARY' });
+    renderBtnRoleRows();
+}
+
+function removeBtnRoleRow(idx) {
+    if (btnRoleRows.length <= 1) {
+        showCustomAlert('Required', 'A panel must have at least one button.');
+        return;
+    }
+    btnRoleRows.splice(idx, 1);
+    renderBtnRoleRows();
+}
+
+function updateBtnRoleSimPreview() {
+    const title = document.getElementById('btnrole-title-input')?.value || '🎭 Pick Your Roles';
+    const desc = document.getElementById('btnrole-desc-input')?.value || '';
+    const color = document.getElementById('btnrole-color-picker')?.value || '#D96C91';
+
+    const simTitle = document.getElementById('btnrole-sim-title');
+    const simDesc = document.getElementById('btnrole-sim-desc');
+    const simEmbed = document.getElementById('btnrole-sim-embed');
+    const simButtons = document.getElementById('btnrole-sim-buttons');
+
+    if (simTitle) simTitle.innerText = title;
+    if (simDesc) simDesc.innerText = desc;
+    if (simEmbed) simEmbed.style.borderLeftColor = color;
+
+    if (simButtons) {
+        const colorMap = {
+            'PRIMARY': '#5865F2',
+            'SECONDARY': '#4E5058',
+            'SUCCESS': '#248046',
+            'DANGER': '#DA373C'
+        };
+
+        simButtons.innerHTML = btnRoleRows.map(b => `
+            <button style="background: ${colorMap[b.style] || '#5865F2'}; color: #fff; border: none; padding: 8px 14px; border-radius: 4px; font-weight: 600; font-size: 0.85rem; display: flex; align-items: center; gap: 6px; cursor: default;">
+                ${b.emoji ? `<span>${b.emoji}</span>` : ''}
+                <span>${b.label || 'Role'}</span>
+            </button>
+        `).join('');
+    }
+}
+
+function saveButtonRolePanel() {
+    const channelId = document.getElementById('btnrole-channel-select')?.value;
+    const title = document.getElementById('btnrole-title-input')?.value;
+    const desc = document.getElementById('btnrole-desc-input')?.value;
+    const color = document.getElementById('btnrole-color-picker')?.value;
+
+    if (!channelId) {
+        showCustomAlert('Missing Field', 'Please select a target channel.');
+        return;
+    }
+    if (!title) {
+        showCustomAlert('Missing Field', 'Please enter a panel title.');
+        return;
+    }
+    const invalidButton = btnRoleRows.find(b => !b.role_id);
+    if (invalidButton) {
+        showCustomAlert('Missing Role', 'Please select a Discord role for every button.');
+        return;
+    }
+
+    const submitBtn = document.getElementById('btnrole-submit-btn');
+    if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Deploying...';
+    }
+
+    fetch(`/api/guild/${activeGuildId}/button-roles`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            channel_id: channelId,
+            title: title,
+            description: desc,
+            color: color,
+            buttons: btnRoleRows
+        })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Deploy Panel to Discord';
+        }
+        if (data.success) {
+            showCustomAlert('Deployed!', 'Button role panel sent to Discord channel successfully!');
+            switchBtnRoleView('list');
+        } else {
+            showCustomAlert('Deployment Error', data.error || 'Failed to deploy panel.');
+        }
+    })
+    .catch(err => {
+        if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Deploy Panel to Discord';
+        }
+        showCustomAlert('Network Error', err.message);
+    });
+}
+
+function loadButtonRoles() {
+    const grid = document.getElementById('btnrole-panels-grid');
+    const countEl = document.getElementById('btnrole-panels-count');
+    if (!grid || !activeGuildId) return;
+
+    fetch(`/api/guild/${activeGuildId}/button-roles`)
+        .then(res => res.json())
+        .then(data => {
+            const panels = data.panels || [];
+            if (countEl) countEl.innerText = panels.length;
+
+            if (panels.length === 0) {
+                grid.innerHTML = '<div style="padding: 30px; text-align: center; color: var(--text-muted); grid-column: 1 / -1;">No active button role panels deployed yet.</div>';
+                return;
+            }
+
+            grid.innerHTML = panels.map(p => `
+                <div class="glass-card" style="background: var(--bg-secondary); border: 1.5px solid var(--border-color); border-radius: 12px; padding: 18px; display: flex; flex-direction: column; justify-content: space-between;">
+                    <div>
+                        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+                            <span style="font-weight: 800; font-size: 1rem; color: var(--text-primary);">${p.title}</span>
+                            <span style="width: 12px; height: 12px; border-radius: 50%; background: ${p.color || '#D96C91'};"></span>
+                        </div>
+                        <div style="font-size: 0.78rem; color: var(--text-muted); font-family: var(--font-mono); margin-bottom: 12px;">Channel: <#${p.channel_id}></div>
+                        <div style="display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 16px;">
+                            ${(p.buttons || []).map(b => `<span style="background: var(--surface); border: 1px solid var(--border-color); padding: 2px 8px; border-radius: 4px; font-size: 0.74rem;">${b.emoji ? b.emoji + ' ' : ''}${b.label}</span>`).join('')}
+                        </div>
+                    </div>
+                    <div style="border-top: 1px solid var(--border-color); padding-top: 10px; display: flex; justify-content: flex-end;">
+                        <button type="button" onclick="deleteButtonRolePanel(${p.id})" style="background: none; border: none; color: #ef4444; font-size: 0.8rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 4px;"><i class="fas fa-trash-can"></i> Delete Panel</button>
+                    </div>
+                </div>
+            `).join('');
+        }).catch(() => {});
+}
+
+function deleteButtonRolePanel(id) {
+    if (!confirm('Are you sure you want to delete this button role panel? It will also be deleted from the Discord channel.')) return;
+    fetch(`/api/guild/${activeGuildId}/button-roles/${id}`, { method: 'DELETE' })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                showCustomAlert('Deleted', 'Role panel deleted successfully.');
+                loadButtonRoles();
+            }
+        });
+}
+
+// =========================================================================
+// 2. MODERATION CENTER FRONTEND CONTROLLER
+// =========================================================================
+function toggleModDurationField(action) {
+    const durBox = document.getElementById('mod-duration-box');
+    const nickBox = document.getElementById('mod-nick-box');
+    if (durBox) durBox.style.display = (action === 'timeout') ? 'block' : 'none';
+    if (nickBox) nickBox.style.display = (action === 'setnick') ? 'block' : 'none';
+}
+
+function loadModerationCenter() {
+    if (!activeGuildId) return;
+
+    // Populate channels in dropdown
+    const chSelect = document.getElementById('mod-channel-select');
+    if (chSelect) {
+        fetch(`/api/guild/channels/${activeGuildId}`)
+            .then(res => res.json())
+            .then(channels => {
+                chSelect.innerHTML = '<option value="">Select a text channel...</option>' +
+                    (channels || []).map(c => `<option value="${c.id}"># ${c.name}</option>`).join('');
+            }).catch(() => {});
+    }
+
+    // Load cases
+    const tbody = document.getElementById('mod-cases-table-body');
+    const countEl = document.getElementById('mod-cases-count');
+
+    fetch(`/api/guild/${activeGuildId}/moderation/cases`)
+        .then(res => res.json())
+        .then(data => {
+            const cases = data.cases || [];
+            if (countEl) countEl.innerText = cases.length;
+
+            if (cases.length === 0) {
+                if (tbody) tbody.innerHTML = '<tr><td colspan="6" style="padding: 24px; text-align: center; color: var(--text-muted);">No disciplinary actions on record yet.</td></tr>';
+                return;
+            }
+
+            const actionColors = {
+                'BAN': '#ef4444',
+                'KICK': '#f97316',
+                'TIMEOUT': '#eab308',
+                'WARN': '#3b82f6',
+                'LOCK': '#a855f7'
+            };
+
+            if (tbody) {
+                tbody.innerHTML = cases.map(c => {
+                    const d = c.timestamp ? new Date(c.timestamp).toLocaleString() : 'Recent';
+                    return `
+                        <tr style="border-bottom: 1px solid var(--border-color);">
+                            <td style="padding: 10px 12px; font-family: var(--font-mono); font-size: 0.78rem;">#${c.case_number || c.id}</td>
+                            <td style="padding: 10px 12px;"><span style="background: rgba(217, 108, 145, 0.1); color: ${actionColors[c.action] || 'var(--accent-primary)'}; padding: 2px 7px; border-radius: 4px; font-weight: 700; font-size: 0.75rem; font-family: var(--font-mono);">${c.action}</span></td>
+                            <td style="padding: 10px 12px; font-weight: 700; color: var(--text-primary);">${c.target_tag || c.target_id}</td>
+                            <td style="padding: 10px 12px; color: var(--text-secondary);">${c.moderator_tag || 'Staff'}</td>
+                            <td style="padding: 10px 12px; color: var(--text-secondary);">${c.reason || 'No reason specified'}</td>
+                            <td style="padding: 10px 12px; font-family: var(--font-mono); font-size: 0.78rem; color: var(--text-muted);">${d}</td>
+                        </tr>
+                    `;
+                }).join('');
+            }
+        }).catch(() => {});
+}
+
+function confirmExecuteModAction() {
+    const targetId = document.getElementById('mod-target-id')?.value?.trim();
+    const action = document.getElementById('mod-action-type')?.value;
+    const reason = document.getElementById('mod-reason')?.value || 'Disciplinary action via dashboard';
+    const duration = document.getElementById('mod-duration-select')?.value;
+    const newNick = document.getElementById('mod-new-nick')?.value;
+
+    if (!targetId) {
+        showCustomAlert('Target Missing', 'Please enter a target Discord User ID.');
+        return;
+    }
+
+    if (['ban', 'kick'].includes(action)) {
+        if (!confirm(`Are you sure you want to ${action.toUpperCase()} user ${targetId}? This is a destructive action.`)) return;
+    }
+
+    fetch(`/api/guild/${activeGuildId}/moderation/action`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            action: action,
+            target_id: targetId,
+            reason: reason,
+            duration_seconds: duration,
+            new_nick: newNick,
+            moderator_tag: 'Dashboard Admin'
+        })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            showCustomAlert('Action Executed', `Successfully performed ${action.toUpperCase()} on ${targetId}`);
+            loadModerationCenter();
+            document.getElementById('mod-target-id').value = '';
+            document.getElementById('mod-reason').value = '';
+        } else {
+            showCustomAlert('Execution Error', data.error || 'Failed to execute moderation action.');
+        }
+    });
+}
+
+function executeChannelLock(lockType) {
+    const channelId = document.getElementById('mod-channel-select')?.value;
+    if (!channelId) {
+        showCustomAlert('Channel Missing', 'Please select a channel to lock/unlock.');
+        return;
+    }
+
+    fetch(`/api/guild/${activeGuildId}/moderation/action`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            action: lockType,
+            channel_id: channelId,
+            reason: `${lockType.toUpperCase()} via dashboard`
+        })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            showCustomAlert('Channel Updated', `Channel has been ${lockType === 'lock' ? 'locked' : 'unlocked'}.`);
+            loadModerationCenter();
+        }
+    });
+}
+
+function confirmEmergencyLockdown() {
+    if (!confirm('⚠️ WARNING: This will immediately LOCK ALL PUBLIC CHANNELS to prevent raid messages. Proceed?')) return;
+    fetch(`/api/guild/${activeGuildId}/moderation/action`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            action: 'lock',
+            channel_id: 'ALL',
+            reason: 'Emergency server lockdown triggered via dashboard'
+        })
+    })
+    .then(res => res.json())
+    .then(() => {
+        showCustomAlert('EMERGENCY LOCKDOWN', 'Server channels locked.');
+        loadModerationCenter();
+    });
+}
+
+function filterModCases(query) {
+    const q = (query || '').toLowerCase();
+    const rows = document.querySelectorAll('#mod-cases-table-body tr');
+    rows.forEach(r => {
+        r.style.display = r.innerText.toLowerCase().includes(q) ? '' : 'none';
+    });
+}
+
+// =========================================================================
+// 3. TOOLS & UTILITIES FRONTEND CONTROLLER
+// =========================================================================
+function loadUtilities() {
+    if (!activeGuildId) return;
+
+    // Server Info
+    fetch(`/api/guild/${activeGuildId}/utilities/serverinfo`)
+        .then(res => res.json())
+        .then(data => {
+            const s = data.server || {};
+            const iconEl = document.getElementById('util-server-icon');
+            const nameEl = document.getElementById('util-server-name');
+            const idEl = document.getElementById('util-server-id');
+            const memberEl = document.getElementById('util-member-count');
+            const onlineEl = document.getElementById('util-online-count');
+            const tierEl = document.getElementById('util-boost-tier');
+            const rolesEl = document.getElementById('util-roles-count');
+
+            if (iconEl && s.icon) iconEl.src = s.icon;
+            if (nameEl) nameEl.innerText = s.name || 'Server';
+            if (idEl) idEl.innerText = `ID: ${s.id || activeGuildId}`;
+            if (memberEl) memberEl.innerText = s.approximate_member_count || '--';
+            if (onlineEl) onlineEl.innerText = s.approximate_presence_count || '--';
+            if (tierEl) tierEl.innerText = `Tier ${s.premium_tier || 0}`;
+            if (rolesEl) rolesEl.innerText = s.roles_count || '--';
+        }).catch(() => {});
+
+    // Leaderboards
+    fetch(`/api/guild/${activeGuildId}/utilities/leaderboards`)
+        .then(res => res.json())
+        .then(data => {
+            const invitesList = document.getElementById('util-top-invites-list');
+            const chattersList = document.getElementById('util-top-chatters-list');
+
+            if (invitesList) {
+                const invites = data.top_invites || [];
+                invitesList.innerHTML = invites.length ? invites.map((inv, idx) => `
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 6px 10px; background: var(--bg-secondary); border-radius: 6px;">
+                        <span style="font-weight: 600; font-size: 0.85rem;"><span style="color: var(--accent-primary); font-family: var(--font-mono); margin-right: 6px;">#${idx+1}</span> <@${inv.user_id}></span>
+                        <span style="font-family: var(--font-mono); font-weight: 700; color: #22c55e;">${inv.invites} invites</span>
+                    </div>
+                `).join('') : '<div style="color: var(--text-muted); font-size: 0.82rem;">No invite stats recorded.</div>';
+            }
+
+            if (chattersList) {
+                const chatters = data.top_chatters || [];
+                chattersList.innerHTML = chatters.length ? chatters.map((ch, idx) => `
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 6px 10px; background: var(--bg-secondary); border-radius: 6px;">
+                        <span style="font-weight: 600; font-size: 0.85rem;"><span style="color: var(--accent-primary); font-family: var(--font-mono); margin-right: 6px;">#${idx+1}</span> <@${ch.user_id}></span>
+                        <span style="font-family: var(--font-mono); font-weight: 700; color: var(--accent-primary);">${ch.count} msgs</span>
+                    </div>
+                `).join('') : '<div style="color: var(--text-muted); font-size: 0.82rem;">No chatter stats recorded.</div>';
+            }
+        }).catch(() => {});
+}
+
+function lookupUserUtility() {
+    const userId = document.getElementById('util-user-lookup-id')?.value?.trim();
+    if (!userId || !activeGuildId) {
+        showCustomAlert('User ID Missing', 'Please enter a Discord User ID to inspect.');
+        return;
+    }
+
+    fetch(`/api/guild/${activeGuildId}/utilities/userinfo/${userId}`)
+        .then(res => res.json())
+        .then(data => {
+            const resultCard = document.getElementById('util-user-result-card');
+            if (!resultCard) return;
+
+            if (data.success && data.user) {
+                const u = data.user;
+                resultCard.style.display = 'block';
+                document.getElementById('util-inspected-avatar').src = u.avatar;
+                document.getElementById('util-inspected-name').innerText = `${u.global_name} (@${u.username})`;
+                document.getElementById('util-inspected-id').innerText = `User ID: ${u.id}`;
+                document.getElementById('util-inspected-joined').innerText = `Joined Server: ${u.joined_at ? new Date(u.joined_at).toLocaleDateString() : 'Unknown'}`;
+                document.getElementById('util-inspected-avatar-link').href = u.avatar;
+            } else {
+                showCustomAlert('Not Found', 'User is not a member of this Discord server.');
+            }
+        })
+        .catch(err => showCustomAlert('Lookup Error', err.message));
+}
+
+// =========================================================================
+// 4. AUTOMOD FRONTEND CONTROLLER
+// =========================================================================
+function loadAutoMod() {
+    if (!activeGuildId) return;
+    fetch(`/api/guild/${activeGuildId}/automod`)
+        .then(res => res.json())
+        .then(data => {
+            const s = data.settings || {};
+            document.getElementById('automod-spam-toggle').checked = !!s.spam_enabled;
+            document.getElementById('automod-invite-toggle').checked = !!s.invite_block;
+            document.getElementById('automod-link-toggle').checked = !!s.link_block;
+            document.getElementById('automod-caps-toggle').checked = !!s.caps_block;
+
+            const slider = document.getElementById('automod-mentions-slider');
+            if (slider) {
+                slider.value = s.max_mentions || 5;
+                document.getElementById('automod-mentions-val').innerText = slider.value;
+            }
+            const actSelect = document.getElementById('automod-action-select');
+            if (actSelect) actSelect.value = s.action || 'delete';
+
+            let badWords = [];
+            try { badWords = typeof s.bad_words_json === 'string' ? JSON.parse(s.bad_words_json) : (s.bad_words_json || []); } catch(e){}
+            const bwInput = document.getElementById('automod-badwords-input');
+            if (bwInput) bwInput.value = Array.isArray(badWords) ? badWords.join(', ') : '';
+        }).catch(() => {});
+}
+
+function saveAutoMod() {
+    if (!activeGuildId) return;
+    const spam = document.getElementById('automod-spam-toggle')?.checked;
+    const invite = document.getElementById('automod-invite-toggle')?.checked;
+    const link = document.getElementById('automod-link-toggle')?.checked;
+    const caps = document.getElementById('automod-caps-toggle')?.checked;
+    const maxMentions = document.getElementById('automod-mentions-slider')?.value;
+    const action = document.getElementById('automod-action-select')?.value;
+    const badWordsRaw = document.getElementById('automod-badwords-input')?.value || '';
+    const badWords = badWordsRaw.split(',').map(w => w.trim()).filter(w => w.length > 0);
+
+    fetch(`/api/guild/${activeGuildId}/automod`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            spam_enabled: spam,
+            invite_block: invite,
+            link_block: link,
+            caps_block: caps,
+            max_mentions: maxMentions,
+            action: action,
+            bad_words_json: badWords
+        })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) showCustomAlert('AutoMod Saved', 'AutoMod settings updated and active live in bot.');
+    });
+}
+
+// =========================================================================
+// 5. AUTO-RESPONDERS FRONTEND CONTROLLER
+// =========================================================================
+function loadAutoResponders() {
+    if (!activeGuildId) return;
+    const container = document.getElementById('ar-list-container');
+    const countEl = document.getElementById('ar-count');
+
+    fetch(`/api/guild/${activeGuildId}/autoresponders`)
+        .then(res => res.json())
+        .then(data => {
+            const list = data.responders || [];
+            if (countEl) countEl.innerText = list.length;
+
+            if (list.length === 0) {
+                if (container) container.innerHTML = '<div style="padding: 20px; text-align: center; color: var(--text-muted);">No auto-responders configured yet.</div>';
+                return;
+            }
+
+            if (container) {
+                container.innerHTML = list.map(r => `
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 14px; background: var(--bg-secondary); border-radius: 8px; border: 1px solid var(--border-color);">
+                        <div>
+                            <span style="font-weight: 700; color: var(--text-primary); font-family: var(--font-mono); background: var(--surface); padding: 2px 8px; border-radius: 4px; border: 1px solid var(--border-color);">${r.trigger}</span>
+                            <span style="font-size: 0.75rem; color: var(--accent-primary); margin-left: 8px; font-weight: 700;">[${r.match_type}]</span>
+                            <div style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 4px;">&rarr; "${r.response}"</div>
+                        </div>
+                        <button type="button" onclick="deleteAutoResponder(${r.id})" style="background: none; border: none; color: #ef4444; font-size: 0.85rem; cursor: pointer;"><i class="fas fa-trash-can"></i></button>
+                    </div>
+                `).join('');
+            }
+        }).catch(() => {});
+}
+
+function saveAutoResponder() {
+    if (!activeGuildId) return;
+    const trigger = document.getElementById('ar-trigger-input')?.value?.trim();
+    const matchType = document.getElementById('ar-match-select')?.value;
+    const response = document.getElementById('ar-response-input')?.value?.trim();
+
+    if (!trigger || !response) {
+        showCustomAlert('Missing Fields', 'Trigger phrase and response text are required.');
+        return;
+    }
+
+    fetch(`/api/guild/${activeGuildId}/autoresponders`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ trigger, match_type: matchType, response })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            showCustomAlert('Responder Added', `Auto-responder for "${trigger}" is now live!`);
+            document.getElementById('ar-trigger-input').value = '';
+            document.getElementById('ar-response-input').value = '';
+            loadAutoResponders();
+        }
+    });
+}
+
+function deleteAutoResponder(id) {
+    fetch(`/api/guild/${activeGuildId}/autoresponders/${id}`, { method: 'DELETE' })
+        .then(res => res.json())
+        .then(() => loadAutoResponders());
+}
+
+// =========================================================================
+// 6. VOICEMASTER FRONTEND CONTROLLER
+// =========================================================================
+function loadVoiceMaster() {
+    if (!activeGuildId) return;
+
+    // Load voice channels
+    const chSelect = document.getElementById('vm-channel-select');
+    if (chSelect) {
+        fetch(`/api/guild/channels/${activeGuildId}`)
+            .then(res => res.json())
+            .then(channels => {
+                chSelect.innerHTML = '<option value="">Select a voice channel...</option>' +
+                    (channels || []).map(c => `<option value="${c.id}">🔊 ${c.name}</option>`).join('');
+                fetchVoiceMasterConfig();
+            }).catch(() => {});
+    } else {
+        fetchVoiceMasterConfig();
+    }
+}
+
+function fetchVoiceMasterConfig() {
+    fetch(`/api/guild/${activeGuildId}/voicemaster`)
+        .then(res => res.json())
+        .then(data => {
+            const s = data.settings || {};
+            const toggle = document.getElementById('vm-enabled-toggle');
+            if (toggle) toggle.checked = !!s.enabled;
+
+            const chSelect = document.getElementById('vm-channel-select');
+            if (chSelect && s.channel_id) chSelect.value = s.channel_id;
+
+            const nameInput = document.getElementById('vm-name-template');
+            if (nameInput && s.channel_name_format) nameInput.value = s.channel_name_format;
+
+            const slider = document.getElementById('vm-limit-slider');
+            if (slider) {
+                slider.value = s.user_limit || 0;
+                document.getElementById('vm-limit-val').innerText = slider.value;
+            }
+        }).catch(() => {});
+}
+
+function saveVoiceMaster() {
+    if (!activeGuildId) return;
+    const enabled = document.getElementById('vm-enabled-toggle')?.checked;
+    const channelId = document.getElementById('vm-channel-select')?.value;
+    const nameFmt = document.getElementById('vm-name-template')?.value;
+    const userLimit = document.getElementById('vm-limit-slider')?.value;
+
+    fetch(`/api/guild/${activeGuildId}/voicemaster`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            enabled: enabled,
+            channel_id: channelId,
+            channel_name_format: nameFmt,
+            user_limit: userLimit
+        })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            showCustomAlert('VoiceMaster Active', 'VoiceMaster Join-to-Create settings saved and active in bot.');
+        }
+    });
+}

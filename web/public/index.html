@@ -5359,44 +5359,60 @@
 
                 <!-- Scrollable Menu Items -->
                 <div class="sidebar-menu-scroll">
-                    <div class="sidebar-title" style="padding: 6px 18px 4px 18px; font-size: 0.68rem; font-family: var(--font-mono); font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em;">Server Management</div>
-                    <ul class="sidebar-menu">
-                        <li class="sidebar-item" id="menu-settings"><a href="#" onclick="switchTab('settings')"><i class="fas fa-sliders"></i> <span>Administration</span></a></li>
-                        <li class="sidebar-item" id="menu-autoroles"><a href="#" onclick="switchTab('autoroles')"><i class="fas fa-users-gear"></i> <span>Autoroles & Sticky Roles</span></a></li>
-                        <li class="sidebar-item" id="menu-weblogs"><a href="#" onclick="switchTab('weblogs')"><i class="fas fa-file-shield"></i> <span>Audit Logs</span></a></li>
-                        <li class="sidebar-item" id="menu-verification"><a href="#" onclick="switchTab('verification')"><i class="fas fa-shield-check"></i> <span>Verification <span class="nav-badge-pro">PRO</span></span></a></li>
-                        <li class="sidebar-item" id="menu-security"><a href="#" onclick="switchTab('security')"><i class="fas fa-shield-halved"></i> <span>Raid Protection <span class="nav-badge-pro">PRO</span></span></a></li>
-                        <li class="sidebar-item" id="menu-personalize"><a href="#" onclick="switchTab('personalize')"><i class="fas fa-wand-magic-sparkles"></i> <span>Bot Profile <span class="nav-badge-prem">PREMIUM</span></span></a></li>
-                    </ul>
-
-                    <div class="sidebar-title" style="padding: 12px 18px 4px 18px; font-size: 0.68rem; font-family: var(--font-mono); font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em;">Growth & Analytics</div>
+                    <!-- 1. OVERVIEW -->
+                    <div class="sidebar-title" style="padding: 6px 18px 4px 18px; font-size: 0.68rem; font-family: var(--font-mono); font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em;">Overview</div>
                     <ul class="sidebar-menu">
                         <li class="sidebar-item" id="menu-overview"><a href="#" onclick="switchTab('overview')"><i class="fas fa-chart-line"></i> <span>Server Overview</span></a></li>
                         <li class="sidebar-item" id="menu-analytics"><a href="#" onclick="switchTab('analytics')"><i class="fas fa-chart-column"></i> <span>Analytics</span></a></li>
                         <li class="sidebar-item" id="menu-reports"><a href="#" onclick="switchTab('reports')"><i class="fas fa-file-contract"></i> <span>Server Reports <span class="nav-badge-prem">PREMIUM</span></span></a></li>
-                        <li class="sidebar-item" id="menu-levels"><a href="#" onclick="switchTab('levels')"><i class="fas fa-award"></i> <span>Levels & XP <span class="nav-badge-prem">PREMIUM</span></span></a></li>
-                        <li class="sidebar-item" id="menu-commands"><a href="#" onclick="switchTab('commands')"><i class="fas fa-terminal"></i> <span>Commands <span class="nav-badge-pro">PRO</span></span></a></li>
                     </ul>
 
-                    <div class="sidebar-title" style="padding: 12px 18px 4px 18px; font-size: 0.68rem; font-family: var(--font-mono); font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em;">Community & Engagement</div>
+                    <!-- 2. SERVER CONFIGURATION -->
+                    <div class="sidebar-title" style="padding: 12px 18px 4px 18px; font-size: 0.68rem; font-family: var(--font-mono); font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em;">Server Configuration</div>
                     <ul class="sidebar-menu">
-                        <li class="sidebar-item" id="menu-giveaways"><a href="#" onclick="switchTab('giveaways')"><i class="fas fa-gift"></i> <span>Giveaways <span class="nav-badge-new">NEW</span></span></a></li>
+                        <li class="sidebar-item" id="menu-settings"><a href="#" onclick="switchTab('settings')"><i class="fas fa-sliders"></i> <span>Administration</span></a></li>
+                        <li class="sidebar-item" id="menu-personalize"><a href="#" onclick="switchTab('personalize')"><i class="fas fa-wand-magic-sparkles"></i> <span>Bot Profile <span class="nav-badge-prem">PREMIUM</span></span></a></li>
+                        <li class="sidebar-item" id="menu-commands"><a href="#" onclick="switchTab('commands')"><i class="fas fa-terminal"></i> <span>Commands Manager <span class="nav-badge-pro">PRO</span></span></a></li>
                     </ul>
 
-                    <div class="sidebar-title" style="padding: 12px 18px 4px 18px; font-size: 0.68rem; font-family: var(--font-mono); font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em;">Messages & Automation</div>
+                    <!-- 3. SECURITY & MODERATION -->
+                    <div class="sidebar-title" style="padding: 12px 18px 4px 18px; font-size: 0.68rem; font-family: var(--font-mono); font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em;">Security & Moderation</div>
                     <ul class="sidebar-menu">
+                        <li class="sidebar-item" id="menu-security"><a href="#" onclick="switchTab('security')"><i class="fas fa-shield-halved"></i> <span>Raid Protection <span class="nav-badge-pro">PRO</span></span></a></li>
+                        <li class="sidebar-item" id="menu-verification"><a href="#" onclick="switchTab('verification')"><i class="fas fa-shield-check"></i> <span>Verification Gate <span class="nav-badge-pro">PRO</span></span></a></li>
+                        <li class="sidebar-item" id="menu-moderation"><a href="#" onclick="switchTab('moderation')"><i class="fas fa-gavel"></i> <span>Moderation Center <span class="nav-badge-new">NEW</span></span></a></li>
+                        <li class="sidebar-item" id="menu-automod"><a href="#" onclick="switchTab('automod')"><i class="fas fa-robot"></i> <span>AutoMod & Filters <span class="nav-badge-new">NEW</span></span></a></li>
+                        <li class="sidebar-item" id="menu-weblogs"><a href="#" onclick="switchTab('weblogs')"><i class="fas fa-file-shield"></i> <span>Audit Logs</span></a></li>
+                    </ul>
+
+                    <!-- 4. MEMBERS & COMMUNITY -->
+                    <div class="sidebar-title" style="padding: 12px 18px 4px 18px; font-size: 0.68rem; font-family: var(--font-mono); font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em;">Members & Community</div>
+                    <ul class="sidebar-menu">
+                        <li class="sidebar-item" id="menu-autoroles"><a href="#" onclick="switchTab('autoroles')"><i class="fas fa-users-gear"></i> <span>Autoroles & Sticky</span></a></li>
                         <li class="sidebar-item" id="menu-welcome"><a href="#" onclick="switchTab('welcome')"><i class="fas fa-envelope-open-text"></i> <span>Welcome Messages <span class="nav-badge-pro">PRO</span></span></a></li>
                         <li class="sidebar-item" id="menu-leave"><a href="#" onclick="switchTab('leave')"><i class="fas fa-right-from-bracket"></i> <span>Exit Messages <span class="nav-badge-pro">PRO</span></span></a></li>
                         <li class="sidebar-item" id="menu-embed"><a href="#" onclick="switchTab('embed')"><i class="fas fa-comment-dots"></i> <span>Join DM Messages <span class="nav-badge-pro">PRO</span></span></a></li>
                         <li class="sidebar-item" id="menu-invitetracker"><a href="#" onclick="switchTab('invitetracker')"><i class="fas fa-paper-plane"></i> <span>Invite Tracker <span class="nav-badge-pro">PRO</span></span></a></li>
+                        <li class="sidebar-item" id="menu-levels"><a href="#" onclick="switchTab('levels')"><i class="fas fa-award"></i> <span>Levels & XP <span class="nav-badge-prem">PREMIUM</span></span></a></li>
+                    </ul>
+
+                    <!-- 5. MESSAGING -->
+                    <div class="sidebar-title" style="padding: 12px 18px 4px 18px; font-size: 0.68rem; font-family: var(--font-mono); font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em;">Messaging</div>
+                    <ul class="sidebar-menu">
                         <li class="sidebar-item" id="menu-embedmessages"><a href="#" onclick="switchTab('embedmessages')"><i class="fas fa-layer-group"></i> <span>Embed Messages <span class="nav-badge-new">NEW</span></span></a></li>
                         <li class="sidebar-item" id="menu-stickymessages"><a href="#" onclick="switchTab('stickymessages')"><i class="fas fa-note-sticky"></i> <span>Sticky Messages <span class="nav-badge-pro">PRO</span></span></a></li>
                         <li class="sidebar-item" id="menu-publish"><a href="#" onclick="switchTab('publish')"><i class="fas fa-bullhorn"></i> <span>Auto-Publish <span class="nav-badge-prem">PREMIUM</span></span></a></li>
+                        <li class="sidebar-item" id="menu-autoresponders"><a href="#" onclick="switchTab('autoresponders')"><i class="fas fa-reply-all"></i> <span>Auto-Responders <span class="nav-badge-new">NEW</span></span></a></li>
+                        <li class="sidebar-item" id="menu-buttonroles"><a href="#" onclick="switchTab('buttonroles')"><i class="fas fa-hand-pointer"></i> <span>Button Roles <span class="nav-badge-new">NEW</span></span></a></li>
                     </ul>
 
-                    <div class="sidebar-title" style="padding: 12px 18px 4px 18px; font-size: 0.68rem; font-family: var(--font-mono); font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em;">Support & Assistance</div>
+                    <!-- 6. COMMUNITY TOOLS -->
+                    <div class="sidebar-title" style="padding: 12px 18px 4px 18px; font-size: 0.68rem; font-family: var(--font-mono); font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em;">Community Tools</div>
                     <ul class="sidebar-menu">
-                        <li class="sidebar-item" id="menu-tickets"><a href="#" onclick="switchTab('tickets')"><i class="fas fa-ticket"></i> <span>Tickets <span class="nav-badge-pro">TICKET</span></span></a></li>
+                        <li class="sidebar-item" id="menu-tickets"><a href="#" onclick="switchTab('tickets')"><i class="fas fa-ticket"></i> <span>Tickets System <span class="nav-badge-pro">TICKET</span></span></a></li>
+                        <li class="sidebar-item" id="menu-giveaways"><a href="#" onclick="switchTab('giveaways')"><i class="fas fa-gift"></i> <span>Giveaways <span class="nav-badge-new">NEW</span></span></a></li>
+                        <li class="sidebar-item" id="menu-voicemaster"><a href="#" onclick="switchTab('voicemaster')"><i class="fas fa-microphone-lines"></i> <span>VoiceMaster <span class="nav-badge-new">NEW</span></span></a></li>
+                        <li class="sidebar-item" id="menu-utilities"><a href="#" onclick="switchTab('utilities')"><i class="fas fa-toolbox"></i> <span>Tools & Utilities <span class="nav-badge-new">NEW</span></span></a></li>
                     </ul>
                 </div>
 

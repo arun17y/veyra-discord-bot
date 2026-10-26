@@ -11121,6 +11121,39 @@ async def on_interaction(interaction: discord.Interaction):
                 await handle_close_ticket_interaction(interaction)
             elif custom_id == 'ticket_action_claim':
                 await handle_claim_ticket_interaction(interaction)
+            elif custom_id.startswith('btnrole:'):
+                role_id = custom_id.split(':', 1)[1]
+                try:
+                    guild = interaction.guild
+                    if not guild:
+                        await interaction.response.send_message("❌ This action can only be used in a server.", ephemeral=True)
+                        return
+                    role = guild.get_role(int(role_id))
+                    if not role:
+                        await interaction.response.send_message("⚠️ The role associated with this button no longer exists.", ephemeral=True)
+                        return
+                    bot_member = guild.me
+                    if not bot_member.guild_permissions.manage_roles:
+                        await interaction.response.send_message("❌ I do not have permission to manage roles (`Manage Roles` missing).", ephemeral=True)
+                        return
+                    if bot_member.top_role <= role:
+                        await interaction.response.send_message(f"❌ Role **{role.name}** is positioned higher than my role in the server hierarchy.", ephemeral=True)
+                        return
+                    member = interaction.user
+                    if role in member.roles:
+                        await member.remove_roles(role, reason="VEYRA Button Role Toggle (Removed)")
+                        await interaction.response.send_message(f"🗑️ Removed role **@{role.name}** from your profile.", ephemeral=True)
+                    else:
+                        await member.add_roles(role, reason="VEYRA Button Role Toggle (Assigned)")
+                        await interaction.response.send_message(f"✨ Successfully assigned role **@{role.name}** to you!", ephemeral=True)
+                except Exception as bErr:
+                    print(f"Error executing button role: {bErr}")
+                    if not interaction.response.is_done():
+                        await interaction.response.send_message(f"❌ Failed to toggle role: {bErr}", ephemeral=True)
+            elif custom_id.startswith('giveaway_enter_') or custom_id == 'giveaway_enter':
+                await handle_giveaway_entry_interaction(interaction, custom_id)
+            elif custom_id.startswith('vm_'):
+                await handle_voicemaster_interaction(interaction, custom_id)
     except Exception as e:
         print(f"Error handling ticket interaction event: {e}")
 
@@ -12317,3 +12350,240 @@ if __name__ == "__main__":
             bot.run(token)
         except Exception as e:
             print(f"[x] Failed to start bot: {e}")
+
+# =========================================================================
+# VOICEMASTER (TEMPVOICE) IN-MEMORY REGISTRY & HANDLERS
+# =========================================================================
+temp_voice_owners = {}  # channel_id -> user_id
+
+async def handle_voicemaster_interaction(interaction: discord.Interaction, custom_id: str):
+    try:
+        user = interaction.user
+        channel = interaction.channel
+        guild = interaction.guild
+        if not channel or not isinstance(channel, discord.VoiceChannel):
+            return await interaction.response.send_message("❌ You can only use VoiceMaster controls inside your temp voice channel.", ephemeral=True)
+
+        owner_id = temp_voice_owners.get(channel.id)
+        is_owner = (owner_id == user.id) or user.guild_permissions.administrator
+
+        if custom_id == 'vm_lock':
+            if not is_owner:
+                return await interaction.response.send_message("❌ Only the room owner can lock this channel.", ephemeral=True)
+            await channel.set_permissions(guild.default_role, connect=False)
+            await interaction.response.send_message("🔒 Voice room **locked**! New members cannot connect.", ephemeral=True)
+
+        elif custom_id == 'vm_unlock':
+            if not is_owner:
+                return await interaction.response.send_message("❌ Only the room owner can unlock this channel.", ephemeral=True)
+            await channel.set_permissions(guild.default_role, connect=None)
+            await interaction.response.send_message("🔓 Voice room **unlocked**! Anyone can connect.", ephemeral=True)
+
+        elif custom_id == 'vm_ghost':
+            if not is_owner:
+                return await interaction.response.send_message("❌ Only the room owner can ghost this channel.", ephemeral=True)
+            await channel.set_permissions(guild.default_role, view_channel=False)
+            await interaction.response.send_message("👻 Voice room is now **hidden** from others.", ephemeral=True)
+
+        elif custom_id == 'vm_unghost':
+            if not is_owner:
+                return await interaction.response.send_message("❌ Only the room owner can unghost this channel.", ephemeral=True)
+            await channel.set_permissions(guild.default_role, view_channel=None)
+            await interaction.response.send_message("👁️ Voice room is now **visible** to everyone.", ephemeral=True)
+
+        elif custom_id == 'vm_claim':
+            current_owner_present = any(m.id == owner_id for m in channel.members)
+            if current_owner_present and not user.guild_permissions.administrator:
+                return await interaction.response.send_message("❌ The current room owner is still active in this channel.", ephemeral=True)
+            temp_voice_owners[channel.id] = user.id
+            await interaction.response.send_message(f"👑 You have successfully claimed ownership of **{channel.name}**!", ephemeral=True)
+
+        elif custom_id == 'vm_delete':
+            if not is_owner:
+                return await interaction.response.send_message("❌ Only the room owner or an admin can delete this channel.", ephemeral=True)
+            await interaction.response.send_message("🗑️ Deleting voice room...", ephemeral=True)
+            temp_voice_owners.pop(channel.id, None)
+            await channel.delete(reason=f"Deleted by VoiceMaster owner {user}")
+
+        else:
+            await interaction.response.send_message("⚙️ Control action recognized.", ephemeral=True)
+    except Exception as e:
+        print(f"VoiceMaster interaction error: {e}")
+        if not interaction.response.is_done():
+            await interaction.response.send_message(f"❌ Error: {e}", ephemeral=True)
+
+
+@bot.event
+async def on_voice_state_update(member: discord.Member, before: discord.VoiceState, after: discord.VoiceState):
+    try:
+        # Check if user left a temp voice channel and it is now empty
+        if before.channel and before.channel.id in temp_voice_owners:
+            if len(before.channel.members) == 0:
+                temp_voice_owners.pop(before.channel.id, None)
+                try:
+                    await before.channel.delete(reason="Empty TempVoice Room Auto-Cleanup")
+                except Exception as del_err:
+                    print(f"Could not delete empty temp voice channel: {del_err}")
+
+        # Check if user joined the configured Join-To-Create channel
+        if after.channel:
+            conn = get_db()
+            cursor = conn.cursor()
+            cursor.execute("SELECT enabled, channel_id, category_id, channel_name_format, user_limit, bitrate FROM voicemaster_settings WHERE guild_id = ?", (str(member.guild.id),))
+            row = cursor.fetchone()
+            conn.close()
+
+            if row and row['enabled'] and row['channel_id'] and str(after.channel.id) == str(row['channel_id']):
+                # Create dynamic channel
+                guild = member.guild
+                cat = guild.get_channel(int(row['category_id'])) if row['category_id'] else after.channel.category
+                name_fmt = row['channel_name_format'] or "{user}'s room"
+                chan_name = name_fmt.replace("{user}", member.display_name).replace("{username}", member.name)
+                limit = row['user_limit'] or 0
+                bitrate = min(max(row['bitrate'] or 64000, 8000), 96000)
+
+                new_chan = await guild.create_voice_channel(
+                    name=chan_name,
+                    category=cat,
+                    user_limit=limit,
+                    bitrate=bitrate,
+                    reason=f"VoiceMaster TempVoice creation for {member.display_name}"
+                )
+
+                temp_voice_owners[new_chan.id] = member.id
+                await member.move_to(new_chan)
+
+                # Send interactive VoiceMaster panel
+                embed = discord.Embed(
+                    title="🎙️ VoiceMaster Room Controls",
+                    description=f"Welcome to your private lounge, {member.mention}!\nUse the buttons below to manage your room permissions.",
+                    color=discord.Color.from_rgb(217, 108, 145)
+                )
+                embed.add_field(name="👑 Room Owner", value=member.mention, inline=True)
+                embed.add_field(name="👥 User Limit", value=str(limit) if limit > 0 else "Unlimited", inline=True)
+                embed.set_footer(text="VEYRA VoiceMaster • Channels auto-delete when empty")
+
+                view = discord.ui.View(timeout=None)
+                view.add_item(discord.ui.Button(label="Lock", emoji="🔒", custom_id="vm_lock", style=discord.ButtonStyle.secondary))
+                view.add_item(discord.ui.Button(label="Unlock", emoji="🔓", custom_id="vm_unlock", style=discord.ButtonStyle.secondary))
+                view.add_item(discord.ui.Button(label="Ghost", emoji="👻", custom_id="vm_ghost", style=discord.ButtonStyle.secondary))
+                view.add_item(discord.ui.Button(label="Unhide", emoji="👁️", custom_id="vm_unghost", style=discord.ButtonStyle.secondary))
+                view.add_item(discord.ui.Button(label="Claim", emoji="👑", custom_id="vm_claim", style=discord.ButtonStyle.primary))
+                view.add_item(discord.ui.Button(label="Delete", emoji="🗑️", custom_id="vm_delete", style=discord.ButtonStyle.danger))
+
+                await new_chan.send(embed=embed, view=view)
+    except Exception as e:
+        print(f"Error in on_voice_state_update: {e}")
+
+
+# =========================================================================
+# TTS (TEXT-TO-SPEECH) ENGINE COMMANDS (BOT-ONLY, ZERO DASHBOARD UI)
+# =========================================================================
+# Voice connect/disconnect handled seamlessly by Veyra music core / existing ,join & ,leave
+
+@bot.command(name="speak")
+async def prefix_speak(ctx, *, text: str):
+    if not ctx.author.voice or not ctx.author.voice.channel:
+        return await ctx.send("❌ Join a voice channel first!")
+    vc = ctx.guild.voice_client
+    if not vc:
+        vc = await ctx.author.voice.channel.connect()
+    elif vc.channel.id != ctx.author.voice.channel.id:
+        await vc.move_to(ctx.author.voice.channel)
+
+    try:
+        from gtts import gTTS
+        import tempfile
+        tts = gTTS(text=text, lang="en")
+        temp_audio = tempfile.NamedTemporaryFile(suffix=".mp3", delete=False)
+        tts.save(temp_audio.name)
+        temp_audio.close()
+
+        if vc.is_playing():
+            vc.stop()
+
+        vc.play(discord.FFmpegPCMAudio(temp_audio.name))
+        await ctx.send(f"🗣️ Speaking in **{vc.channel.name}**: *\"{text}\"*")
+    except Exception as e:
+        await ctx.send(f"❌ TTS Error: {e}")
+
+@bot.command(name="ttsstop")
+async def prefix_stop(ctx):
+    if ctx.guild.voice_client and ctx.guild.voice_client.is_playing():
+        ctx.guild.voice_client.stop()
+        await ctx.send("⏹️ Playback stopped.")
+    else:
+        await ctx.send("❌ Nothing is currently playing.")
+
+@bot.command(name="tts")
+async def prefix_tts_help(ctx):
+    await ctx.send("🗣️ **VEYRA TTS Commands:** `,join`, `,leave`, `,say <text>`, `,stop`")
+
+# =========================================================================
+# GIVEAWAYS INTERACTIVE BUTTON ENTRY HANDLER
+# =========================================================================
+async def handle_giveaway_entry_interaction(interaction: discord.Interaction, custom_id: str):
+    try:
+        user = interaction.user
+        guild = interaction.guild
+        gv_id = custom_id.replace('giveaway_enter_', '')
+
+        conn = get_db()
+        cursor = conn.cursor()
+
+        # Ensure giveaway_entries table exists
+        cursor.execute('''CREATE TABLE IF NOT EXISTS giveaway_entries (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            giveaway_id TEXT NOT NULL,
+            user_id TEXT NOT NULL,
+            guild_id TEXT NOT NULL,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            UNIQUE(giveaway_id, user_id)
+        )''')
+
+        # Check existing entry
+        cursor.execute("SELECT 1 FROM giveaway_entries WHERE giveaway_id = ? AND user_id = ?", (gv_id, str(user.id)))
+        already_entered = cursor.fetchone() is not None
+
+        if already_entered:
+            cursor.execute("DELETE FROM giveaway_entries WHERE giveaway_id = ? AND user_id = ?", (gv_id, str(user.id)))
+            cursor.execute("UPDATE guild_giveaways SET entries_count = MAX(0, entries_count - 1) WHERE id = ?", (gv_id,))
+            conn.commit()
+
+            cursor.execute("SELECT entries_count FROM guild_giveaways WHERE id = ?", (gv_id,))
+            row = cursor.fetchone()
+            count = row['entries_count'] if row else 0
+            conn.close()
+
+            # Update Discord message button
+            try:
+                view = discord.ui.View(timeout=None)
+                view.add_item(discord.ui.Button(label=f"🎉 Enter ({count})", style=discord.ButtonStyle.primary, custom_id=custom_id))
+                await interaction.response.edit_message(view=view)
+            except Exception:
+                pass
+
+            await interaction.followup.send("🗑️ You have left the giveaway.", ephemeral=True)
+        else:
+            cursor.execute("INSERT OR IGNORE INTO giveaway_entries (giveaway_id, user_id, guild_id) VALUES (?, ?, ?)", (gv_id, str(user.id), str(guild.id)))
+            cursor.execute("UPDATE guild_giveaways SET entries_count = entries_count + 1 WHERE id = ?", (gv_id,))
+            conn.commit()
+
+            cursor.execute("SELECT entries_count FROM guild_giveaways WHERE id = ?", (gv_id,))
+            row = cursor.fetchone()
+            count = row['entries_count'] if row else 1
+            conn.close()
+
+            # Update Discord message button
+            try:
+                view = discord.ui.View(timeout=None)
+                view.add_item(discord.ui.Button(label=f"🎉 Enter ({count})", style=discord.ButtonStyle.primary, custom_id=custom_id))
+                await interaction.response.edit_message(view=view)
+            except Exception:
+                pass
+
+            await interaction.followup.send("🎉 **Entry Confirmed!** You have entered the giveaway. Best of luck!", ephemeral=True)
+    except Exception as e:
+        print(f"Error handling giveaway entry interaction: {e}")
+        if not interaction.response.is_done():
+            await interaction.response.send_message(f"❌ Error entering giveaway: {e}", ephemeral=True)
