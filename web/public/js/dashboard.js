@@ -1391,14 +1391,18 @@ window.switchAnalyticsTimeframe = function(timeframe) {
     document.querySelectorAll('.analytics-tf-btn').forEach(btn => {
         btn.classList.remove('active');
         btn.style.background = 'transparent';
-        btn.style.color = 'var(--text-secondary)';
+        btn.style.color = '#475569';
+        btn.style.fontWeight = '700';
+        btn.style.boxShadow = 'none';
     });
     
     const activeBtn = document.getElementById(`tf-btn-${timeframe}`);
     if (activeBtn) {
         activeBtn.classList.add('active');
-        activeBtn.style.background = 'rgba(255,255,255,0.08)';
-        activeBtn.style.color = '#fff';
+        activeBtn.style.background = '#E11D48';
+        activeBtn.style.color = '#FFFFFF';
+        activeBtn.style.fontWeight = '800';
+        activeBtn.style.boxShadow = '0 2px 8px rgba(225, 29, 72, 0.25)';
     }
     
     loadRealAnalytics(activeGuildId, timeframe);
@@ -2486,14 +2490,21 @@ document.addEventListener('DOMContentLoaded', () => {
     // Setup security sub-pane toggles
     // Handled globally by switchSecTab() without locks!
 
-    // Setup sidebar collapse toggle listener
+    // Setup sidebar collapse toggle listener with persistent icon-only state
     const toggleBtn = document.getElementById('sidebar-toggle-btn');
     const sidebar = document.querySelector('.sidebar');
     if (toggleBtn && sidebar) {
+        // Restore user collapse preference immediately
+        if (localStorage.getItem('sidebar_collapsed') === 'true') {
+            sidebar.classList.add('collapsed');
+            toggleBtn.classList.add('crossed');
+        }
+
         toggleBtn.addEventListener('click', (e) => {
             e.stopPropagation();
             sidebar.classList.toggle('collapsed');
             toggleBtn.classList.toggle('crossed');
+            localStorage.setItem('sidebar_collapsed', sidebar.classList.contains('collapsed') ? 'true' : 'false');
         });
     }
 
@@ -6797,27 +6808,31 @@ window.selectReportFrequency = function(frequency, showToastFlag = true) {
     if (!monthlyBtn || !weeklyBtn) return;
 
     if (frequency === 'monthly') {
-        monthlyBtn.className = 'btn-primary';
-        monthlyBtn.style.background = '#00aff4';
-        monthlyBtn.style.border = 'none';
-        monthlyBtn.style.color = '#fff';
+        monthlyBtn.classList.add('active');
+        monthlyBtn.style.background = '#E11D48';
+        monthlyBtn.style.color = '#FFFFFF';
+        monthlyBtn.style.fontWeight = '800';
+        monthlyBtn.style.boxShadow = '0 2px 8px rgba(225, 29, 72, 0.25)';
 
-        weeklyBtn.className = 'btn-secondary';
+        weeklyBtn.classList.remove('active');
         weeklyBtn.style.background = 'transparent';
-        weeklyBtn.style.border = '1.5px solid rgba(255,255,255,0.1)';
-        weeklyBtn.style.color = '#fff';
+        weeklyBtn.style.color = '#0F172A';
+        weeklyBtn.style.fontWeight = '700';
+        weeklyBtn.style.boxShadow = 'none';
 
         if (showToastFlag) showToast('Reports Settings', 'Monthly schedule selected.');
     } else if (frequency === 'weekly') {
-        weeklyBtn.className = 'btn-primary';
-        weeklyBtn.style.background = '#00aff4';
-        weeklyBtn.style.border = 'none';
-        weeklyBtn.style.color = '#fff';
+        weeklyBtn.classList.add('active');
+        weeklyBtn.style.background = '#E11D48';
+        weeklyBtn.style.color = '#FFFFFF';
+        weeklyBtn.style.fontWeight = '800';
+        weeklyBtn.style.boxShadow = '0 2px 8px rgba(225, 29, 72, 0.25)';
 
-        monthlyBtn.className = 'btn-secondary';
+        monthlyBtn.classList.remove('active');
         monthlyBtn.style.background = 'transparent';
-        monthlyBtn.style.border = '1.5px solid rgba(255,255,255,0.1)';
-        monthlyBtn.style.color = '#fff';
+        monthlyBtn.style.color = '#0F172A';
+        monthlyBtn.style.fontWeight = '700';
+        monthlyBtn.style.boxShadow = 'none';
 
         if (showToastFlag) showToast('Reports Settings', 'Weekly schedule selected.');
     }

@@ -3464,19 +3464,143 @@ input:checked + .slider:before,
     border: 1px solid #FBCFE8 !important;
 }
 
-/* 3. DESKTOP SIDEBAR LOCK (PREVENT ACCIDENTAL OFFSCREEN COLLAPSE) */
-@media (min-width: 1025px) {
-    .sidebar {
-        transform: none !important;
-        width: 260px !important;
-        display: flex !important;
-        position: sticky !important;
-        top: 0 !important;
-    }
-    .sidebar.collapsed {
-        transform: none !important;
-        width: 260px !important;
-    }
+/* 3. DESKTOP & RESPONSIVE COMPACT ICON-ONLY SIDEBAR SYSTEM */
+.sidebar {
+    width: 260px !important;
+    min-width: 260px !important;
+    max-width: 260px !important;
+    flex-shrink: 0 !important;
+    position: sticky !important;
+    top: 76px !important;
+    height: calc(100vh - 76px) !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: space-between !important;
+    background: #FFFFFF !important;
+    border-right: 1.5px solid #E2E8F0 !important;
+    box-sizing: border-box !important;
+    transition: width 0.22s cubic-bezier(0.4, 0, 0.2, 1), min-width 0.22s cubic-bezier(0.4, 0, 0.2, 1), max-width 0.22s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    overflow: visible !important;
+    z-index: 40 !important;
+}
+
+/* Collapsed Icon-Only State (~72px width) */
+.sidebar.collapsed {
+    width: 72px !important;
+    min-width: 72px !important;
+    max-width: 72px !important;
+}
+
+/* In collapsed mode: hide brand text and subtitle */
+.sidebar.collapsed .sidebar-pinned-top > div:first-child {
+    padding: 14px 6px 12px 6px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 8px !important;
+}
+.sidebar.collapsed .sidebar-brand-text,
+.sidebar.collapsed .sidebar-pinned-top a div:nth-child(2) {
+    display: none !important;
+}
+.sidebar.collapsed #sidebar-toggle-btn {
+    padding: 6px !important;
+    margin: 0 !important;
+}
+
+/* Active Server Box in collapsed state: center the avatar, hide text & chevron */
+.sidebar.collapsed #sidebar-current-guild-box {
+    padding: 8px 4px !important;
+    margin: 0 8px 12px 8px !important;
+    justify-content: center !important;
+    border-radius: 12px !important;
+}
+.sidebar.collapsed #sidebar-current-guild-box > div:first-child {
+    gap: 0 !important;
+    justify-content: center !important;
+}
+.sidebar.collapsed #sidebar-current-guild-box > div:first-child > div:nth-child(2),
+.sidebar.collapsed #sidebar-guild-chevron,
+.sidebar.collapsed #sidebar-current-guild-box > div:last-child {
+    display: none !important;
+}
+
+/* Section titles hide in collapsed state */
+.sidebar.collapsed .sidebar-title {
+    display: none !important;
+}
+
+/* Menu items in collapsed state */
+.sidebar.collapsed .sidebar-menu {
+    align-items: center !important;
+    padding: 0 !important;
+    gap: 6px !important;
+}
+.sidebar.collapsed .sidebar-item {
+    width: 100% !important;
+    display: flex !important;
+    justify-content: center !important;
+}
+.sidebar.collapsed .sidebar-item a {
+    width: 46px !important;
+    height: 44px !important;
+    padding: 0 !important;
+    margin: 0 auto !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    border-left: none !important;
+    border-radius: 10px !important;
+    transition: all 0.18s ease !important;
+    position: relative !important;
+}
+.sidebar.collapsed .sidebar-item a span,
+.sidebar.collapsed .sidebar-item a .sidebar-badge,
+.sidebar.collapsed .sidebar-item a .nav-badge-pro,
+.sidebar.collapsed .sidebar-item a .nav-badge-new,
+.sidebar.collapsed .sidebar-item a .nav-badge-prem {
+    display: none !important;
+}
+.sidebar.collapsed .sidebar-item a i {
+    font-size: 1.15rem !important;
+    width: auto !important;
+    text-align: center !important;
+    margin: 0 !important;
+}
+.sidebar.collapsed .sidebar-item a:hover {
+    background: #FFF1F5 !important;
+    color: #E11D48 !important;
+}
+.sidebar.collapsed .sidebar-item a:hover i {
+    color: #E11D48 !important;
+}
+.sidebar.collapsed .sidebar-item.active a {
+    background: #FCE7F3 !important;
+    border-left: none !important;
+    box-shadow: 0 2px 10px rgba(225, 29, 72, 0.18) !important;
+}
+.sidebar.collapsed .sidebar-item.active a i {
+    color: #E11D48 !important;
+}
+
+/* Bottom pinned elements in collapsed state */
+.sidebar.collapsed #sidebar-subscription-card {
+    display: none !important;
+}
+.sidebar.collapsed .sidebar-pinned-bottom {
+    padding: 10px 4px !important;
+}
+.sidebar.collapsed .sidebar-pinned-bottom > div {
+    padding: 10px 4px !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 8px !important;
+}
+.sidebar.collapsed #sidebar-user-name,
+.sidebar.collapsed .sidebar-pinned-bottom .user-tag {
+    display: none !important;
 }
 
 /* ==========================================================================

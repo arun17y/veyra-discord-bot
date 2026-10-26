@@ -5362,26 +5362,26 @@
                     <!-- 1. OVERVIEW -->
                     <div class="sidebar-title" style="padding: 6px 18px 4px 18px; font-size: 0.68rem; font-family: var(--font-mono); font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em;">Overview</div>
                     <ul class="sidebar-menu">
-                        <li class="sidebar-item" id="menu-overview"><a href="#" onclick="switchTab('overview')"><i class="fas fa-chart-line"></i> <span>Server Overview</span></a></li>
-                        <li class="sidebar-item" id="menu-analytics"><a href="#" onclick="switchTab('analytics')"><i class="fas fa-chart-column"></i> <span>Analytics</span></a></li>
-                        <li class="sidebar-item" id="menu-reports"><a href="#" onclick="switchTab('reports')"><i class="fas fa-file-contract"></i> <span>Server Reports <span class="nav-badge-prem">PREMIUM</span></span></a></li>
+                        <li class="sidebar-item" id="menu-overview"><a href="#" onclick="switchTab('overview')" title="Server Overview"><i class="fas fa-chart-line"></i> <span>Server Overview</span></a></li>
+                        <li class="sidebar-item" id="menu-analytics"><a href="#" onclick="switchTab('analytics')" title="Analytics"><i class="fas fa-chart-column"></i> <span>Analytics</span></a></li>
+                        <li class="sidebar-item" id="menu-reports"><a href="#" onclick="switchTab('reports')" title="Server Reports"><i class="fas fa-file-contract"></i> <span>Server Reports <span class="nav-badge-prem">PREMIUM</span></span></a></li>
                     </ul>
 
                     <!-- 2. SERVER CONFIGURATION -->
                     <div class="sidebar-title" style="padding: 12px 18px 4px 18px; font-size: 0.68rem; font-family: var(--font-mono); font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em;">Server Configuration</div>
                     <ul class="sidebar-menu">
-                        <li class="sidebar-item" id="menu-settings"><a href="#" onclick="switchTab('settings')"><i class="fas fa-sliders"></i> <span>Administration</span></a></li>
-                        <li class="sidebar-item" id="menu-personalize"><a href="#" onclick="switchTab('personalize')"><i class="fas fa-wand-magic-sparkles"></i> <span>Bot Profile <span class="nav-badge-prem">PREMIUM</span></span></a></li>
-                        <li class="sidebar-item" id="menu-commands"><a href="#" onclick="switchTab('commands')"><i class="fas fa-terminal"></i> <span>Commands Manager <span class="nav-badge-pro">PRO</span></span></a></li>
+                        <li class="sidebar-item" id="menu-settings"><a href="#" onclick="switchTab('settings')" title="Administration"><i class="fas fa-sliders"></i> <span>Administration</span></a></li>
+                        <li class="sidebar-item" id="menu-personalize"><a href="#" onclick="switchTab('personalize')" title="Bot Profile"><i class="fas fa-wand-magic-sparkles"></i> <span>Bot Profile <span class="nav-badge-prem">PREMIUM</span></span></a></li>
+                        <li class="sidebar-item" id="menu-commands"><a href="#" onclick="switchTab('commands')" title="Commands Manager"><i class="fas fa-terminal"></i> <span>Commands Manager <span class="nav-badge-pro">PRO</span></span></a></li>
                     </ul>
 
                     <!-- 3. SECURITY & MODERATION -->
                     <div class="sidebar-title" style="padding: 12px 18px 4px 18px; font-size: 0.68rem; font-family: var(--font-mono); font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em;">Security & Moderation</div>
                     <ul class="sidebar-menu">
-                        <li class="sidebar-item" id="menu-security"><a href="#" onclick="switchTab('security')"><i class="fas fa-shield-halved"></i> <span>Raid Protection <span class="nav-badge-pro">PRO</span></span></a></li>
-                        <li class="sidebar-item" id="menu-verification"><a href="#" onclick="switchTab('verification')"><i class="fas fa-shield-check"></i> <span>Verification Gate <span class="nav-badge-pro">PRO</span></span></a></li>
-                        <li class="sidebar-item" id="menu-moderation"><a href="#" onclick="switchTab('moderation')"><i class="fas fa-gavel"></i> <span>Moderation Center <span class="nav-badge-new">NEW</span></span></a></li>
-                        <li class="sidebar-item" id="menu-automod"><a href="#" onclick="switchTab('automod')"><i class="fas fa-robot"></i> <span>AutoMod & Filters <span class="nav-badge-new">NEW</span></span></a></li>
+                        <li class="sidebar-item" id="menu-security"><a href="#" onclick="switchTab('security')" title="Raid Protection"><i class="fas fa-shield-halved"></i> <span>Raid Protection <span class="nav-badge-pro">PRO</span></span></a></li>
+                        <li class="sidebar-item" id="menu-verification"><a href="#" onclick="switchTab('verification')" title="Verification Gate"><i class="fa-solid fa-user-shield"></i> <span>Verification Gate <span class="nav-badge-pro">PRO</span></span></a></li>
+                        <li class="sidebar-item" id="menu-moderation"><a href="#" onclick="switchTab('moderation')" title="Moderation Center"><i class="fas fa-gavel"></i> <span>Moderation Center <span class="nav-badge-new">NEW</span></span></a></li>
+                        <li class="sidebar-item" id="menu-automod"><a href="#" onclick="switchTab('automod')" title="AutoMod & Filters"><i class="fas fa-robot"></i> <span>AutoMod & Filters <span class="nav-badge-new">NEW</span></span></a></li>
                         <li class="sidebar-item" id="menu-weblogs"><a href="#" onclick="switchTab('weblogs')"><i class="fas fa-file-shield"></i> <span>Audit Logs</span></a></li>
                     </ul>
 
@@ -5393,7 +5393,7 @@
                         <li class="sidebar-item" id="menu-leave"><a href="#" onclick="switchTab('leave')"><i class="fas fa-right-from-bracket"></i> <span>Exit Messages <span class="nav-badge-pro">PRO</span></span></a></li>
                         <li class="sidebar-item" id="menu-embed"><a href="#" onclick="switchTab('embed')"><i class="fas fa-comment-dots"></i> <span>Join DM Messages <span class="nav-badge-pro">PRO</span></span></a></li>
                         <li class="sidebar-item" id="menu-invitetracker"><a href="#" onclick="switchTab('invitetracker')"><i class="fas fa-paper-plane"></i> <span>Invite Tracker <span class="nav-badge-pro">PRO</span></span></a></li>
-                        <li class="sidebar-item" id="menu-levels"><a href="#" onclick="switchTab('levels')"><i class="fas fa-award"></i> <span>Levels & XP <span class="nav-badge-prem">PREMIUM</span></span></a></li>
+                        <li class="sidebar-item" id="menu-levels"><a href="#" onclick="switchTab('levels')" title="Levels & XP"><i class="fas fa-award"></i> <span>Levels & XP <span class="nav-badge-prem">PREMIUM</span></span></a></li>
                     </ul>
 
                     <!-- 5. MESSAGING -->
@@ -5409,8 +5409,8 @@
                     <!-- 6. COMMUNITY TOOLS -->
                     <div class="sidebar-title" style="padding: 12px 18px 4px 18px; font-size: 0.68rem; font-family: var(--font-mono); font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em;">Community Tools</div>
                     <ul class="sidebar-menu">
-                        <li class="sidebar-item" id="menu-tickets"><a href="#" onclick="switchTab('tickets')"><i class="fas fa-ticket"></i> <span>Tickets System <span class="nav-badge-pro">TICKET</span></span></a></li>
-                        <li class="sidebar-item" id="menu-giveaways"><a href="#" onclick="switchTab('giveaways')"><i class="fas fa-gift"></i> <span>Giveaways <span class="nav-badge-new">NEW</span></span></a></li>
+                        <li class="sidebar-item" id="menu-tickets"><a href="#" onclick="switchTab('tickets')" title="Ticket System"><i class="fas fa-ticket"></i> <span>Tickets System <span class="nav-badge-pro">TICKET</span></span></a></li>
+                        <li class="sidebar-item" id="menu-giveaways"><a href="#" onclick="switchTab('giveaways')" title="Giveaways"><i class="fas fa-gift"></i> <span>Giveaways <span class="nav-badge-new">NEW</span></span></a></li>
                         <li class="sidebar-item" id="menu-voicemaster"><a href="#" onclick="switchTab('voicemaster')"><i class="fas fa-microphone-lines"></i> <span>VoiceMaster <span class="nav-badge-new">NEW</span></span></a></li>
                         <li class="sidebar-item" id="menu-utilities"><a href="#" onclick="switchTab('utilities')"><i class="fas fa-toolbox"></i> <span>Tools & Utilities <span class="nav-badge-new">NEW</span></span></a></li>
                     </ul>
@@ -7816,7 +7816,7 @@ We hope to see you back soon!
                     <!-- Panel Group 1: Verification settings -->
                     <div class="glass-card" style="background: #FFFFFF !important; border: 1.5px solid #E2E8F0 !important; box-shadow: 0 4px 20px rgba(53, 43, 58, 0.04) !important; border-radius: 12px; padding: 25px; margin-bottom: 25px;">
                         <div style="display: flex; align-items: center; gap: 8px; border-bottom: 1px solid rgba(255,255,255,0.04); padding-bottom: 15px; margin-bottom: 20px;">
-                            <i class="fas fa-shield-check" style="color: #00aff4; font-size: 1.25rem;"></i>
+                            <i class="fa-solid fa-user-shield" style="color: #E11D48; font-size: 1.25rem;"></i>
                             <div>
                                 <h3 style="font-size: 1.05rem; font-weight: 700; color: #0F172A; margin: 0 0 2px 0;">Verification settings</h3>
                                 <p style="font-size: 0.8rem; color: var(--text-secondary); margin: 0;">Require new members to verify before their join is processed.</p>
@@ -8239,12 +8239,12 @@ We hope to see you back soon!
 
                         <!-- Chart Header Filters -->
                         <div style="display: flex; justify-content: flex-end; margin-bottom: 20px;">
-                            <div class="tab-selector" style="display: flex; gap: 4px; background: #090D16 !important; padding: 4px; border-radius: 8px; border: 1.5px solid #1E293B !important;">
-                                <button class="btn-secondary analytics-tf-btn" onclick="switchAnalyticsTimeframe('7D')" id="tf-btn-7D" style="padding: 5px 12px; font-size: 0.75rem; border: none; background: transparent; color: #FFFFFF !important; font-weight: 700; cursor: pointer;">7D</button>
-                                <button class="btn-secondary analytics-tf-btn active" onclick="switchAnalyticsTimeframe('30D')" id="tf-btn-30D" style="padding: 5px 12px; font-size: 0.75rem; border: none; background: #E11D48 !important; color: #FFFFFF !important; font-weight: 800; border-radius: 6px; cursor: pointer;">30D</button>
-                                <button class="btn-secondary analytics-tf-btn" onclick="switchAnalyticsTimeframe('90D')" id="tf-btn-90D" style="padding: 5px 12px; font-size: 0.75rem; border: none; background: transparent; color: #CBD5E1 !important; font-weight: 700; cursor: pointer;">90D <i class="fas fa-bolt" style="font-size:0.6rem; color:#facc15; margin-left:2px;"></i></button>
-                                <button class="btn-secondary analytics-tf-btn" onclick="switchAnalyticsTimeframe('1Y')" id="tf-btn-1Y" style="padding: 5px 12px; font-size: 0.75rem; border: none; background: transparent; color: #CBD5E1 !important; font-weight: 700; cursor: pointer;">1Y <i class="fas fa-bolt" style="font-size:0.6rem; color:#facc15; margin-left:2px;"></i></button>
-                                <button class="btn-secondary analytics-tf-btn" onclick="switchAnalyticsTimeframe('All')" id="tf-btn-All" style="padding: 5px 12px; font-size: 0.75rem; border: none; background: transparent; color: #CBD5E1 !important; font-weight: 700; cursor: pointer;">All <i class="fas fa-bolt" style="font-size:0.6rem; color:#facc15; margin-left:2px;"></i></button>
+                            <div class="tab-selector" style="display: inline-flex; gap: 4px; background: #F1F5F9 !important; padding: 4px; border-radius: 10px; border: 1.5px solid #CBD5E1 !important;">
+                                <button class="analytics-tf-btn" onclick="switchAnalyticsTimeframe('7D')" id="tf-btn-7D" style="padding: 6px 14px; font-size: 0.78rem; border: none; background: transparent; color: #475569 !important; font-weight: 700; border-radius: 7px; cursor: pointer; transition: all 0.15s ease;">7D</button>
+                                <button class="analytics-tf-btn active" onclick="switchAnalyticsTimeframe('30D')" id="tf-btn-30D" style="padding: 6px 14px; font-size: 0.78rem; border: none; background: #E11D48 !important; color: #FFFFFF !important; font-weight: 800; border-radius: 7px; cursor: pointer; box-shadow: 0 2px 8px rgba(225,29,72,0.25); transition: all 0.15s ease;">30D</button>
+                                <button class="analytics-tf-btn" onclick="switchAnalyticsTimeframe('90D')" id="tf-btn-90D" style="padding: 6px 14px; font-size: 0.78rem; border: none; background: transparent; color: #475569 !important; font-weight: 700; border-radius: 7px; cursor: pointer; transition: all 0.15s ease;">90D <i class="fas fa-bolt" style="font-size:0.65rem; color:#EAB308; margin-left:2px;"></i></button>
+                                <button class="analytics-tf-btn" onclick="switchAnalyticsTimeframe('1Y')" id="tf-btn-1Y" style="padding: 6px 14px; font-size: 0.78rem; border: none; background: transparent; color: #475569 !important; font-weight: 700; border-radius: 7px; cursor: pointer; transition: all 0.15s ease;">1Y <i class="fas fa-bolt" style="font-size:0.65rem; color:#EAB308; margin-left:2px;"></i></button>
+                                <button class="analytics-tf-btn" onclick="switchAnalyticsTimeframe('All')" id="tf-btn-All" style="padding: 6px 14px; font-size: 0.78rem; border: none; background: transparent; color: #475569 !important; font-weight: 700; border-radius: 7px; cursor: pointer; transition: all 0.15s ease;">All <i class="fas fa-bolt" style="font-size:0.65rem; color:#EAB308; margin-left:2px;"></i></button>
                             </div>
                         </div>
 
@@ -8312,8 +8312,7 @@ We hope to see you back soon!
                 </div>
 
                 <!-- [TAB 5c: SERVER REPORTS] -->
-                <div class="tab-pane" id="tab-reports" 
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
+                <div class="tab-pane" id="tab-reports" style="display:none; width: 100%; padding: 20px;"><div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
                         <h1 style="font-size: 1.8rem; font-weight: 800; color: #0F172A; margin: 0;">Server Reports</h1>
                         <a href="https://discord.gg/ghostfamily" target="_blank" class="dash-help-support-link" style="color: #0F172A !important; font-weight: 700 !important; text-decoration: none; font-size: 0.82rem; font-family: var(--font-mono); display: flex; align-items: center; gap: 5px; transition: color 0.15s ease;" onmouseover="this.style.color='#E11D48'" onmouseout="this.style.color='#0F172A'">
                             Help & Support <i class="fas fa-arrow-up-right-from-square" style="font-size: 0.7rem;"></i>
@@ -8361,9 +8360,9 @@ We hope to see you back soon!
                                 <div style="font-weight: 700; color: #0F172A; font-size: 0.92rem; margin-bottom: 4px;">Frequency</div>
                                 <div style="font-size: 0.8rem; color: var(--text-secondary);">How often the report is sent. Weekly reports are a premium feature.</div>
                             </div>
-                            <div style="display: flex; gap: 10px;">
-                                <button id="report-freq-monthly" class="btn-primary" style="background:#00aff4; border:none; padding:8px 20px; border-radius:6px; font-weight:700; font-size:0.82rem;" onclick="selectReportFrequency('monthly')">Monthly</button>
-                                <button id="report-freq-weekly" class="btn-secondary" style="padding:8px 20px; border-radius:6px; font-weight:700; font-size:0.82rem; border: 1.5px solid rgba(255,255,255,0.1); background: transparent; color:#fff;" onclick="selectReportFrequency('weekly')">Weekly <i class="fas fa-bolt" style="color:#eab308; font-size:0.7rem; margin-left:3px;"></i></button>
+                            <div class="report-freq-pill-container" style="display: inline-flex; gap: 4px; background: #F1F5F9; border: 1.5px solid #CBD5E1; padding: 4px; border-radius: 10px;">
+                                <button id="report-freq-monthly" class="btn-freq active" style="background: #E11D48; color: #FFFFFF; border: none; padding: 7px 20px; border-radius: 7px; font-weight: 800; font-size: 0.82rem; cursor: pointer; box-shadow: 0 2px 8px rgba(225,29,72,0.25); transition: all 0.15s ease;" onclick="selectReportFrequency('monthly')">Monthly</button>
+                                <button id="report-freq-weekly" class="btn-freq" style="background: transparent; color: #0F172A; border: none; padding: 7px 20px; border-radius: 7px; font-weight: 700; font-size: 0.82rem; cursor: pointer; transition: all 0.15s ease;" onclick="selectReportFrequency('weekly')">Weekly <i class="fas fa-bolt" style="color: #EAB308; font-size: 0.72rem; margin-left: 3px;"></i></button>
                             </div>
                         </div>
 
