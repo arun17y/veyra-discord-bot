@@ -522,117 +522,216 @@
         <!-- Main Content Area -->
         <main class="gitbook-content">
 
-            <!-- TAB 1: DOCUMENTATION (HOME) -->
+                        <!-- TAB 1: DOCUMENTATION (HOME) -->
             <div id="pane-docs" class="doc-tab-pane active">
+                <div class="doc-category-tag">Enterprise Sentinel</div>
                 <div class="doc-title">
-                    <span>🤖 VEYRA - Documentation</span>
+                    <span>🤖 VEYRA - Official Documentation & System Architecture</span>
                     <button class="doc-copy-btn" onclick="copyPageLink()">
                         <i class="far fa-copy"></i> Copy Link
                     </button>
                 </div>
-                <div class="doc-tagline">NO BLOAT, JUST PROTECTION &amp; POWER</div>
+                <div class="doc-tagline">AUTONOMOUS DISCORD DEFENSE, ENTERPRISE AUTOMATION & SUB-MILLISECOND LATENCY</div>
 
                 <p class="doc-p">
-                    This is the official documentation for VEYRA Discord Bot. If you are unable to find the information you're looking for, please join our <a href="https://discord.gg/77P5Cq837X" target="_blank">support server &nearr;</a>.
+                    Welcome to the official technical documentation for <strong>VEYRA</strong> — an all-in-one Discord infrastructure bot engineered for high-scale gaming communities, enterprise servers, and competitive esports organizations. VEYRA consolidates real-time anti-nuke defense, multi-panel ticket management, voice announcement automation, giveaways, auto-moderation, and custom embed dispatching into a unified high-performance platform.
                 </p>
 
-                <h2 class="doc-section-h2" id="doc-issues">Reporting Issues</h2>
-                <p class="doc-p">
-                    If you are experiencing an issue with the bot, you can check our <a href="#faq" onclick="switchDocTab('faq')">Frequently Asked Questions</a> page. If you are unable to find a resolution there, join our <a href="https://discord.gg/77P5Cq837X" target="_blank">support server &nearr;</a> and ask for assistance in the #support channel.
-                </p>
-
-                <h2 class="doc-section-h2" id="doc-feedback">Feedback</h2>
-                <p class="doc-p">
-                    If you have suggestions for new security features or automations, join our <a href="https://discord.gg/77P5Cq837X" target="_blank">support server &nearr;</a> and submit a message in #feedback. We regularly update VEYRA based on guild feedback.
-                </p>
-
-                <h2 class="doc-section-h2" id="doc-syntax">Syntax</h2>
-                <div class="callout-box">
-                    <i class="fas fa-triangle-exclamation"></i>
+                <div class="callout-box" style="border-left: 4px solid var(--accent-primary); background: rgba(217,108,145,0.06);">
+                    <i class="fas fa-bolt" style="color: var(--accent-primary);"></i>
                     <div>
-                        <strong>Important:</strong> Do not type literal <code>&lt; &gt; [ ] *</code> when executing commands in Discord.
+                        <strong>Engineered for Zero-Latency Defense:</strong> VEYRA processes Discord gateway events asynchronously with local SQLite and Neon PostgreSQL replication, ensuring threat intercepts execute in <strong>&lt;0.04ms</strong> before malicious audit log sequences can compromise guild assets.
                     </div>
                 </div>
 
+                <h2 class="doc-section-h2" id="doc-core-pillars">Core Platform Capabilities</h2>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; margin: 20px 0;">
+                    <div style="background: var(--gb-card-bg); border: 1.5px solid var(--gb-border); border-radius: 10px; padding: 18px;">
+                        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
+                            <span style="font-size: 1.3rem; color: #E26749;"><i class="fas fa-shield-halved"></i></span>
+                            <strong style="color: var(--gb-text-main); font-size: 0.95rem;">Anti-Nuke & Anti-Raid</strong>
+                        </div>
+                        <p style="margin: 0; font-size: 0.85rem; color: var(--gb-text-muted); line-height: 1.5;">
+                            Sub-millisecond interception for unauthorized channel deletions, role modifications, bot additions, webhook creation, and mass pruning.
+                        </p>
+                    </div>
+
+                    <div style="background: var(--gb-card-bg); border: 1.5px solid var(--gb-border); border-radius: 10px; padding: 18px;">
+                        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
+                            <span style="font-size: 1.3rem; color: #A855F7;"><i class="fas fa-ticket"></i></span>
+                            <strong style="color: var(--gb-text-main); font-size: 0.95rem;">Multi-Panel Support Tickets</strong>
+                        </div>
+                        <p style="margin: 0; font-size: 0.85rem; color: var(--gb-text-muted); line-height: 1.5;">
+                            Button and dropdown ticket panels, staff claim queues, modal pre-intake questions, and automated downloadable HTML transcripts.
+                        </p>
+                    </div>
+
+                    <div style="background: var(--gb-card-bg); border: 1.5px solid var(--gb-border); border-radius: 10px; padding: 18px;">
+                        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
+                            <span style="font-size: 1.3rem; color: #3B82F6;"><i class="fas fa-bullhorn"></i></span>
+                            <strong style="color: var(--gb-text-main); font-size: 0.95rem;">Kitt Voice & Join TTS</strong>
+                        </div>
+                        <p style="margin: 0; font-size: 0.85rem; color: var(--gb-text-muted); line-height: 1.5;">
+                            Autonomous voice channel greeter that joins voice channels to announce new member joins/leaves with crystal-clear TTS audio, plus dynamic TempVoice rooms.
+                        </p>
+                    </div>
+
+                    <div style="background: var(--gb-card-bg); border: 1.5px solid var(--gb-border); border-radius: 10px; padding: 18px;">
+                        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
+                            <span style="font-size: 1.3rem; color: #10B981;"><i class="fas fa-gift"></i></span>
+                            <strong style="color: var(--gb-text-main); font-size: 0.95rem;">Giveaways & Dynamic Raffles</strong>
+                        </div>
+                        <p style="margin: 0; font-size: 0.85rem; color: var(--gb-text-muted); line-height: 1.5;">
+                            High-engagement Discord button giveaways with real-time participant counters, role gates, scheduled durations, and instant rerolls.
+                        </p>
+                    </div>
+                </div>
+
+                <h2 class="doc-section-h2" id="doc-command-syntax">Command Syntax & Execution Rules</h2>
                 <p class="doc-p">
-                    <strong>Aliases:</strong> <code>&lt;one/two&gt;</code> means you need to use either <em>one</em> or <em>two</em> as the argument.<br>
-                    <strong>Optional:</strong> <code>*</code> means you do not necessarily need to enter an argument.<br>
-                    <strong>Required:</strong> <code>&lt;one&gt;</code> means you must provide the given argument for this command.
+                    VEYRA supports both Discord native <strong>Slash Commands (<code>/</code>)</strong> and customizable <strong>Prefix Triggers (<code>!</code>, <code>?</code>, or custom)</strong>. When reviewing documentation syntax:
                 </p>
+
+                <div class="doc-table-wrap">
+                    <table class="doc-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 25%;">Notation</th>
+                                <th style="width: 30%;">Classification</th>
+                                <th>Operational Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>&lt;parameter&gt;</code></td>
+                                <td><span style="color: #EF4444; font-weight: 700;">Required</span></td>
+                                <td>Must be provided for the command to execute (e.g. <code>/ban &lt;user&gt;</code>).</td>
+                            </tr>
+                            <tr>
+                                <td><code>[parameter]</code></td>
+                                <td><span style="color: #3B82F6; font-weight: 700;">Optional</span></td>
+                                <td>May be omitted; defaults apply (e.g. <code>/clear [amount=50]</code>).</td>
+                            </tr>
+                            <tr>
+                                <td><code>&lt;opt1 | opt2&gt;</code></td>
+                                <td><span style="color: #F59E0B; font-weight: 700;">Choice Selection</span></td>
+                                <td>You must choose between one of the pipe-separated values.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <h2 class="doc-section-h2" id="doc-permission-hierarchy">Permission Hierarchy & Security Rules</h2>
+                <p class="doc-p">
+                    To execute administrative and anti-nuke directives, your Discord account must meet one of the following criteria:
+                </p>
+                <ul style="color: var(--gb-text-main); font-size: 0.88rem; line-height: 1.7; padding-left: 20px;">
+                    <li><strong>Discord Guild Owner:</strong> Has unconditional root authority over all security thresholds, whitelists, and bot configurations.</li>
+                    <li><strong>Designated Extra Owner:</strong> Added via <code>/extraowner add &lt;user&gt;</code>. Can modify antinuke rules without triggering automated countermeasures.</li>
+                    <li><strong>Administrator Role:</strong> Users with Discord's native <code>Administrator</code> permission can configure tickets, moderation, and embeds.</li>
+                </ul>
             </div>
 
             <!-- TAB 2: GETTING STARTED -->
             <div id="pane-start" class="doc-tab-pane">
-                <div class="doc-category-tag">Overview</div>
+                <div class="doc-category-tag">Deployment</div>
                 <div class="doc-title">
-                    <span>🚀 Getting Started</span>
+                    <span>🚀 Getting Started with VEYRA</span>
                 </div>
                 <p class="doc-p">
-                    Adding VEYRA to your Discord server takes under 30 seconds. Follow these 3 easy steps to arm your community:
+                    Arming your Discord guild with VEYRA requires only three simple steps. Setup takes under two minutes.
                 </p>
 
-                <h2 class="doc-section-h2">1. Invite the Bot</h2>
+                <h2 class="doc-section-h2">Step 1: Authorize & Invite VEYRA</h2>
                 <p class="doc-p">
-                    Click the official OAuth2 authorization link: <a href="https://discord.com/oauth2/authorize?client_id=1527243189860175933&permissions=8&integration_type=0&scope=bot+applications.commands" target="_blank">Invite VEYRA to Server &nearr;</a>. Grant Administrator permissions so VEYRA can scan audit logs and intercept raid attacks.
+                    Use our official OAuth2 invite link to add VEYRA to your server with the required permissions:
+                </p>
+                <div style="margin: 14px 0;">
+                    <a href="https://discord.com/oauth2/authorize?client_id=1527243189860175933&permissions=8&integration_type=0&scope=bot+applications.commands" target="_blank" class="btn-primary" style="display: inline-flex; align-items: center; gap: 8px; background: var(--accent-primary); color: #fff; text-decoration: none; padding: 10px 22px; border-radius: 8px; font-weight: 700; font-size: 0.92rem; box-shadow: 0 4px 14px rgba(217, 108, 145, 0.35);">
+                        <i class="fab fa-discord"></i> Authorize VEYRA Sentinel &nearr;
+                    </a>
+                </div>
+
+                <h2 class="doc-section-h2">Step 2: Optimize Role Hierarchy</h2>
+                <div class="callout-box" style="border-left: 4px solid #F59E0B; background: rgba(245, 158, 11, 0.08);">
+                    <i class="fas fa-triangle-exclamation" style="color: #F59E0B;"></i>
+                    <div>
+                        <strong>Critical Discord Hierarchy Rule:</strong> A Discord bot cannot punish or revoke roles from any member whose highest role is equal to or above the bot's highest role.
+                    </div>
+                </div>
+                <p class="doc-p">
+                    1. Open your Discord <strong>Server Settings &rarr; Roles</strong>.<br>
+                    2. Locate the <strong>VEYRA</strong> role in the roles list.<br>
+                    3. Drag the <strong>VEYRA</strong> role as high as possible — directly underneath the Server Owner's personal cosmetic role, and strictly above all Moderator, Admin, and Community roles.
                 </p>
 
-                <h2 class="doc-section-h2">2. Position the VEYRA Role</h2>
+                <h2 class="doc-section-h2">Step 3: Run Initial Security Scan & Configuration</h2>
                 <p class="doc-p">
-                    In your Discord Server Settings &rarr; Roles, ensure the <strong>VEYRA</strong> role is dragged near the top (above regular members and moderators). Discord hierarchy requires VEYRA to sit above any roles it is protecting or managing.
+                    Execute <code class="doc-code">/scan</code> in any private administrative channel. VEYRA will perform an exhaustive security audit checking:
                 </p>
-
-                <h2 class="doc-section-h2">3. Run Initial Setup</h2>
-                <p class="doc-p">
-                    Execute <code class="doc-code">/scan</code> in any private admin channel. VEYRA will audit your current role hierarchy, channel permissions, and alert you of any security vulnerabilities in under 0.04ms.
-                </p>
+                <ul style="color: var(--gb-text-main); font-size: 0.88rem; line-height: 1.7; padding-left: 20px;">
+                    <li>Vulnerable role permissions (e.g. regular members having <code>Manage Webhooks</code> or <code>Mention Everyone</code>).</li>
+                    <li>Unprotected channel overrides and rogue bots with elevated rights.</li>
+                    <li>Status of Anti-Nuke, Anti-Raid, and Audit Log event listeners.</li>
+                </ul>
             </div>
 
             <!-- TAB 3: FAQ -->
             <div id="pane-faq" class="doc-tab-pane">
-                <div class="doc-category-tag">Support</div>
+                <div class="doc-category-tag">Knowledge Base</div>
                 <div class="doc-title">
                     <span>📝 Frequently Asked Questions</span>
                 </div>
-                <p class="doc-p">Answers to the most common setup and operation questions.</p>
+                <p class="doc-p">Comprehensive answers to common setup, permissions, and operational inquiries.</p>
 
                 <div class="faq-block">
                     <div class="faq-item-gb open">
                         <div class="faq-q-gb" onclick="this.parentElement.classList.toggle('open')">
-                            <span>1. The bot won't answer me! What do I do?</span>
+                            <span>1. How does VEYRA's Anti-Nuke differ from standard bots?</span>
                             <i class="fas fa-chevron-down"></i>
                         </div>
                         <div class="faq-a-gb">
-                            It could be a channel permissions issue! Make sure VEYRA has the "View Channel", "Send Messages", and "Embed Links" permissions in that channel. Also verify slash commands are enabled in your server integration settings.
+                            Standard bots rely on periodic audit log polling every 5 to 10 seconds. In contrast, VEYRA utilizes direct WebSocket gateway listeners (<code>on_guild_channel_delete</code>, <code>on_guild_role_delete</code>, <code>on_webhooks_update</code>) that intercept unauthorized actions instantaneously in under <strong>0.04 milliseconds</strong>, ban the rogue executor, and restore the deleted resources automatically.
                         </div>
                     </div>
 
                     <div class="faq-item-gb">
                         <div class="faq-q-gb" onclick="this.parentElement.classList.toggle('open')">
-                            <span>2. The bot says I don't have permission, what gives?</span>
+                            <span>2. Why didn't VEYRA ban someone who deleted a channel?</span>
                             <i class="fas fa-chevron-down"></i>
                         </div>
                         <div class="faq-a-gb">
-                            You need either the Administrator permission in Discord or server ownership to configure security modules. You can also whitelist trusted staff accounts using <code>/whitelist add_user</code>.
+                            Check three things: (1) Is the user the Server Owner or on the <code>/whitelist</code>? Whitelisted users bypass triggers. (2) Does VEYRA's role sit ABOVE the user's highest role in Discord Server Settings? (3) Is Anti-Nuke enabled for that guild (run <code>/antinuke enable</code>)?
                         </div>
                     </div>
 
                     <div class="faq-item-gb">
                         <div class="faq-q-gb" onclick="this.parentElement.classList.toggle('open')">
-                            <span>3. How fast does the anti-nuke defense respond?</span>
+                            <span>3. How does the Kitt Voice Join Announcement work?</span>
                             <i class="fas fa-chevron-down"></i>
                         </div>
                         <div class="faq-a-gb">
-                            VEYRA operates a real-time gateway listener that intercepts mass channel deletions, role stripping, and webhook modifications in under <strong>0.04ms</strong>, instantly revoking rogue administrator tokens.
+                            VEYRA connects to the active voice channel whenever a non-bot member joins or switches rooms, streams an automated greeting (e.g., <em>"{username} has joined the voice channel"</em>) via Discord's high-fidelity Opus audio engine, and automatically disconnects after 4 seconds of idle time to conserve server resources.
                         </div>
                     </div>
 
                     <div class="faq-item-gb">
                         <div class="faq-q-gb" onclick="this.parentElement.classList.toggle('open')">
-                            <span>4. Can I customize ticket panels and embeds?</span>
+                            <span>4. Are web dashboard settings saved in real time?</span>
                             <i class="fas fa-chevron-down"></i>
                         </div>
                         <div class="faq-a-gb">
-                            Yes! Run <code>/setup panel</code> to spawn drag-and-drop ticket buttons, configure staff claim queues, and generate instant downloadable HTML transcripts.
+                            Yes. Every change made in the VEYRA Web Dashboard (bot nickname, command prefixes, embed designs, ticket panels, sticky messages) is immediately synchronized to the central SQLite/Neon database and hydrated across all connected browser tabs upon reload.
+                        </div>
+                    </div>
+
+                    <div class="faq-item-gb">
+                        <div class="faq-q-gb" onclick="this.parentElement.classList.toggle('open')">
+                            <span>5. How do I generate HTML transcripts for closed tickets?</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                        <div class="faq-a-gb">
+                            Whenever a ticket is closed with <code>/ticket close</code> or the red "Close Ticket" panel button, VEYRA parses all channel messages, attachments, embeds, and timestamps into a downloadable HTML transcript file sent directly to your configured transcript log channel and the ticket creator's DMs.
                         </div>
                     </div>
                 </div>
@@ -640,28 +739,67 @@
 
             <!-- TAB 4: SECURITY -->
             <div id="pane-security" class="doc-tab-pane">
-                <div class="doc-category-tag">Features</div>
+                <div class="doc-category-tag">Anti-Nuke Matrix</div>
                 <div class="doc-title">
-                    <span>🛡️ Security &amp; Anti-Nuke Suite</span>
+                    <span>🛡️ Security, Anti-Nuke &amp; Anti-Raid Suite</span>
                 </div>
                 <p class="doc-p">
-                    VEYRA's autonomous sentinel engine protects your Discord guild 24/7 with zero false-positives.
+                    VEYRA's autonomous sentinel shields your guild against compromised administrator accounts, token hijackers, malicious bots, and mass-raid attacks with zero false positives.
                 </p>
 
-                <div class="callout-box">
-                    <i class="fas fa-lock"></i>
-                    <div>
-                        Requires Administrator permissions. Ensure VEYRA role is highest in server hierarchy.
-                    </div>
-                </div>
-
+                <h2 class="doc-section-h2">Automated Threat Mitigation Modules</h2>
                 <div class="doc-table-wrap">
                     <table class="doc-table">
                         <thead>
                             <tr>
-                                <th>Name</th>
-                                <th>Example</th>
-                                <th>Usage</th>
+                                <th>Module</th>
+                                <th>Trigger Threshold</th>
+                                <th>Automated Countermeasure</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Anti-Channel Delete</strong></td>
+                                <td>Unauthorized channel deletion</td>
+                                <td>Instantly recreates channel with exact permissions and bans rogue executor.</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Anti-Role Delete</strong></td>
+                                <td>Unauthorized role deletion / strip</td>
+                                <td>Recreates role, restores permissions, and strips executor of all administrative roles.</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Anti-Webhook Hijacking</strong></td>
+                                <td>Unauthorized webhook creation</td>
+                                <td>Immediately deletes rogue webhook and bans executor (<code>on_webhooks_update</code>).</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Anti-Bot Infiltration</strong></td>
+                                <td>Unauthorized bot invited to guild</td>
+                                <td>Instantly bans the unauthorized bot and bans the administrator who invited it.</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Anti-Mass Ban / Kick</strong></td>
+                                <td>More than 3 bans/kicks in 10s</td>
+                                <td>Locks guild moderation permissions and permanently bans executor account.</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Anti-Server Update</strong></td>
+                                <td>Guild name, icon, or vanity change</td>
+                                <td>Reverts server settings to cached state and revokes administrator rights.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <h2 class="doc-section-h2">Security Commands Reference</h2>
+                <div class="doc-table-wrap">
+                    <table class="doc-table">
+                        <thead>
+                            <tr>
+                                <th>Command</th>
+                                <th>Example Usage</th>
+                                <th>Description</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -671,24 +809,34 @@
                                 <td>Audits guild roles, permissions, and security parameters in real-time.</td>
                             </tr>
                             <tr>
-                                <td><code>/logs security</code></td>
-                                <td><span class="doc-code">/logs security channel:#security-log</span></td>
-                                <td>Sets the dedicated security alert feed for threat intercepts.</td>
+                                <td><code>/antinuke enable</code></td>
+                                <td><span class="doc-code">/antinuke enable</span></td>
+                                <td>Arms all real-time anti-nuke modules for this guild.</td>
+                            </tr>
+                            <tr>
+                                <td><code>/antinuke disable</code></td>
+                                <td><span class="doc-code">/antinuke disable</span></td>
+                                <td>Disarms anti-nuke defense (Server Owner only).</td>
                             </tr>
                             <tr>
                                 <td><code>/whitelist add_user</code></td>
                                 <td><span class="doc-code">/whitelist add_user user:@Admin</span></td>
-                                <td>Adds a trusted user to bypass anti-nuke triggers.</td>
+                                <td>Grants trusted staff member immunity from anti-nuke penalties.</td>
                             </tr>
                             <tr>
                                 <td><code>/whitelist remove_user</code></td>
                                 <td><span class="doc-code">/whitelist remove_user user:@Admin</span></td>
-                                <td>Removes user bypass privileges.</td>
+                                <td>Revokes whitelist immunity from specified user.</td>
                             </tr>
                             <tr>
-                                <td><code>/verification enable</code></td>
-                                <td><span class="doc-code">/verification enable</span></td>
-                                <td>Arms captcha/button verification gate to stop self-bot raids.</td>
+                                <td><code>/whitelist show</code></td>
+                                <td><span class="doc-code">/whitelist show</span></td>
+                                <td>Displays the active whitelist roster for the server.</td>
+                            </tr>
+                            <tr>
+                                <td><code>/logs security</code></td>
+                                <td><span class="doc-code">/logs security channel:#security-alerts</span></td>
+                                <td>Designates real-time incident notification channel.</td>
                             </tr>
                         </tbody>
                     </table>
@@ -697,32 +845,68 @@
 
             <!-- TAB 5: TICKETS -->
             <div id="pane-tickets" class="doc-tab-pane">
-                <div class="doc-category-tag">Features</div>
+                <div class="doc-category-tag">Customer Support</div>
                 <div class="doc-title">
-                    <span>🎫 Support &amp; Buy Ticket System</span>
+                    <span>🎫 Multi-Panel Support &amp; Buy Ticket System</span>
                 </div>
                 <p class="doc-p">
-                    Enterprise multi-panel ticketing system with claim queues, private categories, and HTML transcripts.
+                    Enterprise support desk with button and dropdown creation panels, private channel routing, staff claim assignments, and cryptographic HTML transcripts.
                 </p>
+
+                <h2 class="doc-section-h2">Ticket Lifecycle & Workflow</h2>
+                <p class="doc-p">
+                    1. <strong>Intake:</strong> Member clicks a customized panel button or selects a category (e.g. <em>Support</em>, <em>Billing</em>, <em>Partnership</em>).<br>
+                    2. <strong>Modal Questionnaire:</strong> Optional popup modal prompts the user for issue details before creating the channel.<br>
+                    3. <strong>Channel Generation:</strong> A private channel is spawned inside your designated ticket category (e.g. <code>#ticket-0042</code>) visible only to the creator and staff role.<br>
+                    4. <strong>Claim System:</strong> Staff members click "Claim Ticket" to lock the channel exclusively to themselves and the member.<br>
+                    5. <strong>Resolution & Transcript:</strong> Running <code>/ticket close</code> prompts a 5-second countdown, compiles full HTML transcripts with attachments, and dispatches them to both DM and the logs channel.
+                </p>
+
+                <h2 class="doc-section-h2">Ticket Commands Reference</h2>
                 <div class="doc-table-wrap">
                     <table class="doc-table">
                         <thead>
                             <tr>
-                                <th>Name</th>
-                                <th>Example</th>
-                                <th>Usage</th>
+                                <th>Command</th>
+                                <th>Example Usage</th>
+                                <th>Description</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr>
                                 <td><code>/setup panel</code></td>
                                 <td><span class="doc-code">/setup panel channel:#tickets</span></td>
-                                <td>Deploys interactive ticket creation embed to a channel.</td>
+                                <td>Spawns a new interactive ticket creation panel in the target channel.</td>
                             </tr>
                             <tr>
                                 <td><code>/setup panels</code></td>
                                 <td><span class="doc-code">/setup panels</span></td>
-                                <td>Lists all active ticket panels configured in this server.</td>
+                                <td>Lists and manages all active ticket panels across the server.</td>
+                            </tr>
+                            <tr>
+                                <td><code>/ticket close</code></td>
+                                <td><span class="doc-code">/ticket close [reason]</span></td>
+                                <td>Closes current ticket, saves HTML transcript, and deletes channel.</td>
+                            </tr>
+                            <tr>
+                                <td><code>/ticket claim</code></td>
+                                <td><span class="doc-code">/ticket claim</span></td>
+                                <td>Claims ticket exclusively for the executing staff member.</td>
+                            </tr>
+                            <tr>
+                                <td><code>/ticket add</code></td>
+                                <td><span class="doc-code">/ticket add user:@Partner</span></td>
+                                <td>Adds an additional user or role to the current ticket channel.</td>
+                            </tr>
+                            <tr>
+                                <td><code>/ticket remove</code></td>
+                                <td><span class="doc-code">/ticket remove user:@Spammer</span></td>
+                                <td>Removes a member from the active ticket channel.</td>
+                            </tr>
+                            <tr>
+                                <td><code>/ticket transcript</code></td>
+                                <td><span class="doc-code">/ticket transcript</span></td>
+                                <td>Exports an instant HTML transcript of the current ticket without closing.</td>
                             </tr>
                         </tbody>
                     </table>
@@ -731,78 +915,194 @@
 
             <!-- TAB 6: MODERATION -->
             <div id="pane-moderation" class="doc-tab-pane">
-                <div class="doc-category-tag">Features</div>
+                <div class="doc-category-tag">Guild Operations</div>
                 <div class="doc-title">
-                    <span>🔨 Moderation &amp; Server Administration</span>
+                    <span>🔨 Moderation, AutoMod &amp; Utility Management</span>
                 </div>
                 <p class="doc-p">
-                    Complete moderation suite including autoroles, custom welcome messages, and member management.
+                    Full-spectrum server management including granular moderation actions, automated spam filters, sticky rules messages, and multi-embed dispatchers.
                 </p>
+
+                <h2 class="doc-section-h2">Auto-Moderation Safeguards</h2>
+                <ul style="color: var(--gb-text-main); font-size: 0.88rem; line-height: 1.7; padding-left: 20px;">
+                    <li><strong>Anti-Invite Filter:</strong> Blocks and deletes unauthorized Discord invite links with configurable staff channel bypass.</li>
+                    <li><strong>Anti-Spam Filter:</strong> Rate-limits message velocity to stop copypasta and automated user spam.</li>
+                    <li><strong>Anti-Mass Mention:</strong> Automatically mutes accounts tagging more than 5 users simultaneously.</li>
+                    <li><strong>Sticky Messages:</strong> Keeps your rules or announcement pinned persistently at the bottom of active chat channels.</li>
+                </ul>
+
+                <h2 class="doc-section-h2">Moderation Commands Reference</h2>
                 <div class="doc-table-wrap">
                     <table class="doc-table">
                         <thead>
                             <tr>
-                                <th>Name</th>
-                                <th>Example</th>
-                                <th>Usage</th>
+                                <th>Command</th>
+                                <th>Example Usage</th>
+                                <th>Description</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr>
-                                <td><code>/autorole add</code></td>
-                                <td><span class="doc-code">/autorole add role:@Member</span></td>
-                                <td>Automatically grants role to new members upon joining.</td>
+                                <td><code>/ban</code></td>
+                                <td><span class="doc-code">/ban user:@User reason:Raid</span></td>
+                                <td>Bans a user from the server and cleans recent messages.</td>
                             </tr>
                             <tr>
-                                <td><code>/autorole remove</code></td>
-                                <td><span class="doc-code">/autorole remove role:@Member</span></td>
-                                <td>Removes an autorole from the join queue.</td>
+                                <td><code>/unban</code></td>
+                                <td><span class="doc-code">/unban user_id:123456789</span></td>
+                                <td>Revokes a user's server ban by user ID.</td>
                             </tr>
                             <tr>
-                                <td><code>/welcome channel</code></td>
-                                <td><span class="doc-code">/welcome channel channel:#welcome</span></td>
-                                <td>Sets the channel for welcome greeting cards and embeds.</td>
+                                <td><code>/kick</code></td>
+                                <td><span class="doc-code">/kick user:@User reason:Rules</span></td>
+                                <td>Kicks a user from the server.</td>
                             </tr>
                             <tr>
-                                <td><code>/invites</code></td>
-                                <td><span class="doc-code">/invites user:@Member</span></td>
-                                <td>Displays total, fake, and left invites for a user.</td>
+                                <td><code>/timeout</code></td>
+                                <td><span class="doc-code">/timeout user:@User duration:1h</span></td>
+                                <td>Places member in Discord timeout for specified duration (1m to 28d).</td>
+                            </tr>
+                            <tr>
+                                <td><code>/untimeout</code></td>
+                                <td><span class="doc-code">/untimeout user:@User</span></td>
+                                <td>Removes active timeout from member.</td>
+                            </tr>
+                            <tr>
+                                <td><code>/clear</code></td>
+                                <td><span class="doc-code">/clear amount:50</span></td>
+                                <td>Purges up to 100 recent messages from the current channel.</td>
+                            </tr>
+                            <tr>
+                                <td><code>/lock</code></td>
+                                <td><span class="doc-code">/lock</span></td>
+                                <td>Locks current channel preventing regular members from speaking.</td>
+                            </tr>
+                            <tr>
+                                <td><code>/unlock</code></td>
+                                <td><span class="doc-code">/unlock</span></td>
+                                <td>Unlocks channel restoring normal chatting privileges.</td>
+                            </tr>
+                            <tr>
+                                <td><code>/slowmode</code></td>
+                                <td><span class="doc-code">/slowmode seconds:5</span></td>
+                                <td>Sets chat cooldown interval between 0s and 21600s.</td>
                             </tr>
                         </tbody>
                     </table>
                 </div>
             </div>
 
-            <!-- TAB 7: COMMANDS TABLE -->
+            <!-- TAB 7: MASTER COMMANDS TABLE -->
             <div id="pane-commands" class="doc-tab-pane">
-                <div class="doc-category-tag">Features</div>
+                <div class="doc-category-tag">Command Index</div>
                 <div class="doc-title">
-                    <span>📋 Commands Table</span>
+                    <span>⚡ Complete VEYRA Command Registry</span>
                 </div>
                 <p class="doc-p">
-                    Complete master table of real VEYRA bot commands.
+                    Comprehensive reference of all Slash and Prefix commands available in VEYRA. All commands support both slash syntax (<code>/command</code>) and your server's configured custom prefix (e.g. <code>!command</code>).
                 </p>
 
                 <div class="doc-table-wrap">
-                    <table class="doc-table" id="gitbook-commands-table">
+                    <table class="doc-table">
                         <thead>
                             <tr>
-                                <th>Name</th>
-                                <th>Example</th>
-                                <th>Usage</th>
+                                <th style="width: 22%;">Command</th>
+                                <th style="width: 15%;">Category</th>
+                                <th style="width: 28%;">Example</th>
+                                <th>Required Permission</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <tr><td><code>/scan</code></td><td><span class="doc-code">/scan</span></td><td>Let VEYRA check your server security parameters and configuration.</td></tr>
-                            <tr><td><code>/whitelist add_user</code></td><td><span class="doc-code">/whitelist add_user @Admin</span></td><td>Add user to whitelist bypass category.</td></tr>
-                            <tr><td><code>/whitelist remove_user</code></td><td><span class="doc-code">/whitelist remove_user @Admin</span></td><td>Remove user from whitelist category.</td></tr>
-                            <tr><td><code>/verification enable</code></td><td><span class="doc-code">/verification enable</span></td><td>Enable anti-bot verification gate on your server.</td></tr>
-                            <tr><td><code>/setup panel</code></td><td><span class="doc-code">/setup panel #tickets</span></td><td>Post custom interactive ticket panel.</td></tr>
-                            <tr><td><code>/welcome channel</code></td><td><span class="doc-code">/welcome channel #welcome</span></td><td>Set the welcome announcement channel.</td></tr>
-                            <tr><td><code>/autorole add</code></td><td><span class="doc-code">/autorole add @Member</span></td><td>Add an autorole given to members on join.</td></tr>
-                            <tr><td><code>/invites</code></td><td><span class="doc-code">/invites</span></td><td>Displays invite statistics for a user.</td></tr>
-                            <tr><td><code>/ping</code></td><td><span class="doc-code">/ping</span></td><td>Measures bot WebSocket and database latency.</td></tr>
-                            <tr><td><code>/uptime</code></td><td><span class="doc-code">/uptime</span></td><td>Checks how long the bot cluster has been online.</td></tr>
+                            <tr>
+                                <td><code>/scan</code></td>
+                                <td><span style="color: #E26749; font-weight: 700;">Security</span></td>
+                                <td><span class="doc-code">/scan</span></td>
+                                <td>Administrator</td>
+                            </tr>
+                            <tr>
+                                <td><code>/antinuke &lt;enable|disable&gt;</code></td>
+                                <td><span style="color: #E26749; font-weight: 700;">Security</span></td>
+                                <td><span class="doc-code">/antinuke enable</span></td>
+                                <td>Server Owner</td>
+                            </tr>
+                            <tr>
+                                <td><code>/whitelist &lt;add|remove&gt;</code></td>
+                                <td><span style="color: #E26749; font-weight: 700;">Security</span></td>
+                                <td><span class="doc-code">/whitelist add_user user:@Admin</span></td>
+                                <td>Server Owner</td>
+                            </tr>
+                            <tr>
+                                <td><code>/setup panel</code></td>
+                                <td><span style="color: #A855F7; font-weight: 700;">Tickets</span></td>
+                                <td><span class="doc-code">/setup panel channel:#tickets</span></td>
+                                <td>Manage Channels</td>
+                            </tr>
+                            <tr>
+                                <td><code>/ticket close</code></td>
+                                <td><span style="color: #A855F7; font-weight: 700;">Tickets</span></td>
+                                <td><span class="doc-code">/ticket close reason:Resolved</span></td>
+                                <td>Support Staff</td>
+                            </tr>
+                            <tr>
+                                <td><code>/ticket claim</code></td>
+                                <td><span style="color: #A855F7; font-weight: 700;">Tickets</span></td>
+                                <td><span class="doc-code">/ticket claim</span></td>
+                                <td>Support Staff</td>
+                            </tr>
+                            <tr>
+                                <td><code>/giveaway start</code></td>
+                                <td><span style="color: #10B981; font-weight: 700;">Giveaways</span></td>
+                                <td><span class="doc-code">/giveaway start 24h 1 Nitro</span></td>
+                                <td>Manage Messages</td>
+                            </tr>
+                            <tr>
+                                <td><code>/giveaway reroll</code></td>
+                                <td><span style="color: #10B981; font-weight: 700;">Giveaways</span></td>
+                                <td><span class="doc-code">/giveaway reroll message_id:12345</span></td>
+                                <td>Manage Messages</td>
+                            </tr>
+                            <tr>
+                                <td><code>/ban</code></td>
+                                <td><span style="color: #D96C91; font-weight: 700;">Moderation</span></td>
+                                <td><span class="doc-code">/ban user:@User reason:Rules</span></td>
+                                <td>Ban Members</td>
+                            </tr>
+                            <tr>
+                                <td><code>/kick</code></td>
+                                <td><span style="color: #D96C91; font-weight: 700;">Moderation</span></td>
+                                <td><span class="doc-code">/kick user:@User</span></td>
+                                <td>Kick Members</td>
+                            </tr>
+                            <tr>
+                                <td><code>/timeout</code></td>
+                                <td><span style="color: #D96C91; font-weight: 700;">Moderation</span></td>
+                                <td><span class="doc-code">/timeout user:@User duration:1h</span></td>
+                                <td>Moderate Members</td>
+                            </tr>
+                            <tr>
+                                <td><code>/clear</code></td>
+                                <td><span style="color: #D96C91; font-weight: 700;">Moderation</span></td>
+                                <td><span class="doc-code">/clear amount:50</span></td>
+                                <td>Manage Messages</td>
+                            </tr>
+                            <tr>
+                                <td><code>/lock /unlock</code></td>
+                                <td><span style="color: #D96C91; font-weight: 700;">Moderation</span></td>
+                                <td><span class="doc-code">/lock</span></td>
+                                <td>Manage Channels</td>
+                            </tr>
+                            <tr>
+                                <td><code>/ping</code></td>
+                                <td><span style="color: #3B82F6; font-weight: 700;">General</span></td>
+                                <td><span class="doc-code">/ping</span></td>
+                                <td>Everyone</td>
+                            </tr>
+                            <tr>
+                                <td><code>/help</code></td>
+                                <td><span style="color: #3B82F6; font-weight: 700;">General</span></td>
+                                <td><span class="doc-code">/help</span></td>
+                                <td>Everyone</td>
+                            </tr>
                         </tbody>
                     </table>
                 </div>

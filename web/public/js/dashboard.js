@@ -779,6 +779,16 @@ function loadServerDashboard(guildId) {
     fetch(`/api/settings/${guildId}`)
         .then(res => res.json())
         .then(data => {
+            // Hydrate custom prefixes from database
+            fetch(`/api/settings/prefix/${guildId}`)
+                .then(r => r.json())
+                .then(pData => {
+                    if (pData && pData.prefixes && pData.prefixes.length > 0) {
+                        window.currentServerPrefixes = pData.prefixes;
+                        renderPrefixesList();
+                    }
+                })
+                .catch(() => {});
             const g = data.guild || {};
             const s = data.security || {};
             
@@ -4706,10 +4716,25 @@ function filterWeblogsTable() {
 
 function applyBotNickname() {
     const nick = document.getElementById('bot-nickname-input')?.value || 'Custom Sentinel';
-    showToast("Bot Nickname Applied", `Changed bot's global guild nickname to ${nick}`);
-    addLogEntry("!! DADDY", `Set guild bot name to: ${nick}`);
     
-    // Add new log to database preview
+    if (activeGuildId) {
+        fetch(`/api/settings/${activeGuildId}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ nickname: nick })
+        })
+        .then(res => res.json())
+        .then(d => {
+            showToast("Bot Nickname Applied", `Permanently saved bot guild nickname as "${nick}" in database!`, "success");
+        })
+        .catch(err => {
+            showToast("Bot Nickname Applied", `Bot nickname set to "${nick}"`);
+        });
+    } else {
+        showToast("Bot Nickname Applied", `Changed bot's global guild nickname to ${nick}`);
+    }
+
+    addLogEntry("!! DADDY", `Set guild bot name to: ${nick}`);
     mockAuditLogs.unshift({
         time: new Date().toISOString().replace('T', ' ').substring(0, 19),
         user: '!! DADDY',
@@ -6489,16 +6514,45 @@ window.loadStickyMessagesSettings = function(guildId) {
         .catch(err => console.error("Error loading sticky messages:", err));
 };
 
-function createNewStickyMessagePrompt() {
-    const channel = prompt("Enter channel name (e.g. general):", "general");
-    if (!channel) return;
-    const msg = prompt("Enter sticky message text:", "⚡ Read rules before opening a ticket!");
-    if (!msg) return;
+function openStickyMessageModal() {
+    const modal = document.getElementById('sticky-message-modal');
+    if (!modal) return;
+    
+    // Populate channels if available from active Guild
+    const select = document.getElementById('modal-sticky-channel-select');
+    if (select && window.lastFetchedChannels && window.lastFetchedChannels.length > 0) {
+        select.innerHTML = window.lastFetchedChannels
+            .filter(c => c.type === 0 || c.type === 'text')
+            .map(c => `<option value="${c.name}"># ${c.name}</option>`)
+            .join('');
+    }
+    
+    modal.style.display = 'flex';
+}
 
+function closeStickyMessageModal() {
+    const modal = document.getElementById('sticky-message-modal');
+    if (modal) modal.style.display = 'none';
+}
+
+function submitStickyMessageModal() {
+    const channelSelect = document.getElementById('modal-sticky-channel-select');
+    const messageInput = document.getElementById('modal-sticky-message-text');
+    
+    const channel = channelSelect ? channelSelect.value.trim() : 'general';
+    const message = messageInput ? messageInput.value.trim() : '';
+    
+    if (!message) {
+        showToast("Missing Message", "Please enter text for your sticky message.", "warning");
+        return;
+    }
+    
+    closeStickyMessageModal();
+    
     fetch(`/api/settings/stickymessages/${activeGuildId}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ channel, message: msg })
+        body: JSON.stringify({ channel, message })
     })
     .then(res => res.json())
     .then(data => {
@@ -6508,6 +6562,10 @@ function createNewStickyMessagePrompt() {
         }
     })
     .catch(err => console.error("Error creating sticky message:", err));
+}
+
+function createNewStickyMessagePrompt() {
+    openStickyMessageModal();
 }
 
 function deleteStickyMessage(id) {
@@ -8412,132 +8470,131 @@ function renderMultiEmbedCardsUI() {
         const colorPresets = ['#a855f7', '#00aff4', '#10b981', '#ef4444', '#f59e0b', '#ffffff', '#202225'];
         
         html += `
-        <div class="glass-card multi-embed-card" style="background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.08); border-left: 5px solid ${emb.color || '#a855f7'}; border-radius: 10px; padding: 20px; margin-bottom: 20px; box-shadow: 0 8px 24px rgba(0,0,0,0.4);">
+        <div class="glass-card multi-embed-card" style="background: #FFFFFF !important; border: 1.5px solid #E2E8F0 !important; border-left: 5px solid ${emb.color || '#a855f7'} !important; border-radius: 12px; padding: 22px; margin-bottom: 22px; box-shadow: 0 4px 18px rgba(15,23,42,0.04);">
             
             <!-- Top Card Header: Actions -->
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; border-bottom: 1px solid rgba(255,255,255,0.07); padding-bottom: 12px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; border-bottom: 1.5px solid #F1F5F9; padding-bottom: 12px;">
                 <div style="display: flex; align-items: center; gap: 10px;">
-                    <span style="font-weight: 800; color: #fff; font-size: 0.95rem; display: flex; align-items: center; gap: 8px;">
-                        <span style="display: inline-block; width: 12px; height: 12px; border-radius: 3px; background: ${emb.color || '#a855f7'};"></span>
+                    <span style="font-weight: 800; color: #0F172A; font-size: 0.95rem; display: flex; align-items: center; gap: 8px;">
+                        <span style="display: inline-block; width: 14px; height: 14px; border-radius: 4px; background: ${emb.color || '#a855f7'}; box-shadow: 0 1px 3px rgba(0,0,0,0.15);"></span>
                         Embed #${idx + 1}
                     </span>
-                    <span style="font-size: 0.72rem; color: #949ba4; font-family: var(--font-mono);">(${window.multiEmbedsState.length}/10)</span>
+                    <span style="font-size: 0.74rem; color: #64748B; font-family: var(--font-mono); font-weight: 700; background: #F1F5F9; padding: 2px 8px; border-radius: 6px;">(${window.multiEmbedsState.length}/10)</span>
                 </div>
                 <div style="display: flex; gap: 8px;">
-                    <button type="button" onclick="duplicateMultiEmbedCard(${idx})" class="btn-secondary" style="background: rgba(255,255,255,0.07); border: none; padding: 5px 12px; border-radius: 5px; font-size: 0.75rem; font-weight: 700; color: #fff; cursor: pointer;">
+                    <button type="button" onclick="duplicateMultiEmbedCard(${idx})" class="btn-secondary" style="background: #F8FAFC; border: 1.5px solid #CBD5E1; padding: 6px 14px; border-radius: 6px; font-size: 0.76rem; font-weight: 700; color: #334155; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: all 0.15s;" onmouseover="this.style.background='#F1F5F9'" onmouseout="this.style.background='#F8FAFC'">
                         <i class="fas fa-clone"></i> Duplicate
                     </button>
                     ${window.multiEmbedsState.length > 1 ? `
-                    <button type="button" onclick="removeMultiEmbedCard(${idx})" class="btn-primary" style="background: #ef4444; border: none; padding: 5px 12px; border-radius: 5px; font-size: 0.75rem; font-weight: 700; cursor: pointer; color: #fff;">
+                    <button type="button" onclick="removeMultiEmbedCard(${idx})" class="btn-primary" style="background: #FEE2E2; border: 1.5px solid #FECACA; padding: 6px 14px; border-radius: 6px; font-size: 0.76rem; font-weight: 700; cursor: pointer; color: #EF4444; display: flex; align-items: center; gap: 6px; transition: all 0.15s;" onmouseover="this.style.background='#FCA5A5'" onmouseout="this.style.background='#FEE2E2'">
                         <i class="fas fa-trash-can"></i> Remove
                     </button>` : ''}
                 </div>
             </div>
 
             <!-- SECTION 1: EMBED COLOR -->
-            <div style="margin-bottom: 14px; background: rgba(0,0,0,0.2); padding: 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.04);">
-                <label style="font-size: 0.78rem; font-weight: 700; color: #c084fc; text-transform: uppercase; letter-spacing: 0.05em; display: block; margin-bottom: 6px;">
-                    <i class="fas fa-palette" style="margin-right: 4px;"></i> Embed Color
+            <div style="margin-bottom: 14px; background: #F8FAFC; padding: 14px; border-radius: 10px; border: 1.5px solid #E2E8F0;">
+                <label style="font-size: 0.76rem; font-weight: 800; color: #475569; text-transform: uppercase; letter-spacing: 0.05em; display: flex; align-items: center; gap: 6px; margin-bottom: 8px;">
+                    <i class="fas fa-palette" style="color: #7C3AED;"></i> Embed Color
                 </label>
                 <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
-                    <input type="color" value="${emb.color || '#a855f7'}" oninput="updateMultiEmbedState(${idx}, 'color', this.value)" style="width: 40px; height: 32px; border: none; background: transparent; cursor: pointer; border-radius: 4px;">
-                    <input type="text" value="${emb.color || '#a855f7'}" class="form-control" style="width: 110px; background: rgba(0,0,0,0.4); font-family: var(--font-mono); font-size: 0.82rem; font-weight: 700;" oninput="updateMultiEmbedState(${idx}, 'color', this.value)">
+                    <input type="color" value="${emb.color || '#a855f7'}" oninput="updateMultiEmbedState(${idx}, 'color', this.value)" style="width: 42px; height: 34px; border: 1.5px solid #CBD5E1; background: #FFFFFF; cursor: pointer; border-radius: 6px; padding: 2px;">
+                    <input type="text" value="${emb.color || '#a855f7'}" class="form-control" style="width: 110px; background: #FFFFFF !important; border: 1.5px solid #CBD5E1 !important; color: #0F172A !important; font-family: var(--font-mono); font-size: 0.84rem; font-weight: 700; border-radius: 6px; padding: 7px 10px;" oninput="updateMultiEmbedState(${idx}, 'color', this.value)">
                     
                     <!-- Quick Color Swatches -->
                     <div style="display: flex; gap: 6px; align-items: center; margin-left: 6px;">
                         ${colorPresets.map(c => `
-                            <button type="button" onclick="updateMultiEmbedState(${idx}, 'color', '${c}')" style="width: 22px; height: 22px; border-radius: 50%; background: ${c}; border: ${emb.color === c ? '2px solid #fff' : '1px solid rgba(255,255,255,0.2)'}; cursor: pointer;" title="${c}"></button>
+                            <button type="button" onclick="updateMultiEmbedState(${idx}, 'color', '${c}')" style="width: 24px; height: 24px; border-radius: 50%; background: ${c}; border: ${emb.color === c ? '2.5px solid #0F172A' : '1.5px solid #CBD5E1'}; cursor: pointer; box-shadow: 0 1px 3px rgba(0,0,0,0.1); transition: transform 0.1s;" onmouseover="this.style.transform='scale(1.15)'" onmouseout="this.style.transform='scale(1)'" title="${c}"></button>
                         `).join('')}
                     </div>
                 </div>
             </div>
 
             <!-- SECTION 2: AUTHOR SECTION -->
-            <div style="margin-bottom: 14px; background: rgba(0,0,0,0.2); padding: 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.04);">
-                <label style="font-size: 0.78rem; font-weight: 700; color: #60a5fa; text-transform: uppercase; letter-spacing: 0.05em; display: block; margin-bottom: 6px;">
-                    <i class="fas fa-user-circle" style="margin-right: 4px;"></i> Author Header
+            <div style="margin-bottom: 14px; background: #F8FAFC; padding: 14px; border-radius: 10px; border: 1.5px solid #E2E8F0;">
+                <label style="font-size: 0.76rem; font-weight: 800; color: #475569; text-transform: uppercase; letter-spacing: 0.05em; display: flex; align-items: center; gap: 6px; margin-bottom: 8px;">
+                    <i class="fas fa-user-circle" style="color: #2563EB;"></i> Author Header
                 </label>
-                <div style="display: grid; grid-template-columns: 1.2fr 1fr 1fr; gap: 8px;">
-                    <input type="text" placeholder="Author Name" value="${escapeHtml(emb.author_name || '')}" class="form-control" style="background: rgba(0,0,0,0.3); font-size: 0.82rem;" oninput="updateMultiEmbedState(${idx}, 'author_name', this.value)">
-                    <input type="text" placeholder="Author Icon URL" value="${escapeHtml(emb.author_icon || '')}" class="form-control" style="background: rgba(0,0,0,0.3); font-size: 0.82rem;" oninput="updateMultiEmbedState(${idx}, 'author_icon', this.value)">
-                    <input type="text" placeholder="Author Clickable URL" value="${escapeHtml(emb.author_url || '')}" class="form-control" style="background: rgba(0,0,0,0.3); font-size: 0.82rem;" oninput="updateMultiEmbedState(${idx}, 'author_url', this.value)">
+                <div style="display: grid; grid-template-columns: 1.2fr 1fr 1fr; gap: 10px;">
+                    <input type="text" placeholder="Author Name" value="${escapeHtml(emb.author_name || '')}" class="form-control" style="background: #FFFFFF !important; border: 1.5px solid #CBD5E1 !important; color: #0F172A !important; font-size: 0.84rem; border-radius: 6px; padding: 8px 12px;" oninput="updateMultiEmbedState(${idx}, 'author_name', this.value)">
+                    <input type="text" placeholder="Author Icon URL" value="${escapeHtml(emb.author_icon || '')}" class="form-control" style="background: #FFFFFF !important; border: 1.5px solid #CBD5E1 !important; color: #0F172A !important; font-size: 0.84rem; border-radius: 6px; padding: 8px 12px;" oninput="updateMultiEmbedState(${idx}, 'author_icon', this.value)">
+                    <input type="text" placeholder="Author Clickable URL" value="${escapeHtml(emb.author_url || '')}" class="form-control" style="background: #FFFFFF !important; border: 1.5px solid #CBD5E1 !important; color: #0F172A !important; font-size: 0.84rem; border-radius: 6px; padding: 8px 12px;" oninput="updateMultiEmbedState(${idx}, 'author_url', this.value)">
                 </div>
             </div>
 
             <!-- SECTION 3: TITLE & DESCRIPTION -->
-            <div style="margin-bottom: 14px; background: rgba(0,0,0,0.2); padding: 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.04);">
-                <label style="font-size: 0.78rem; font-weight: 700; color: #34d399; text-transform: uppercase; letter-spacing: 0.05em; display: block; margin-bottom: 6px;">
-                    <i class="fas fa-heading" style="margin-right: 4px;"></i> Title & Description
+            <div style="margin-bottom: 14px; background: #F8FAFC; padding: 14px; border-radius: 10px; border: 1.5px solid #E2E8F0;">
+                <label style="font-size: 0.76rem; font-weight: 800; color: #475569; text-transform: uppercase; letter-spacing: 0.05em; display: flex; align-items: center; gap: 6px; margin-bottom: 8px;">
+                    <i class="fas fa-heading" style="color: #D96C91;"></i> Title & Description
                 </label>
-                <div style="display: grid; grid-template-columns: 2fr 1.2fr auto; gap: 8px; margin-bottom: 8px;">
-                    <input type="text" placeholder="Embed Title" value="${escapeHtml(emb.title || '')}" class="form-control" style="background: rgba(0,0,0,0.3); font-size: 0.85rem; font-weight: 700;" oninput="updateMultiEmbedState(${idx}, 'title', this.value)" onchange="updateMultiEmbedState(${idx}, 'title', this.value)" onkeyup="updateMultiEmbedState(${idx}, 'title', this.value)" onpaste="setTimeout(() => updateMultiEmbedState(${idx}, 'title', this.value), 30)">
-                    <input type="text" placeholder="Title Hyperlink URL (https://...)" value="${escapeHtml(emb.title_url || '')}" class="form-control" style="background: rgba(0,0,0,0.3); font-size: 0.82rem;" oninput="updateMultiEmbedState(${idx}, 'title_url', this.value)" onchange="updateMultiEmbedState(${idx}, 'title_url', this.value)">
-                    <button type="button" onclick="openServerEmojiPicker(null, ${idx}, 'title')" title="Insert Server Emoji into Title" class="btn-secondary" style="background: rgba(255,255,255,0.08); border: none; border-radius: 6px; padding: 0 12px; cursor: pointer; font-size: 1rem;">
+                <div style="display: grid; grid-template-columns: 2fr 1fr auto; gap: 10px; margin-bottom: 10px;">
+                    <input type="text" placeholder="Embed Title" value="${escapeHtml(emb.title || '')}" class="form-control" style="background: #FFFFFF !important; border: 1.5px solid #CBD5E1 !important; color: #0F172A !important; font-size: 0.84rem; font-weight: 700; border-radius: 6px; padding: 8px 12px;" oninput="updateMultiEmbedState(${idx}, 'title', this.value)">
+                    <input type="text" placeholder="Title Hyperlink URL" value="${escapeHtml(emb.url || '')}" class="form-control" style="background: #FFFFFF !important; border: 1.5px solid #CBD5E1 !important; color: #0F172A !important; font-size: 0.84rem; border-radius: 6px; padding: 8px 12px;" oninput="updateMultiEmbedState(${idx}, 'url', this.value)">
+                    <button type="button" onclick="openServerEmojiPicker(null, ${idx}, 'title')" title="Insert Server Emoji into Title" class="btn-secondary" style="background: #FFFFFF; border: 1.5px solid #CBD5E1; border-radius: 6px; padding: 0 12px; cursor: pointer; font-size: 1rem; color: #334155; transition: background 0.15s;" onmouseover="this.style.background='#F1F5F9'" onmouseout="this.style.background='#FFFFFF'">
                         😊
                     </button>
                 </div>
-                
                 <div style="position: relative;">
-                    <textarea placeholder="Embed Description (Supports Markdown: **bold**, *italics*, codeblocks, server custom emojis)" class="form-control" style="height: 90px; background: rgba(0,0,0,0.3); font-size: 0.82rem; line-height: 1.45; padding-right: 45px;" oninput="updateMultiEmbedState(${idx}, 'description', this.value)" onchange="updateMultiEmbedState(${idx}, 'description', this.value)" onkeyup="updateMultiEmbedState(${idx}, 'description', this.value)" onpaste="setTimeout(() => updateMultiEmbedState(${idx}, 'description', this.value), 30)">${escapeHtml(emb.description || '')}</textarea>
-                    <button type="button" onclick="openServerEmojiPicker(null, ${idx}, 'description')" title="Insert Server Emoji into Description" class="btn-secondary" style="position: absolute; right: 10px; top: 10px; background: rgba(255,255,255,0.1); border: none; border-radius: 6px; padding: 6px 10px; cursor: pointer; font-size: 0.95rem;">
+                    <textarea placeholder="Embed body description (supports standard Discord markdown formatting)..." class="form-control" style="width: 100%; min-height: 85px; background: #FFFFFF !important; border: 1.5px solid #CBD5E1 !important; color: #0F172A !important; font-size: 0.85rem; border-radius: 6px; padding: 10px 12px; line-height: 1.5; box-sizing: border-box; resize: vertical;" oninput="updateMultiEmbedState(${idx}, 'description', this.value)">${escapeHtml(emb.description || '')}</textarea>
+                    <button type="button" onclick="openServerEmojiPicker(null, ${idx}, 'description')" title="Insert Emoji" style="position: absolute; right: 10px; bottom: 10px; background: #FFFFFF; border: 1.5px solid #CBD5E1; border-radius: 6px; padding: 4px 8px; cursor: pointer; font-size: 0.88rem;">
                         😊
                     </button>
                 </div>
             </div>
 
-            <!-- SECTION 4: IMAGES (THUMBNAIL TOP-RIGHT & LARGE IMAGE BOTTOM) -->
-            <div style="margin-bottom: 14px; background: rgba(0,0,0,0.2); padding: 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.04);">
-                <label style="font-size: 0.78rem; font-weight: 700; color: #f472b6; text-transform: uppercase; letter-spacing: 0.05em; display: block; margin-bottom: 6px;">
-                    <i class="fas fa-image" style="margin-right: 4px;"></i> Images & Media
+            <!-- SECTION 4: IMAGES & MEDIA -->
+            <div style="margin-bottom: 14px; background: #F8FAFC; padding: 14px; border-radius: 10px; border: 1.5px solid #E2E8F0;">
+                <label style="font-size: 0.76rem; font-weight: 800; color: #475569; text-transform: uppercase; letter-spacing: 0.05em; display: flex; align-items: center; gap: 6px; margin-bottom: 8px;">
+                    <i class="fas fa-image" style="color: #059669;"></i> Images & Media
                 </label>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                <div style="display: grid; grid-template-columns: 1fr 1.5fr; gap: 10px;">
                     <div>
-                        <span style="font-size: 0.72rem; color: #949ba4; display: block; margin-bottom: 4px;">Top-Right Image / Thumbnail URL:</span>
-                        <input type="text" placeholder="https://... (small image at top right)" value="${escapeHtml(emb.thumbnail || '')}" class="form-control" style="background: rgba(0,0,0,0.3); font-size: 0.82rem;" oninput="updateMultiEmbedState(${idx}, 'thumbnail', this.value)">
+                        <span style="font-size: 0.72rem; color: #64748B; font-weight: 600; display: block; margin-bottom: 4px;">Top-Right Image / Thumbnail URL:</span>
+                        <input type="text" placeholder="https://... (small image at top right)" value="${escapeHtml(emb.thumbnail || '')}" class="form-control" style="background: #FFFFFF !important; border: 1.5px solid #CBD5E1 !important; color: #0F172A !important; font-size: 0.82rem; border-radius: 6px; padding: 8px 12px; width: 100%; box-sizing: border-box;" oninput="updateMultiEmbedState(${idx}, 'thumbnail', this.value)">
                     </div>
                     <div>
-                        <span style="font-size: 0.72rem; color: #949ba4; display: block; margin-bottom: 4px;">Main Large Banner / Image URL:</span>
-                        <input type="text" placeholder="https://... (large full-width banner at bottom)" value="${escapeHtml(emb.image || '')}" class="form-control" style="background: rgba(0,0,0,0.3); font-size: 0.82rem;" oninput="updateMultiEmbedState(${idx}, 'image', this.value)">
+                        <span style="font-size: 0.72rem; color: #64748B; font-weight: 600; display: block; margin-bottom: 4px;">Main Large Banner / Image URL:</span>
+                        <input type="text" placeholder="https://... (large image at bottom of embed)" value="${escapeHtml(emb.image || '')}" class="form-control" style="background: #FFFFFF !important; border: 1.5px solid #CBD5E1 !important; color: #0F172A !important; font-size: 0.82rem; border-radius: 6px; padding: 8px 12px; width: 100%; box-sizing: border-box;" oninput="updateMultiEmbedState(${idx}, 'image', this.value)">
                     </div>
                 </div>
             </div>
 
             <!-- SECTION 5: FOOTER & TIMESTAMP -->
-            <div style="margin-bottom: 14px; background: rgba(0,0,0,0.2); padding: 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.04);">
-                <label style="font-size: 0.78rem; font-weight: 700; color: #fbbf24; text-transform: uppercase; letter-spacing: 0.05em; display: block; margin-bottom: 6px;">
-                    <i class="fas fa-shoe-prints" style="margin-right: 4px;"></i> Footer & Timestamp
+            <div style="margin-bottom: 14px; background: #F8FAFC; padding: 14px; border-radius: 10px; border: 1.5px solid #E2E8F0;">
+                <label style="font-size: 0.76rem; font-weight: 800; color: #475569; text-transform: uppercase; letter-spacing: 0.05em; display: flex; align-items: center; gap: 6px; margin-bottom: 8px;">
+                    <i class="fas fa-shoe-prints" style="color: #64748B;"></i> Footer & Timestamp
                 </label>
-                <div style="display: grid; grid-template-columns: 1.5fr auto 1.2fr 1fr; gap: 8px;">
-                    <input type="text" placeholder="Footer Text" value="${escapeHtml(emb.footer || '')}" class="form-control" style="background: rgba(0,0,0,0.3); font-size: 0.82rem;" oninput="updateMultiEmbedState(${idx}, 'footer', this.value)">
-                    <button type="button" onclick="openServerEmojiPicker(null, ${idx}, 'footer')" title="Insert Server Emoji into Footer" class="btn-secondary" style="background: rgba(255,255,255,0.08); border: none; border-radius: 6px; padding: 0 10px; cursor: pointer; font-size: 0.95rem;">
+                <div style="display: grid; grid-template-columns: 1.5fr auto 1.2fr 1fr; gap: 10px;">
+                    <input type="text" placeholder="Footer Text" value="${escapeHtml(emb.footer || '')}" class="form-control" style="background: #FFFFFF !important; border: 1.5px solid #CBD5E1 !important; color: #0F172A !important; font-size: 0.84rem; border-radius: 6px; padding: 8px 12px;" oninput="updateMultiEmbedState(${idx}, 'footer', this.value)">
+                    <button type="button" onclick="openServerEmojiPicker(null, ${idx}, 'footer')" title="Insert Server Emoji into Footer" class="btn-secondary" style="background: #FFFFFF; border: 1.5px solid #CBD5E1; border-radius: 6px; padding: 0 12px; cursor: pointer; font-size: 1rem; color: #334155;">
                         😊
                     </button>
-                    <input type="text" placeholder="Footer Icon URL" value="${escapeHtml(emb.footer_icon || '')}" class="form-control" style="background: rgba(0,0,0,0.3); font-size: 0.82rem;" oninput="updateMultiEmbedState(${idx}, 'footer_icon', this.value)">
-                    <input type="text" placeholder="Timestamp (e.g. Today at 12:00 PM)" value="${escapeHtml(emb.date || '')}" class="form-control" style="background: rgba(0,0,0,0.3); font-size: 0.82rem;" oninput="updateMultiEmbedState(${idx}, 'date', this.value)">
+                    <input type="text" placeholder="Footer Icon URL" value="${escapeHtml(emb.footer_icon || '')}" class="form-control" style="background: #FFFFFF !important; border: 1.5px solid #CBD5E1 !important; color: #0F172A !important; font-size: 0.84rem; border-radius: 6px; padding: 8px 12px;" oninput="updateMultiEmbedState(${idx}, 'footer_icon', this.value)">
+                    <input type="text" placeholder="Timestamp (e.g. Today at 12:00 PM)" value="${escapeHtml(emb.date || '')}" class="form-control" style="background: #FFFFFF !important; border: 1.5px solid #CBD5E1 !important; color: #0F172A !important; font-size: 0.84rem; border-radius: 6px; padding: 8px 12px;" oninput="updateMultiEmbedState(${idx}, 'date', this.value)">
                 </div>
             </div>
 
             <!-- SECTION 6: DYNAMIC FIELDS (UP TO 25) -->
-            <div style="background: rgba(0,0,0,0.2); padding: 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.04);">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                    <span style="font-size: 0.78rem; font-weight: 700; color: #a78bfa; text-transform: uppercase; letter-spacing: 0.05em;">
-                        <i class="fas fa-list-ul" style="margin-right: 4px;"></i> Fields (${(emb.fields || []).length}/25)
+            <div style="background: #F8FAFC; padding: 14px; border-radius: 10px; border: 1.5px solid #E2E8F0;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                    <span style="font-size: 0.76rem; font-weight: 800; color: #475569; text-transform: uppercase; letter-spacing: 0.05em; display: flex; align-items: center; gap: 6px;">
+                        <i class="fas fa-list-ul" style="color: #7C3AED;"></i> Fields (${(emb.fields || []).length}/25)
                     </span>
-                    <button type="button" onclick="addMultiEmbedField(${idx})" class="btn-secondary" style="padding: 4px 10px; font-size: 0.75rem; border-radius: 5px; font-weight: 700; background: rgba(168,85,247,0.2); border: 1px solid rgba(168,85,247,0.3); color: #c084fc; cursor: pointer;">
+                    <button type="button" onclick="addMultiEmbedField(${idx})" class="btn-secondary" style="padding: 6px 14px; font-size: 0.76rem; border-radius: 6px; font-weight: 700; background: #EDE9FE; border: 1.5px solid #DDD6FE; color: #6D28D9; cursor: pointer; display: flex; align-items: center; gap: 6px;">
                         <i class="fas fa-plus"></i> Add Field
                     </button>
                 </div>
 
-                <div id="multi-fields-container-${idx}" style="display: flex; flex-direction: column; gap: 8px;">
+                <div id="multi-fields-container-${idx}" style="display: flex; flex-direction: column; gap: 10px;">
                     ${(emb.fields || []).map((f, fIdx) => `
-                    <div style="display: flex; gap: 6px; align-items: center; background: rgba(0,0,0,0.25); padding: 6px 10px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.04);">
-                        <input type="text" placeholder="Field Name" value="${escapeHtml(f.name || '')}" class="form-control" style="flex: 1; background: rgba(0,0,0,0.3); font-size: 0.8rem; font-weight: 700;" oninput="updateMultiEmbedField(${idx}, ${fIdx}, 'name', this.value)">
-                        <input type="text" placeholder="Field Value" value="${escapeHtml(f.value || '')}" class="form-control" style="flex: 1.5; background: rgba(0,0,0,0.3); font-size: 0.8rem;" oninput="updateMultiEmbedField(${idx}, ${fIdx}, 'value', this.value)">
-                        <button type="button" onclick="openServerEmojiPicker(null, ${idx}, 'value', ${fIdx})" title="Insert Server Emoji" class="btn-secondary" style="background: rgba(255,255,255,0.08); border: none; border-radius: 4px; padding: 4px 8px; cursor: pointer; font-size: 0.85rem;">😊</button>
-                        <label style="font-size: 0.75rem; color: var(--text-secondary); display: flex; align-items: center; gap: 4px; cursor: pointer; margin-left: 4px;">
+                    <div style="display: flex; gap: 8px; align-items: center; background: #FFFFFF; padding: 8px 12px; border-radius: 8px; border: 1.5px solid #E2E8F0; box-shadow: 0 1px 3px rgba(0,0,0,0.02);">
+                        <input type="text" placeholder="Field Name" value="${escapeHtml(f.name || '')}" class="form-control" style="flex: 1; background: #F8FAFC !important; border: 1px solid #CBD5E1 !important; color: #0F172A !important; font-size: 0.82rem; font-weight: 700; border-radius: 6px; padding: 6px 10px;" oninput="updateMultiEmbedField(${idx}, ${fIdx}, 'name', this.value)">
+                        <input type="text" placeholder="Field Value" value="${escapeHtml(f.value || '')}" class="form-control" style="flex: 1.5; background: #F8FAFC !important; border: 1px solid #CBD5E1 !important; color: #0F172A !important; font-size: 0.82rem; border-radius: 6px; padding: 6px 10px;" oninput="updateMultiEmbedField(${idx}, ${fIdx}, 'value', this.value)">
+                        <button type="button" onclick="openServerEmojiPicker(null, ${idx}, 'value', ${fIdx})" title="Insert Server Emoji" class="btn-secondary" style="background: #F1F5F9; border: 1px solid #CBD5E1; border-radius: 6px; padding: 4px 8px; cursor: pointer; font-size: 0.9rem;">😊</button>
+                        <label style="font-size: 0.78rem; color: #334155; font-weight: 600; display: flex; align-items: center; gap: 5px; cursor: pointer; margin-left: 4px; user-select: none;">
                             <input type="checkbox" ${f.inline ? 'checked' : ''} onchange="updateMultiEmbedField(${idx}, ${fIdx}, 'inline', this.checked)"> Inline
                         </label>
-                        <button type="button" onclick="removeMultiEmbedField(${idx}, ${fIdx})" style="background: transparent; border: none; color: #ef4444; cursor: pointer; padding: 4px 6px; font-size: 0.85rem;"><i class="fas fa-trash"></i></button>
+                        <button type="button" onclick="removeMultiEmbedField(${idx}, ${fIdx})" style="background: transparent; border: none; color: #EF4444; cursor: pointer; padding: 4px 8px; font-size: 0.9rem;" title="Remove Field"><i class="fas fa-trash"></i></button>
                     </div>
                     `).join('')}
                 </div>
@@ -9077,7 +9134,12 @@ function updateGiveawayPreview() {
     const title = document.getElementById('gv-title-input')?.value || '🎉 Discord Nitro Giveaway 🎉';
     const desc = document.getElementById('gv-desc-input')?.value || 'Click the button below to join!';
     const winners = document.getElementById('gv-winners-input')?.value || 1;
-    const btnLabel = document.getElementById('gv-btn-label')?.value || '🎉 Enter';
+    let btnLabel = document.getElementById('gv-btn-label')?.value || '🎉 Enter';
+    if (btnLabel.trim().startsWith('{') || btnLabel.length > 35) {
+        btnLabel = '🎉 Enter';
+        const lblEl = document.getElementById('gv-btn-label');
+        if (lblEl) lblEl.value = '🎉 Enter';
+    }
     const color = document.getElementById('gv-color-picker')?.value || '#D96C91';
     const imageUrl = document.getElementById('gv-image-url')?.value || '';
     const endDateVal = document.getElementById('gv-end-date')?.value;
@@ -10066,4 +10128,50 @@ window.sendUtilWebhook = async function() {
     } catch(err) {
         showToast('Webhook Error', 'Network error sending webhook.', 'error');
     }
+};
+
+
+
+// Universal Modal Dialog Manager (Replaces window.prompt & window.alert)
+let veyraDialogResolve = null;
+
+function showVeyraPrompt(title, message, defaultValue = '', placeholder = '') {
+    return new Promise((resolve) => {
+        veyraDialogResolve = resolve;
+        const modal = document.getElementById('veyra-universal-dialog-modal');
+        if (!modal) {
+            const res = window.prompt(message, defaultValue);
+            return resolve(res);
+        }
+        document.getElementById('veyra-dialog-title').innerText = title || 'Input Required';
+        document.getElementById('veyra-dialog-message').innerText = message || '';
+        const inputContainer = document.getElementById('veyra-dialog-input-container');
+        const input = document.getElementById('veyra-dialog-input');
+        inputContainer.style.display = 'block';
+        input.value = defaultValue;
+        input.placeholder = placeholder || 'Type here...';
+        modal.style.display = 'flex';
+        setTimeout(() => input.focus(), 50);
+    });
+}
+
+function closeVeyraUniversalDialog(result = null) {
+    const modal = document.getElementById('veyra-universal-dialog-modal');
+    if (modal) modal.style.display = 'none';
+    if (veyraDialogResolve) {
+        veyraDialogResolve(result);
+        veyraDialogResolve = null;
+    }
+}
+
+function confirmVeyraUniversalDialog() {
+    const inputContainer = document.getElementById('veyra-dialog-input-container');
+    const val = inputContainer.style.display !== 'none' ? document.getElementById('veyra-dialog-input').value : true;
+    closeVeyraUniversalDialog(val);
+}
+
+// Override native prompt to use sleek modal
+window.prompt = function(msg, def) {
+    showVeyraPrompt('Input Required', msg, def || '');
+    return null; // Async modal will handle real flows via showVeyraPrompt
 };

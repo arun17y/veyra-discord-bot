@@ -12302,69 +12302,8 @@ except Exception as e:
     print("Music system setup notice:", e)
 
 # Run bot using environment configurations
-if __name__ == "__main__":
-    # Manually load the root .env configuration file if it exists
-    env_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "../.env"))
-    if os.path.exists(env_path):
-        with open(env_path, "r") as f:
-            for line in f:
-                line = line.strip()
-                if line and not line.startswith("#") and "=" in line:
-                    key, val = line.split("=", 1)
-                    os.environ[key.strip()] = val.strip()
 
-    # Try loading from DISCORD_BOT_TOKEN, TICKET_BOT_TOKEN, or standard DISCORD_TOKEN
-    token = os.getenv("DISCORD_BOT_TOKEN") or os.getenv("TICKET_BOT_TOKEN") or os.getenv("DISCORD_TOKEN") or "MOCK_TOKEN_PLACEHOLDER"
-    client_id = os.getenv("DISCORD_CLIENT_ID") or os.getenv("TICKET_CLIENT_ID") or "NOT_CONFIGURED"
 
-def start_health_check_server():
-    import os, threading
-    if os.getenv('BOT_SPAWNED_BY_WEB') == '1' or os.getenv('SKIP_BOT_HEALTH') == '1':
-        return None
-    from http.server import HTTPServer, BaseHTTPRequestHandler
-
-    class HealthCheckHandler(BaseHTTPRequestHandler):
-        def do_GET(self):
-            if self.path in ('/api/health', '/health', '/healthz', '/'):
-                self.send_response(200)
-                self.send_header('Content-Type', 'application/json')
-                self.end_headers()
-                self.wfile.write(b'{"status":"ok","service":"veyra-discord-bot","bot":"online"}\n')
-            else:
-                self.send_response(404)
-                self.end_headers()
-
-        def log_message(self, format, *args):
-            pass
-
-    port = int(os.getenv('PORT', 3000))
-    try:
-        srv = HTTPServer(('0.0.0.0', port), HealthCheckHandler)
-        t = threading.Thread(target=srv.serve_forever, daemon=True)
-        t.start()
-        print(f"📡 Dedicated Discord Bot HTTP Health Server active on 0.0.0.0:{port} (/api/health).")
-        return t
-    except Exception as ex:
-        print(f"⚠️ Health server start notice: {ex}")
-        return None
-
-if __name__ == "__main__":
-    print("\n---------------------------------------------")
-    print(f"[+] Loaded Credentials Configuration:")
-    print(f"   * DISCORD_CLIENT_ID : {client_id}")
-    print(f"   * DISCORD_BOT_TOKEN : {'Configured (Hidden)' if token != 'MOCK_TOKEN_PLACEHOLDER' else 'Missing [x]'}")
-    print("---------------------------------------------\n")
-
-    if token == "MOCK_TOKEN_PLACEHOLDER":
-        print("[!] Warning: DISCORD_BOT_TOKEN is empty in your root .env file.")
-        print("--> Please add your Discord Bot credentials to: .env")
-    else:
-        try:
-            start_health_check_server()
-            init_db()
-            bot.run(token)
-        except Exception as e:
-            print(f"[x] Failed to start bot: {e}")
 
 # =========================================================================
 # VOICEMASTER (TEMPVOICE) IN-MEMORY REGISTRY & HANDLERS
@@ -12428,8 +12367,80 @@ async def handle_voicemaster_interaction(interaction: discord.Interaction, custo
             await interaction.response.send_message(f"❌ Error: {e}", ephemeral=True)
 
 
+# =========================================================================
+# KITT BOT VOICE CHANNEL ANNOUNCEMENT SYSTEM (AUTO TTS ON JOIN/LEAVE)
+# Reference: discord-kitt-master
+# =========================================================================
+import tempfile
+import hashlib
+from gtts import gTTS
+
+KITT_TTS_CACHE = {}
+
+def get_kitt_audio(text: str, lang: str = "en") -> str:
+    key = hashlib.md5(f"{text}_{lang}".encode()).hexdigest()
+    if key in KITT_TTS_CACHE and os.path.exists(KITT_TTS_CACHE[key]):
+        return KITT_TTS_CACHE[key]
+    
+    tmp = tempfile.NamedTemporaryFile(suffix=".mp3", delete=False)
+    tts = gTTS(text=text, lang=lang, slow=False)
+    tts.save(tmp.name)
+    tmp.close()
+    KITT_TTS_CACHE[key] = tmp.name
+    return tmp.name
+
+async def kitt_announce_in_channel(channel: discord.VoiceChannel, text: str):
+    """Kitt Discord Bot Announcement: Speaks text when members join/leave."""
+    try:
+        guild = channel.guild
+        vc = guild.voice_client
+        if vc is None or not vc.is_connected():
+            vc = await channel.connect(timeout=8.0, reconnect=True)
+        elif vc.channel.id != channel.id:
+            await vc.move_to(channel)
+
+        if vc.is_playing():
+            vc.stop()
+
+        mp3_file = get_kitt_audio(text)
+        
+        def after_speak(err):
+            if err:
+                print(f"[KITT TTS ERR] {err}")
+            async def schedule_leave():
+                await asyncio.sleep(4.0)
+                try:
+                    if vc and vc.is_connected() and not vc.is_playing():
+                        await vc.disconnect()
+                        print(f"[KITT TTS] Auto-disconnected from '{channel.name}'")
+                except Exception:
+                    pass
+            bot.loop.create_task(schedule_leave())
+
+        vc.play(discord.FFmpegPCMAudio(mp3_file), after=after_speak)
+        print(f"[KITT TTS] Spoke in '{channel.name}': {text}")
+    except Exception as e:
+        print(f"[KITT TTS ERROR] Could not announce: {e}")
+
+
 @bot.event
 async def on_voice_state_update(member: discord.Member, before: discord.VoiceState, after: discord.VoiceState):
+    try:
+        # Kitt Voice Announcement on Voice Channel Join/Leave
+        if not member.bot:
+            # 1. User Joined a Voice Channel
+            if before.channel is None and after.channel is not None:
+                asyncio.create_task(kitt_announce_in_channel(after.channel, f"{member.display_name} has joined the voice channel"))
+            # 2. User Left a Voice Channel
+            elif before.channel is not None and after.channel is None:
+                if len(before.channel.members) > 0:
+                    asyncio.create_task(kitt_announce_in_channel(before.channel, f"{member.display_name} has left the voice channel"))
+            # 3. User Switched Voice Channels
+            elif before.channel is not None and after.channel is not None and before.channel.id != after.channel.id:
+                asyncio.create_task(kitt_announce_in_channel(after.channel, f"{member.display_name} has joined the voice channel"))
+    except Exception as kitt_err:
+        print(f"[KITT ERROR] {kitt_err}")
+
     try:
         # Check if user left a temp voice channel and it is now empty
         if before.channel and before.channel.id in temp_voice_owners:
@@ -12602,3 +12613,95 @@ async def handle_giveaway_entry_interaction(interaction: discord.Interaction, cu
         print(f"Error handling giveaway entry interaction: {e}")
         if not interaction.response.is_done():
             await interaction.response.send_message(f"❌ Error entering giveaway: {e}", ephemeral=True)
+
+
+
+@bot.event
+async def on_webhooks_update(channel: discord.abc.GuildChannel):
+    """
+    Real-Time Anti-Webhook Security Enforcement.
+    Reference: Security-Plus antiWebhook.js
+    """
+    try:
+        guild = channel.guild
+        async for entry in guild.audit_logs(action=discord.AuditLogAction.webhook_create, limit=1):
+            if abs((discord.utils.utcnow() - entry.created_at).total_seconds()) < 15:
+                executor = entry.user
+                if executor.id != guild.owner_id and executor.id != bot.user.id and not is_whitelisted(guild.id, executor.id):
+                    # Delete unauthorized webhook
+                    if entry.target:
+                        try:
+                            await entry.target.delete(reason="VEYRA Antinuke: Unauthorized webhook creation.")
+                        except Exception:
+                            pass
+                    # Punish rogue executor immediately
+                    await apply_penalty(guild, executor, "Anti-Webhook", f"created unauthorized webhook '{entry.name}'", "Ban")
+                    print(f"[ANTINUKE] Blocked unauthorized webhook created by {executor.name}")
+                    break
+    except Exception as e:
+        print(f"[ANTINUKE ERROR] on_webhooks_update error: {e}")
+
+
+if __name__ == "__main__":
+    # Manually load the root .env configuration file if it exists
+    env_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "../.env"))
+    if os.path.exists(env_path):
+        with open(env_path, "r") as f:
+            for line in f:
+                line = line.strip()
+                if line and not line.startswith("#") and "=" in line:
+                    key, val = line.split("=", 1)
+                    os.environ[key.strip()] = val.strip()
+
+    # Try loading from DISCORD_BOT_TOKEN, TICKET_BOT_TOKEN, or standard DISCORD_TOKEN
+    token = os.getenv("DISCORD_BOT_TOKEN") or os.getenv("TICKET_BOT_TOKEN") or os.getenv("DISCORD_TOKEN") or "MOCK_TOKEN_PLACEHOLDER"
+    client_id = os.getenv("DISCORD_CLIENT_ID") or os.getenv("TICKET_CLIENT_ID") or "NOT_CONFIGURED"
+
+def start_health_check_server():
+    import os, threading
+    if os.getenv('BOT_SPAWNED_BY_WEB') == '1' or os.getenv('SKIP_BOT_HEALTH') == '1':
+        return None
+    from http.server import HTTPServer, BaseHTTPRequestHandler
+
+    class HealthCheckHandler(BaseHTTPRequestHandler):
+        def do_GET(self):
+            if self.path in ('/api/health', '/health', '/healthz', '/'):
+                self.send_response(200)
+                self.send_header('Content-Type', 'application/json')
+                self.end_headers()
+                self.wfile.write(b'{"status":"ok","service":"veyra-discord-bot","bot":"online"}\n')
+            else:
+                self.send_response(404)
+                self.end_headers()
+
+        def log_message(self, format, *args):
+            pass
+
+    port = int(os.getenv('PORT', 3000))
+    try:
+        srv = HTTPServer(('0.0.0.0', port), HealthCheckHandler)
+        t = threading.Thread(target=srv.serve_forever, daemon=True)
+        t.start()
+        print(f"📡 Dedicated Discord Bot HTTP Health Server active on 0.0.0.0:{port} (/api/health).")
+        return t
+    except Exception as ex:
+        print(f"⚠️ Health server start notice: {ex}")
+        return None
+
+if __name__ == "__main__":
+    print("\n---------------------------------------------")
+    print(f"[+] Loaded Credentials Configuration:")
+    print(f"   * DISCORD_CLIENT_ID : {client_id}")
+    print(f"   * DISCORD_BOT_TOKEN : {'Configured (Hidden)' if token != 'MOCK_TOKEN_PLACEHOLDER' else 'Missing [x]'}")
+    print("---------------------------------------------\n")
+
+    if token == "MOCK_TOKEN_PLACEHOLDER":
+        print("[!] Warning: DISCORD_BOT_TOKEN is empty in your root .env file.")
+        print("--> Please add your Discord Bot credentials to: .env")
+    else:
+        try:
+            start_health_check_server()
+            init_db()
+            bot.run(token)
+        except Exception as e:
+            print(f"[x] Failed to start bot: {e}")

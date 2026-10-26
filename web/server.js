@@ -1383,6 +1383,35 @@ app.post('/api/settings/commands/:guild_id', (req, res) => {
 });
 
 // 4. Save/Update Guild General Settings
+// Custom Prefixes GET & POST
+app.get('/api/settings/prefix/:guild_id', (req, res) => {
+    const guildId = req.params.guild_id;
+    db.get("SELECT prefix, custom_prefixes FROM guild_settings WHERE guild_id = ?", [guildId], (err, row) => {
+        if (err) return res.status(500).json({ error: err.message });
+        let prefixes = ['!', '?'];
+        if (row && row.custom_prefixes) {
+            try { prefixes = JSON.parse(row.custom_prefixes); } catch(e) {}
+        } else if (row && row.prefix) {
+            prefixes = [row.prefix];
+        }
+        res.json({ prefixes });
+    });
+});
+
+app.post('/api/settings/prefix/:guild_id', (req, res) => {
+    const guildId = req.params.guild_id;
+    const prefixes = req.body.prefixes || ['!', '?'];
+    const primary = prefixes[0] || '!';
+    db.run(`
+        INSERT INTO guild_settings (guild_id, prefix, custom_prefixes)
+        VALUES (?, ?, ?)
+        ON CONFLICT(guild_id) DO UPDATE SET prefix = excluded.prefix, custom_prefixes = excluded.custom_prefixes
+    `, [guildId, primary, JSON.stringify(prefixes)], function(err) {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json({ success: true, prefixes });
+    });
+});
+
 app.post('/api/settings/:guild_id', (req, res) => {
     const guildId = req.params.guild_id;
     const { prefix, nickname, timezone, updates_channel } = req.body;

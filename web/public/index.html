@@ -3006,8 +3006,8 @@
                 </div>
 
                 <!-- Marquee Track 1 (Left to Right) -->
-                <div class="marquee-container" style="display: flex; width: 100%; overflow: hidden; margin-bottom: 24px; position: relative;">
-                    <div class="marquee-track track-left" style="display: flex; gap: 20px; animation: marqueeLeft 45s linear infinite; width: max-content;">
+                <div class="marquee-container" style="display: flex; width: 100%; overflow: hidden; padding: 24px 0 32px 0 !important; margin-bottom: 24px; position: relative;">
+                    <div class="marquee-track track-left" style="display: flex; gap: 28px; padding: 4px 0; animation: marqueeLeft 45s linear infinite; width: max-content;">
                         
         <div class="review-marquee-card" style="width: 370px; flex-shrink: 0; background: var(--surface); border: 1px solid var(--border-color); border-radius: 16px; padding: 22px 24px; box-shadow: var(--card-shadow); display: flex; flex-direction: column; gap: 12px; text-align: left; box-sizing: border-box;">
             <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px;">
@@ -3812,8 +3812,8 @@
                 </div>
 
                 <!-- Marquee Track 2 (Right to Left) -->
-                <div class="marquee-container" style="display: flex; width: 100%; overflow: hidden; position: relative;">
-                    <div class="marquee-track track-right" style="display: flex; gap: 20px; animation: marqueeRight 45s linear infinite; width: max-content;">
+                <div class="marquee-container" style="display: flex; width: 100%; overflow: hidden; padding: 24px 0 32px 0 !important; position: relative;">
+                    <div class="marquee-track track-right" style="display: flex; gap: 28px; padding: 4px 0; animation: marqueeRight 45s linear infinite; width: max-content;">
                         
         <div class="review-marquee-card" style="width: 370px; flex-shrink: 0; background: var(--surface); border: 1px solid var(--border-color); border-radius: 16px; padding: 22px 24px; box-shadow: var(--card-shadow); display: flex; flex-direction: column; gap: 12px; text-align: left; box-sizing: border-box;">
             <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px;">
@@ -5431,9 +5431,6 @@
                             <span id="sidebar-user-name" style="font-weight: 700; color: var(--text-primary); font-size: 0.86rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">User</span>
                         </div>
                         <div style="display: flex; align-items: center; gap: 12px;">
-                            <button type="button" onclick="toggleMngTheme()" style="background: none; border: none; color: var(--text-secondary); cursor: pointer; font-size: 0.95rem; padding: 4px; transition: color 0.2s;" title="Toggle Dark/Light Mode">
-                                <i class="fas fa-moon" id="sidebar-theme-icon"></i>
-                            </button>
                             <a href="#" style="color: var(--error); font-size: 0.95rem; padding: 4px; transition: opacity 0.2s;" title="Sign Out" onclick="logout()"><i class="fas fa-right-from-bracket"></i></a>
                         </div>
                     </div>
@@ -7926,7 +7923,7 @@ We hope to see you back soon!
 
                     <div style="display: grid; grid-template-columns: 1.3fr 1fr; gap: 30px; align-items: start;">
                         <!-- Left Pane: Multi-Embed Controls -->
-                        <div class="glass-card" style="background: rgba(255,255,255,0.015); border: 1px solid rgba(255,255,255,0.05); border-radius: 12px; padding: 22px;">
+                        <div class="glass-card" style="background: #FFFFFF !important; border: 1.5px solid #E2E8F0 !important; border-radius: 14px; padding: 24px; box-shadow: 0 4px 20px rgba(15, 23, 42, 0.05);">
                             
                             <!-- Destination & Normal Message Outer Text -->
                             <div style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 18px;">
@@ -13117,6 +13114,100 @@ window.addEventListener('scroll', () => {
         }
         window.addEventListener('DOMContentLoaded', initVeyraTheme);
     </script>
+
+
+<!-- ========================================================================= -->
+<!-- VEYRA SLEEK STICKY MESSAGE CREATION MODAL DIALOG                          -->
+<!-- Replaces browser native prompt() dialog                                   -->
+<!-- ========================================================================= -->
+<div id="sticky-message-modal" style="display: none; position: fixed; inset: 0; z-index: 100000; background: rgba(15, 23, 42, 0.65); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); align-items: center; justify-content: center;">
+    <div style="background: #FFFFFF; border: 1.5px solid #E2E8F0; border-radius: 16px; width: 92%; max-width: 520px; box-shadow: 0 20px 45px rgba(15, 23, 42, 0.18); overflow: hidden; animation: modalPop 0.2s cubic-bezier(0.16, 1, 0.3, 1);">
+        <!-- Modal Header -->
+        <div style="padding: 18px 24px; border-bottom: 1.5px solid #E2E8F0; display: flex; align-items: center; justify-content: space-between; background: #F8FAFC;">
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <div style="width: 36px; height: 36px; border-radius: 10px; background: rgba(217, 108, 145, 0.12); display: flex; align-items: center; justify-content: center; color: #D96C91; font-size: 1.1rem;">
+                    <i class="fas fa-thumbtack"></i>
+                </div>
+                <div>
+                    <h3 style="margin: 0; font-size: 1.05rem; font-weight: 800; color: #0F172A; font-family: var(--font-display);">New Sticky Message</h3>
+                    <p style="margin: 2px 0 0; font-size: 0.78rem; color: #64748B;">Pin a persistent message dynamically to any channel.</p>
+                </div>
+            </div>
+            <button type="button" onclick="closeStickyMessageModal()" style="background: transparent; border: none; font-size: 1.1rem; color: #94A3B8; cursor: pointer; padding: 4px 8px; border-radius: 6px; transition: color 0.15s;" onmouseover="this.style.color='#0F172A'" onmouseout="this.style.color='#94A3B8'">
+                <i class="fas fa-xmark"></i>
+            </button>
+        </div>
+
+        <!-- Modal Body -->
+        <div style="padding: 22px 24px; display: flex; flex-direction: column; gap: 16px;">
+            <div>
+                <label style="display: block; font-size: 0.8rem; font-weight: 700; color: #475569; text-transform: uppercase; margin-bottom: 6px; letter-spacing: 0.04em;">
+                    Target Channel <span style="color: #EF4444;">*</span>
+                </label>
+                <div style="position: relative;">
+                    <select id="modal-sticky-channel-select" class="guild-channels-dropdown form-control" style="width: 100%; background: #F8FAFC; border: 1.5px solid #CBD5E1; border-radius: 8px; padding: 10px 14px; font-size: 0.88rem; color: #0F172A; font-weight: 600;">
+                        <option value="general"># general</option>
+                        <option value="announcements"># announcements</option>
+                        <option value="rules"># rules</option>
+                        <option value="chat"># chat</option>
+                    </select>
+                </div>
+            </div>
+
+            <div>
+                <label style="display: block; font-size: 0.8rem; font-weight: 700; color: #475569; text-transform: uppercase; margin-bottom: 6px; letter-spacing: 0.04em;">
+                    Sticky Message Content <span style="color: #EF4444;">*</span>
+                </label>
+                <textarea id="modal-sticky-message-text" rows="4" placeholder="Enter persistent sticky message text or rules reminder..." style="width: 100%; background: #F8FAFC; border: 1.5px solid #CBD5E1; border-radius: 8px; padding: 10px 14px; font-size: 0.88rem; color: #0F172A; line-height: 1.5; resize: vertical; box-sizing: border-box; font-family: inherit;">⚡ **Important Server Reminder**: Please verify your account and follow our server rules before opening a support ticket!</textarea>
+                <p style="margin: 4px 0 0; font-size: 0.74rem; color: #94A3B8;">Supports standard Discord Markdown (*italics*, **bold**, `code`, [links](https://...)).</p>
+            </div>
+        </div>
+
+        <!-- Modal Footer -->
+        <div style="padding: 16px 24px; border-top: 1.5px solid #E2E8F0; background: #F8FAFC; display: flex; align-items: center; justify-content: flex-end; gap: 10px;">
+            <button type="button" onclick="closeStickyMessageModal()" style="background: #FFFFFF; border: 1.5px solid #CBD5E1; color: #475569; padding: 9px 18px; border-radius: 8px; font-size: 0.85rem; font-weight: 700; cursor: pointer; transition: all 0.15s;" onmouseover="this.style.background='#F1F5F9'" onmouseout="this.style.background='#FFFFFF'">
+                Cancel
+            </button>
+            <button type="button" onclick="submitStickyMessageModal()" style="background: linear-gradient(135deg, #D96C91, #C75880); border: none; color: #FFFFFF; padding: 9px 22px; border-radius: 8px; font-size: 0.85rem; font-weight: 700; cursor: pointer; box-shadow: 0 4px 12px rgba(217, 108, 145, 0.35); transition: opacity 0.15s;" onmouseover="this.style.opacity='0.9'" onmouseout="this.style.opacity='1'">
+                <i class="fas fa-check" style="margin-right: 6px;"></i> Create Sticky Message
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- ========================================================================= -->
+<!-- VEYRA UNIVERSAL MODAL PROMPT DIALOG                                       -->
+<!-- Drops in replacement for any alert() or prompt() calls                    -->
+<!-- ========================================================================= -->
+<div id="veyra-universal-dialog-modal" style="display: none; position: fixed; inset: 0; z-index: 100000; background: rgba(15, 23, 42, 0.65); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); align-items: center; justify-content: center;">
+    <div style="background: #FFFFFF; border: 1.5px solid #E2E8F0; border-radius: 16px; width: 92%; max-width: 480px; box-shadow: 0 20px 45px rgba(15, 23, 42, 0.18); overflow: hidden; animation: modalPop 0.2s cubic-bezier(0.16, 1, 0.3, 1);">
+        <div style="padding: 18px 22px; border-bottom: 1.5px solid #E2E8F0; display: flex; align-items: center; justify-content: space-between; background: #F8FAFC;">
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <div id="veyra-dialog-icon-wrapper" style="width: 34px; height: 34px; border-radius: 8px; background: rgba(217, 108, 145, 0.12); display: flex; align-items: center; justify-content: center; color: #D96C91; font-size: 1rem;">
+                    <i class="fas fa-circle-question" id="veyra-dialog-icon"></i>
+                </div>
+                <h3 id="veyra-dialog-title" style="margin: 0; font-size: 1rem; font-weight: 800; color: #0F172A; font-family: var(--font-display);">Confirm Action</h3>
+            </div>
+            <button type="button" onclick="closeVeyraUniversalDialog(null)" style="background: transparent; border: none; font-size: 1rem; color: #94A3B8; cursor: pointer; padding: 4px 6px;">
+                <i class="fas fa-xmark"></i>
+            </button>
+        </div>
+        <div style="padding: 20px 22px; display: flex; flex-direction: column; gap: 14px;">
+            <p id="veyra-dialog-message" style="margin: 0; font-size: 0.88rem; color: #475569; line-height: 1.5;"></p>
+            <div id="veyra-dialog-input-container" style="display: none;">
+                <input type="text" id="veyra-dialog-input" class="form-control" style="width: 100%; background: #F8FAFC; border: 1.5px solid #CBD5E1; border-radius: 8px; padding: 10px 14px; font-size: 0.88rem; color: #0F172A; font-weight: 600; box-sizing: border-box;">
+            </div>
+        </div>
+        <div style="padding: 14px 22px; border-top: 1.5px solid #E2E8F0; background: #F8FAFC; display: flex; align-items: center; justify-content: flex-end; gap: 10px;">
+            <button type="button" id="veyra-dialog-cancel-btn" onclick="closeVeyraUniversalDialog(null)" style="background: #FFFFFF; border: 1.5px solid #CBD5E1; color: #475569; padding: 8px 16px; border-radius: 8px; font-size: 0.82rem; font-weight: 700; cursor: pointer;">
+                Cancel
+            </button>
+            <button type="button" id="veyra-dialog-confirm-btn" onclick="confirmVeyraUniversalDialog()" style="background: linear-gradient(135deg, #D96C91, #C75880); border: none; color: #FFFFFF; padding: 8px 20px; border-radius: 8px; font-size: 0.82rem; font-weight: 700; cursor: pointer; box-shadow: 0 4px 12px rgba(217, 108, 145, 0.35);">
+                Confirm
+            </button>
+        </div>
+    </div>
+</div>
 
 </body>
 </html>

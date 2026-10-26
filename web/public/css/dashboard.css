@@ -3872,3 +3872,23 @@ input[type="number"]::-webkit-inner-spin-button {
     margin-top: 8px !important;
     line-height: 1 !important;
 }
+
+
+/* Reviews Marquee Spacing & No-Clip Fix */
+.marquee-container {
+    padding: 24px 0 36px 0 !important;
+    overflow: hidden !important;
+}
+.marquee-track {
+    gap: 28px !important;
+    padding: 8px 0 !important;
+}
+.review-marquee-card {
+    margin: 6px 0 !important;
+    box-sizing: border-box !important;
+    transition: transform 0.2s ease, box-shadow 0.2s ease !important;
+}
+.review-marquee-card:hover {
+    transform: translateY(-4px) !important;
+    box-shadow: 0 12px 30px rgba(15, 23, 42, 0.08) !important;
+}
