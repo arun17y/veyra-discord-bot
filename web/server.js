@@ -4365,10 +4365,14 @@ const RZP_KEY_SECRET = process.env.RAZORPAY_KEY_SECRET || '';
 
 // Fixed server-side plan prices (INR paise) — client cannot tamper
 const PLAN_PRICES = {
-    'Pro':             { amount: 19900, currency: 'INR', name: 'VEYRA Pro Plan',     display: '₹199/mo' },
-    'Premium':         { amount: 29900, currency: 'INR', name: 'VEYRA Premium Plan', display: '₹299/mo' },
-    'Ticket Pro':      { amount: 14900, currency: 'INR', name: 'VEYRA Ticket Pro',   display: '₹149/mo' },
-    'Ticket Premium':  { amount: 24900, currency: 'INR', name: 'VEYRA Ticket Premium', display: '₹249/mo' }
+    'Pro':             { amount: 19900, currency: 'INR', name: 'VEYRA Pro Plan',        display: '₹199/mo' },
+    'pro':             { amount: 19900, currency: 'INR', name: 'VEYRA Pro Plan',        display: '₹199/mo' },
+    'Premium':         { amount: 29900, currency: 'INR', name: 'VEYRA Enterprise Plan', display: '₹299/mo' },
+    'premium':         { amount: 29900, currency: 'INR', name: 'VEYRA Enterprise Plan', display: '₹299/mo' },
+    'Enterprise':      { amount: 29900, currency: 'INR', name: 'VEYRA Enterprise Plan', display: '₹299/mo' },
+    'enterprise':      { amount: 29900, currency: 'INR', name: 'VEYRA Enterprise Plan', display: '₹299/mo' },
+    'Ticket Pro':      { amount: 14900, currency: 'INR', name: 'VEYRA Ticket Pro',      display: '₹149/mo' },
+    'Ticket Premium':  { amount: 24900, currency: 'INR', name: 'VEYRA Ticket Premium',  display: '₹249/mo' }
 };
 
 // Ensure razorpay_transactions table exists
@@ -4405,6 +4409,49 @@ async function createRazorpayOrder(amount, currency, receipt, notes) {
 }
 
 // POST /api/payment/create-order — authenticated users only
+
+// GET /api/payment/config — Public Razorpay Key ID
+app.get('/api/payment/config', (req, res) => {
+    res.json({ key_id: RZP_KEY_ID || process.env.RAZORPAY_KEY_ID || 'rzp_live_TSIoyDHCRnNXbE' });
+});
+
+// GET /api/payment/history/:guild_id — Fetch paid transactions for this guild or user
+app.get('/api/payment/history/:guild_id', (req, res) => {
+    const guildId = req.params.guild_id;
+    const session = getSessionData(req);
+    const userId = session && session.user ? session.user.id : null;
+
+    db.all(
+        `SELECT id, user_id, guild_id, plan, rzp_order_id, rzp_payment_id, amount, currency, status, created_at, paid_at
+         FROM razorpay_transactions 
+         WHERE (guild_id = ? OR (user_id IS NOT NULL AND user_id = ?)) AND status = 'paid'
+         ORDER BY paid_at DESC, id DESC LIMIT 50`,
+        [guildId, userId || '0'],
+        (err, rows) => {
+            if (err) return res.status(500).json({ error: err.message });
+            res.json({ success: true, history: rows || [] });
+        }
+    );
+});
+
+// GET /api/subscription/:guild_id — Fetch active subscription tier
+app.get('/api/subscription/:guild_id', (req, res) => {
+    const guildId = req.params.guild_id;
+    db.get(`SELECT * FROM guild_subscriptions WHERE guild_id = ?`, [guildId], (err, row) => {
+        if (err) return res.status(500).json({ error: err.message });
+        if (!row) {
+            return res.json({ plan: 'Free', status: 'active', expires_at: null });
+        }
+        const isExpired = row.expires_at && new Date(row.expires_at) < new Date();
+        res.json({
+            plan: isExpired ? 'Free' : (row.plan_type || 'Free'),
+            status: isExpired ? 'expired' : 'active',
+            expires_at: row.expires_at,
+            created_at: row.created_at
+        });
+    });
+});
+
 app.post('/api/payment/create-order', async (req, res) => {
     const session = getSessionData(req);
     const userId = session && session.user ? session.user.id : null;

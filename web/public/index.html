@@ -2961,9 +2961,9 @@
                                 <li style="display: flex; align-items: center; gap: 10px;"><i class="fas fa-check-circle" style="color: var(--accent-primary);"></i> Advanced Anti-Raid Modules</li>
                             </ul>
                         </div>
-                        <a href="/premium" class="btn-primary" style="display: block; text-align: center; text-decoration: none; padding: 14px 0; border-radius: 10px; font-weight: 700; font-size: 1rem; background: var(--accent-primary); color: #fff; box-shadow: 0 6px 20px rgba(217, 108, 145, 0.35);">
+                        <button type="button" onclick="handleHomepagePlanClick('Pro', 199)" class="btn-primary" style="width: 100%; border: none; padding: 14px 0; border-radius: 10px; font-weight: 700; font-size: 1rem; background: var(--accent-primary); color: #fff; cursor: pointer; box-shadow: 0 6px 20px rgba(217, 108, 145, 0.4); transition: transform 0.15s ease;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
                             Pay ₹199/mo
-                        </a>
+                        </button>
                     </div>
 
                     <!-- Premium Card (₹299/mo) -->
@@ -2987,9 +2987,9 @@
                                 <li style="display: flex; align-items: center; gap: 10px;"><i class="fas fa-check-circle" style="color: var(--accent-secondary);"></i> Automated Server Reports &amp; VIP Support</li>
                             </ul>
                         </div>
-                        <a href="/premium" class="btn-primary" style="display: block; text-align: center; text-decoration: none; padding: 14px 0; border-radius: 10px; font-weight: 700; font-size: 1rem; background: var(--accent-secondary); color: #fff; box-shadow: 0 6px 20px rgba(185, 78, 118, 0.35);">
+                        <button type="button" onclick="handleHomepagePlanClick('Enterprise', 299)" class="btn-primary" style="width: 100%; border: none; padding: 14px 0; border-radius: 10px; font-weight: 700; font-size: 1rem; background: var(--accent-secondary); color: #fff; cursor: pointer; box-shadow: 0 6px 20px rgba(185, 78, 118, 0.35); transition: transform 0.15s ease;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
                             Pay ₹299/mo
-                        </a>
+                        </button>
                     </div>
                 </div>
             </section>
@@ -5412,13 +5412,14 @@
                         <li class="sidebar-item" id="menu-tickets"><a href="#" onclick="switchTab('tickets')" title="Ticket System"><i class="fas fa-ticket"></i> <span>Tickets System <span class="nav-badge-pro">TICKET</span></span></a></li>
                         <li class="sidebar-item" id="menu-giveaways"><a href="#" onclick="switchTab('giveaways')" title="Giveaways"><i class="fas fa-gift"></i> <span>Giveaways <span class="nav-badge-new">NEW</span></span></a></li>
                         <li class="sidebar-item" id="menu-utilities"><a href="#" onclick="switchTab('utilities')"><i class="fas fa-toolbox"></i> <span>Tools & Utilities <span class="nav-badge-new">NEW</span></span></a></li>
+                        <li class="sidebar-item" id="menu-billing"><a href="#" onclick="switchTab('billing')" title="Plans & Payments"><i class="fas fa-credit-card"></i> <span>Plans &amp; Payments <span class="nav-badge-pro" style="background: rgba(217,108,145,0.15); color: #D96C91; font-weight: 800;">PRO</span></span></a></li>
                     </ul>
                 </div>
 
                 <!-- Pinned Bottom Footer -->
                 <div class="sidebar-pinned-bottom">
                     <!-- Subscription Status Card Box -->
-                    <div id="sidebar-subscription-card" class="glass-card" style="margin: 16px 14px; padding: 14px; background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 12px; cursor: pointer; transition: all 0.2s ease;" onclick="showScreen('landing'); setTimeout(() => scrollToSection('pricing'), 100);">
+                    <div id="sidebar-subscription-card" class="glass-card" style="margin: 16px 14px; padding: 14px; background: var(--bg-secondary); border: 1.5px solid var(--border-color); border-radius: 12px; cursor: pointer; transition: all 0.2s ease;" onclick="switchTab('billing');">
                         <div id="sidebar-subscription-badge" style="font-family: var(--font-mono); font-size: 0.65rem; color: var(--accent-primary); font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 4px;">NO SUBSCRIPTION</div>
                         <div id="sidebar-subscription-title" style="font-weight: 700; color: var(--text-primary); font-size: 0.85rem; margin-bottom: 4px;">No Active Plan</div>
                         <div id="sidebar-subscription-footer" style="font-size: 0.74rem; color: var(--accent-secondary); font-weight: 700; display: flex; align-items: center; gap: 4px;">Upgrade Server &rarr;</div>
@@ -12587,6 +12588,173 @@ Our support team can assist you with:
                             </div>
                         </div>
                     </div>
+                </div>
+
+
+                
+                <!-- [TAB: PLANS & PAYMENTS (BILLING)] -->
+                <div class="tab-pane" id="tab-billing" style="display:none; width: 100%; max-width: 1200px; padding: 24px; box-sizing: border-box;">
+                    
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 24px; flex-wrap: wrap; gap: 16px;">
+                        <div>
+                            <div style="display: inline-flex; align-items: center; gap: 6px; background: rgba(217,108,145,0.12); color: #D96C91; padding: 4px 10px; border-radius: 6px; font-size: 0.76rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 6px;">
+                                <i class="fas fa-credit-card"></i> Billing &amp; Subscription Portal
+                            </div>
+                            <h1 style="font-size: 1.9rem; font-weight: 800; color: #0F172A; margin: 0; font-family: var(--font-display);">Plans &amp; Payments</h1>
+                            <p style="font-size: 0.92rem; color: #64748B; margin: 4px 0 0 0;">Manage your server's protection tier, upgrade features, and view verified payment receipts.</p>
+                        </div>
+                        <div style="display: flex; gap: 10px;">
+                            <button type="button" onclick="loadBillingData(activeGuildId)" class="btn-secondary" style="background: #FFFFFF; border: 1.5px solid #CBD5E1; color: #334155; padding: 8px 16px; border-radius: 8px; font-size: 0.82rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 6px;">
+                                <i class="fas fa-arrows-rotate"></i> Refresh Status
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 1. ACTIVE PLAN STATUS CARD -->
+                    <div id="billing-active-plan-card" style="background: #FFFFFF; border: 1.5px solid #E2E8F0; border-radius: 16px; padding: 24px 28px; margin-bottom: 32px; box-shadow: 0 4px 18px rgba(15,23,42,0.04); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px;">
+                        <div style="display: flex; align-items: center; gap: 18px;">
+                            <div id="billing-plan-icon-box" style="width: 52px; height: 52px; border-radius: 12px; background: rgba(217,108,145,0.12); display: flex; align-items: center; justify-content: center; color: #D96C91; font-size: 1.5rem; flex-shrink: 0;">
+                                <i class="fas fa-shield-halved"></i>
+                            </div>
+                            <div>
+                                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 4px;">
+                                    <h3 id="billing-active-plan-name" style="margin: 0; font-size: 1.3rem; font-weight: 800; color: #0F172A; font-family: var(--font-display);">Free Plan</h3>
+                                    <span id="billing-active-plan-pill" style="background: #F1F5F9; color: #475569; border: 1px solid #CBD5E1; padding: 3px 10px; border-radius: 20px; font-size: 0.72rem; font-weight: 800; text-transform: uppercase;">ACTIVE</span>
+                                </div>
+                                <p id="billing-active-plan-desc" style="margin: 0; font-size: 0.86rem; color: #64748B;">Standard community tools and baseline Anti-Spam protection.</p>
+                            </div>
+                        </div>
+
+                        <div id="billing-plan-expiry-box" style="text-align: right;">
+                            <div style="font-size: 0.74rem; color: #64748B; font-weight: 700; text-transform: uppercase; margin-bottom: 2px;">Billing Cycle</div>
+                            <div id="billing-plan-cycle" style="font-size: 0.95rem; font-weight: 800; color: #0F172A;">Permanent / Free</div>
+                            <div id="billing-plan-expiry" style="font-size: 0.75rem; color: #10B981; font-weight: 600; margin-top: 2px;">No renewal required</div>
+                        </div>
+                    </div>
+
+                    <!-- 2. PRICING PLANS GRID (Exact 3 Cards from Homepage) -->
+                    <div style="margin-bottom: 12px;">
+                        <h2 style="font-size: 1.25rem; font-weight: 800; color: #0F172A; margin: 0 0 6px 0; font-family: var(--font-display);">Available Protection Plans</h2>
+                        <p style="font-size: 0.86rem; color: #64748B; margin: 0 0 20px 0;">Select a plan to immediately unlock premium features via verified Razorpay checkout.</p>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 24px; margin-bottom: 40px; align-items: stretch;">
+                        
+                        <!-- Plan 1: Free (₹0) -->
+                        <div style="background: #FFFFFF; border: 1.5px solid #E2E8F0; border-radius: 16px; padding: 32px 26px; box-shadow: 0 4px 18px rgba(15,23,42,0.03); display: flex; flex-direction: column; justify-content: space-between;">
+                            <div>
+                                <div style="display: inline-block; background: #F1F5F9; border: 1px solid #CBD5E1; color: #475569; font-family: var(--font-mono); font-size: 0.72rem; font-weight: 800; padding: 4px 10px; border-radius: 6px; margin-bottom: 16px;">
+                                    <i class="fas fa-shield" style="margin-right: 4px;"></i> FREE
+                                </div>
+                                <div style="display: flex; align-items: baseline; gap: 4px; margin-bottom: 6px;">
+                                    <span style="font-size: 2.6rem; font-weight: 800; color: #0F172A; font-family: var(--font-display);">₹0</span>
+                                </div>
+                                <p style="font-size: 0.86rem; color: #64748B; margin: 0 0 24px 0;">Standard tools for growing channels.</p>
+                                
+                                <ul style="list-style: none; padding: 0; margin: 0 0 28px 0; display: flex; flex-direction: column; gap: 12px; font-size: 0.88rem; color: #334155;">
+                                    <li style="display: flex; align-items: center; gap: 10px;"><i class="fas fa-circle-check" style="color: #10B981;"></i> Standard Security &amp; Anti-Spam</li>
+                                    <li style="display: flex; align-items: center; gap: 10px;"><i class="fas fa-circle-check" style="color: #10B981;"></i> Basic Welcomer &amp; Exit Alerts</li>
+                                    <li style="display: flex; align-items: center; gap: 10px;"><i class="fas fa-circle-check" style="color: #10B981;"></i> 1 Whitelist Limit</li>
+                                    <li style="display: flex; align-items: center; gap: 10px;"><i class="fas fa-circle-check" style="color: #10B981;"></i> Standard Discord Ticketing</li>
+                                </ul>
+                            </div>
+                            <button type="button" disabled style="width: 100%; padding: 12px 0; border-radius: 8px; font-weight: 700; font-size: 0.9rem; background: #F1F5F9; border: 1.5px solid #CBD5E1; color: #94A3B8; cursor: default;">
+                                Current Free Plan
+                            </button>
+                        </div>
+
+                        <!-- Plan 2: Pro (₹199/mo) — Highlighted -->
+                        <div style="background: #FFFFFF; border: 2px solid #D96C91; border-radius: 16px; padding: 32px 26px; box-shadow: 0 8px 30px rgba(217, 108, 145, 0.15); position: relative; display: flex; flex-direction: column; justify-content: space-between;">
+                            <div style="position: absolute; top: -13px; left: 50%; transform: translateX(-50%); background: #D96C91; color: #fff; font-size: 0.72rem; font-weight: 800; padding: 4px 14px; border-radius: 20px; font-family: var(--font-mono); letter-spacing: 0.06em; box-shadow: 0 4px 12px rgba(217, 108, 145, 0.4);">
+                                🔥 MOST POPULAR
+                            </div>
+                            <div>
+                                <div style="display: inline-block; background: rgba(217,108,145,0.12); border: 1px solid rgba(217,108,145,0.25); color: #D96C91; font-family: var(--font-mono); font-size: 0.72rem; font-weight: 800; padding: 4px 10px; border-radius: 6px; margin-bottom: 16px;">
+                                    <i class="fas fa-bolt" style="margin-right: 4px;"></i> PRO
+                                </div>
+                                <div style="display: flex; align-items: baseline; gap: 4px; margin-bottom: 6px;">
+                                    <span style="font-size: 2.6rem; font-weight: 800; color: #0F172A; font-family: var(--font-display);">₹199</span>
+                                    <span style="font-size: 0.9rem; color: #64748B; font-weight: 700;">/ month</span>
+                                </div>
+                                <p style="font-size: 0.86rem; color: #64748B; margin: 0 0 24px 0;">Advanced anti-nuke shielding for active guilds.</p>
+                                
+                                <ul style="list-style: none; padding: 0; margin: 0 0 28px 0; display: flex; flex-direction: column; gap: 12px; font-size: 0.88rem; color: #334155;">
+                                    <li style="display: flex; align-items: center; gap: 10px;"><i class="fas fa-circle-check" style="color: #D96C91;"></i> Sub-0.04ms Anti-Nuke Recovery</li>
+                                    <li style="display: flex; align-items: center; gap: 10px;"><i class="fas fa-circle-check" style="color: #D96C91;"></i> Anti-Webhook &amp; Rogue Bot Intercept</li>
+                                    <li style="display: flex; align-items: center; gap: 10px;"><i class="fas fa-circle-check" style="color: #D96C91;"></i> Up to 10 Whitelist Slots</li>
+                                    <li style="display: flex; align-items: center; gap: 10px;"><i class="fas fa-circle-check" style="color: #D96C91;"></i> Kitt Voice Join/Leave Announcements</li>
+                                    <li style="display: flex; align-items: center; gap: 10px;"><i class="fas fa-circle-check" style="color: #D96C91;"></i> HTML Transcripts &amp; Audit Storage</li>
+                                    <li style="display: flex; align-items: center; gap: 10px;"><i class="fas fa-circle-check" style="color: #D96C91;"></i> Priority Fast Support Desk</li>
+                                </ul>
+                            </div>
+                            <button type="button" onclick="initiateRazorpayCheckout('Pro', 199)" class="btn-primary" style="width: 100%; border: none; padding: 13px 0; border-radius: 8px; font-weight: 700; font-size: 0.95rem; background: #D96C91; color: #fff; cursor: pointer; box-shadow: 0 4px 14px rgba(217, 108, 145, 0.4); transition: transform 0.15s ease;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
+                                Upgrade to Pro (₹199/mo)
+                            </button>
+                        </div>
+
+                        <!-- Plan 3: Enterprise (₹299/mo) -->
+                        <div style="background: #FFFFFF; border: 1.5px solid #E2E8F0; border-radius: 16px; padding: 32px 26px; box-shadow: 0 4px 18px rgba(15,23,42,0.03); display: flex; flex-direction: column; justify-content: space-between;">
+                            <div>
+                                <div style="display: inline-block; background: #FAF5FF; border: 1px solid #F3E8FF; color: #7E22CE; font-family: var(--font-mono); font-size: 0.72rem; font-weight: 800; padding: 4px 10px; border-radius: 6px; margin-bottom: 16px;">
+                                    <i class="fas fa-crown" style="margin-right: 4px;"></i> ENTERPRISE
+                                </div>
+                                <div style="display: flex; align-items: baseline; gap: 4px; margin-bottom: 6px;">
+                                    <span style="font-size: 2.6rem; font-weight: 800; color: #0F172A; font-family: var(--font-display);">₹299</span>
+                                    <span style="font-size: 0.9rem; color: #64748B; font-weight: 700;">/ month</span>
+                                </div>
+                                <p style="font-size: 0.86rem; color: #64748B; margin: 0 0 24px 0;">Custom branding and power features for large networks.</p>
+                                
+                                <ul style="list-style: none; padding: 0; margin: 0 0 28px 0; display: flex; flex-direction: column; gap: 12px; font-size: 0.88rem; color: #334155;">
+                                    <li style="display: flex; align-items: center; gap: 10px;"><i class="fas fa-circle-check" style="color: #7E22CE;"></i> Custom Bot Avatar, Name &amp; Banner</li>
+                                    <li style="display: flex; align-items: center; gap: 10px;"><i class="fas fa-circle-check" style="color: #7E22CE;"></i> Unlimited Staff Whitelist Slots</li>
+                                    <li style="display: flex; align-items: center; gap: 10px;"><i class="fas fa-circle-check" style="color: #7E22CE;"></i> Dedicated 24/7 Voice &amp; Music Core</li>
+                                    <li style="display: flex; align-items: center; gap: 10px;"><i class="fas fa-circle-check" style="color: #7E22CE;"></i> Full Ticket Branding &amp; Multi-Category</li>
+                                    <li style="display: flex; align-items: center; gap: 10px;"><i class="fas fa-circle-check" style="color: #7E22CE;"></i> Automated Disaster Backups &amp; VIP Desk</li>
+                                </ul>
+                            </div>
+                            <button type="button" onclick="initiateRazorpayCheckout('Enterprise', 299)" class="btn-primary" style="width: 100%; border: none; padding: 13px 0; border-radius: 8px; font-weight: 700; font-size: 0.95rem; background: #7E22CE; color: #fff; cursor: pointer; box-shadow: 0 4px 14px rgba(126, 34, 206, 0.35); transition: transform 0.15s ease;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
+                                Upgrade to Enterprise (₹299/mo)
+                            </button>
+                        </div>
+
+                    </div>
+
+                    <!-- 3. PAYMENT & INVOICE HISTORY (Below Plans) -->
+                    <div style="background: #FFFFFF; border: 1.5px solid #E2E8F0; border-radius: 16px; padding: 26px; box-shadow: 0 4px 18px rgba(15,23,42,0.03);">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; border-bottom: 1.5px solid #F1F5F9; padding-bottom: 14px;">
+                            <div>
+                                <h3 style="font-size: 1.2rem; font-weight: 800; color: #0F172A; margin: 0; font-family: var(--font-display);">Payment &amp; Invoice History</h3>
+                                <p style="font-size: 0.84rem; color: #64748B; margin: 2px 0 0 0;">Verified transaction receipts for your server subscription.</p>
+                            </div>
+                            <span style="font-size: 0.76rem; color: #10B981; font-weight: 700; background: #ECFDF5; border: 1px solid #D1FAE5; padding: 4px 12px; border-radius: 20px;">
+                                <i class="fas fa-shield"></i> Razorpay Secured
+                            </span>
+                        </div>
+
+                        <div class="doc-table-wrap" style="margin: 0; box-shadow: none; border-radius: 10px;">
+                            <table class="doc-table" id="billing-history-table">
+                                <thead>
+                                    <tr>
+                                        <th>Order ID</th>
+                                        <th>Plan Tier</th>
+                                        <th>Amount</th>
+                                        <th>Date</th>
+                                        <th>Status</th>
+                                        <th>Payment ID</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="billing-history-tbody">
+                                    <tr>
+                                        <td colspan="6" style="text-align: center; color: #94A3B8; padding: 28px;">
+                                            <i class="fas fa-receipt" style="font-size: 1.8rem; margin-bottom: 8px; display: block; opacity: 0.5;"></i>
+                                            No payment records found yet. Upgrade your server above to view receipts.
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
                 </div>
 
 

@@ -1189,6 +1189,7 @@ function switchTab(tabId) {
     const workspaceContent = document.getElementById('workspace-content');
     if (workspaceContent) {
         if (tabId === 'giveaways' && typeof initGiveawaysTab === 'function') initGiveawaysTab();
+        if (tabId === 'billing' && typeof loadBillingData === 'function') loadBillingData(activeGuildId);
         if (tabId === 'tickets') {
             workspaceContent.style.setProperty('padding', '0', 'important');
         } else {
@@ -9010,6 +9011,7 @@ function initGiveawaysTab() {
     populateGiveawayChannelsAndRoles();
     updateGiveawayPreview();
     loadGuildGiveaways();
+                loadBillingData(guildId);
 }
 
 function switchGiveawayView(view) {
@@ -10175,3 +10177,257 @@ window.prompt = function(msg, def) {
     showVeyraPrompt('Input Required', msg, def || '');
     return null; // Async modal will handle real flows via showVeyraPrompt
 };
+
+
+
+// =========================================================================
+// BILLING, SUBSCRIPTIONS & RAZORPAY PAYMENT SYSTEM
+// =========================================================================
+
+function handleHomepagePlanClick(plan, amount) {
+    fetch('/api/user')
+        .then(res => res.json())
+        .then(user => {
+            if (!user || user.error || !user.id) {
+                showToast("Login Required", "Please log in with Discord first to purchase a plan.", "info");
+                setTimeout(() => {
+                    window.location.href = '/login?return_to=' + encodeURIComponent('/manage?tab=billing&plan=' + plan);
+                }, 800);
+            } else {
+                showScreen('dashboard');
+                switchTab('billing');
+                setTimeout(() => {
+                    initiateRazorpayCheckout(plan, amount);
+                }, 400);
+            }
+        })
+        .catch(() => {
+            window.location.href = '/login?return_to=' + encodeURIComponent('/manage?tab=billing&plan=' + plan);
+        });
+}
+window.handleHomepagePlanClick = handleHomepagePlanClick;
+
+async function loadBillingData(guildId) {
+    if (!guildId) guildId = activeGuildId;
+    if (!guildId) return;
+
+    try {
+        // 1. Fetch active subscription tier
+        const subRes = await fetch(`/api/subscription/${guildId}`);
+        const subData = await subRes.json();
+        
+        const planName = subData.plan || 'Free';
+        const isPro = planName.toLowerCase().includes('pro');
+        const isEnt = planName.toLowerCase().includes('enterprise') || planName.toLowerCase().includes('premium');
+        
+        const nameEl = document.getElementById('billing-active-plan-name');
+        const pillEl = document.getElementById('billing-active-plan-pill');
+        const descEl = document.getElementById('billing-active-plan-desc');
+        const iconBox = document.getElementById('billing-plan-icon-box');
+        const cycleEl = document.getElementById('billing-plan-cycle');
+        const expiryEl = document.getElementById('billing-plan-expiry');
+
+        if (nameEl) nameEl.innerText = isEnt ? 'Enterprise Sentinel Plan' : (isPro ? 'Pro Sentinel Plan' : 'Free Plan');
+        if (pillEl) {
+            pillEl.innerText = subData.status === 'expired' ? 'EXPIRED' : (isPro || isEnt ? 'ACTIVE' : 'DEFAULT');
+            pillEl.style.background = (isPro || isEnt) ? '#ECFDF5' : '#F1F5F9';
+            pillEl.style.color = (isPro || isEnt) ? '#047857' : '#475569';
+            pillEl.style.borderColor = (isPro || isEnt) ? '#D1FAE5' : '#CBD5E1';
+        }
+        if (descEl) {
+            descEl.innerText = isEnt 
+                ? 'Full enterprise protection, custom bot branding, and unlimited staff whitelist slots.'
+                : (isPro 
+                    ? 'Advanced anti-nuke shielding, Kitt voice announcements, and priority support.'
+                    : 'Standard community tools and baseline Anti-Spam protection.');
+        }
+        if (iconBox) {
+            iconBox.innerHTML = isEnt ? '<i class="fas fa-crown"></i>' : (isPro ? '<i class="fas fa-bolt"></i>' : '<i class="fas fa-shield-halved"></i>');
+            iconBox.style.color = isEnt ? '#7E22CE' : (isPro ? '#D96C91' : '#64748B');
+            iconBox.style.background = isEnt ? 'rgba(126, 34, 206, 0.12)' : (isPro ? 'rgba(217, 108, 145, 0.12)' : '#F1F5F9');
+        }
+        if (cycleEl) {
+            cycleEl.innerText = (isPro || isEnt) ? 'Monthly Subscription' : 'Permanent / Free';
+        }
+        if (expiryEl) {
+            if (subData.expires_at) {
+                const expDate = new Date(subData.expires_at).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
+                expiryEl.innerText = `Renews on ${expDate}`;
+                expiryEl.style.color = '#3B82F6';
+            } else {
+                expiryEl.innerText = 'No renewal required';
+                expiryEl.style.color = '#10B981';
+            }
+        }
+
+        // Hydrate bottom sidebar subscription card
+        const sideBadge = document.getElementById('sidebar-subscription-badge');
+        const sideTitle = document.getElementById('sidebar-subscription-title');
+        const sideFooter = document.getElementById('sidebar-subscription-footer');
+
+        if (sideBadge) {
+            sideBadge.innerText = isEnt ? 'ENTERPRISE PLAN' : (isPro ? 'PRO SUBSCRIPTION' : 'FREE SUBSCRIPTION');
+            sideBadge.style.color = isEnt ? '#7E22CE' : (isPro ? '#D96C91' : '#64748B');
+        }
+        if (sideTitle) {
+            sideTitle.innerHTML = (isPro || isEnt) 
+                ? `<span style="color: #10B981;">●</span> ${isEnt ? 'Enterprise Active' : 'Pro Plan Active'}`
+                : 'Free Plan';
+        }
+        if (sideFooter) {
+            sideFooter.innerHTML = (isPro || isEnt) ? 'Manage Plan &rarr;' : 'Upgrade to unlock Pro &rarr;';
+        }
+
+        // 2. Fetch payment transaction history
+        const histRes = await fetch(`/api/payment/history/${guildId}`);
+        const histData = await histRes.json();
+        const tbody = document.getElementById('billing-history-tbody');
+
+        if (tbody) {
+            if (histData && histData.history && histData.history.length > 0) {
+                tbody.innerHTML = histData.history.map(tx => {
+                    const dateStr = tx.paid_at || tx.created_at || '';
+                    const dateFormatted = dateStr ? new Date(dateStr).toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' }) : 'Recently';
+                    const amountFormatted = `₹${(tx.amount / 100).toFixed(2)}`;
+                    const isTxPro = (tx.plan || '').toLowerCase().includes('pro');
+                    const badgeClass = isTxPro ? 'cat-security' : 'cat-tickets';
+
+                    return `
+                    <tr>
+                        <td><span class="cmd-pill" style="font-size: 0.8rem; padding: 4px 10px;">${escapeHtml(tx.rzp_order_id || 'ORD-' + tx.id)}</span></td>
+                        <td><span class="cat-badge ${badgeClass}">${escapeHtml(tx.plan)}</span></td>
+                        <td><strong style="color: #0F172A; font-family: var(--font-mono); font-size: 0.95rem;">${amountFormatted}</strong></td>
+                        <td style="color: #64748B; font-size: 0.84rem;">${dateFormatted}</td>
+                        <td><span style="background: #ECFDF5; color: #047857; border: 1px solid #D1FAE5; padding: 3px 10px; border-radius: 20px; font-size: 0.74rem; font-weight: 800;"><i class="fas fa-circle-check" style="margin-right: 4px;"></i> Paid</span></td>
+                        <td><code class="syntax-badge" style="font-size: 0.78rem;">${escapeHtml(tx.rzp_payment_id || 'Verified')}</code></td>
+                    </tr>
+                    `;
+                }).join('');
+            } else {
+                tbody.innerHTML = `
+                <tr>
+                    <td colspan="6" style="text-align: center; color: #94A3B8; padding: 32px 20px;">
+                        <i class="fas fa-receipt" style="font-size: 2rem; margin-bottom: 10px; display: block; opacity: 0.4;"></i>
+                        No payment records found yet. Upgrade your server above to view verified receipts.
+                    </td>
+                </tr>
+                `;
+            }
+        }
+
+    } catch (err) {
+        console.error("Error loading billing data:", err);
+    }
+}
+window.loadBillingData = loadBillingData;
+
+async function initiateRazorpayCheckout(planName, amount) {
+    if (!activeGuildId) {
+        showToast("Server Required", "Please select a Discord server first to apply the plan.", "warning");
+        return;
+    }
+
+    showToast("Initializing Checkout", `Generating secure order for ${planName}...`, "info");
+
+    try {
+        // 1. Get public Razorpay key
+        const cfgRes = await fetch('/api/payment/config');
+        const cfg = await cfgRes.json();
+        const keyId = cfg.key_id || 'rzp_live_TSIoyDHCRnNXbE';
+
+        // 2. Create order on backend
+        const orderRes = await fetch('/api/payment/create-order', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                plan: planName,
+                guild_id: activeGuildId
+            })
+        });
+
+        const orderData = await orderRes.json();
+        if (!orderRes.ok || orderData.error) {
+            showToast("Order Error", orderData.error || "Could not create payment order.", "error");
+            return;
+        }
+
+        // If mock order in local test mode
+        if (orderData.is_mock) {
+            // Mock auto verification for local dev
+            const verifyRes = await fetch('/api/payment/verify', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    razorpay_order_id: orderData.order_id,
+                    razorpay_payment_id: `pay_mock_${Date.now()}`,
+                    razorpay_signature: 'mock_signature',
+                    guild_id: activeGuildId
+                })
+            });
+            const vData = await verifyRes.json();
+            if (vData.success) {
+                showToast("Upgrade Successful! 🎉", `Your server has been upgraded to ${planName}!`, "success");
+                loadBillingData(activeGuildId);
+            }
+            return;
+        }
+
+        // 3. Launch real Razorpay modal
+        if (typeof Razorpay === 'undefined') {
+            showToast("Loading Checkout", "Loading payment gateway, please click once more in 2 seconds...", "info");
+            return;
+        }
+
+        const options = {
+            key: keyId,
+            amount: orderData.amount,
+            currency: orderData.currency || "INR",
+            name: "VEYRA Sentinel",
+            description: `Upgrade to ${planName} Plan`,
+            order_id: orderData.order_id,
+            handler: async function (response) {
+                showToast("Verifying Payment...", "Confirming your transaction with bank...", "info");
+                try {
+                    const verifyRes = await fetch('/api/payment/verify', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            razorpay_order_id: response.razorpay_order_id,
+                            razorpay_payment_id: response.razorpay_payment_id,
+                            razorpay_signature: response.razorpay_signature,
+                            guild_id: activeGuildId
+                        })
+                    });
+                    const verifyData = await verifyRes.json();
+                    if (verifyData.success) {
+                        showToast("Payment Successful! 🎉", `Your server has been upgraded to ${verifyData.plan || planName}!`, "success");
+                        loadBillingData(activeGuildId);
+                    } else {
+                        showToast("Verification Notice", verifyData.error || "Verification issue. Please contact support with Payment ID.", "error");
+                    }
+                } catch (vErr) {
+                    showToast("Payment Processed", "Payment completed. Reloading your server subscription...", "success");
+                    loadBillingData(activeGuildId);
+                }
+            },
+            prefill: {
+                name: (window.currentUser && window.currentUser.username) ? window.currentUser.username : '',
+                email: (window.currentUser && window.currentUser.email) ? window.currentUser.email : ''
+            },
+            theme: {
+                color: "#D96C91"
+            }
+        };
+
+        const rzp = new Razorpay(options);
+        rzp.on('payment.failed', function (response) {
+            showToast("Payment Failed", response.error.description || "Transaction was canceled or declined.", "error");
+        });
+        rzp.open();
+
+    } catch (err) {
+        console.error("Razorpay checkout error:", err);
+        showToast("Checkout Error", "Could not open payment window. Please try again.", "error");
+    }
+}
+window.initiateRazorpayCheckout = initiateRazorpayCheckout;
