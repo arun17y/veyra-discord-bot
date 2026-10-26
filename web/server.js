@@ -766,7 +766,7 @@ app.get('/api/analytics/:guild_id', (req, res) => {
                 });
 
                 const netGrowth = totalJoins - totalLeaves;
-                const retention = totalJoins > 0 ? Math.round((netGrowth / totalJoins) * 100) : 100;
+                const retention = totalJoins > 0 ? Math.max(0, Math.min(100, Math.round((netGrowth / totalJoins) * 100))) : 0;
 
                 res.json({
                     timeframe: timeframe,
@@ -4573,6 +4573,26 @@ app.get('/api/payment/history/:guild_id', (req, res) => {
 });
 
 // GET /api/subscription/:guild_id — Fetch active subscription tier
+// Real Audit Logs Stream for Guild Overview
+app.get('/api/audit-logs/:guild_id', (req, res) => {
+    const guildId = req.params.guild_id;
+    db.all(
+        `SELECT id, timestamp, user, action, details 
+         FROM audit_logs 
+         WHERE guild_id = ? 
+         ORDER BY id DESC 
+         LIMIT 20`,
+        [guildId],
+        (err, rows) => {
+            if (err) {
+                console.error("Error fetching audit logs:", err);
+                return res.status(500).json({ error: err.message });
+            }
+            res.json(rows || []);
+        }
+    );
+});
+
 app.get('/api/subscription/:guild_id', (req, res) => {
     const guildId = req.params.guild_id;
     db.get(`SELECT * FROM guild_subscriptions WHERE guild_id = ?`, [guildId], (err, row) => {

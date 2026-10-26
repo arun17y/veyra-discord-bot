@@ -5455,7 +5455,7 @@
                                         <h1 class="section-title" id="dashboard-server-name" style="margin:0; font-size:1.6rem; font-weight:800; color:#0F172A; letter-spacing:-0.02em;">SERVER PORTAL</h1>
                                         <span id="overview-server-plan-badge" style="font-size:0.7rem; font-weight:700; background:#F1F5F9; color:#475569; padding:3px 9px; border-radius:9999px; border:1px solid #E2E8F0; text-transform:uppercase;">FREE TIER</span>
                                     </div>
-                                    <p class="section-subtitle" style="margin:4px 0 0 0; color:#64748B; font-size:0.85rem;">Autonomous security orchestration & live guild activity overview</p>
+                                    <p class="section-subtitle" style="margin:4px 0 0 0; color:#64748B; font-size:0.85rem;">Server security, telemetry, and live activity overview.</p>
                                 </div>
                             </div>
                         </div>
@@ -8391,57 +8391,51 @@ We hope to see you back soon!
                         </div>
 
                         <!-- Graph Canvas visualization (Sleek Dark Container with High-Contrast White Text) -->
-                        <div id="analytics-graph-container" style="position: relative; width: 100%; height: 280px; background: #F8FAFC !important; border: 1.5px solid #CBD5E1 !important; border-radius: 14px; padding: 20px; overflow: hidden; display: flex; flex-direction: column; justify-content: space-between; box-shadow: 0 2px 12px rgba(15, 23, 42, 0.04);">
+                        <div id="analytics-graph-container" style="position: relative; width: 100%; height: 280px; background: #F8FAFC !important; border: 1.5px solid #CBD5E1 !important; border-radius: 14px; padding: 20px; overflow: hidden; box-shadow: 0 2px 12px rgba(15, 23, 42, 0.04);">
                             <!-- Y-axis markers (Slate Bold Text) -->
-                            <div id="analytics-yaxis-labels" style="display: flex; flex-direction: column; justify-content: space-between; height: 100%; position: absolute; left: 15px; top: 20px; bottom: 20px; font-family: var(--font-mono); font-size: 0.78rem; color: #475569 !important; font-weight: 800; text-align: right; width: 25px;">
-                                <span>50</span>
-                                <span>38</span>
-                                <span>25</span>
-                                <span>13</span>
+                            <div id="analytics-yaxis-labels" style="display: flex; flex-direction: column; justify-content: space-between; height: 185px; position: absolute; left: 15px; top: 25px; font-family: var(--font-mono); font-size: 0.78rem; color: #475569 !important; font-weight: 800; text-align: right; width: 32px; pointer-events: none;">
+                                <span>10</span>
+                                <span>8</span>
+                                <span>5</span>
+                                <span>3</span>
                                 <span>0</span>
                             </div>
 
                             <!-- Horizontal Grid lines -->
-                            <div style="position: absolute; left: 50px; right: 20px; top: 25px; bottom: 25px; display: flex; flex-direction: column; justify-content: space-between; pointer-events: none;">
-                                <div style="border-top: 1px dashed #CBD5E1 !important; width: 100%;"></div>
-                                <div style="border-top: 1px dashed #CBD5E1 !important; width: 100%;"></div>
-                                <div style="border-top: 1px dashed #CBD5E1 !important; width: 100%;"></div>
-                                <div style="border-top: 1px dashed #CBD5E1 !important; width: 100%;"></div>
-                                <div style="border-top: 1px dashed #CBD5E1 !important; width: 100%;"></div>
+                            <div style="position: absolute; left: 55px; right: 25px; top: 25px; height: 185px; display: flex; flex-direction: column; justify-content: space-between; pointer-events: none;">
+                                <div style="border-top: 1px dashed #E2E8F0 !important; width: 100%;"></div>
+                                <div style="border-top: 1px dashed #E2E8F0 !important; width: 100%;"></div>
+                                <div style="border-top: 1px dashed #E2E8F0 !important; width: 100%;"></div>
+                                <div style="border-top: 1px dashed #E2E8F0 !important; width: 100%;"></div>
+                                <div style="border-top: 1.5px solid #CBD5E1 !important; width: 100%;"></div>
                             </div>
 
                             <!-- SVG Chart Path -->
-                            <svg id="analytics-svg-chart" viewBox="0 0 1000 240" style="position: absolute; left: 50px; right: 20px; top: 20px; height: 200px; width: calc(100% - 70px); overflow: visible;">
+                            <svg id="analytics-svg-chart" viewBox="0 0 1000 185" preserveAspectRatio="none" style="position: absolute; left: 55px; right: 25px; top: 25px; height: 185px; width: calc(100% - 80px); overflow: visible;">
                                 <!-- Joins Green line -->
-                                <path id="analytics-path-joins" d="M 0 220 Q 100 200 200 170 T 400 190 T 600 70 T 800 140 T 950 40 T 1000 160" fill="none" stroke="#059669" stroke-width="3.5" stroke-linecap="round"></path>
+                                <path id="analytics-path-joins" d="M 0 185 L 1000 185" fill="none" stroke="#059669" stroke-width="3" stroke-linecap="round"></path>
                                 <!-- Leaves Red line -->
-                                <path id="analytics-path-leaves" d="M 0 210 Q 100 215 200 210 T 400 215 T 600 160 T 800 190 T 950 110 T 1000 200" fill="none" stroke="#E11D48" stroke-width="3.5" stroke-linecap="round"></path>
+                                <path id="analytics-path-leaves" d="M 0 185 L 1000 185" fill="none" stroke="#E11D48" stroke-width="3" stroke-linecap="round"></path>
 
                                 <!-- Dot on active tooltip line -->
-                                <line id="analytics-guide-line" x1="950" y1="0" x2="950" y2="240" stroke="rgba(100, 116, 139, 0.4)" stroke-width="1.5" stroke-dasharray="4 4"></line>
-                                <circle id="analytics-dot-joins" cx="950" cy="40" r="5.5" fill="#059669" stroke="#FFFFFF" stroke-width="2.5"></circle>
-                                <circle id="analytics-dot-leaves" cx="950" cy="110" r="5.5" fill="#E11D48" stroke="#FFFFFF" stroke-width="2.5"></circle>
+                                <line id="analytics-guide-line" x1="1000" y1="0" x2="1000" y2="185" stroke="rgba(100, 116, 139, 0.45)" stroke-width="1.5" stroke-dasharray="4 4"></line>
+                                <circle id="analytics-dot-joins" cx="1000" cy="185" r="5.5" fill="#059669" stroke="#FFFFFF" stroke-width="2.5"></circle>
+                                <circle id="analytics-dot-leaves" cx="1000" cy="185" r="5.5" fill="#E11D48" stroke="#FFFFFF" stroke-width="2.5"></circle>
                             </svg>
 
                             <!-- Tooltip floating box (Crisp elevated white card with rose accent) -->
-                            <div id="analytics-tooltip-box" style="position: absolute; left: 80%; top: 25px; background: #FFFFFF; border: 1.5px solid #CBD5E1; border-top: 3px solid #E11D48; border-radius: 10px; padding: 12px; font-size: 0.78rem; font-weight: 600; min-width: 135px; box-shadow: 0 10px 25px rgba(15, 23, 42, 0.12); pointer-events: none; transition: left 0.15s ease, top 0.15s ease;">
-                                <div id="analytics-tooltip-date" style="color: #E11D48; margin-bottom: 6px; font-weight: 800; font-family: var(--font-mono);">Jul 20, 2026</div>
+                            <div id="analytics-tooltip-box" style="position: absolute; left: 80%; top: 25px; background: #FFFFFF; border: 1.5px solid #CBD5E1; border-top: 3px solid #E11D48; border-radius: 10px; padding: 12px; font-size: 0.78rem; font-weight: 600; min-width: 140px; box-shadow: 0 10px 25px rgba(15, 23, 42, 0.12); pointer-events: none; transition: left 0.12s ease, top 0.12s ease; z-index: 10;">
+                                <div id="analytics-tooltip-date" style="color: #E11D48; margin-bottom: 6px; font-weight: 800; font-family: var(--font-mono);">Oct 26, 2026</div>
                                 <div style="display:flex; justify-content:space-between; align-items:center; color:#0F172A !important; font-weight:700; margin-bottom:4px;">
-                                    <span style="display:flex; align-items:center; gap:6px;"><span style="width:8px; height:8px; border-radius:50%; background:#059669;"></span> <span id="analytics-tooltip-joins">42 Real Invites</span></span>
+                                    <span style="display:flex; align-items:center; gap:6px;"><span style="width:8px; height:8px; border-radius:50%; background:#059669;"></span> <span id="analytics-tooltip-joins">0 Real Invites</span></span>
                                 </div>
                                 <div id="analytics-tooltip-leaves-wrapper" style="display:flex; justify-content:space-between; align-items:center; color:#0F172A !important; font-weight:700;">
-                                    <span style="display:flex; align-items:center; gap:6px;"><span style="width:8px; height:8px; border-radius:50%; background:#E11D48;"></span> <span id="analytics-tooltip-leaves">12 leaves</span></span>
+                                    <span style="display:flex; align-items:center; gap:6px;"><span style="width:8px; height:8px; border-radius:50%; background:#E11D48;"></span> <span id="analytics-tooltip-leaves">0 leaves</span></span>
                                 </div>
                             </div>
 
                             <!-- X-axis dates -->
-                            <div id="analytics-xaxis-labels" style="position: absolute; left: 50px; right: 20px; bottom: 8px; display: flex; justify-content: space-between; font-family: var(--font-mono); font-size: 0.78rem; color: #475569 !important; font-weight: 800;">
-                                <span>Jul 15</span>
-                                <span>Jul 16</span>
-                                <span>Jul 17</span>
-                                <span>Jul 18</span>
-                                <span>Jul 19</span>
-                                <span style="color:#E11D48 !important; font-weight:900;">Jul 20</span>
+                            <div id="analytics-xaxis-labels" style="position: absolute; left: 55px; right: 25px; bottom: 12px; height: 22px; font-family: var(--font-mono); font-size: 0.78rem; color: #475569 !important; font-weight: 800; pointer-events: none;">
                             </div>
                         </div>
 

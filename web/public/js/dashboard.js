@@ -1,3 +1,17 @@
+window.resolveGuildPlan = function(planRaw, status) {
+    if (!planRaw) return { type: 'Free', name: 'Free Tier', badge: 'FREE TIER', isPaid: false, isEnt: false, isPro: false };
+    const p = String(planRaw).toLowerCase();
+    const isActive = status !== 'expired';
+    if (!isActive) return { type: 'Free', name: 'Free Tier (Expired)', badge: 'EXPIRED', isPaid: false, isEnt: false, isPro: false };
+    
+    if (p.includes('enterprise') || p.includes('premium')) {
+        return { type: 'Enterprise', name: 'Enterprise Sentinel Plan', badge: 'ENTERPRISE VIP', isPaid: true, isEnt: true, isPro: false };
+    }
+    if (p.includes('pro')) {
+        return { type: 'Pro', name: 'Pro Sentinel Plan', badge: 'PRO SENTINEL', isPaid: true, isEnt: false, isPro: true };
+    }
+    return { type: 'Free', name: 'Free Tier', badge: 'FREE TIER', isPaid: false, isEnt: false, isPro: false };
+};
 
 window.updateWhitelistCapacityUI = function(count) {
     const capacityEl = document.getElementById('overview-whitelist-capacity');
@@ -5693,14 +5707,32 @@ function loadRealAnalytics(guildId, timeframe = null) {
             const elRetention = document.getElementById('analytics-retention');
             const elStayed = document.getElementById('analytics-stayed-subtext');
 
+            const joinsCount = data.joins || 0;
+            const leavesCount = data.leaves || 0;
+            const netCount = data.netGrowth || 0;
+
             if (elNet) {
-                elNet.innerText = (data.netGrowth > 0 ? '+' : '') + data.netGrowth;
-                elNet.style.color = data.netGrowth >= 0 ? '#059669' : '#E11D48';
+                elNet.innerText = (netCount > 0 ? '+' : '') + netCount;
+                elNet.style.color = netCount >= 0 ? '#059669' : '#E11D48';
             }
-            if (elJoins) elJoins.innerText = data.joins || 0;
-            if (elLeaves) elLeaves.innerText = data.leaves || 0;
-            if (elRetention) elRetention.innerText = (data.retention !== undefined ? data.retention : 100) + '%';
-            if (elStayed) elStayed.innerText = `${Math.max(0, data.netGrowth || 0)} of ${data.joins || 0} invites active`;
+            if (elJoins) elJoins.innerText = joinsCount;
+            if (elLeaves) elLeaves.innerText = leavesCount;
+
+            // Clean retention display (no 100% when 0 invites)
+            if (elRetention) {
+                if (joinsCount === 0) {
+                    elRetention.innerText = '0%';
+                } else {
+                    elRetention.innerText = (data.retention !== undefined ? data.retention : 0) + '%';
+                }
+            }
+            if (elStayed) {
+                if (joinsCount === 0) {
+                    elStayed.innerText = '0 invites in this period';
+                } else {
+                    elStayed.innerText = `${Math.max(0, netCount)} of ${joinsCount} invites active`;
+                }
+            }
 
             window.activeAnalyticsPoints = data.points || [];
             renderAnalyticsGraph(data.points || []);
@@ -5715,12 +5747,24 @@ function loadRealAnalytics(guildId, timeframe = null) {
 function renderAnalyticsGraph(points) {
     if (!points || points.length === 0) return;
     
-    // 1. Render dynamic X-axis labels
+    // 1. Render dynamic X-axis labels with exact percentage alignment
     const xaxisContainer = document.getElementById('analytics-xaxis-labels');
     if (xaxisContainer) {
-        xaxisContainer.innerHTML = points.map((p, idx) => 
-            `<span style="color: ${idx === points.length - 1 ? '#E11D48' : '#475569'}; font-weight: ${idx === points.length - 1 ? '900' : '700'}; cursor: pointer; transition: color 0.15s ease;" onmouseover="this.style.color='#E11D48'" onmouseout="if(${idx} !== points.length - 1) this.style.color='#475569'" onclick="updateGraphTooltipByIndex(${idx})">${p.date}</span>`
-        ).join('');
+        const total = points.length - 1;
+        xaxisContainer.innerHTML = points.map((p, idx) => {
+            const pct = total > 0 ? ((idx / total) * 100).toFixed(2) : 0;
+            let tx = '-50%';
+            let align = 'center';
+            if (idx === 0) {
+                tx = '0%';
+                align = 'left';
+            } else if (idx === total) {
+                tx = '-100%';
+                align = 'right';
+            }
+            const isLast = idx === total;
+            return `<span style="position: absolute; left: ${pct}%; transform: translateX(${tx}); text-align: ${align}; color: ${isLast ? '#E11D48' : '#475569'}; font-weight: ${isLast ? '900' : '700'}; cursor: pointer; transition: color 0.15s ease; white-space: nowrap; pointer-events: auto;" onmouseover="this.style.color='#E11D48'" onmouseout="if(${!isLast}) this.style.color='#475569'" onclick="updateGraphTooltipByIndex(${idx})">${p.date}</span>`;
+        }).join('');
     }
 
     const svgChart = document.getElementById('analytics-svg-chart');
@@ -5752,11 +5796,12 @@ function renderAnalyticsGraph(points) {
 
     // 4. Construct SVG curve paths
     const width = 1000;
-    const height = 200;
-    const padding = 20;
+    const height = 185;
+    const totalPts = points.length - 1;
     
-    const getX = (index) => padding + (index / (points.length - 1)) * (width - 2 * padding);
-    const getY = (val) => (height - 15) - ((val || 0) / maxVal) * (height - 35);
+    const getX = (index) => totalPts > 0 ? (index / totalPts) * width : 0;
+    // When val is 0, getY(0) = 185 (sits directly on baseline 0). When val is maxVal, getY(maxVal) = 0 (top line).
+    const getY = (val) => height - ((val || 0) / maxVal) * height;
 
     let joinsD = `M ${getX(0)} ${getY(points[0].joins)}`;
     let leavesD = `M ${getX(0)} ${getY(points[0].leaves)}`;
@@ -5779,6 +5824,14 @@ function renderAnalyticsGraph(points) {
     pathLeaves.setAttribute('d', leavesD);
     pathLeaves.style.display = 'block';
 
+    // Distinguish overlapping lines (e.g. when both joins and leaves are 0)
+    const areIdentical = points.every(p => (p.joins || 0) === (p.leaves || 0));
+    if (areIdentical) {
+        pathLeaves.setAttribute('stroke-dasharray', '6 4');
+    } else {
+        pathLeaves.removeAttribute('stroke-dasharray');
+    }
+
     updateGraphTooltipByIndex(points.length - 1, maxVal);
     setupAnalyticsChartScrubbing();
 }
@@ -5787,16 +5840,16 @@ function updateGraphTooltipByIndex(index, maxValCalculated) {
     const points = window.activeAnalyticsPoints;
     if (!points || points.length === 0) return;
     
-    const idx = Math.max(0, Math.min(points.length - 1, index));
+    const totalPts = points.length - 1;
+    const idx = Math.max(0, Math.min(totalPts, index));
     const pt = points[idx];
     
     const maxVal = maxValCalculated || window.currentAnalyticsMaxVal || 10;
     const width = 1000;
-    const height = 200;
-    const padding = 20;
+    const height = 185;
     
-    const getX = (i) => padding + (i / (points.length - 1)) * (width - 2 * padding);
-    const getY = (val) => (height - 15) - ((val || 0) / maxVal) * (height - 35);
+    const getX = (i) => totalPts > 0 ? (i / totalPts) * width : 0;
+    const getY = (val) => height - ((val || 0) / maxVal) * height;
 
     const cx = getX(idx);
     const cyJoins = getY(pt.joins);
@@ -5814,6 +5867,8 @@ function updateGraphTooltipByIndex(index, maxValCalculated) {
     if (guideLine) {
         guideLine.setAttribute('x1', cx);
         guideLine.setAttribute('x2', cx);
+        guideLine.setAttribute('y1', 0);
+        guideLine.setAttribute('y2', height);
     }
     if (dotJoins) {
         dotJoins.setAttribute('cx', cx);
@@ -5831,8 +5886,9 @@ function updateGraphTooltipByIndex(index, maxValCalculated) {
     if (leavesWrapper) leavesWrapper.style.display = 'flex';
 
     if (tooltipBox) {
-        const pct = (idx / (points.length - 1)) * 72 + 8;
-        tooltipBox.style.left = `${pct}%`;
+        const pct = totalPts > 0 ? (idx / totalPts) * 100 : 50;
+        const clampedPct = Math.max(8, Math.min(76, pct - 10));
+        tooltipBox.style.left = `${clampedPct}%`;
     }
 }
 
@@ -5845,10 +5901,11 @@ function setupAnalyticsChartScrubbing() {
         const points = window.activeAnalyticsPoints;
         if (!points || points.length === 0) return;
         const rect = container.getBoundingClientRect();
-        const offsetX = e.clientX - rect.left - 50;
-        const usableWidth = rect.width - 70;
-        if (usableWidth <= 0) return;
-        const ratio = Math.max(0, Math.min(1, offsetX / usableWidth));
+        const plotLeft = rect.left + 55;
+        const plotWidth = rect.width - 80;
+        if (plotWidth <= 0) return;
+        const offsetX = e.clientX - plotLeft;
+        const ratio = Math.max(0, Math.min(1, offsetX / plotWidth));
         const index = Math.round(ratio * (points.length - 1));
         updateGraphTooltipByIndex(index);
     });
@@ -10629,9 +10686,8 @@ async function loadBillingData(guildId) {
         const subRes = await fetch(`/api/subscription/${guildId}`);
         const subData = await subRes.json();
         
-        const planName = subData.plan || 'Free';
-        const isPro = planName.toLowerCase().includes('pro');
-        const isEnt = planName.toLowerCase().includes('enterprise') || planName.toLowerCase().includes('premium');
+        const resolvedPlan = window.resolveGuildPlan(subData.plan, subData.status);
+        window.currentServerPlan = resolvedPlan.type;
         
         const nameEl = document.getElementById('billing-active-plan-name');
         const pillEl = document.getElementById('billing-active-plan-pill');
@@ -10640,36 +10696,44 @@ async function loadBillingData(guildId) {
         const cycleEl = document.getElementById('billing-plan-cycle');
         const expiryEl = document.getElementById('billing-plan-expiry');
 
-        if (nameEl) nameEl.innerText = isEnt ? 'Enterprise Sentinel Plan' : (isPro ? 'Pro Sentinel Plan' : 'Free Plan');
+        if (nameEl) nameEl.innerText = resolvedPlan.name;
         if (pillEl) {
-            pillEl.innerText = subData.status === 'expired' ? 'EXPIRED' : (isPro || isEnt ? 'ACTIVE' : 'DEFAULT');
-            pillEl.style.background = (isPro || isEnt) ? '#ECFDF5' : '#F1F5F9';
-            pillEl.style.color = (isPro || isEnt) ? '#047857' : '#475569';
-            pillEl.style.borderColor = (isPro || isEnt) ? '#D1FAE5' : '#CBD5E1';
+            pillEl.innerText = resolvedPlan.isPaid ? 'ACTIVE' : 'DEFAULT';
+            pillEl.style.background = resolvedPlan.isPaid ? '#ECFDF5' : '#F1F5F9';
+            pillEl.style.color = resolvedPlan.isPaid ? '#047857' : '#475569';
+            pillEl.style.borderColor = resolvedPlan.isPaid ? '#D1FAE5' : '#CBD5E1';
         }
         if (descEl) {
-            descEl.innerText = isEnt 
+            descEl.innerText = resolvedPlan.isEnt 
                 ? 'Full enterprise protection, custom bot branding, and unlimited staff whitelist slots.'
-                : (isPro 
+                : (resolvedPlan.isPro 
                     ? 'Advanced anti-nuke shielding, Kitt voice announcements, and priority support.'
                     : 'Standard community tools and baseline Anti-Spam protection.');
         }
         if (iconBox) {
-            iconBox.innerHTML = isEnt ? '<i class="fas fa-crown"></i>' : (isPro ? '<i class="fas fa-bolt"></i>' : '<i class="fas fa-shield-halved"></i>');
-            iconBox.style.color = isEnt ? '#7E22CE' : (isPro ? '#D96C91' : '#64748B');
-            iconBox.style.background = isEnt ? 'rgba(126, 34, 206, 0.12)' : (isPro ? 'rgba(217, 108, 145, 0.12)' : '#F1F5F9');
+            iconBox.innerHTML = resolvedPlan.isEnt ? '<i class="fas fa-crown"></i>' : (resolvedPlan.isPro ? '<i class="fas fa-bolt"></i>' : '<i class="fas fa-shield-halved"></i>');
+            iconBox.style.color = resolvedPlan.isEnt ? '#7E22CE' : (resolvedPlan.isPro ? '#D96C91' : '#64748B');
+            iconBox.style.background = resolvedPlan.isEnt ? 'rgba(126, 34, 206, 0.12)' : (resolvedPlan.isPro ? 'rgba(217, 108, 145, 0.12)' : '#F1F5F9');
         }
         if (cycleEl) {
-            cycleEl.innerText = (isPro || isEnt) ? 'Monthly Subscription' : 'Permanent / Free';
+            cycleEl.innerText = resolvedPlan.isPaid ? (subData.expires_at === 'Lifetime' ? 'Lifetime Access' : 'Monthly Subscription') : 'Permanent / Free';
         }
         if (expiryEl) {
-            if (subData.expires_at) {
-                const expDate = new Date(subData.expires_at).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
-                expiryEl.innerText = `Renews on ${expDate}`;
-                expiryEl.style.color = '#3B82F6';
-            } else {
-                expiryEl.innerText = 'No renewal required';
+            if (!resolvedPlan.isPaid) {
+                expiryEl.innerText = 'Never expires';
                 expiryEl.style.color = '#10B981';
+            } else if (subData.expires_at === 'Lifetime' || !subData.expires_at) {
+                expiryEl.innerText = 'Lifetime Access';
+                expiryEl.style.color = '#10B981';
+            } else {
+                const d = new Date(subData.expires_at);
+                if (isNaN(d.getTime())) {
+                    expiryEl.innerText = 'Lifetime Access';
+                    expiryEl.style.color = '#10B981';
+                } else {
+                    expiryEl.innerText = `Renews on ${d.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' })}`;
+                    expiryEl.style.color = '#3B82F6';
+                }
             }
         }
 
@@ -10881,45 +10945,44 @@ window.loadServerOverview = async function(guildId) {
             fetch(`/api/whitelist/${gid}`).then(r => r.json()).catch(() => [])
         ]);
 
-        const plan = (subRes && subRes.plan) ? subRes.plan.toLowerCase() : 'free';
-        const isPlanActive = subRes && subRes.active;
+        const resolvedPlan = window.resolveGuildPlan(subRes && subRes.plan, subRes && subRes.status);
+        const plan = resolvedPlan.type.toLowerCase();
+        window.currentServerPlan = resolvedPlan.type;
 
         // Plan Badge & Metric Card
         const badgeEl = document.getElementById('overview-server-plan-badge');
         const planValEl = document.getElementById('overview-active-plan-val');
         if (badgeEl) {
-            if (plan === 'enterprise') {
-                badgeEl.innerText = 'ENTERPRISE VIP';
+            badgeEl.innerText = resolvedPlan.badge;
+            if (resolvedPlan.isEnt) {
                 badgeEl.style.background = '#FAF5FF';
                 badgeEl.style.color = '#7E22CE';
                 badgeEl.style.borderColor = '#E9D5FF';
-            } else if (plan === 'pro') {
-                badgeEl.innerText = 'PRO SENTINEL';
+            } else if (resolvedPlan.isPro) {
                 badgeEl.style.background = '#FDF2F8';
                 badgeEl.style.color = '#BE185D';
                 badgeEl.style.borderColor = '#FBCFE8';
             } else {
-                badgeEl.innerText = 'FREE TIER';
                 badgeEl.style.background = '#F1F5F9';
                 badgeEl.style.color = '#475569';
                 badgeEl.style.borderColor = '#E2E8F0';
             }
         }
         if (planValEl) {
-            planValEl.innerText = plan === 'enterprise' ? 'Enterprise' : (plan === 'pro' ? 'Pro Plan' : 'Free Tier');
+            planValEl.innerText = resolvedPlan.name;
         }
 
         // Whitelist Capacity Quota Enforced per Plan
         let wlLimit = 1;
         let wlLimitDisplay = '1';
         let wlFooterText = 'Free plan quota (1 slot allowed)';
-        if (plan === 'pro') {
+        if (resolvedPlan.isPro) {
             wlLimit = 10;
             wlLimitDisplay = '10';
             wlFooterText = 'Pro Sentinel quota (10 slots)';
-        } else if (plan === 'enterprise') {
+        } else if (resolvedPlan.isEnt) {
             wlLimit = 999999;
-            wlLimitDisplay = '∞';
+            wlLimitDisplay = 'Unlimited';
             wlFooterText = 'Unlimited staff overrides';
         }
 
