@@ -5630,7 +5630,7 @@ function renderAnalyticsGraph(points) {
     const xaxisContainer = document.getElementById('analytics-xaxis-labels');
     if (xaxisContainer) {
         xaxisContainer.innerHTML = points.map((p, idx) => 
-            `<span style="${idx === points.length - 1 ? 'color:#a855f7; font-weight:800;' : ''}">${p.date}</span>`
+            `<span style="color: ${idx === points.length - 1 ? '#E11D48' : '#475569'}; font-weight: ${idx === points.length - 1 ? '900' : '700'};">${p.date}</span>`
         ).join('');
     }
 
