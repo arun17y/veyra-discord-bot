@@ -1,4 +1,26 @@
 
+window.updateWhitelistCapacityUI = function(count) {
+    const capacityEl = document.getElementById('overview-whitelist-capacity');
+    const footerEl = document.getElementById('overview-whitelist-footer');
+    if (!capacityEl) return;
+    
+    const currentPlan = (window.currentServerPlan || localStorage.getItem('current_server_plan') || 'Free').toLowerCase();
+    let limitDisplay = '1';
+    let footerText = 'Free plan quota (1 slot allowed)';
+    if (currentPlan.includes('enterprise')) {
+        limitDisplay = '∞';
+        footerText = 'Unlimited staff overrides';
+    } else if (currentPlan.includes('pro')) {
+        limitDisplay = '10';
+        footerText = 'Pro Sentinel quota (10 slots)';
+    }
+
+    const c = count !== undefined ? count : (window.activeWhitelistCache ? window.activeWhitelistCache.length : 0);
+    capacityEl.innerText = `${c} / ${limitDisplay}`;
+    if (footerEl) footerEl.innerText = footerText;
+};
+
+
 function navigateToHome(e) {
     if (e && typeof e.preventDefault === 'function') e.preventDefault();
     sessionStorage.setItem('activeScreen', 'landing');
@@ -3246,9 +3268,11 @@ window.addEventListener('focus', () => {
                 fetch('/api/whitelist/' + activeGuildId, { cache: 'no-store' })
                     .then(r => r.json())
                     .then(wl => {
-                        const capacityEl = document.getElementById('overview-whitelist-capacity');
-                        if (capacityEl && Array.isArray(wl)) {
-                            capacityEl.innerText = `${wl.length} / 100`;
+                        if (Array.isArray(wl)) {
+                            window.activeWhitelistCache = wl;
+                            if (typeof window.updateWhitelistCapacityUI === 'function') {
+                                window.updateWhitelistCapacityUI(wl.length);
+                            }
                         }
                     })
                     .catch(() => {});
@@ -7199,100 +7223,136 @@ window.loadSavedPreset = function(type) {
 // --- DYNAMIC WHITELIST, ANTI-SPAM, AND LOGS HANDLERS ---
 
 // Whitelist configuration modal popup (Real-time Whitelist)
-window.openWhitelistModal = function(type) {
-    const targetGuild = activeGuildId;
-    if (!targetGuild) return;
+window.openWhitelistModal = function(type = 'User') {
+    const targetGuild = activeGuildId || localStorage.getItem('selected_guild_id');
+    if (!targetGuild) {
+        showToast("Select Server", "Please select a server first.", "info");
+        return;
+    }
     
     let modal = document.getElementById('whitelist-interactive-modal');
     if (!modal) {
         modal = document.createElement('div');
         modal.id = 'whitelist-interactive-modal';
-        modal.style.cssText = 'position:fixed; inset:0; background:rgba(0,0,0,0.85); z-index:1000000; display:flex; align-items:center; justify-content:center; padding:20px;';
+        modal.style.cssText = 'position:fixed; inset:0; background:rgba(15, 23, 42, 0.6); backdrop-filter:blur(6px); z-index:1000000; display:flex; align-items:center; justify-content:center; padding:20px;';
         document.body.appendChild(modal);
     }
     modal.style.display = 'flex';
     
     function refresh() {
-        fetch(`/api/whitelist/${targetGuild}`)
-            .then(res => res.json())
-            .then(data => {
-                const filtered = data.filter(item => item.type.toLowerCase() === type.toLowerCase());
-                modal.innerHTML = `
-                    <div class="glass-card" style="width:100%; max-width:480px; background:#050508; border:1px solid rgba(57, 255, 20, 0.2); padding:30px; border-radius:16px; position:relative; box-shadow: 0 20px 50px rgba(0,0,0,0.9);">
-                        <button onclick="document.getElementById('whitelist-interactive-modal').style.display='none'" style="position:absolute; top:20px; right:20px; background:transparent; border:none; color:var(--text-secondary); cursor:pointer; font-size:1.2rem;"><i class="fas fa-times"></i></button>
-                        <h3 style="color:#39FF14; font-size:1.25rem; font-weight:800; text-transform:uppercase; margin-bottom:15px;">Whitelisted ${type}s</h3>
-                        <p style="color:var(--text-secondary); font-size:0.8rem; margin-bottom:20px;">Manage whitelisted ${type.toLowerCase()} bypass privileges.</p>
-                        
-                        <div style="display:flex; gap:10px; margin-bottom:20px;">
-                            <input type="text" id="w-modal-input" placeholder="Enter ${type} ID..." style="flex:1; background:rgba(0,0,0,0.4); border:1px solid rgba(57, 255, 20, 0.15); border-radius:6px; padding:10px; color:#fff; font-size:0.85rem; outline:none;">
-                            <button onclick="addWModalItem('${type}')" class="btn-primary" style="background:#39FF14; border:none; padding:10px 16px; border-radius:6px; font-weight:700; color:#000; cursor:pointer;">Add</button>
+        Promise.all([
+            fetch(`/api/whitelist/${targetGuild}`).then(r => r.json()).catch(() => []),
+            fetch(`/api/subscription/${targetGuild}`).then(r => r.json()).catch(() => ({ plan: 'free' }))
+        ]).then(([data, sub]) => {
+            const plan = (sub && sub.plan ? sub.plan : 'free').toLowerCase();
+            let limit = 1;
+            let planTitle = 'Free Plan (1 slot)';
+            if (plan === 'pro') {
+                limit = 10;
+                planTitle = 'Pro Sentinel (10 slots)';
+            } else if (plan === 'enterprise') {
+                limit = 999999;
+                planTitle = 'Enterprise VIP (Unlimited)';
+            }
+
+            const filtered = (data || []).filter(item => (item.type || 'User').toLowerCase() === type.toLowerCase());
+            window.activeWhitelistCache = data || [];
+            if (typeof window.updateWhitelistCapacityUI === 'function') {
+                window.updateWhitelistCapacityUI((data || []).length);
+            }
+
+            modal.innerHTML = `
+                <div style="width:100%; max-width:490px; background:#FFFFFF; border:1.5px solid #E2E8F0; padding:26px; border-radius:16px; position:relative; box-shadow: 0 20px 60px rgba(15,23,42,0.16); font-family:var(--font-body, -apple-system, sans-serif); animation: fadeIn 0.15s ease;">
+                    <button type="button" onclick="document.getElementById('whitelist-interactive-modal').style.display='none'" style="position:absolute; top:20px; right:20px; background:#F8FAFC; border:1px solid #CBD5E1; border-radius:8px; width:32px; height:32px; display:flex; align-items:center; justify-content:center; color:#64748B; cursor:pointer; font-size:0.9rem; transition:all 0.15s;" onmouseover="this.style.background='#F1F5F9'; this.style.color='#0F172A'" onmouseout="this.style.background='#F8FAFC'; this.style.color='#64748B'"><i class="fas fa-times"></i></button>
+                    
+                    <div style="display:flex; align-items:center; gap:10px; margin-bottom:6px;">
+                        <div style="width:36px; height:36px; border-radius:10px; background:#F5F3FF; color:#7C3AED; display:flex; align-items:center; justify-content:center; font-size:1.1rem;">
+                            <i class="fas fa-user-shield"></i>
                         </div>
-                        
-                        <div style="max-height:220px; overflow-y:auto; border:1px solid rgba(255,255,255,0.03); border-radius:6px; background:rgba(0,0,0,0.15);">
-                            <ul id="w-modal-list" style="list-style:none; padding:0; margin:0;">
-                                ${filtered.length === 0 ? `<li style="padding:15px; text-align:center; color:var(--text-secondary); font-size:0.82rem;">No whitelisted ${type.toLowerCase()}s found.</li>` : filtered.map(item => `
-                                    <li style="padding:10px 14px; border-bottom:1px solid rgba(255,255,255,0.02); display:flex; justify-content:space-between; align-items:center;">
-                                        <span style="color:#fff; font-size:0.82rem; font-family:var(--font-mono);">${item.id}</span>
-                                        <button onclick="deleteWModalItem('${item.id}', '${type}')" style="background:transparent; border:none; color:var(--text-secondary); cursor:pointer;" onmouseover="this.style.color='#ef4444'" onmouseout="this.style.color='var(--text-secondary)'"><i class="fas fa-trash"></i></button>
-                                    </li>
-                                `).join('')}
-                            </ul>
+                        <div>
+                            <h3 style="color:#0F172A; font-size:1.15rem; font-weight:800; margin:0; letter-spacing:-0.01em;">Whitelisted Staff (${filtered.length}/${limit === 999999 ? '∞' : limit})</h3>
+                            <span style="font-size:0.75rem; color:#7C3AED; font-weight:700; background:#F5F3FF; padding:2px 8px; border-radius:4px;">${planTitle}</span>
                         </div>
                     </div>
-                `;
-            });
+                    <p style="color:#64748B; font-size:0.82rem; margin:10px 0 18px 0; line-height:1.45;">Whitelisted members bypass anti-nuke thresholds, mass-kick limits, and role permission restrictions.</p>
+                    
+                    <div style="display:flex; gap:10px; margin-bottom:18px;">
+                        <input type="text" id="w-modal-input" placeholder="Enter Discord User ID (e.g. 123456789)" style="flex:1; background:#FFFFFF; border:1.5px solid #CBD5E1; border-radius:8px; padding:10px 14px; color:#0F172A; font-size:0.85rem; outline:none; font-family:var(--font-mono);">
+                        <button type="button" onclick="addWModalItem('${type}', ${limit})" style="background:#0F172A; border:none; padding:10px 18px; border-radius:8px; font-weight:600; font-size:0.85rem; color:#FFFFFF; cursor:pointer; font-family:inherit; white-space:nowrap; transition:opacity 0.15s;" onmouseover="this.style.opacity='0.9'" onmouseout="this.style.opacity='1'">
+                            <i class="fas fa-plus" style="margin-right:4px;"></i> Add
+                        </button>
+                    </div>
+                    
+                    <div style="max-height:220px; overflow-y:auto; border:1.5px solid #E2E8F0; border-radius:10px; background:#F8FAFC;">
+                        <ul id="w-modal-list" style="list-style:none; padding:0; margin:0;">
+                            ${filtered.length === 0 ? `
+                                <li style="padding:22px; text-align:center; color:#94A3B8; font-size:0.82rem;">
+                                    <i class="fas fa-user-check" style="display:block; font-size:1.4rem; margin-bottom:6px; color:#CBD5E1;"></i>
+                                    No staff whitelisted yet. Enter an ID above to authorize.
+                                </li>
+                            ` : filtered.map(item => `
+                                <li style="padding:10px 14px; border-bottom:1px solid #F1F5F9; display:flex; justify-content:space-between; align-items:center; background:#FFFFFF;">
+                                    <div style="display:flex; align-items:center; gap:8px;">
+                                        <span style="width:8px; height:8px; border-radius:50%; background:#10B981;"></span>
+                                        <span style="color:#0F172A; font-size:0.84rem; font-family:var(--font-mono); font-weight:700;">${escapeHtml(item.id)}</span>
+                                        <span style="font-size:0.72rem; color:#64748B; background:#F1F5F9; padding:1px 6px; border-radius:4px;">Trusted</span>
+                                    </div>
+                                    <button type="button" onclick="deleteWModalItem('${item.id}', '${type}')" style="background:transparent; border:none; color:#EF4444; cursor:pointer; padding:4px 8px; font-size:0.85rem;" title="Remove Override"><i class="fas fa-trash-can"></i></button>
+                                </li>
+                            `).join('')}
+                        </ul>
+                    </div>
+                </div>
+            `;
+        });
     }
     
-    window.addWModalItem = function(t) {
-        const val = document.getElementById('w-modal-input').value.trim();
-        if (!val) return showToast("Error", "Please enter an ID.");
+    window.addWModalItem = function(t, quotaLimit) {
+        const input = document.getElementById('w-modal-input');
+        const val = input ? input.value.trim() : '';
+        if (!val) return showToast("Validation Error", "Please enter a valid Discord User ID.", "error");
+
+        if (window.activeWhitelistCache && window.activeWhitelistCache.length >= quotaLimit) {
+            showToast("Plan Quota Reached", `Your active plan limit is ${quotaLimit} whitelist slot(s). Upgrade to Pro or Enterprise for additional slots.`, "error");
+            return;
+        }
+
         fetch(`/api/whitelist/${targetGuild}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ id: val, type: t, reason: 'Added via Dashboard Whitelist Modal' })
+            body: JSON.stringify({ id: val, type: t, reason: 'Authorized Staff Override' })
         })
         .then(res => res.json())
         .then(res => {
             if (res.success) {
-                showToast("Success", `${t} whitelisted successfully.`);
+                showToast("Staff Whitelisted", `User ID ${val} successfully added to whitelist overrides.`);
+                if (input) input.value = '';
                 refresh();
+                if (typeof loadServerOverview === 'function') loadServerOverview(targetGuild);
             } else {
-                showToast("Error", res.error || "Failed to whitelist.");
+                showToast("Quota Restricted", res.error || "Unable to add whitelist member.", "error");
             }
-        });
+        })
+        .catch(() => showToast("Network Error", "Failed to update whitelist.", "error"));
     };
     
     window.deleteWModalItem = function(id, t) {
-        fetch(`/api/whitelist/${targetGuild}/${id}`, { method: 'DELETE' })
-            .then(res => res.json())
-            .then(res => {
-                if (res.success) {
-                    showToast("Success", "Removed from whitelist.");
-                    refresh();
-                } else {
-                    showToast("Error", "Failed to remove.");
-                }
-            });
+        fetch(`/api/whitelist/${targetGuild}/${id}`, {
+            method: 'DELETE'
+        })
+        .then(res => res.json())
+        .then(res => {
+            if (res.success) {
+                showToast("Whitelist Updated", `User ${id} removed from whitelist.`);
+                refresh();
+                if (typeof loadServerOverview === 'function') loadServerOverview(targetGuild);
+            }
+        });
     };
     
     refresh();
 };
 
-window.loadWhitelist = function(guildId) {
-    const targetGuild = guildId || activeGuildId;
-    if (!targetGuild) return;
-    fetch(`/api/whitelist/${targetGuild}`)
-        .then(res => res.json())
-        .then(data => {
-            const capacityEl = document.getElementById('overview-whitelist-capacity');
-            if (capacityEl) {
-                capacityEl.innerText = `${data.length} / 100`;
-            }
-        })
-        .catch(err => console.error("Error loading whitelist capacity:", err));
-};
-
-// Moderation overrides logic
 window.loadModerationOverrides = function(guildId) {
     const targetGuild = guildId || activeGuildId;
     if (!targetGuild) return;
@@ -8133,8 +8193,12 @@ function startRealTimeSync() {
             fetch(`/api/whitelist/${activeGuildId}`)
                 .then(res => res.json())
                 .then(wl => {
-                    const capacityEl = document.getElementById('overview-whitelist-capacity');
-                    if (capacityEl) capacityEl.innerText = `${wl.length} / 100`;
+                    if (Array.isArray(wl)) {
+                        window.activeWhitelistCache = wl;
+                        if (typeof window.updateWhitelistCapacityUI === 'function') {
+                            window.updateWhitelistCapacityUI(wl.length);
+                        }
+                    }
                 })
                 .catch(() => {});
         } else if (currentTab === 'settings' || currentTab === 'weblogs') {
@@ -8352,112 +8416,360 @@ function escapeHtml(str) {
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
-// GLOBAL SERVER CUSTOM EMOJI PICKER
+// NATIVE DISCORD-STYLE POPUP EMOJI PICKER (SIDE FLYOUT & COMPLETE EMOJI SUITE)
 // ═══════════════════════════════════════════════════════════════════════════════
+
 window.activeEmojiTarget = null;
+window.activeEmojiAnchor = null;
+window.activeEmojiCategory = 'recent';
 
-function openServerEmojiPicker(targetInputId, embedIdx = null, fieldKey = null, fieldIdx = null) {
-    window.activeEmojiTarget = { targetInputId, embedIdx, fieldKey, fieldIdx };
-    let modal = document.getElementById('server-emoji-picker-modal');
-    if (!modal) {
-        modal = document.createElement('div');
-        modal.id = 'server-emoji-picker-modal';
-        modal.style.cssText = `
-            position: fixed; inset: 0; background: rgba(0,0,0,0.75); z-index: 100000;
-            display: flex; align-items: center; justify-content: center; backdrop-filter: blur(8px);
-        `;
-        document.body.appendChild(modal);
+// Standard Discord Emojis Database
+const DISCORD_EMOJI_CATEGORIES = {
+    recent: {
+        id: 'recent',
+        name: 'Frequently used',
+        icon: '🕒',
+        emojis: ['👍', '😀', '😉', '😍', '😆', '😜', '😅', '🛒', '🛠️', '😂', '🔥', '❤️', '✨', '🎉', '💯', '💀', '🚀', '👑', '🥳', '😎', '👀', '⚡', '💎', '✅', '❌']
+    },
+    smileys: {
+        id: 'smileys',
+        name: 'Smileys & Emotion',
+        icon: '😃',
+        emojis: [
+            '😀', '😃', '😄', '😁', '😆', '😅', '😂', '🤣', '🥲', '☺️', '😊', '😇',
+            '🙂', '🙃', '😉', '😌', '😍', '🥰', '😘', '😗', '😙', '😚', '😋', '😛',
+            '😝', '😜', '🤪', '🤨', '🧐', '🤓', '😎', '🥸', '🤩', '🥳', '😏', '😒',
+            '😞', '😔', '😟', '😕', '🙁', '☹️', '😣', '😖', '😫', '😩', '🥺', '😢',
+            '😭', '😤', '😠', '😡', '🤬', '🤯', '😳', '🥵', '🥶', '😱', '😨', '😰',
+            '😥', '😓', '🤗', '🤔', '🤭', '🤫', '🤥', '😶', '😐', '😑', '😬', '🙄',
+            '😯', '😦', '😧', '😮', '😲', '🥱', '😴', '🤤', '😪', '😵', '🤐', '🥴',
+            '🤢', '🤮', '🤧', '😷', '🤒', '🤕', '🤑', '🤠', '😈', '👿', '👹', '👺',
+            '🤡', '💩', '👻', '💀', '☠️', '👽', '👾', '🤖', '🎃'
+        ]
+    },
+    animals: {
+        id: 'animals',
+        name: 'Animals & Nature',
+        icon: '🐶',
+        emojis: [
+            '🐶', '🐱', '🐭', '🐹', '🐰', '🦊', '🐻', '🐼', '🐨', '🐯', '🦁', '🐮',
+            '🐷', '🐸', '🐵', '🐔', '🐧', '🐦', '🐤', '🦆', '🦅', '🦉', '🦇', '🐺',
+            '🐗', '🐴', '🦄', '🐝', '🐛', '🦋', '🐌', '🐞', '🐜', '🦟', '🦗', '🕷️',
+            '🦂', '🐢', '🐍', '🦎', '🦖', '🐙', '🦑', '🦐', '🦞', '🦀', '🐡', '🐠',
+            '🐟', '🐬', '🐳', '🦈', '🐊', '🐅', '🐆', '🦓', '🦍', '🦧', '🐘', '🦛',
+            '🦏', '🐪', '🐫', '🦒', '🦘', '🐃', '🐂', '🐄', '🐎', '🐖', '🐏', '🐑',
+            '🦙', '🐐', '🦌', '🐕', '🐩', '🦮', '🐈', '🐓', '🦃', '🦚', '🦜', '🦢',
+            '🦩', '🕊️', '🐇', '🦝', '🦨', '🦡', '🦦', '🦥', '🐁', '🐀', '🐿️', '🦔',
+            '🌲', '🌳', '🌴', '🌵', '🌿', '☘️', '🍀', '🍁', '🍂', '🍃', '🍄', '💐',
+            '🌸', '💮', '🌹', '🥀', '🌺', '🌻', '🌼', '🌷', '🌱', '🪴'
+        ]
+    },
+    food: {
+        id: 'food',
+        name: 'Food & Drink',
+        icon: '🍔',
+        emojis: [
+            '🍏', '🍎', '🍐', '🍊', '🍋', '🍌', '🍉', '🍇', '🍓', '🫐', '🍈', '🍒',
+            '🍑', '🥭', '🍍', '🥥', '🥝', '🍅', '🍆', '🥑', '🥦', '🥬', '🥒', '🌶️',
+            '🫑', '🌽', '🥕', '🫒', '🧄', '🧅', '🥔', '🍠', '🥐', '🥯', '🍞', '🥖',
+            '🥨', '🧀', '🥚', '🍳', '🧈', '🥞', '🧇', '🥓', '🥩', '🍗', '🍖', '🦴',
+            '🌭', '🍔', '🍟', '🍕', '🫓', '🥪', '🥙', '🧆', '🌮', '🌯', '🫔', '🥗',
+            '🥘', '🫕', '🥫', '🍝', '🍜', '🍲', '🍛', '🍣', '🍱', '🥟', '🦪', '🍤',
+            '🍙', '🍚', '🍘', '🍥', '🥠', '🥮', '🍢', '🍡', '🍧', '🍨', '🍦', '🥧',
+            '🧁', '🍰', '🎂', '🍮', '🍭', '🍬', '🍫', '🍿', '🍩', '🍪', '🌰', '🥜',
+            '🍯', '🥛', '🍼', '🫖', '☕', '🍵', '🧃', '🥤', '🧋', '🍶', '🍺', '🍻',
+            '🥂', '🍷', '🥃', '🍸', '🍹', '🧉', '🍾', '🧊'
+        ]
+    },
+    activities: {
+        id: 'activities',
+        name: 'Activities & Sports',
+        icon: '🏈',
+        emojis: [
+            '⚽', '🏀', '🏈', '⚾', '🥎', '🎾', '🏐', '🏉', '🥏', '🎱', '🪀', '🏓',
+            '🏸', '🏒', '🏑', '🥍', '🏏', '🪃', '🥅', '⛳', '🪁', '🏹', '🎣', '🤿',
+            '🥊', '🥋', '🎽', '🛹', '🛼', '🛷', '⛸️', '🥌', '🎿', '⛷️', '🏂', '🪂',
+            '🏋️', '🤼', '🤸', '🤺', '⛹️', '🤾', '🧗', '🧘', '🏄', '🏊', '🤽', '🚣',
+            '🏇', '🚴', '🚵', '🏆', '🥇', '🥈', '🥉', '🏅', '🎖️', '🏵️', '🎗️', '🎫',
+            '🎟️', '🎪', '🤹', '🎭', '🩰', '🎨', '🎬', '🎤', '🎧', '🎼', '🎹', '🥁',
+            '🎷', '🎺', '🎸', '🪕', '🎻', '🎲', '♟️', '🎯', '🎳', '🎮', '🎰', '🧩'
+        ]
+    },
+    travel: {
+        id: 'travel',
+        name: 'Travel & Places',
+        icon: '🚗',
+        emojis: [
+            '🚗', '🚕', '🚙', '🚌', '🚎', '🏎️', '🚓', '🚑', '🚒', '🚐', '🛻', '🚚',
+            '🚛', '🚜', '🦯', '🦽', '🦼', '🛴', '🚲', '🛵', '🏍️', '🛺', '🚨', '🚔',
+            '🚍', '🚘', '🚖', '🚡', '🚠', '🚟', '🚃', '🚋', '🚞', '🚝', '🚄', '🚅',
+            '🚈', '🚂', '🚆', '🚇', '🚊', '🚉', '✈️', '🛫', '🛬', '🛩️', '💺', '🛰️',
+            '🚀', '🛸', '🚁', '🛶', '⛵', '🚤', '🛥️', '🛳️', '⛴️', '🚢', '⚓', '🪝',
+            '⛽', '🚧', '🚦', '🚥', '🗺️', '🗿', '🗽', '🗼', '🏰', '🏯', '🏟️', '🎡',
+            '🎢', '⛲', '⛱️', '🏖️', '🏝️', '🏜️', '🌋', '⛰️', '🏔️', '🗻', '🏕️', '⛺',
+            '🛖', '🏠', '🏡', '🏘️', '🏚️', '🏗️', '🏭', '🏢', '🏬', '🏣', '🏤', '🏥',
+            '🏦', '🏨', '🏪', '🏫', '🏩', '💒', '🏛️', '⛪', '🕌', '🛕', '🕍', '⛩️', '🕋'
+        ]
+    },
+    objects: {
+        id: 'objects',
+        name: 'Objects & Symbols',
+        icon: '💡',
+        emojis: [
+            '⌚', '📱', '📲', '💻', '⌨️', '🖥️', '🖨️', '🖱️', '🖲️', '🕹️', '🗜️', '💽',
+            '💾', '💿', '📀', '📼', '📷', '📸', '📹', '🎥', '📽️', '🎞️', '📞', '☎️',
+            '📟', '📠', '📺', '📻', '🎙️', '🎚️', '🎛️', '🧭', '⏱️', '⏲️', '⏰', '🕰️',
+            '⌛', '⏳', '📡', '🔋', '🔌', '💡', '🔦', '🕯️', '🧯', '🗑️', '🪣', '🛒',
+            '🛍️', '🎁', '🎈', '🎏', '🎀', '🪄', '🪅', '🎊', '🎉', '🎎', '🏮', '🎐',
+            '🧧', '✉️', '📩', '📨', '📧', '💌', '📥', '📤', '📦', '🏷️', '🪧', '📪',
+            '📫', '📬', '📭', '📮', '📯', '📜', '📃', '📄', '📑', '🧾', '📊', '📈',
+            '📉', '🗒️', '🗓️', '📆', '📅', '🪞', '🪟', '🚪', '🪑', '🛏️', '🛋️', '🧴',
+            '🧷', '🧹', '🧺', '🧻', '🧼', '🫧', '🪥', '🧽', '🚬', '⚰️', '🪦', '⚱️',
+            '🧿', '🪬', '💈', '🔑', '🗝️', '🔒', '🔓', '🔏', '🔐', '⚔️', '🗡️', '🛡️',
+            '⚙️', '🔧', '🔨', '⚒️', '🛠️', '⛏️', '🔩', '🧰', '🪛', '💎', '🔔', '🔕',
+            '🎵', '🎶', '🔊', '📢', '📣', '💬', '💭', '🗯️', '♠️', '♣️', '♥️', '♦️',
+            '🃏', '🎴', '🀄', '🕐', '🕑', '🕒', '🕓', '🕔', '🕕', '🕖', '🕗', '🕘'
+        ]
+    },
+    flags: {
+        id: 'flags',
+        name: 'Flags',
+        icon: '🚩',
+        emojis: [
+            '🏁', '🚩', '🎌', '🏴', '🏳️', '🏳️‍🌈', '🏳️‍⚧️', '🏴‍☠️', '🇮🇳', '🇺🇸', '🇬🇧', '🇨🇦',
+            '🇦🇺', '🇯🇵', '🇩🇪', '🇫🇷', '🇧🇷', '🇷🇺', '🇰🇷', '🇮🇹', '🇪🇸', '🇲🇽', '🇨🇳', '🇹🇷',
+            '🇸🇦', '🇦🇪', '🇿🇦', '🇳🇬', '🇪🇬', '🇵🇰', '🇧🇩', '🇮🇩', '🇲🇾', '🇸🇬', '🇵🇭', '🇻🇳'
+        ]
     }
-    
-    renderEmojiPickerContent('');
-    modal.style.display = 'flex';
-}
+};
 
-function closeServerEmojiPicker() {
-    const modal = document.getElementById('server-emoji-picker-modal');
-    if (modal) modal.style.display = 'none';
+window.openServerEmojiPicker = function(targetInputId, embedIdx = null, fieldKey = null, fieldIdx = null, triggerEl = null) {
+    window.activeEmojiTarget = { targetInputId, embedIdx, fieldKey, fieldIdx };
+    
+    // Find trigger button location for exact side positioning
+    const btn = triggerEl || (window.event ? (window.event.currentTarget || window.event.target) : null);
+    window.activeEmojiAnchor = btn;
+
+    let popover = document.getElementById('discord-emoji-flyout');
+    if (!popover) {
+        popover = document.createElement('div');
+        popover.id = 'discord-emoji-flyout';
+        popover.style.cssText = `
+            position: fixed;
+            width: 330px;
+            height: 420px;
+            background: #111214;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            box-shadow: 0 12px 36px rgba(0,0,0,0.7), 0 2px 8px rgba(0,0,0,0.4);
+            z-index: 999999;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            font-family: var(--font-body, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif);
+            transition: opacity 0.12s ease, transform 0.12s ease;
+            opacity: 0;
+            transform: scale(0.96);
+        `;
+        document.body.appendChild(popover);
+    }
+
+    // Position flyout right next to the trigger button
+    if (btn && btn.getBoundingClientRect) {
+        const rect = btn.getBoundingClientRect();
+        const flyoutWidth = 330;
+        const flyoutHeight = 420;
+
+        // Preferred: right side of the button
+        let left = rect.right + 10;
+        if (left + flyoutWidth > window.innerWidth - 10) {
+            // Flip to left side
+            left = Math.max(10, rect.left - flyoutWidth - 10);
+        }
+
+        let top = rect.top - 20;
+        if (top + flyoutHeight > window.innerHeight - 10) {
+            top = Math.max(10, window.innerHeight - flyoutHeight - 10);
+        }
+        if (top < 10) top = 10;
+
+        popover.style.left = `${left}px`;
+        popover.style.top = `${top}px`;
+    } else {
+        // Fallback default top-right anchor
+        popover.style.right = '40px';
+        popover.style.top = '120px';
+    }
+
+    renderDiscordEmojiFlyout('');
+    popover.style.display = 'flex';
+    requestAnimationFrame(() => {
+        popover.style.opacity = '1';
+        popover.style.transform = 'scale(1)';
+    });
+
+    // Auto close on clicking outside
+    setTimeout(() => {
+        const handleOutsideClick = (e) => {
+            if (!popover.contains(e.target) && (!btn || !btn.contains(e.target))) {
+                closeServerEmojiPicker();
+                document.removeEventListener('pointerdown', handleOutsideClick);
+            }
+        };
+        document.addEventListener('pointerdown', handleOutsideClick);
+    }, 20);
+};
+
+window.closeServerEmojiPicker = function() {
+    const popover = document.getElementById('discord-emoji-flyout');
+    if (popover) {
+        popover.style.opacity = '0';
+        popover.style.transform = 'scale(0.96)';
+        setTimeout(() => {
+            popover.style.display = 'none';
+        }, 120);
+    }
     window.activeEmojiTarget = null;
-}
+    window.activeEmojiAnchor = null;
+};
 
-function renderEmojiPickerContent(searchFilter = '') {
-    const modal = document.getElementById('server-emoji-picker-modal');
-    if (!modal) return;
-    
-    const emojis = window.guildEmojis || [];
+window.switchEmojiFlyoutCategory = function(catId) {
+    window.activeEmojiCategory = catId;
+    const catEl = document.getElementById(`emoji-cat-section-${catId}`);
+    if (catEl) {
+        catEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+    document.querySelectorAll('.emoji-nav-icon-btn').forEach(btn => {
+        if (btn.getAttribute('data-cat') === catId) {
+            btn.style.background = 'rgba(255,255,255,0.12)';
+            btn.style.borderBottom = '2px solid #5865F2';
+        } else {
+            btn.style.background = 'transparent';
+            btn.style.borderBottom = '2px solid transparent';
+        }
+    });
+};
+
+function renderDiscordEmojiFlyout(searchFilter = '') {
+    const popover = document.getElementById('discord-emoji-flyout');
+    if (!popover) return;
+
+    const serverEmojis = window.guildEmojis || [];
     const filter = (searchFilter || '').toLowerCase().trim();
-    const filtered = filter ? emojis.filter(e => e.name.toLowerCase().includes(filter)) : emojis;
 
-    modal.innerHTML = `
-        <div style="background: #1e1f22; border: 1px solid rgba(255,255,255,0.12); border-radius: 14px; width: 460px; max-width: 95vw; max-height: 82vh; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 25px 60px rgba(0,0,0,0.8); animation: fadeIn 0.15s ease;">
-            <!-- Header -->
-            <div style="padding: 16px 20px; border-bottom: 1px solid rgba(255,255,255,0.06); display: flex; justify-content: space-between; align-items: center; background: #2b2d31;">
-                <div style="display: flex; align-items: center; gap: 8px;">
-                    <span style="font-size: 1.2rem;">✨</span>
-                    <h3 style="margin: 0; color: #fff; font-size: 1rem; font-weight: 700;">Server Emojis (${emojis.length})</h3>
-                </div>
-                <button type="button" onclick="closeServerEmojiPicker()" style="background: transparent; border: none; color: #949ba4; font-size: 1.2rem; cursor: pointer; padding: 4px;"><i class="fas fa-times"></i></button>
-            </div>
+    // Top Category Bar
+    const navCategories = [
+        { id: 'recent', icon: '🕒', title: 'Frequently Used' },
+        { id: 'server', icon: '✨', title: `Server Emojis (${serverEmojis.length})` },
+        { id: 'smileys', icon: '😃', title: 'Smileys & Emotion' },
+        { id: 'animals', icon: '🐶', title: 'Animals & Nature' },
+        { id: 'food', icon: '🍔', title: 'Food & Drink' },
+        { id: 'activities', icon: '🏈', title: 'Activities' },
+        { id: 'travel', icon: '🚗', title: 'Travel & Places' },
+        { id: 'objects', icon: '💡', title: 'Objects & Symbols' },
+        { id: 'flags', icon: '🚩', title: 'Flags' }
+    ];
 
-            <!-- Search bar -->
-            <div style="padding: 12px 20px 8px 20px; background: #1e1f22;">
-                <input type="text" placeholder="🔍 Search custom server emoji by name..." value="${escapeHtml(searchFilter)}" 
-                    oninput="renderEmojiPickerContent(this.value)" 
-                    style="width: 100%; box-sizing: border-box; background: #111214; border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 10px 14px; color: #fff; font-size: 0.85rem; outline: none;">
-            </div>
+    const navHtml = navCategories.map(c => `
+        <button type="button" class="emoji-nav-icon-btn" data-cat="${c.id}" onclick="switchEmojiFlyoutCategory('${c.id}')" title="${c.title}" style="background:${window.activeEmojiCategory === c.id ? 'rgba(255,255,255,0.12)' : 'transparent'}; border:none; border-bottom:2px solid ${window.activeEmojiCategory === c.id ? '#5865F2' : 'transparent'}; cursor:pointer; font-size:1rem; padding:6px 6px; border-radius:4px 4px 0 0; transition:all 0.1s; color:#fff;">
+            ${c.icon}
+        </button>
+    `).join('');
 
-            <!-- Emoji Grid -->
-            <div style="flex: 1; overflow-y: auto; padding: 10px 20px 20px 20px; display: grid; grid-template-columns: repeat(auto-fill, minmax(44px, 1fr)); gap: 8px; background: #1e1f22;">
-                ${filtered.length > 0 ? filtered.map(e => `
-                    <button type="button" onclick="insertEmojiIntoActiveTarget('${e.mention}')" title=":${e.name}:" 
-                        style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.06); border-radius: 8px; width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.15s ease;"
-                        onmouseover="this.style.background='rgba(168,85,247,0.2)'; this.style.borderColor='#a855f7';"
-                        onmouseout="this.style.background='rgba(255,255,255,0.04)'; this.style.borderColor='rgba(255,255,255,0.06)';">
-                        <img src="${e.url}" alt=":${e.name}:" style="width: 28px; height: 28px; object-fit: contain;">
-                    </button>
-                `).join('') : `
-                    <div style="grid-column: 1 / -1; text-align: center; color: #949ba4; padding: 35px 10px; font-size: 0.85rem;">
-                        ${emojis.length === 0 ? 'No custom server emojis found for this guild.' : 'No emojis match your search query.'}
-                    </div>
-                `}
-            </div>
-            
-            <div style="padding: 10px 20px; background: #111214; border-top: 1px solid rgba(255,255,255,0.05); font-size: 0.75rem; color: #949ba4; display: flex; justify-content: space-between; align-items: center;">
-                <span>Click any emoji to insert into active input</span>
-                <span style="color: #E26749; font-weight: 700;">Animated GIFs & Static PNGs</span>
+    // Filter server emojis
+    const filteredServer = filter ? serverEmojis.filter(e => e.name.toLowerCase().includes(filter)) : serverEmojis;
+
+    popover.innerHTML = `
+        <!-- Top Categories Navigation -->
+        <div style="background: #1e1f22; border-bottom: 1px solid rgba(255,255,255,0.06); padding: 6px 10px 0 10px; display: flex; justify-content: space-between; align-items: center; overflow-x: auto; scrollbar-width: none;">
+            ${navHtml}
+        </div>
+
+        <!-- Search Input Bar -->
+        <div style="padding: 10px 12px 6px 12px; background: #111214;">
+            <div style="position: relative; width: 100%;">
+                <i class="fas fa-search" style="position: absolute; left: 10px; top: 9px; font-size: 0.8rem; color: #80848E;"></i>
+                <input type="text" id="emoji-search-input" placeholder="Search" value="${escapeHtml(searchFilter)}" 
+                    oninput="renderDiscordEmojiFlyout(this.value)" 
+                    style="width: 100%; box-sizing: border-box; background: #1e1f22; border: 1px solid rgba(255,255,255,0.06); border-radius: 6px; padding: 6px 10px 6px 30px; color: #DBDEE1; font-size: 0.84rem; outline: none;">
+                ${filter ? `<button type="button" onclick="renderDiscordEmojiFlyout('')" style="position:absolute; right:8px; top:7px; background:transparent; border:none; color:#80848E; cursor:pointer; font-size:0.75rem;"><i class="fas fa-times"></i></button>` : ''}
             </div>
         </div>
+
+        <!-- Scrollable Emoji Sections -->
+        <div id="emoji-flyout-scroll-body" style="flex: 1; overflow-y: auto; padding: 6px 12px 14px 12px; background: #111214;">
+            
+            ${!filter ? `
+            <!-- Frequently Used -->
+            <div id="emoji-cat-section-recent" style="margin-bottom: 12px;">
+                <div style="font-size: 0.72rem; font-weight: 800; color: #949BA4; text-transform: uppercase; letter-spacing: 0.04em; margin: 6px 0 8px 0;">
+                    Frequently Used
+                </div>
+                <div style="display: grid; grid-template-columns: repeat(8, 1fr); gap: 4px;">
+                    ${DISCORD_EMOJI_CATEGORIES.recent.emojis.map(em => `
+                        <button type="button" onclick="insertEmojiIntoActiveTarget('${em}')" style="background: transparent; border: none; border-radius: 6px; width: 34px; height: 34px; font-size: 1.25rem; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.1s;" onmouseover="this.style.background='rgba(255,255,255,0.1)'" onmouseout="this.style.background='transparent'">
+                            ${em}
+                        </button>
+                    `).join('')}
+                </div>
+            </div>
+            ` : ''}
+
+            <!-- Server Custom Emojis -->
+            <div id="emoji-cat-section-server" style="margin-bottom: 14px;">
+                <div style="font-size: 0.72rem; font-weight: 800; color: #949BA4; text-transform: uppercase; letter-spacing: 0.04em; margin: 8px 0 8px 0; display: flex; align-items: center; gap: 6px;">
+                    <span>Server Emojis</span>
+                    <span style="font-size: 0.65rem; color: #5865F2; background: rgba(88,101,242,0.12); padding: 1px 6px; border-radius: 4px;">${serverEmojis.length}</span>
+                </div>
+                <div style="display: grid; grid-template-columns: repeat(8, 1fr); gap: 4px;">
+                    ${filteredServer.length > 0 ? filteredServer.map(e => `
+                        <button type="button" onclick="insertEmojiIntoActiveTarget('${e.mention}')" title=":${e.name}:" 
+                            style="background: transparent; border: none; border-radius: 6px; width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.1s;"
+                            onmouseover="this.style.background='rgba(88,101,242,0.2)'; this.style.transform='scale(1.1)';"
+                            onmouseout="this.style.background='transparent'; this.style.transform='scale(1)';">
+                            <img src="${e.url}" alt=":${e.name}:" style="width: 24px; height: 24px; object-fit: contain;">
+                        </button>
+                    `).join('') : `
+                        <div style="grid-column: 1 / -1; font-size: 0.76rem; color: #64748B; padding: 4px 0;">
+                            ${serverEmojis.length === 0 ? 'No custom server emojis uploaded to this guild.' : 'No server emojis matching search.'}
+                        </div>
+                    `}
+                </div>
+            </div>
+
+            <!-- Standard Emoji Categories -->
+            ${Object.keys(DISCORD_EMOJI_CATEGORIES).filter(k => k !== 'recent').map(k => {
+                const cat = DISCORD_EMOJI_CATEGORIES[k];
+                const list = filter ? cat.emojis.filter(e => e.includes(filter)) : cat.emojis;
+                if (filter && list.length === 0) return '';
+                return `
+                <div id="emoji-cat-section-${cat.id}" style="margin-bottom: 14px;">
+                    <div style="font-size: 0.72rem; font-weight: 800; color: #949BA4; text-transform: uppercase; letter-spacing: 0.04em; margin: 8px 0 8px 0;">
+                        ${cat.name}
+                    </div>
+                    <div style="display: grid; grid-template-columns: repeat(8, 1fr); gap: 4px;">
+                        ${list.map(em => `
+                            <button type="button" onclick="insertEmojiIntoActiveTarget('${em}')" style="background: transparent; border: none; border-radius: 6px; width: 34px; height: 34px; font-size: 1.25rem; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.1s;" onmouseover="this.style.background='rgba(255,255,255,0.1)'" onmouseout="this.style.background='transparent'">
+                                ${em}
+                            </button>
+                        `).join('')}
+                    </div>
+                </div>
+                `;
+            }).join('')}
+
+        </div>
     `;
-}
 
-function insertEmojiIntoActiveTarget(emojiMention) {
-    if (!window.activeEmojiTarget) return;
-    const { targetInputId, embedIdx, fieldKey, fieldIdx } = window.activeEmojiTarget;
-
-    if (embedIdx !== null && fieldKey) {
-        if (window.multiEmbedsState[embedIdx]) {
-            if (fieldIdx !== null && window.multiEmbedsState[embedIdx].fields && window.multiEmbedsState[embedIdx].fields[fieldIdx]) {
-                const cur = window.multiEmbedsState[embedIdx].fields[fieldIdx][fieldKey] || '';
-                window.multiEmbedsState[embedIdx].fields[fieldIdx][fieldKey] = cur ? cur + ' ' + emojiMention : emojiMention;
-            } else {
-                const cur = window.multiEmbedsState[embedIdx][fieldKey] || '';
-                window.multiEmbedsState[embedIdx][fieldKey] = cur ? cur + ' ' + emojiMention : emojiMention;
-            }
-            renderMultiEmbedCardsUI();
-        }
-    } else if (targetInputId) {
-        const el = document.getElementById(targetInputId);
-        if (el) {
-            const start = el.selectionStart || el.value.length;
-            const end = el.selectionEnd || el.value.length;
-            const text = el.value;
-            el.value = text.substring(0, start) + emojiMention + ' ' + text.substring(end);
-            el.selectionStart = el.selectionEnd = start + emojiMention.length + 1;
-            el.dispatchEvent(new Event('input', { bubbles: true }));
+    // Keep focus in search if user was typing
+    if (filter) {
+        const inp = document.getElementById('emoji-search-input');
+        if (inp) {
+            inp.focus();
+            inp.selectionStart = inp.selectionEnd = filter.length;
         }
     }
-    closeServerEmojiPicker();
 }
-
 // ═══════════════════════════════════════════════════════════════════════════════
 // MULTI-EMBED UI BUILDER & REALTIME PREVIEW
 // ═══════════════════════════════════════════════════════════════════════════════

@@ -5497,7 +5497,7 @@
                                 <p style="color:#B91C1C; margin:0; font-size:0.82rem;">None of the 16 security shield modules are armed. Arm moderation and anti-nuke filters to prevent unauthorized destruction.</p>
                             </div>
                         </div>
-                        <button onclick="switchTab('security')" class="btn-primary" style="background:#DC2626; border:none; padding:9px 18px; border-radius:8px; font-weight:700; font-size:0.82rem; cursor:pointer; color:#fff; transition: background 0.2s ease; white-space:nowrap;">
+                        <button type="button" onclick="switchTab('security')" style="background:#DC2626; border:none; padding:10px 18px; border-radius:8px; font-weight:600; font-size:0.85rem; cursor:pointer; color:#FFFFFF; font-family:inherit; transition:opacity 0.15s ease; white-space:nowrap; box-shadow:0 1px 3px rgba(220,38,38,0.25);" onmouseover="this.style.opacity='0.9'" onmouseout="this.style.opacity='1'">
                             Arm Security Shield
                         </button>
                     </div>
@@ -5518,7 +5518,7 @@
                             <div class="metric-value" id="overview-latency-val" style="font-size:1.65rem; font-weight:800; margin-top:8px; color:#0F172A;">14ms</div>
                             <p class="metric-footer" style="font-size:0.8rem; color:#64748B; margin:6px 0 0 0;">Discord Gateway WebSocket</p>
                         </div>
-                        <div class="glass-card" style="background:#FFFFFF; border:1.5px solid #E2E8F0; border-radius:12px; padding:20px; box-shadow:0 4px 20px rgba(53, 43, 58, 0.03); cursor:pointer;" onclick="switchTab('security')">
+                        <div class="glass-card" style="background:#FFFFFF; border:1.5px solid #E2E8F0; border-radius:12px; padding:20px; box-shadow:0 4px 20px rgba(53, 43, 58, 0.03); cursor:pointer;" onclick="openWhitelistModal('User')">
                             <div class="metric-title" style="font-size:0.8rem; font-weight:700; color:#64748B; text-transform:uppercase; letter-spacing:0.04em; display:flex; align-items:center; gap:8px;">
                                 <i class="fas fa-user-check" style="color:#8B5CF6;"></i> Whitelist Capacity
                             </div>
@@ -5540,14 +5540,14 @@
                             Quick Action Controls
                         </div>
                         <div style="display:flex; flex-wrap:wrap; gap:10px;">
-                            <button type="button" onclick="runLiveSecurityScan()" class="btn-primary" style="background:#0F172A; color:#FFFFFF; border:none; padding:10px 16px; border-radius:8px; font-weight:600; font-size:0.85rem; cursor:pointer; display:inline-flex; align-items:center; gap:8px; transition:transform 0.15s ease;">
-                                <i class="fas fa-radar"></i> Run Security Diagnostic
+                            <button type="button" onclick="runLiveSecurityScan()" style="background:#0F172A; color:#FFFFFF; border:none; padding:10px 18px; border-radius:8px; font-weight:600; font-size:0.85rem; cursor:pointer; display:inline-flex; align-items:center; gap:8px; font-family:inherit; transition:opacity 0.15s ease; box-shadow:0 1px 3px rgba(15,23,42,0.15);" onmouseover="this.style.opacity='0.9'" onmouseout="this.style.opacity='1'">
+                                <i class="fas fa-shield-virus" style="color:#38BDF8;"></i> Run Security Diagnostic
                             </button>
                             <button type="button" onclick="syncServerCache()" class="btn-secondary" style="background:#F8FAFC; color:#0F172A; border:1.5px solid #CBD5E1; padding:10px 16px; border-radius:8px; font-weight:600; font-size:0.85rem; cursor:pointer; display:inline-flex; align-items:center; gap:8px;">
                                 <i class="fas fa-rotate"></i> Sync Server Cache
                             </button>
-                            <button type="button" onclick="switchTab('security')" class="btn-secondary" style="background:#F8FAFC; color:#0F172A; border:1.5px solid #CBD5E1; padding:10px 16px; border-radius:8px; font-weight:600; font-size:0.85rem; cursor:pointer; display:inline-flex; align-items:center; gap:8px;">
-                                <i class="fas fa-user-shield"></i> Manage Whitelist
+                            <button type="button" onclick="openWhitelistModal('User')" class="btn-secondary" style="background:#F8FAFC; color:#0F172A; border:1.5px solid #CBD5E1; padding:10px 18px; border-radius:8px; font-weight:600; font-size:0.85rem; cursor:pointer; display:inline-flex; align-items:center; gap:8px; font-family:inherit; transition:background 0.15s ease;" onmouseover="this.style.background='#F1F5F9'" onmouseout="this.style.background='#F8FAFC'">
+                                <i class="fas fa-user-shield" style="color:#7C3AED;"></i> Manage Whitelist
                             </button>
                             <button type="button" onclick="switchTab('tickets')" class="btn-secondary" style="background:#F8FAFC; color:#0F172A; border:1.5px solid #CBD5E1; padding:10px 16px; border-radius:8px; font-weight:600; font-size:0.85rem; cursor:pointer; display:inline-flex; align-items:center; gap:8px;">
                                 <i class="fas fa-ticket"></i> Deploy Ticket Panel
