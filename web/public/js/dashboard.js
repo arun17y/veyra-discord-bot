@@ -1220,9 +1220,7 @@ function switchTab(tabId) {
         if (typeof loadTicketsTab === 'function') loadTicketsTab(activeGuildId);
         setTimeout(() => {
             const dismissed = sessionStorage.getItem('tutorialDismissed30Days') || localStorage.getItem('tutorialDismissed30Days');
-            if (!dismissed && typeof openTutorialModal === 'function') {
-                openTutorialModal();
-            }
+            // Tutorial modal permanently disabled per user instruction
         }, 300);
     } else if (tabId === 'autoroles') {
         if (typeof loadAutorolesSettings === 'function') loadAutorolesSettings(activeGuildId);
@@ -10033,3 +10031,39 @@ function saveVoiceMaster() {
         }
     });
 }
+
+
+// Tools & Utilities Tab Helpers
+window.generateDiscordTimestamp = function() {
+    const picker = document.getElementById('util-timestamp-picker');
+    const result = document.getElementById('util-timestamp-result');
+    if (!picker || !result) return;
+    const val = picker.value;
+    if (!val) return;
+    const unix = Math.floor(new Date(val).getTime() / 1000);
+    result.value = `<t:${unix}:R>`;
+};
+
+window.sendUtilWebhook = async function() {
+    const url = document.getElementById('util-webhook-url')?.value.trim();
+    const msg = document.getElementById('util-webhook-msg')?.value.trim();
+    if (!url || !msg) {
+        showToast('Webhook Dispatcher', 'Please enter both webhook URL and message.', 'error');
+        return;
+    }
+    try {
+        const resp = await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ content: msg, username: 'VEYRA Utilities' })
+        });
+        if (resp.ok) {
+            showToast('Webhook Sent', 'Message successfully dispatched to Discord!');
+            document.getElementById('util-webhook-msg').value = '';
+        } else {
+            showToast('Webhook Error', `Discord responded with HTTP ${resp.status}`, 'error');
+        }
+    } catch(err) {
+        showToast('Webhook Error', 'Network error sending webhook.', 'error');
+    }
+};
