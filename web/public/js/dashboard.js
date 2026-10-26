@@ -1419,6 +1419,20 @@ function enforcePlanUI() {
 window.activeAnalyticsPoints = [];
 
 window.switchAnalyticsTimeframe = function(timeframe) {
+    // Plan gate: Free servers can only view up to 30D (1D, 3D, 7D, 30D). 90D is for Pro & Enterprise.
+    const currentPlan = (window.currentServerPlan || 'Free').toLowerCase();
+    const isPaid = currentPlan.includes('pro') || currentPlan.includes('premium') || currentPlan.includes('enterprise');
+    
+    if (timeframe === '90D' && !isPaid) {
+        if (typeof showToast === 'function') {
+            showToast('Pro Feature', '90 Days Analytics is exclusive to Pro and Enterprise servers. Free plan includes up to 30 days.', 'warning');
+        }
+        if (typeof openRazorpayServerModal === 'function') {
+            setTimeout(() => openRazorpayServerModal('Pro'), 400);
+        }
+        return;
+    }
+
     document.querySelectorAll('.analytics-tf-btn').forEach(btn => {
         btn.classList.remove('active');
         btn.style.background = 'transparent';
@@ -1436,6 +1450,7 @@ window.switchAnalyticsTimeframe = function(timeframe) {
         activeBtn.style.boxShadow = '0 2px 8px rgba(225, 29, 72, 0.25)';
     }
     
+    window.currentAnalyticsTimeframe = timeframe;
     loadRealAnalytics(activeGuildId, timeframe);
 };
 
@@ -5649,36 +5664,62 @@ function populateServerRolesAndChannels(guildId) {
     return Promise.all([rolesPromise, emojisPromise, channelsPromise]);
 }
 
-function loadRealAnalytics(guildId, timeframe = '30D') {
+function loadRealAnalytics(guildId, timeframe = null) {
     const targetGuild = guildId || activeGuildId || '1509911679637520584';
-    fetch(`/api/analytics/${targetGuild}?timeframe=${timeframe}`)
-        .then(res => res.json())
+    const tf = timeframe || window.currentAnalyticsTimeframe || '30D';
+    
+    fetch(`/api/analytics/${targetGuild}?timeframe=${tf}`)
+        .then(res => {
+            if (res.status === 403) {
+                return res.json().then(errData => {
+                    if (typeof showToast === 'function') {
+                        showToast('Pro Feature', errData.message || 'Free servers can only access up to 30 days of analytics.', 'warning');
+                    }
+                    if (tf === '90D') {
+                        window.switchAnalyticsTimeframe('30D');
+                    }
+                    throw new Error("Plan restriction");
+                });
+            }
+            return res.json();
+        })
         .then(data => {
+            if (!data) return;
+            if (data.plan) window.currentServerPlan = data.plan;
+
             const elNet = document.getElementById('analytics-net-growth');
             const elJoins = document.getElementById('analytics-joins');
             const elLeaves = document.getElementById('analytics-leaves');
             const elRetention = document.getElementById('analytics-retention');
             const elStayed = document.getElementById('analytics-stayed-subtext');
 
-            if (elNet) elNet.innerText = (data.netGrowth >= 0 ? '+' : '') + data.netGrowth;
-            if (elJoins) elJoins.innerText = data.joins;
-            if (elLeaves) elLeaves.innerText = data.leaves;
-            if (elRetention) elRetention.innerText = data.retention + '%';
-            if (elStayed) elStayed.innerText = `${data.netGrowth >= 0 ? data.netGrowth : 0} of ${data.joins} invites active`;
+            if (elNet) {
+                elNet.innerText = (data.netGrowth > 0 ? '+' : '') + data.netGrowth;
+                elNet.style.color = data.netGrowth >= 0 ? '#059669' : '#E11D48';
+            }
+            if (elJoins) elJoins.innerText = data.joins || 0;
+            if (elLeaves) elLeaves.innerText = data.leaves || 0;
+            if (elRetention) elRetention.innerText = (data.retention !== undefined ? data.retention : 100) + '%';
+            if (elStayed) elStayed.innerText = `${Math.max(0, data.netGrowth || 0)} of ${data.joins || 0} invites active`;
 
             window.activeAnalyticsPoints = data.points || [];
             renderAnalyticsGraph(data.points || []);
         })
-        .catch(err => console.error("Error loading analytics:", err));
+        .catch(err => {
+            if (err.message !== "Plan restriction") {
+                console.error("Error loading analytics:", err);
+            }
+        });
 }
 
 function renderAnalyticsGraph(points) {
     if (!points || points.length === 0) return;
     
+    // 1. Render dynamic X-axis labels
     const xaxisContainer = document.getElementById('analytics-xaxis-labels');
     if (xaxisContainer) {
         xaxisContainer.innerHTML = points.map((p, idx) => 
-            `<span style="color: ${idx === points.length - 1 ? '#E11D48' : '#475569'}; font-weight: ${idx === points.length - 1 ? '900' : '700'};">${p.date}</span>`
+            `<span style="color: ${idx === points.length - 1 ? '#E11D48' : '#475569'}; font-weight: ${idx === points.length - 1 ? '900' : '700'}; cursor: pointer; transition: color 0.15s ease;" onmouseover="this.style.color='#E11D48'" onmouseout="if(${idx} !== points.length - 1) this.style.color='#475569'" onclick="updateGraphTooltipByIndex(${idx})">${p.date}</span>`
         ).join('');
     }
 
@@ -5688,13 +5729,34 @@ function renderAnalyticsGraph(points) {
     
     if (!svgChart || !pathJoins || !pathLeaves) return;
 
-    const maxVal = Math.max(50, ...points.map(p => Math.max(p.joins, p.leaves))) * 1.15;
+    // 2. Compute dynamic Y-axis scale based on real values
+    const rawMax = Math.max(0, ...points.map(p => Math.max(p.joins || 0, p.leaves || 0)));
+    let maxVal = 10;
+    if (rawMax > 0) {
+        const scaled = Math.ceil(rawMax * 1.25);
+        maxVal = Math.max(4, Math.ceil(scaled / 4) * 4);
+    }
+    window.currentAnalyticsMaxVal = maxVal;
+
+    // 3. Dynamically update Y-axis numbers
+    const yaxisEl = document.getElementById('analytics-yaxis-labels');
+    if (yaxisEl) {
+        yaxisEl.innerHTML = `
+            <span>${Math.round(maxVal)}</span>
+            <span>${Math.round(maxVal * 0.75)}</span>
+            <span>${Math.round(maxVal * 0.50)}</span>
+            <span>${Math.round(maxVal * 0.25)}</span>
+            <span>0</span>
+        `;
+    }
+
+    // 4. Construct SVG curve paths
     const width = 1000;
     const height = 200;
     const padding = 20;
     
     const getX = (index) => padding + (index / (points.length - 1)) * (width - 2 * padding);
-    const getY = (val) => height - (val / maxVal) * (height - 30);
+    const getY = (val) => (height - 15) - ((val || 0) / maxVal) * (height - 35);
 
     let joinsD = `M ${getX(0)} ${getY(points[0].joins)}`;
     let leavesD = `M ${getX(0)} ${getY(points[0].leaves)}`;
@@ -5718,6 +5780,7 @@ function renderAnalyticsGraph(points) {
     pathLeaves.style.display = 'block';
 
     updateGraphTooltipByIndex(points.length - 1, maxVal);
+    setupAnalyticsChartScrubbing();
 }
 
 function updateGraphTooltipByIndex(index, maxValCalculated) {
@@ -5727,13 +5790,13 @@ function updateGraphTooltipByIndex(index, maxValCalculated) {
     const idx = Math.max(0, Math.min(points.length - 1, index));
     const pt = points[idx];
     
-    const maxVal = maxValCalculated || (Math.max(50, ...points.map(p => Math.max(p.joins, p.leaves))) * 1.15);
+    const maxVal = maxValCalculated || window.currentAnalyticsMaxVal || 10;
     const width = 1000;
     const height = 200;
     const padding = 20;
     
     const getX = (i) => padding + (i / (points.length - 1)) * (width - 2 * padding);
-    const getY = (val) => height - (val / maxVal) * (height - 30);
+    const getY = (val) => (height - 15) - ((val || 0) / maxVal) * (height - 35);
 
     const cx = getX(idx);
     const cyJoins = getY(pt.joins);
@@ -5763,14 +5826,39 @@ function updateGraphTooltipByIndex(index, maxValCalculated) {
     }
 
     if (ttDate) ttDate.innerText = pt.fullDate || pt.date;
-    if (ttJoins) ttJoins.innerText = `${pt.joins} Real Invites`;
-    if (ttLeaves) ttLeaves.innerText = `${pt.leaves} leaves`;
+    if (ttJoins) ttJoins.innerText = `${pt.joins || 0} Real Invites`;
+    if (ttLeaves) ttLeaves.innerText = `${pt.leaves || 0} leaves`;
     if (leavesWrapper) leavesWrapper.style.display = 'flex';
 
     if (tooltipBox) {
-        const pct = (idx / (points.length - 1)) * 75 + 10;
+        const pct = (idx / (points.length - 1)) * 72 + 8;
         tooltipBox.style.left = `${pct}%`;
     }
+}
+
+function setupAnalyticsChartScrubbing() {
+    const container = document.getElementById('analytics-graph-container');
+    if (!container || container._scrubAttached) return;
+    container._scrubAttached = true;
+
+    container.addEventListener('mousemove', (e) => {
+        const points = window.activeAnalyticsPoints;
+        if (!points || points.length === 0) return;
+        const rect = container.getBoundingClientRect();
+        const offsetX = e.clientX - rect.left - 50;
+        const usableWidth = rect.width - 70;
+        if (usableWidth <= 0) return;
+        const ratio = Math.max(0, Math.min(1, offsetX / usableWidth));
+        const index = Math.round(ratio * (points.length - 1));
+        updateGraphTooltipByIndex(index);
+    });
+
+    container.addEventListener('mouseleave', () => {
+        const points = window.activeAnalyticsPoints;
+        if (points && points.length > 0) {
+            updateGraphTooltipByIndex(points.length - 1);
+        }
+    });
 }
 
 document.addEventListener('DOMContentLoaded', () => {

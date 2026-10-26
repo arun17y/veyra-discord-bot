@@ -642,71 +642,145 @@ app.get('/api/guild/emojis/:guild_id', async (req, res) => {
 // Fetch Real Growth Analytics Data for Charts
 app.get('/api/analytics/:guild_id', (req, res) => {
     const guildId = req.params.guild_id;
-    const timeframe = req.query.timeframe || '30D';
+    const requestedTimeframe = req.query.timeframe || '30D';
     
-    let days = 30;
-    if (timeframe === '7D') days = 7;
-    else if (timeframe === '90D') days = 90;
-    else if (timeframe === '1Y') days = 365;
-    else if (timeframe === 'All') days = 180;
-
-    const endDate = new Date(2026, 6, 20);
-    db.all(
-        `SELECT action, DATE(timestamp) as event_date, COUNT(*) as count 
-         FROM audit_logs 
-         WHERE guild_id = ? AND (action LIKE '%Join%' OR action LIKE '%Leave%')
-         GROUP BY action, DATE(timestamp)`,
-        [guildId],
-        (err, rows) => {
-            const countsByDate = {};
-            if (!err && rows) {
-                rows.forEach(r => {
-                    if (!countsByDate[r.event_date]) countsByDate[r.event_date] = { joins: 0, leaves: 0 };
-                    if (r.action.toLowerCase().includes('join')) countsByDate[r.event_date].joins += r.count;
-                    if (r.action.toLowerCase().includes('leave')) countsByDate[r.event_date].leaves += r.count;
-                });
+    // Check Guild Subscription Plan
+    db.get("SELECT plan_type, expires_at FROM guild_subscriptions WHERE guild_id = ?", [guildId], (err, subRow) => {
+        let isPaid = false;
+        let planName = 'Free';
+        if (subRow && subRow.plan_type) {
+            planName = subRow.plan_type;
+            const lowerPlan = planName.toLowerCase();
+            if (lowerPlan.includes('pro') || lowerPlan.includes('premium') || lowerPlan.includes('enterprise')) {
+                isPaid = true;
             }
+        }
 
-            let totalJoins = 0;
-            let totalLeaves = 0;
-            const points = [];
+        // Plan restrictions: Free plan allows max 30D. Pro/Enterprise allows up to 90D.
+        let timeframe = requestedTimeframe;
+        if (!['1D', '3D', '7D', '30D', '90D'].includes(timeframe)) {
+            timeframe = '30D';
+        }
 
-            const step = Math.max(1, Math.floor(days / 6));
-            for (let i = 5; i >= 0; i--) {
-                const d = new Date(endDate);
-                d.setDate(endDate.getDate() - (i * step));
-                const dateKey = d.toISOString().split('T')[0];
-                const labelStr = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-                const fullDateStr = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-                
-                const realData = countsByDate[dateKey] || { joins: 0, leaves: 0 };
-                const joins = realData.joins || Math.floor(22 + (5 - i) * 4 + ((i * 13) % 9));
-                const leaves = realData.leaves || Math.floor(5 + (5 - i) * 1.5 + ((i * 7) % 5));
-                
-                totalJoins += joins;
-                totalLeaves += leaves;
-
-                points.push({
-                    date: labelStr,
-                    fullDate: fullDateStr,
-                    joins: joins,
-                    leaves: leaves,
-                    net: joins - leaves
-                });
-            }
-
-            const netGrowth = totalJoins - totalLeaves;
-            const retention = totalJoins > 0 ? Math.round((netGrowth / totalJoins) * 100) : 0;
-
-            res.json({
-                netGrowth: netGrowth,
-                joins: totalJoins,
-                leaves: totalLeaves,
-                retention: Math.max(0, Math.min(100, retention)),
-                points: points
+        if (!isPaid && timeframe === '90D') {
+            return res.status(403).json({
+                error: 'PLAN_LIMIT',
+                planRestricted: true,
+                message: 'Free servers are limited to 30 days of analytics. Upgrade to Pro for 90 days.',
+                maxAllowed: '30D',
+                plan: planName
             });
         }
-    );
+
+        const now = new Date();
+        const pointsConfig = [];
+
+        if (timeframe === '1D') {
+            // 6 buckets of 4 hours across the last 24 hours
+            for (let i = 5; i >= 0; i--) {
+                const dt = new Date(now.getTime() - (i * 4 * 3600 * 1000));
+                const startDt = new Date(dt.getTime() - (4 * 3600 * 1000));
+                const label = i === 0 ? 'Now' : dt.toLocaleTimeString('en-US', { hour: 'numeric', hour12: true });
+                const fullDate = dt.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) + ' ' + dt.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+                pointsConfig.push({ start: startDt, end: dt, label, fullDate });
+            }
+        } else if (timeframe === '3D') {
+            // 6 buckets of 12 hours across the last 3 days
+            for (let i = 5; i >= 0; i--) {
+                const dt = new Date(now.getTime() - (i * 12 * 3600 * 1000));
+                const startDt = new Date(dt.getTime() - (12 * 3600 * 1000));
+                const label = i === 0 ? 'Now' : dt.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) + ' ' + dt.toLocaleTimeString('en-US', { hour: 'numeric', hour12: true });
+                const fullDate = dt.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) + ' ' + dt.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+                pointsConfig.push({ start: startDt, end: dt, label, fullDate });
+            }
+        } else if (timeframe === '7D') {
+            // 7 daily points across the last 7 calendar days
+            for (let i = 6; i >= 0; i--) {
+                const dt = new Date(now);
+                dt.setDate(now.getDate() - i);
+                const startDt = new Date(dt.getFullYear(), dt.getMonth(), dt.getDate(), 0, 0, 0, 0);
+                const endDt = new Date(dt.getFullYear(), dt.getMonth(), dt.getDate(), 23, 59, 59, 999);
+                const label = dt.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+                const fullDate = dt.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+                pointsConfig.push({ start: startDt, end: endDt, label, fullDate });
+            }
+        } else if (timeframe === '30D') {
+            // 6 evenly spaced points across 30 days (every 6 days)
+            for (let i = 5; i >= 0; i--) {
+                const dt = new Date(now.getTime() - (i * 6 * 24 * 3600 * 1000));
+                const startDt = new Date(dt.getTime() - (6 * 24 * 3600 * 1000));
+                const label = dt.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+                const fullDate = dt.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+                pointsConfig.push({ start: startDt, end: dt, label, fullDate });
+            }
+        } else if (timeframe === '90D') {
+            // 6 evenly spaced points across 90 days (every 18 days)
+            for (let i = 5; i >= 0; i--) {
+                const dt = new Date(now.getTime() - (i * 18 * 24 * 3600 * 1000));
+                const startDt = new Date(dt.getTime() - (18 * 24 * 3600 * 1000));
+                const label = dt.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+                const fullDate = dt.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+                pointsConfig.push({ start: startDt, end: dt, label, fullDate });
+            }
+        }
+
+        db.all(
+            `SELECT action, timestamp 
+             FROM audit_logs 
+             WHERE guild_id = ? AND (LOWER(action) LIKE '%join%' OR LOWER(action) LIKE '%leave%')`,
+            [guildId],
+            (err, rows) => {
+                const points = [];
+                let totalJoins = 0;
+                let totalLeaves = 0;
+
+                const eventList = (!err && rows) ? rows : [];
+
+                pointsConfig.forEach(pt => {
+                    let ptJoins = 0;
+                    let ptLeaves = 0;
+                    const startTime = pt.start.getTime();
+                    const endTime = pt.end.getTime();
+
+                    eventList.forEach(r => {
+                        try {
+                            const evTime = new Date(r.timestamp).getTime();
+                            if (evTime >= startTime && evTime <= endTime) {
+                                const act = (r.action || '').toLowerCase();
+                                if (act.includes('join')) ptJoins++;
+                                else if (act.includes('leave')) ptLeaves++;
+                            }
+                        } catch (e) {}
+                    });
+
+                    totalJoins += ptJoins;
+                    totalLeaves += ptLeaves;
+
+                    points.push({
+                        date: pt.label,
+                        fullDate: pt.fullDate,
+                        joins: ptJoins,
+                        leaves: ptLeaves,
+                        net: ptJoins - ptLeaves
+                    });
+                });
+
+                const netGrowth = totalJoins - totalLeaves;
+                const retention = totalJoins > 0 ? Math.round((netGrowth / totalJoins) * 100) : 100;
+
+                res.json({
+                    timeframe: timeframe,
+                    plan: planName,
+                    isPaid: isPaid,
+                    joins: totalJoins,
+                    leaves: totalLeaves,
+                    netGrowth: netGrowth,
+                    retention: Math.max(0, Math.min(100, retention)),
+                    points: points
+                });
+            }
+        );
+    });
 });
 
 // Admin Authorization Check
@@ -1296,26 +1370,6 @@ app.get('/api/guild/channels/:guild_id', async (req, res) => {
     });
 });
 
-// Real Analytics Stats API
-app.get('/api/analytics/:guild_id', (req, res) => {
-    const guildId = req.params.guild_id;
-    db.get("SELECT COUNT(*) as count FROM audit_histories WHERE guild_id = ? AND (action_type LIKE '%join%' OR action_type LIKE '%Invite%')", [guildId], (err, rowJoins) => {
-        db.get("SELECT COUNT(*) as count FROM audit_histories WHERE guild_id = ? AND action_type LIKE '%leave%'", [guildId], (err, rowLeaves) => {
-            const joins = (rowJoins && rowJoins.count > 0) ? rowJoins.count : 42;
-            const leaves = (rowLeaves && rowLeaves.count > 0) ? rowLeaves.count : 12;
-            const netGrowth = joins - leaves;
-            const retention = joins > 0 ? Math.round(((joins - leaves) / joins) * 100) : 78;
-            res.json({
-                joins,
-                leaves,
-                netGrowth,
-                retention: Math.max(0, retention)
-            });
-        });
-    });
-});
-
-// Simulated Join / Leave Events APIs
 app.post('/api/simulate/join/:guild_id', (req, res) => {
     const guildId = req.params.guild_id;
     const nowStr = new Date().toISOString();
