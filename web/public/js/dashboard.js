@@ -1233,6 +1233,221 @@ function showLockedPane(tabId, requiredPlan) {
     }
 }
 
+
+// ==========================================
+// STANDALONE AUTHORITATIVE SETTINGS LOADERS
+// ==========================================
+
+function loadWelcomeSettings(guildId) {
+    const targetGuild = guildId || activeGuildId || window.activeGuildId || localStorage.getItem('selected_guild_id') || sessionStorage.getItem('activeGuildId');
+    if (!targetGuild) return;
+    fetch(`/api/settings/welcome/${targetGuild}`)
+        .then(res => res.json())
+        .then(w => {
+            if (!w) return;
+            const isEnabled = (w.enabled === 1 || w.enabled === true || w.enabled === '1');
+            if (document.getElementById('welcome-msg-enable')) document.getElementById('welcome-msg-enable').checked = isEnabled;
+            if (document.getElementById('welcome-msg-channel-select')) document.getElementById('welcome-msg-channel-select').value = w.channel || 'general';
+            if (document.getElementById('welcome-msg-outer-input')) document.getElementById('welcome-msg-outer-input').value = w.message || '';
+            if (document.getElementById('welcome-embed-enable')) document.getElementById('welcome-embed-enable').checked = isEnabled;
+            if (document.getElementById('welcome-embed-color-picker')) {
+                document.getElementById('welcome-embed-color-picker').value = w.color || '#a855f7';
+                if (document.getElementById('welcome-color-hex')) document.getElementById('welcome-color-hex').value = w.color || '#a855f7';
+            }
+            if (document.getElementById('welcome-embed-title')) document.getElementById('welcome-embed-title').value = w.title || '';
+            if (document.getElementById('welcome-embed-desc')) document.getElementById('welcome-embed-desc').value = w.description || '';
+            if (document.getElementById('welcome-embed-image')) document.getElementById('welcome-embed-image').value = w.image || '';
+            if (document.getElementById('welcome-embed-footer')) document.getElementById('welcome-embed-footer').value = w.footer || '';
+            if (document.getElementById('welcome-thumbnail-url')) document.getElementById('welcome-thumbnail-url').value = w.thumbnail || '';
+            if (document.getElementById('welcome-author-name')) document.getElementById('welcome-author-name').value = w.author_name || '';
+            if (document.getElementById('welcome-author-icon')) document.getElementById('welcome-author-icon').value = w.author_icon || '';
+            if (document.getElementById('welcome-footer-icon')) document.getElementById('welcome-footer-icon').value = w.footer_icon || '';
+            
+            if (typeof updateWelcomeLivePreview === 'function') updateWelcomeLivePreview();
+        })
+        .catch(err => console.error("Error loading welcome settings:", err));
+}
+window.loadWelcomeSettings = loadWelcomeSettings;
+
+function loadLeaveSettings(guildId) {
+    const targetGuild = guildId || activeGuildId || window.activeGuildId || localStorage.getItem('selected_guild_id') || sessionStorage.getItem('activeGuildId');
+    if (!targetGuild) return;
+    fetch(`/api/settings/leave/${targetGuild}`)
+        .then(res => res.json())
+        .then(l => {
+            if (!l) return;
+            const isEnabled = (l.enabled === 1 || l.enabled === true || l.enabled === '1');
+            if (document.getElementById('leave-msg-enable')) document.getElementById('leave-msg-enable').checked = isEnabled;
+            if (document.getElementById('leave-msg-channel-select')) document.getElementById('leave-msg-channel-select').value = l.channel || 'exits';
+            if (document.getElementById('leave-msg-outer-input')) document.getElementById('leave-msg-outer-input').value = l.message || '';
+            if (document.getElementById('leave-embed-enable')) document.getElementById('leave-embed-enable').checked = isEnabled;
+            if (document.getElementById('leave-embed-color-picker')) {
+                document.getElementById('leave-embed-color-picker').value = l.color || '#a855f7';
+                if (document.getElementById('leave-color-hex')) document.getElementById('leave-color-hex').value = l.color || '#a855f7';
+            }
+            if (document.getElementById('leave-embed-title')) document.getElementById('leave-embed-title').value = l.title || '';
+            if (document.getElementById('leave-embed-desc')) document.getElementById('leave-embed-desc').value = l.description || '';
+            if (document.getElementById('leave-embed-image')) document.getElementById('leave-embed-image').value = l.image || '';
+            if (document.getElementById('leave-embed-footer')) document.getElementById('leave-embed-footer').value = l.footer || '';
+            if (document.getElementById('leave-thumbnail-url')) document.getElementById('leave-thumbnail-url').value = l.thumbnail || '';
+            if (document.getElementById('leave-author-name')) document.getElementById('leave-author-name').value = l.author_name || '';
+            if (document.getElementById('leave-author-icon')) document.getElementById('leave-author-icon').value = l.author_icon || '';
+            if (document.getElementById('leave-footer-icon')) document.getElementById('leave-footer-icon').value = l.footer_icon || '';
+            
+            if (typeof updateLeaveLivePreview === 'function') updateLeaveLivePreview();
+        })
+        .catch(err => console.error("Error loading leave settings:", err));
+}
+window.loadLeaveSettings = loadLeaveSettings;
+
+function loadJoinDMSettings(guildId) {
+    const targetGuild = guildId || activeGuildId || window.activeGuildId || localStorage.getItem('selected_guild_id') || sessionStorage.getItem('activeGuildId');
+    if (!targetGuild) return;
+    fetch(`/api/settings/joindm/${targetGuild}`)
+        .then(res => res.json())
+        .then(dm => {
+            if (!dm) return;
+            if (document.getElementById('eb-destination-channel')) document.getElementById('eb-destination-channel').value = dm.channel || 'dm';
+            if (document.getElementById('eb-normal-text')) document.getElementById('eb-normal-text').value = dm.message || '';
+            if (document.getElementById('eb-title')) document.getElementById('eb-title').value = dm.title || '';
+            if (document.getElementById('eb-description')) document.getElementById('eb-description').value = dm.description || '';
+            if (document.getElementById('eb-image-url')) document.getElementById('eb-image-url').value = dm.image || '';
+            if (document.getElementById('eb-thumbnail-url')) document.getElementById('eb-thumbnail-url').value = dm.thumbnail || '';
+            if (document.getElementById('eb-footer-text')) document.getElementById('eb-footer-text').value = dm.footer || '';
+            if (document.getElementById('eb-color-picker')) {
+                document.getElementById('eb-color-picker').value = dm.color || '#a855f7';
+                if (document.getElementById('eb-color-hex')) document.getElementById('eb-color-hex').value = dm.color || '#a855f7';
+            }
+            if (typeof updateEmbedBuilderPreview === 'function') updateEmbedBuilderPreview();
+        })
+        .catch(err => console.error("Error loading Join DM settings:", err));
+}
+window.loadJoinDMSettings = loadJoinDMSettings;
+
+function loadInviteTrackerSettings(guildId) {
+    const targetGuild = guildId || activeGuildId || window.activeGuildId || localStorage.getItem('selected_guild_id') || sessionStorage.getItem('activeGuildId');
+    if (!targetGuild) return;
+    fetch(`/api/settings/invitetracker/${targetGuild}`)
+        .then(res => res.json())
+        .then(it => {
+            if (!it) return;
+            const isEnabled = (it.enabled === 1 || it.enabled === true || it.enabled === '1');
+            if (document.getElementById('invitetracker-msg-enable')) document.getElementById('invitetracker-msg-enable').checked = isEnabled;
+            if (document.getElementById('invitetracker-msg-channel-select')) document.getElementById('invitetracker-msg-channel-select').value = it.channel || 'general';
+            if (document.getElementById('invitetracker-msg-outer-input')) document.getElementById('invitetracker-msg-outer-input').value = it.message || '';
+            if (document.getElementById('invitetracker-embed-color-picker')) {
+                document.getElementById('invitetracker-embed-color-picker').value = it.color || '#a855f7';
+                if (document.getElementById('invitetracker-color-hex')) document.getElementById('invitetracker-color-hex').value = it.color || '#a855f7';
+            }
+            if (document.getElementById('invitetracker-embed-title')) document.getElementById('invitetracker-embed-title').value = it.title || '';
+            if (document.getElementById('invitetracker-embed-desc')) document.getElementById('invitetracker-embed-desc').value = it.description || '';
+            if (document.getElementById('invitetracker-embed-image')) document.getElementById('invitetracker-embed-image').value = it.image || '';
+            if (document.getElementById('invitetracker-thumbnail-url')) document.getElementById('invitetracker-thumbnail-url').value = it.thumbnail || '';
+            if (document.getElementById('invitetracker-embed-footer')) document.getElementById('invitetracker-embed-footer').value = it.footer || '';
+            if (document.getElementById('invitetracker-author-name')) document.getElementById('invitetracker-author-name').value = it.author_name || '';
+            if (document.getElementById('invitetracker-author-icon')) document.getElementById('invitetracker-author-icon').value = it.author_icon || '';
+            if (document.getElementById('invitetracker-footer-icon')) document.getElementById('invitetracker-footer-icon').value = it.footer_icon || '';
+            
+            if (typeof updateInviteTrackerLivePreview === 'function') updateInviteTrackerLivePreview();
+        })
+        .catch(err => console.error("Error loading invite tracker settings:", err));
+}
+window.loadInviteTrackerSettings = loadInviteTrackerSettings;
+
+function loadGeneralSettings(guildId) {
+    const targetGuild = guildId || activeGuildId || window.activeGuildId || localStorage.getItem('selected_guild_id') || sessionStorage.getItem('activeGuildId');
+    if (!targetGuild) return;
+    fetch(`/api/settings/${targetGuild}`)
+        .then(res => res.json())
+        .then(data => {
+            const g = data.guild || {};
+            if (document.getElementById('guild-prefix-input')) document.getElementById('guild-prefix-input').value = g.prefix || '?';
+            if (document.getElementById('guild-timezone-input')) document.getElementById('guild-timezone-input').value = g.timezone || 'UTC';
+            if (document.getElementById('bot-nickname-input')) document.getElementById('bot-nickname-input').value = g.nickname || 'VEYRA';
+            if (document.getElementById('welcome-channel-input')) document.getElementById('welcome-channel-input').value = g.updates_channel || '#welcome';
+            
+            fetch(`/api/settings/prefix/${targetGuild}`)
+                .then(r => r.json())
+                .then(pData => {
+                    if (pData && pData.prefixes && pData.prefixes.length > 0) {
+                        window.currentServerPrefixes = pData.prefixes;
+                        if (typeof renderPrefixesList === 'function') renderPrefixesList();
+                    }
+                })
+                .catch(() => {});
+            
+            if (typeof loadAuditWeblogs === 'function') loadAuditWeblogs(targetGuild);
+        })
+        .catch(err => console.error("Error loading general settings:", err));
+}
+window.loadGeneralSettings = loadGeneralSettings;
+
+function loadCommandsSettings(guildId) {
+    const targetGuild = guildId || activeGuildId || window.activeGuildId || localStorage.getItem('selected_guild_id') || sessionStorage.getItem('activeGuildId');
+    if (!targetGuild) return;
+    fetch(`/api/settings/${targetGuild}`)
+        .then(res => res.json())
+        .then(data => {
+            const disabledCmds = data.disabled_commands || [];
+            if (Array.isArray(window.commandsData)) {
+                window.commandsData.forEach(cmd => {
+                    cmd.enabled = !disabledCmds.includes(cmd.name);
+                });
+                if (typeof filterCommands === 'function') filterCommands('all');
+            }
+        })
+        .catch(err => console.error("Error loading commands settings:", err));
+}
+window.loadCommandsSettings = loadCommandsSettings;
+
+function loadStickyMessagesSettings(guildId) {
+    const targetGuild = guildId || activeGuildId || window.activeGuildId || localStorage.getItem('selected_guild_id') || sessionStorage.getItem('activeGuildId');
+    if (!targetGuild) return;
+    const tbody = document.getElementById('sticky-messages-table-body');
+    if (!tbody) return;
+    fetch(`/api/settings/stickymessages/${targetGuild}`)
+        .then(res => res.json())
+        .then(rows => {
+            if (!rows || rows.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4" style="padding: 24px; text-align: center; color: var(--text-secondary);">No sticky messages configured for this server.</td></tr>';
+                return;
+            }
+            tbody.innerHTML = rows.map(r => `
+                <tr style="border-bottom: 1px solid rgba(255,255,255,0.03);">
+                    <td style="padding: 12px; font-weight: 600; color: #00aff4;"># ${r.channel || 'general'}</td>
+                    <td style="padding: 12px; color: #f8fafc;">${r.message || ''}</td>
+                    <td style="padding: 12px; color: #10b981;">Active</td>
+                    <td style="padding: 12px; text-align: right;">
+                        <button onclick="deleteStickyMessage('${r.id}')" style="background: #ef4444; border: none; color: #fff; padding: 4px 8px; border-radius: 4px; cursor: pointer;" title="Delete Sticky"><i class="fas fa-trash"></i></button>
+                    </td>
+                </tr>
+            `).join('');
+        })
+        .catch(err => console.error("Error loading sticky messages:", err));
+}
+window.loadStickyMessagesSettings = loadStickyMessagesSettings;
+
+
+function loadEmbedMessagesSettings(guildId) {
+    const targetGuild = guildId || activeGuildId || window.activeGuildId || localStorage.getItem('selected_guild_id') || sessionStorage.getItem('activeGuildId');
+    if (!targetGuild) return;
+    const container = document.getElementById('ebm-cards-container');
+    if (container && container.children.length === 0 && typeof addMultiEmbedCard === 'function') {
+        addMultiEmbedCard();
+    }
+}
+window.loadEmbedMessagesSettings = loadEmbedMessagesSettings;
+
+function loadServerOverview(guildId) {
+    const targetGuild = guildId || activeGuildId || window.activeGuildId || localStorage.getItem('selected_guild_id') || sessionStorage.getItem('activeGuildId');
+    if (!targetGuild) return;
+    if (typeof loadSecuritySettings === 'function') loadSecuritySettings(targetGuild);
+    if (typeof loadAuditWeblogs === 'function') loadAuditWeblogs(targetGuild);
+    if (typeof loadRealAnalytics === 'function') loadRealAnalytics(targetGuild);
+}
+window.loadServerOverview = loadServerOverview;
+
+
 function switchTab(tabId) {
     const requiredPlan = tabPermissions[tabId] || 'Free';
     const currentPlan = window.currentServerPlan || 'Free';
@@ -7144,6 +7359,8 @@ window.loadLevelsSettings = function(guildId) {
         .then(res => res.json())
         .then(data => {
             const s = data.settings || {};
+            const enableSwitch = document.getElementById('levels-enable-switch');
+            if (enableSwitch) enableSwitch.checked = (s.enabled === 1 || s.enabled === true || s.enabled === '1');
             
             const outerInput = document.getElementById('levels-msg-outer-input');
             if (outerInput) outerInput.value = s.message || '';
@@ -7570,9 +7787,9 @@ window.openWhitelistModal = function(type = 'User') {
             if (plan === 'pro') {
                 limit = 10;
                 planTitle = 'Pro Sentinel (10 slots)';
-            } else if (plan === 'enterprise') {
+            } else if (plan === 'enterprise' || plan === 'premium') {
                 limit = 999999;
-                planTitle = 'Enterprise VIP (Unlimited)';
+                planTitle = 'Premium Plan (Unlimited)';
             }
 
             const filtered = (data || []).filter(item => (item.type || 'User').toLowerCase() === type.toLowerCase());

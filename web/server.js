@@ -1445,6 +1445,18 @@ app.get('/api/settings/:guild_id', (req, res) => {
     });
 });
 
+app.get('/api/settings/commands/:guild_id', (req, res) => {
+    const guildId = req.params.guild_id;
+    db.get("SELECT disabled_commands FROM guild_settings WHERE guild_id = ?", [guildId], (err, row) => {
+        if (err) return res.status(500).json({ error: err.message });
+        let disabled_commands = [];
+        if (row && row.disabled_commands) {
+            try { disabled_commands = JSON.parse(row.disabled_commands); } catch(e) {}
+        }
+        res.json({ disabled_commands });
+    });
+});
+
 app.post('/api/settings/commands/:guild_id', (req, res) => {
     const guildId = req.params.guild_id;
     const disabledCmds = req.body.disabled_commands || [];
