@@ -1554,12 +1554,12 @@ app.post('/api/whitelist/:guild_id', (req, res) => {
     const { id, type, reason } = req.body;
     if (!id) return res.status(400).json({ error: 'User ID is required' });
 
-    // Enforce plan quota: Free = 1, Pro = 10, Enterprise = Unlimited
-    db.get("SELECT plan, status FROM guild_subscriptions WHERE guild_id = ? AND status = 'active'", [guildId], (subErr, subRow) => {
-        const plan = (subRow && subRow.plan) ? subRow.plan.toLowerCase() : 'free';
+    // Enforce plan quota: Free = 1, Pro = 10, Premium/Enterprise = Unlimited
+    db.get("SELECT plan_type FROM guild_subscriptions WHERE guild_id = ?", [guildId], (subErr, subRow) => {
+        const rawPlan = (subRow && subRow.plan_type) ? subRow.plan_type.toLowerCase() : 'free';
         let limit = 1;
-        if (plan === 'pro') limit = 10;
-        else if (plan === 'enterprise' || plan === 'premium') limit = 999999;
+        if (rawPlan.includes('premium') || rawPlan.includes('enterprise')) limit = 999999;
+        else if (rawPlan.includes('pro')) limit = 10;
 
         db.all("SELECT user_id FROM whitelists WHERE guild_id = ?", [guildId], (wlErr, rows) => {
             const currentList = rows || [];
