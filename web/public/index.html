@@ -6473,7 +6473,7 @@ Support: </pre>
                         </div>
 
                         <div style="display: flex; justify-content: flex-end;">
-                            <button type="button" onclick="showToast('Success', 'Beast Mode configuration matrices synced successfully!')" class="btn-primary" style="background:#D96C91; border:none; padding:12px 30px; border-radius:6px; font-weight:700; cursor:pointer; box-shadow:0 4px 12px rgba(217, 108, 145,0.3);">
+                            <button type="button" id="beastmode-save-btn" onclick="saveBeastModeSettings()" class="btn-primary" style="background:#D96C91; border:none; padding:12px 30px; border-radius:6px; font-weight:700; cursor:pointer; box-shadow:0 4px 12px rgba(217, 108, 145,0.3);">
                                 <i class="fas fa-floppy-disk"></i> Save Beast Mode Config
                             </button>
                         </div>
@@ -6568,6 +6568,11 @@ Support: </pre>
                                 </div>
                             </div>
 
+                        </div>
+                        <div style="display:flex; justify-content:flex-end; margin-top:25px;">
+                            <button type="button" id="antiraid-save-btn" onclick="saveAntiRaidSettings()" class="btn-primary" style="background:#D96C91; border:none; padding:12px 30px; border-radius:6px; font-weight:700; cursor:pointer; box-shadow:0 4px 12px rgba(217, 108, 145,0.3);">
+                                <i class="fas fa-floppy-disk"></i> Save Anti-Raid Settings
+                            </button>
                         </div>
                     </div>
 

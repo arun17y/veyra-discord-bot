@@ -1,3 +1,9 @@
+function isTrue(val) {
+    return val === 1 || val === '1' || val === true || val === 'true';
+}
+window.isTrue = isTrue;
+window.isDashboardHydrating = false;
+
 
 window.updateActiveGuildUI = function(guildId, guildName, iconUrl) {
     if (!guildId) return;
@@ -114,29 +120,32 @@ function loadSecuritySettings(guildId) {
 window.loadSecuritySettings = loadSecuritySettings;
 
 function loadVerificationSettings(guildId) {
-    if (!guildId) return;
-    fetch(`/api/settings/verification/${guildId}`)
+    const targetGuild = guildId || activeGuildId || window.activeGuildId || localStorage.getItem('selected_guild_id');
+    if (!targetGuild) return;
+    fetch(`/api/settings/verification/${targetGuild}`)
         .then(res => res.json())
         .then(v => {
-            const verEnableEl = document.getElementById('sec-enable-verification');
-            if (verEnableEl) verEnableEl.checked = v.enabled === 1;
+            if (!v) return;
+            const isEnabled = isTrue(v.enabled);
+            const verEnableEl = document.getElementById('sec-enable-verification') || document.getElementById('verif-enable');
+            if (verEnableEl) verEnableEl.checked = isEnabled;
             
             const capEnableEl = document.getElementById('ver-enable-captcha');
-            if (capEnableEl) capEnableEl.checked = v.captcha_enabled !== undefined ? v.captcha_enabled === 1 : true;
+            if (capEnableEl) capEnableEl.checked = v.captcha_enabled !== undefined ? isTrue(v.captcha_enabled) : true;
             
-            const verTypeEl = document.getElementById('ver-type');
+            const verTypeEl = document.getElementById('ver-type') || document.getElementById('verif-level');
             if (verTypeEl) verTypeEl.value = v.type || 'Captcha Code';
             
             const verUnverifiedEl = document.getElementById('ver-unverified-role');
             if (verUnverifiedEl) verUnverifiedEl.value = v.unverified_role || 'Unverified';
             
-            const verChannelEl = document.getElementById('ver-channel');
+            const verChannelEl = document.getElementById('ver-channel') || document.getElementById('verif-channel');
             if (verChannelEl) verChannelEl.value = v.channel || 'verify';
             
-            const verVerifiedEl = document.getElementById('ver-verified-role');
+            const verVerifiedEl = document.getElementById('ver-verified-role') || document.getElementById('verif-role');
             if (verVerifiedEl) verVerifiedEl.value = v.verified_role || 'Member';
             
-            const verTimeoutEl = document.getElementById('ver-timeout');
+            const verTimeoutEl = document.getElementById('ver-timeout') || document.getElementById('verif-timeout');
             if (verTimeoutEl) verTimeoutEl.value = v.captcha_timeout !== undefined ? v.captcha_timeout : 60;
             
             const verLengthEl = document.getElementById('ver-length');
@@ -146,12 +155,12 @@ function loadVerificationSettings(guildId) {
             if (verLinesEl) verLinesEl.value = v.captcha_lines !== undefined ? v.captcha_lines : 5;
             
             const verNumbersEl = document.getElementById('ver-numbers');
-            if (verNumbersEl) verNumbersEl.checked = v.captcha_numbers === 1;
+            if (verNumbersEl) verNumbersEl.checked = isTrue(v.captcha_numbers);
             
             const verCaseEl = document.getElementById('ver-case-sensitive');
-            if (verCaseEl) verCaseEl.checked = v.captcha_sensitive === 1;
+            if (verCaseEl) verCaseEl.checked = isTrue(v.captcha_sensitive);
             
-            toggleVerificationSettingsPane(v.enabled === 1);
+            toggleVerificationSettingsPane(isEnabled);
             toggleCaptchaOptionsBypass();
         })
         .catch(err => console.error("Error loading verification settings:", err));
@@ -179,21 +188,24 @@ function toggleCaptchaOptionsBypass() {
 }
 
 function saveVerificationSettings() {
-    if (!activeGuildId) return;
+    if (window.isDashboardHydrating) return;
+    const targetGuild = activeGuildId || window.activeGuildId || localStorage.getItem('selected_guild_id');
+    if (!targetGuild) return;
+    const isEnabled = (document.getElementById('sec-enable-verification') || document.getElementById('verif-enable'))?.checked ? 1 : 0;
     const payload = {
-        enabled: document.getElementById('sec-enable-verification')?.checked ? 1 : 0,
+        enabled: isEnabled,
         captcha_enabled: document.getElementById('ver-enable-captcha')?.checked ? 1 : 0,
-        type: document.getElementById('ver-type')?.value || 'Captcha Code',
+        type: (document.getElementById('ver-type') || document.getElementById('verif-level'))?.value || 'Captcha Code',
         unverified_role: document.getElementById('ver-unverified-role')?.value || 'Unverified',
-        channel: document.getElementById('ver-channel')?.value || 'verify',
-        verified_role: document.getElementById('ver-verified-role')?.value || 'Member',
-        captcha_timeout: parseInt(document.getElementById('ver-timeout')?.value || 60),
+        channel: (document.getElementById('ver-channel') || document.getElementById('verif-channel'))?.value || 'verify',
+        verified_role: (document.getElementById('ver-verified-role') || document.getElementById('verif-role'))?.value || 'Member',
+        captcha_timeout: parseInt((document.getElementById('ver-timeout') || document.getElementById('verif-timeout'))?.value || 60),
         captcha_lines: parseInt(document.getElementById('ver-length')?.value || 5),
         captcha_numbers: document.getElementById('ver-numbers')?.checked ? 1 : 0,
         captcha_sensitive: document.getElementById('ver-case-sensitive')?.checked ? 1 : 0
     };
     
-    fetch(`/api/settings/verification/${activeGuildId}`, {
+    fetch(`/api/settings/verification/${targetGuild}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
@@ -202,11 +214,11 @@ function saveVerificationSettings() {
     .then(data => {
         if (data.success) {
             showToast("Verification Gate Saved", "Server verification gateway rules successfully written to database.");
-            if (payload.enabled) {
+            if (payload.enabled && typeof createFeatureChannels === 'function') {
                 createFeatureChannels(["verification"]);
             }
         } else {
-            showToast("Save Error", data.error || "Failed to save verification settings");
+            showToast("Save Error", data.error || "Failed to save verification settings", "error");
         }
     })
     .catch(err => console.error("Error saving verification settings:", err));
@@ -220,12 +232,15 @@ function toggleVerificationSettingsPane(enabled) {
 }
 
 function loadBeastModeSettings(guildId) {
-    if (!guildId) return;
-    fetch(`/api/settings/beastmode/${guildId}`)
+    const targetGuild = guildId || activeGuildId || window.activeGuildId || localStorage.getItem('selected_guild_id');
+    if (!targetGuild) return;
+    fetch(`/api/settings/beastmode/${targetGuild}`)
         .then(res => res.json())
         .then(b => {
+            if (!b) return;
+            const isEnabled = isTrue(b.enabled);
             const beastEnableEl = document.getElementById('sec-enable-beast');
-            if (beastEnableEl) beastEnableEl.checked = b.enabled === 1;
+            if (beastEnableEl) beastEnableEl.checked = isEnabled;
             
             const limitEl = document.getElementById('beast-score-limit');
             if (limitEl) limitEl.value = b.score_limit !== undefined ? b.score_limit : 40;
@@ -234,7 +249,7 @@ function loadBeastModeSettings(guildId) {
             if (punishEl) punishEl.value = b.punishment_type || 'Kick';
             
             const wlBypassEl = document.getElementById('beast-whitelist-bypass');
-            if (wlBypassEl) wlBypassEl.checked = b.whitelist_bypass === 1;
+            if (wlBypassEl) wlBypassEl.checked = isTrue(b.whitelist_bypass);
             
             const scores = ['bot-add', 'ban', 'kick', 'role-create', 'role-delete', 'channel-create', 'channel-delete', 'prune', 'mention', 'vanity', 'webhook'];
             scores.forEach(key => {
@@ -245,13 +260,15 @@ function loadBeastModeSettings(guildId) {
                 }
             });
             
-            toggleBeastModeState(b.enabled === 1);
+            toggleBeastModeState(isEnabled);
         })
         .catch(err => console.error("Error loading Beast Mode settings:", err));
 }
 
 function saveBeastModeSettings() {
-    if (!activeGuildId) return;
+    if (window.isDashboardHydrating) return;
+    const targetGuild = activeGuildId || window.activeGuildId || localStorage.getItem('selected_guild_id');
+    if (!targetGuild) return;
     const payload = {
         enabled: document.getElementById('sec-enable-beast')?.checked ? 1 : 0,
         score_limit: parseInt(document.getElementById('beast-score-limit')?.value || 40),
@@ -268,7 +285,7 @@ function saveBeastModeSettings() {
         }
     });
     
-    fetch(`/api/settings/beastmode/${activeGuildId}`, {
+    fetch(`/api/settings/beastmode/${targetGuild}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
@@ -276,9 +293,10 @@ function saveBeastModeSettings() {
     .then(res => res.json())
     .then(data => {
         if (data.success) {
-            showToast("Beast Mode Saved", "Aggressive beast-mode protection thresholds successfully synced.");
+            showToast("Beast Mode Saved", "Aggressive beast-mode protection thresholds successfully synced to database.");
+            toggleBeastModeState(payload.enabled === 1);
         } else {
-            showToast("Save Error", data.error || "Failed to save Beast Mode settings");
+            showToast("Save Error", data.error || "Failed to save Beast Mode settings", "error");
         }
     })
     .catch(err => console.error("Error saving Beast Mode settings:", err));
@@ -296,22 +314,45 @@ function toggleBeastModeState(enabled) {
 }
 
 function loadAntiRaidSettings(guildId) {
-    if (!guildId) return;
-    fetch(`/api/settings/antiraid/${guildId}`)
+    const targetGuild = guildId || activeGuildId || window.activeGuildId || localStorage.getItem('selected_guild_id');
+    if (!targetGuild) return;
+    fetch(`/api/settings/antiraid/${targetGuild}`)
         .then(res => res.json())
         .then(r => {
+            if (!r) return;
+            const isEnabled = isTrue(r.enabled);
+            const enableEl = document.getElementById('sec-enable-antiraid');
+            if (enableEl) enableEl.checked = isEnabled;
+            
             const protectEl = document.getElementById('sec-enable-raid-inv');
-            if (protectEl) protectEl.checked = r.invite_link_protection === 1;
+            if (protectEl) protectEl.checked = isTrue(r.invite_link_protection);
+            
+            const rateEl = document.getElementById('raid-join-rate');
+            if (rateEl && r.join_rate_threshold !== undefined) rateEl.value = r.join_rate_threshold;
+            
+            const ageEl = document.getElementById('raid-min-age');
+            if (ageEl && r.min_account_age !== undefined) ageEl.value = r.min_account_age;
+            
+            const punishEl = document.getElementById('raid-punishment-type');
+            if (punishEl && r.punishment_type) punishEl.value = r.punishment_type;
+            
+            toggleAntiRaidSettingsPane(isEnabled);
         })
         .catch(err => console.error("Error loading Anti Raid settings:", err));
 }
 
 function saveAntiRaidSettings() {
-    if (!activeGuildId) return;
+    if (window.isDashboardHydrating) return;
+    const targetGuild = activeGuildId || window.activeGuildId || localStorage.getItem('selected_guild_id');
+    if (!targetGuild) return;
     const payload = {
-        invite_link_protection: document.getElementById('sec-enable-raid-inv')?.checked ? 1 : 0
+        enabled: document.getElementById('sec-enable-antiraid')?.checked ? 1 : 0,
+        invite_link_protection: document.getElementById('sec-enable-raid-inv')?.checked ? 1 : 0,
+        join_rate_threshold: parseInt(document.getElementById('raid-join-rate')?.value || 10),
+        min_account_age: parseInt(document.getElementById('raid-min-age')?.value || 3),
+        punishment_type: document.getElementById('raid-punishment-type')?.value || 'Kick'
     };
-    fetch(`/api/settings/antiraid/${activeGuildId}`, {
+    fetch(`/api/settings/antiraid/${targetGuild}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
@@ -319,7 +360,10 @@ function saveAntiRaidSettings() {
     .then(res => res.json())
     .then(data => {
         if (data.success) {
-            showToast("Anti Raid Saved", "Anti-raid rate-limit controls successfully synced.");
+            showToast("Anti-Raid Saved", "Anti-raid rate-limit controls successfully synced to database.");
+            toggleAntiRaidSettingsPane(payload.enabled === 1);
+        } else {
+            showToast("Save Error", data.error || "Failed to save Anti Raid settings", "error");
         }
     })
     .catch(err => console.error("Error saving Anti Raid settings:", err));
@@ -897,6 +941,23 @@ function loadServerDashboard(guildId) {
             const g = data.guild || {};
             const s = data.security || {};
             
+            // Hydrate ALL modules authoritatively from PostgreSQL
+            window.isDashboardHydrating = true;
+            if (typeof loadSecuritySettings === 'function') loadSecuritySettings(guildId);
+            if (typeof loadBeastModeSettings === 'function') loadBeastModeSettings(guildId);
+            if (typeof loadAntiRaidSettings === 'function') loadAntiRaidSettings(guildId);
+            if (typeof loadVerificationSettings === 'function') loadVerificationSettings(guildId);
+            if (typeof loadAntiSpamSettings === 'function') loadAntiSpamSettings(guildId);
+            if (typeof loadWelcomeSettings === 'function') loadWelcomeSettings(guildId);
+            if (typeof loadLeaveSettings === 'function') loadLeaveSettings(guildId);
+            if (typeof loadJoinDMSettings === 'function') loadJoinDMSettings(guildId);
+            if (typeof loadInviteTrackerSettings === 'function') loadInviteTrackerSettings(guildId);
+            if (typeof loadAutorolesSettings === 'function') loadAutorolesSettings(guildId);
+            if (typeof loadLevelsSettings === 'function') loadLevelsSettings(guildId);
+            if (typeof loadReportsSettings === 'function') loadReportsSettings(guildId);
+            if (typeof loadServerOverview === 'function') loadServerOverview(guildId);
+            setTimeout(() => { window.isDashboardHydrating = false; }, 1500);
+
             // Dynamic Header Updates
             if (document.getElementById('sec-managing-title')) {
                 document.getElementById('sec-managing-title').innerText = `You are managing ${g.name || 'GHOST'}`;
@@ -920,7 +981,7 @@ function loadServerDashboard(guildId) {
                 if (punishEl) punishEl.value = s[`anti_${dbKey}_punish`] || 'Ban';
                 
                 const val = s[`anti_${dbKey}_enabled`] !== undefined ? s[`anti_${dbKey}_enabled`] : s[`anti_${dbKey}`];
-                if (enableEl) enableEl.checked = (val !== undefined ? val === 1 : true);
+                if (enableEl) enableEl.checked = (val !== undefined ? isTrue(val) : true);
             });
             
             // Populate 14 Instant Punishment fields
@@ -938,7 +999,7 @@ function loadServerDashboard(guildId) {
                 if (punishEl) punishEl.value = s[`anti_${dbKey}_punish`] || 'Ban';
                 
                 const val = s[`anti_${dbKey}_enabled`] !== undefined ? s[`anti_${dbKey}_enabled`] : s[`anti_${dbKey}`];
-                if (enableEl) enableEl.checked = (val !== undefined ? val === 1 : true);
+                if (enableEl) enableEl.checked = (val !== undefined ? isTrue(val) : true);
             });
 
             // Dynamic Safety Status Indicator & Alert Card
@@ -949,7 +1010,7 @@ function loadServerDashboard(guildId) {
             checkLimits.forEach(key => {
                 const dbKey = key.replace('-', '_');
                 const val = s[`anti_${dbKey}_enabled`] !== undefined ? s[`anti_${dbKey}_enabled`] : s[`anti_${dbKey}`];
-                if (val === 1) enabledCount++;
+                if (isTrue(val)) enabledCount++;
             });
             
             const checkInstant = ['bot-add', 'prune', 'role-perm-update', 'role-add', 'vanity', 'server-rename', 'server-icon', 'role-rename', 'channel-rename'];
@@ -960,7 +1021,7 @@ function loadServerDashboard(guildId) {
                 if (dbKey === 'vanity') dbKey = 'vanity_change';
                 if (dbKey === 'server-icon') dbKey = 'server_icon_change';
                 const val = s[`anti_${dbKey}_enabled`] !== undefined ? s[`anti_${dbKey}_enabled`] : s[`anti_${dbKey}`];
-                if (val === 1) enabledCount++;
+                if (isTrue(val)) enabledCount++;
             });
             
             const statusEl = document.getElementById('overview-security-status');
@@ -1009,10 +1070,10 @@ function loadServerDashboard(guildId) {
             fetch(`/api/settings/welcome/${guildId}`)
                 .then(res => res.json())
                 .then(w => {
-                    if (document.getElementById('welcome-msg-enable')) document.getElementById('welcome-msg-enable').checked = w.enabled === 1;
+                    if (document.getElementById('welcome-msg-enable')) document.getElementById('welcome-msg-enable').checked = isTrue(w.enabled);
                     if (document.getElementById('welcome-msg-channel-select')) document.getElementById('welcome-msg-channel-select').value = w.channel || 'general';
                     if (document.getElementById('welcome-msg-outer-input')) document.getElementById('welcome-msg-outer-input').value = w.message || '';
-                    if (document.getElementById('welcome-embed-enable')) document.getElementById('welcome-embed-enable').checked = w.enabled === 1;
+                    if (document.getElementById('welcome-embed-enable')) document.getElementById('welcome-embed-enable').checked = isTrue(w.enabled);
                     if (document.getElementById('welcome-embed-color-picker')) {
                         document.getElementById('welcome-embed-color-picker').value = w.color || '#a855f7';
                         if (document.getElementById('welcome-color-hex')) document.getElementById('welcome-color-hex').value = w.color || '#a855f7';
@@ -1033,10 +1094,10 @@ function loadServerDashboard(guildId) {
             fetch(`/api/settings/leave/${guildId}`)
                 .then(res => res.json())
                 .then(l => {
-                    if (document.getElementById('leave-msg-enable')) document.getElementById('leave-msg-enable').checked = l.enabled === 1;
+                    if (document.getElementById('leave-msg-enable')) document.getElementById('leave-msg-enable').checked = isTrue(l.enabled);
                     if (document.getElementById('leave-msg-channel-select')) document.getElementById('leave-msg-channel-select').value = l.channel || 'exits';
                     if (document.getElementById('leave-msg-outer-input')) document.getElementById('leave-msg-outer-input').value = l.message || '';
-                    if (document.getElementById('leave-embed-enable')) document.getElementById('leave-embed-enable').checked = l.enabled === 1;
+                    if (document.getElementById('leave-embed-enable')) document.getElementById('leave-embed-enable').checked = isTrue(l.enabled);
                     if (document.getElementById('leave-embed-color-picker')) {
                         document.getElementById('leave-embed-color-picker').value = l.color || '#a855f7';
                         if (document.getElementById('leave-color-hex')) document.getElementById('leave-color-hex').value = l.color || '#a855f7';
@@ -1057,7 +1118,7 @@ function loadServerDashboard(guildId) {
             fetch(`/api/verification/${guildId}`)
                 .then(res => res.json())
                 .then(v => {
-                    if (document.getElementById('verif-enable')) document.getElementById('verif-enable').checked = v.enabled === 1;
+                    if (document.getElementById('verif-enable')) document.getElementById('verif-enable').checked = isTrue(v.enabled);
                     if (document.getElementById('verif-level')) document.getElementById('verif-level').value = v.type || 'captcha';
                     if (document.getElementById('verif-role')) document.getElementById('verif-role').value = v.verified_role || 'none';
                     if (document.getElementById('verif-action')) document.getElementById('verif-action').value = v.timeout_action || 'Kick';
@@ -1087,7 +1148,7 @@ function loadServerDashboard(guildId) {
             fetch(`/api/settings/invitetracker/${guildId}`)
                 .then(res => res.json())
                 .then(it => {
-                    if (document.getElementById('invitetracker-msg-enable')) document.getElementById('invitetracker-msg-enable').checked = it.enabled === 1;
+                    if (document.getElementById('invitetracker-msg-enable')) document.getElementById('invitetracker-msg-enable').checked = isTrue(it.enabled);
                     if (document.getElementById('invitetracker-msg-channel-select')) document.getElementById('invitetracker-msg-channel-select').value = it.channel || 'general';
                     if (document.getElementById('invitetracker-msg-outer-input')) document.getElementById('invitetracker-msg-outer-input').value = it.message || '';
                     if (document.getElementById('invitetracker-embed-color-picker')) {
@@ -1259,7 +1320,7 @@ function loadWelcomeSettings(guildId) {
         .then(res => res.json())
         .then(w => {
             if (!w) return;
-            const isEnabled = (w.enabled === 1 || w.enabled === true || w.enabled === '1');
+            const isEnabled = (isTrue(w.enabled) || w.enabled === true || w.enabled === '1');
             if (document.getElementById('welcome-msg-enable')) document.getElementById('welcome-msg-enable').checked = isEnabled;
             if (document.getElementById('welcome-msg-channel-select')) document.getElementById('welcome-msg-channel-select').value = w.channel || 'general';
             if (document.getElementById('welcome-msg-outer-input')) document.getElementById('welcome-msg-outer-input').value = w.message || '';
@@ -1290,7 +1351,7 @@ function loadLeaveSettings(guildId) {
         .then(res => res.json())
         .then(l => {
             if (!l) return;
-            const isEnabled = (l.enabled === 1 || l.enabled === true || l.enabled === '1');
+            const isEnabled = (isTrue(l.enabled) || l.enabled === true || l.enabled === '1');
             if (document.getElementById('leave-msg-enable')) document.getElementById('leave-msg-enable').checked = isEnabled;
             if (document.getElementById('leave-msg-channel-select')) document.getElementById('leave-msg-channel-select').value = l.channel || 'exits';
             if (document.getElementById('leave-msg-outer-input')) document.getElementById('leave-msg-outer-input').value = l.message || '';
@@ -1345,7 +1406,7 @@ function loadInviteTrackerSettings(guildId) {
         .then(res => res.json())
         .then(it => {
             if (!it) return;
-            const isEnabled = (it.enabled === 1 || it.enabled === true || it.enabled === '1');
+            const isEnabled = (isTrue(it.enabled) || it.enabled === true || it.enabled === '1');
             if (document.getElementById('invitetracker-msg-enable')) document.getElementById('invitetracker-msg-enable').checked = isEnabled;
             if (document.getElementById('invitetracker-msg-channel-select')) document.getElementById('invitetracker-msg-channel-select').value = it.channel || 'general';
             if (document.getElementById('invitetracker-msg-outer-input')) document.getElementById('invitetracker-msg-outer-input').value = it.message || '';
@@ -2346,6 +2407,7 @@ function saveNickname() {
 }
 
 function saveSecuritySettings() {
+    if (window.isDashboardHydrating) return;
     if (!activeGuildId) return;
     
     const payload = {};
@@ -4448,46 +4510,7 @@ function saveMessageContentEdit() {
     closeEditMessageModal();
 }
 
-function saveVerificationSettings() {
-    if (!activeGuildId) {
-        showToast("Error", "No active guild selected.", "error");
-        return;
-    }
-    const isEnabled = document.getElementById('verif-enable').checked;
-    const level = document.getElementById('verif-level').value;
-    const role = document.getElementById('verif-role').value;
-    const action = document.getElementById('verif-action').value;
-    const timeout = document.getElementById('verif-timeout').value;
-    const channel = document.getElementById('verif-channel').value;
-    
-    const payload = {
-        enabled: isEnabled ? 1 : 0,
-        type: level,
-        verified_role: role,
-        timeout_action: action,
-        captcha_timeout: parseInt(timeout) || 60,
-        channel: channel
-    };
-    
-    fetch(`/api/verification/${activeGuildId}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-    })
-    .then(res => res.json())
-    .then(data => {
-        if (data.success) {
-            showToast("Verification Saved", `Configurations updated. Role: ${role}, Level: ${level}, Action: ${action}`);
-            loadAuditWeblogs(activeGuildId);
-        } else {
-            showToast("Save Failed", data.error || "Failed to save verification settings.", "error");
-        }
-    })
-    .catch(err => {
-        console.error("Verification save error:", err);
-        showToast("Save Failed", "Network error when saving settings.", "error");
-    });
-}
+// duplicate saveVerificationSettings removed - authoritative definition at line 181
 
 window.loadInvitesSettings = function(guildId) {
     const targetGuild = guildId || activeGuildId;
@@ -7374,7 +7397,7 @@ window.loadLevelsSettings = function(guildId) {
         .then(data => {
             const s = data.settings || {};
             const enableSwitch = document.getElementById('levels-enable-switch');
-            if (enableSwitch) enableSwitch.checked = (s.enabled === 1 || s.enabled === true || s.enabled === '1');
+            if (enableSwitch) enableSwitch.checked = isTrue(s.enabled);
             
             const outerInput = document.getElementById('levels-msg-outer-input');
             if (outerInput) outerInput.value = s.message || '';
@@ -7413,10 +7436,11 @@ window.loadLevelsSettings = function(guildId) {
 };
 
 window.saveLevelsSettings = function() {
+    if (window.isDashboardHydrating) return;
     if (!activeGuildId) return;
     
     const settings = {
-        enabled: 1,
+        enabled: document.getElementById('levels-enable-switch')?.checked ? 1 : 0,
         channel: document.getElementById('levels-channel-select')?.value || 'none',
         message: document.getElementById('levels-msg-outer-input')?.value || '',
         level_modulo: parseInt(document.getElementById('levels-modulo-input')?.value) || 1,
@@ -7565,7 +7589,7 @@ window.loadReportsSettings = function(guildId) {
         .then(res => res.json())
         .then(data => {
             const toggle = document.getElementById('reports-enable-checkbox');
-            if (toggle) toggle.checked = data.enabled === 1;
+            if (toggle) toggle.checked = isTrue(data.enabled);
 
             const channelSelect = document.getElementById('reports-channel-select');
             if (channelSelect && data.channel) channelSelect.value = data.channel;
@@ -8098,6 +8122,7 @@ window.loadAntiSpamSettings = function(guildId) {
 };
 
 window.saveAntiSpamSettings = function() {
+    if (window.isDashboardHydrating) return;
     const targetGuild = activeGuildId || window.activeGuildId || localStorage.getItem('selected_guild_id');
     if (!targetGuild) return;
 
@@ -8138,52 +8163,7 @@ window.saveAntiSpamSettings = function() {
     .catch(err => console.error("Error saving Anti-Spam settings:", err));
 };
 
-window.saveAntiSpamSettings = function() {
-    if (!activeGuildId) return;
-    
-    fetch(`/api/settings/${activeGuildId}`)
-        .then(res => res.json())
-        .then(data => {
-            let disabledCmds = data.disabled_commands || [];
-            
-            const chkLinks = document.getElementById('antispam-enable-links');
-            const chkMentions = document.getElementById('antispam-enable-mentions');
-            const chkInvites = document.getElementById('antispam-enable-invites');
-            
-            const linksActive = chkLinks ? chkLinks.checked : true;
-            const mentionsActive = chkMentions ? chkMentions.checked : true;
-            const invitesActive = chkInvites ? chkInvites.checked : true;
-            
-            const setCommandStatus = (cmdName, isActive) => {
-                if (isActive) {
-                    disabledCmds = disabledCmds.filter(name => name !== cmdName);
-                } else {
-                    if (!disabledCmds.includes(cmdName)) {
-                        disabledCmds.push(cmdName);
-                    }
-                }
-            };
-            
-            setCommandStatus('antispam-links', linksActive);
-            setCommandStatus('antispam-mentions', mentionsActive);
-            setCommandStatus('antispam-invites', invitesActive);
-            
-            fetch(`/api/settings/commands/${activeGuildId}`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ disabled_commands: disabledCmds })
-            })
-            .then(res => res.json())
-            .then(res => {
-                if (res.success) {
-                    showToast("Success", "Anti-Spam matrix filters updated successfully.");
-                } else {
-                    showToast("Error", "Failed to update Anti-Spam settings.");
-                }
-            })
-            .catch(err => console.error("Error saving anti-spam settings:", err));
-        });
-};
+// duplicate legacy saveAntiSpamSettings removed - authoritative definition at line 8100
 
 window.loadLogsSettings = function(guildId) {
     const targetGuild = guildId || activeGuildId;
@@ -11598,7 +11578,7 @@ window.loadServerOverview = async function(guildId) {
         checkLimits.forEach(key => {
             const dbKey = key.replace('-', '_');
             const val = s[`anti_${dbKey}_enabled`] !== undefined ? s[`anti_${dbKey}_enabled`] : s[`anti_${dbKey}`];
-            if (val === 1) enabledCount++;
+            if (isTrue(val)) enabledCount++;
         });
 
         const checkInstant = ['bot-add', 'prune', 'role-perm-update', 'role-add', 'vanity', 'server-rename', 'server-icon', 'role-rename', 'channel-rename'];
@@ -11609,7 +11589,7 @@ window.loadServerOverview = async function(guildId) {
             if (dbKey === 'vanity') dbKey = 'vanity_change';
             if (dbKey === 'server-icon') dbKey = 'server_icon_change';
             const val = s[`anti_${dbKey}_enabled`] !== undefined ? s[`anti_${dbKey}_enabled`] : s[`anti_${dbKey}`];
-            if (val === 1) enabledCount++;
+            if (isTrue(val)) enabledCount++;
         });
 
         const statusEl = document.getElementById('overview-security-status');
@@ -11871,7 +11851,7 @@ window.runLiveSecurityScan = function() {
                 checkLimits.forEach(key => {
                     const dbKey = key.replace('-', '_');
                     const val = s[`anti_${dbKey}_enabled`] !== undefined ? s[`anti_${dbKey}_enabled`] : s[`anti_${dbKey}`];
-                    if (val === 1) enabledCount++;
+                    if (isTrue(val)) enabledCount++;
                 });
                 const checkInstant = ['bot-add', 'prune', 'role-perm-update', 'role-add', 'vanity', 'server-rename', 'server-icon', 'role-rename', 'channel-rename'];
                 checkInstant.forEach(key => {
@@ -11881,7 +11861,7 @@ window.runLiveSecurityScan = function() {
                     if (dbKey === 'vanity') dbKey = 'vanity_change';
                     if (dbKey === 'server-icon') dbKey = 'server_icon_change';
                     const val = s[`anti_${dbKey}_enabled`] !== undefined ? s[`anti_${dbKey}_enabled`] : s[`anti_${dbKey}`];
-                    if (val === 1) enabledCount++;
+                    if (isTrue(val)) enabledCount++;
                 });
 
                 if (enabledCount === 0) {
