@@ -20,18 +20,18 @@ window.updateActiveGuildUI = function(guildId, guildName, iconUrl) {
 };
 
 window.resolveGuildPlan = function(planRaw, status) {
-    if (!planRaw) return { type: 'Free', name: 'Free Tier', badge: 'FREE TIER', isPaid: false, isEnt: false, isPro: false };
+    if (!planRaw) return { type: 'Free', name: 'Free Tier', badge: 'FREE TIER', isPaid: false, isPrem: false, isEnt: false, isPro: false };
     const p = String(planRaw).toLowerCase();
     const isActive = status !== 'expired';
-    if (!isActive) return { type: 'Free', name: 'Free Tier (Expired)', badge: 'EXPIRED', isPaid: false, isEnt: false, isPro: false };
+    if (!isActive) return { type: 'Free', name: 'Free Tier (Expired)', badge: 'EXPIRED', isPaid: false, isPrem: false, isEnt: false, isPro: false };
     
-    if (p.includes('enterprise') || p.includes('premium')) {
-        return { type: 'Enterprise', name: 'Enterprise Sentinel Plan', badge: 'ENTERPRISE VIP', isPaid: true, isEnt: true, isPro: false };
+    if (p.includes('premium') || p.includes('enterprise')) {
+        return { type: 'Premium', name: 'Premium Plan', badge: 'PREMIUM', isPaid: true, isPrem: true, isEnt: true, isPro: false };
     }
     if (p.includes('pro')) {
-        return { type: 'Pro', name: 'Pro Sentinel Plan', badge: 'PRO SENTINEL', isPaid: true, isEnt: false, isPro: true };
+        return { type: 'Pro', name: 'Pro Plan', badge: 'PRO', isPaid: true, isPrem: false, isEnt: false, isPro: true };
     }
-    return { type: 'Free', name: 'Free Tier', badge: 'FREE TIER', isPaid: false, isEnt: false, isPro: false };
+    return { type: 'Free', name: 'Free Tier', badge: 'FREE TIER', isPaid: false, isPrem: false, isEnt: false, isPro: false };
 };
 
 window.updateWhitelistCapacityUI = function(count) {
@@ -7314,6 +7314,22 @@ window.loadReportsSettings = function(guildId) {
     const targetGuild = guildId || activeGuildId || localStorage.getItem('selected_guild_id');
     if (!targetGuild) return;
 
+    // Instantly populate reports-channel-select from cached channels
+    const chSelect = document.getElementById('reports-channel-select');
+    if (chSelect && window.guildChannels && window.guildChannels.length > 0) {
+        const curVal = chSelect.value;
+        chSelect.innerHTML = '<option value="">Select Channel</option>';
+        window.guildChannels.forEach(c => {
+            const opt = document.createElement('option');
+            opt.value = c.id;
+            opt.innerText = `# ${c.name}`;
+            chSelect.appendChild(opt);
+        });
+        if (curVal) chSelect.value = curVal;
+    } else if (typeof populateServerRolesAndChannels === 'function') {
+        populateServerRolesAndChannels(targetGuild);
+    }
+
     fetch(`/api/settings/reports/${targetGuild}`)
         .then(res => res.json())
         .then(data => {
@@ -10859,8 +10875,8 @@ async function loadBillingData(guildId) {
             pillEl.style.borderColor = resolvedPlan.isPaid ? '#D1FAE5' : '#CBD5E1';
         }
         if (descEl) {
-            descEl.innerText = resolvedPlan.isEnt 
-                ? 'Full enterprise protection, custom bot branding, and unlimited staff whitelist slots.'
+            descEl.innerText = (resolvedPlan.isPrem || resolvedPlan.isEnt)
+                ? 'Full premium protection, custom bot branding, and unlimited staff whitelist slots.'
                 : (resolvedPlan.isPro 
                     ? 'Advanced anti-nuke shielding, Kitt voice announcements, and priority support.'
                     : 'Standard community tools and baseline Anti-Spam protection.');
@@ -10905,7 +10921,7 @@ async function loadBillingData(guildId) {
             }
             if (btnPro) {
                 btnPro.disabled = true;
-                btnPro.innerText = 'Included with Enterprise';
+                btnPro.innerText = 'Included with Premium';
                 btnPro.style.background = '#F1F5F9';
                 btnPro.style.color = '#94A3B8';
                 btnPro.style.boxShadow = 'none';
@@ -10933,7 +10949,7 @@ async function loadBillingData(guildId) {
             }
             if (btnEnt) {
                 btnEnt.disabled = false;
-                btnEnt.innerText = 'Upgrade to Enterprise (₹299/mo)';
+                btnEnt.innerText = 'Upgrade to Premium (₹299/mo)';
                 btnEnt.style.background = '#7E22CE';
                 btnEnt.style.color = '#FFFFFF';
                 btnEnt.style.cursor = 'pointer';
@@ -10955,7 +10971,7 @@ async function loadBillingData(guildId) {
             }
             if (btnEnt) {
                 btnEnt.disabled = false;
-                btnEnt.innerText = 'Upgrade to Enterprise (₹299/mo)';
+                btnEnt.innerText = 'Upgrade to Premium (₹299/mo)';
                 btnEnt.style.background = '#7E22CE';
                 btnEnt.style.color = '#FFFFFF';
                 btnEnt.style.cursor = 'pointer';
@@ -11179,10 +11195,10 @@ window.loadServerOverview = async function(guildId) {
         const planValEl = document.getElementById('overview-active-plan-val');
         if (badgeEl) {
             badgeEl.innerText = resolvedPlan.badge;
-            if (resolvedPlan.isEnt) {
-                badgeEl.style.background = '#FAF5FF';
-                badgeEl.style.color = '#7E22CE';
-                badgeEl.style.borderColor = '#E9D5FF';
+            if (resolvedPlan.isPrem || resolvedPlan.isEnt) {
+                badgeEl.style.background = '#FEF3C7';
+                badgeEl.style.color = '#B45309';
+                badgeEl.style.borderColor = '#FDE68A';
             } else if (resolvedPlan.isPro) {
                 badgeEl.style.background = '#FDF2F8';
                 badgeEl.style.color = '#BE185D';
