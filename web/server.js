@@ -1559,7 +1559,7 @@ app.post('/api/whitelist/:guild_id', (req, res) => {
         const plan = (subRow && subRow.plan) ? subRow.plan.toLowerCase() : 'free';
         let limit = 1;
         if (plan === 'pro') limit = 10;
-        else if (plan === 'enterprise') limit = 999999;
+        else if (plan === 'enterprise' || plan === 'premium') limit = 999999;
 
         db.all("SELECT user_id FROM whitelists WHERE guild_id = ?", [guildId], (wlErr, rows) => {
             const currentList = rows || [];
@@ -2512,6 +2512,61 @@ app.post('/api/settings/beastmode/:guild_id', (req, res) => {
 });
 
 // 5d. Anti Raid settings GET & POST
+
+// Anti-Spam Configuration REST APIs
+app.get('/api/settings/antispam/:guild_id', (req, res) => {
+    const guildId = req.params.guild_id;
+    db.get("SELECT * FROM antispam_settings WHERE guild_id = ?", [guildId], (err, row) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json(row || {
+            enabled: 1,
+            max_messages: 5,
+            message_seconds: 5,
+            max_duplicates: 3,
+            max_mentions: 4,
+            block_invites: 1,
+            block_links: 0,
+            max_emojis: 8,
+            max_caps_percent: 70,
+            punishment: 'Timeout',
+            timeout_duration: 300,
+            log_channel: '',
+            ignored_roles: '[]',
+            ignored_channels: '[]'
+        });
+    });
+});
+
+app.post('/api/settings/antispam/:guild_id', (req, res) => {
+    const guildId = req.params.guild_id;
+    const s = req.body;
+    db.run(`INSERT OR REPLACE INTO antispam_settings (
+        guild_id, enabled, max_messages, message_seconds, max_duplicates,
+        max_mentions, block_invites, block_links, max_emojis, max_caps_percent,
+        punishment, timeout_duration, log_channel, ignored_roles, ignored_channels, updated_at
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)`,
+    [
+        guildId,
+        s.enabled ? 1 : 0,
+        parseInt(s.max_messages) || 5,
+        parseInt(s.message_seconds) || 5,
+        parseInt(s.max_duplicates) || 3,
+        parseInt(s.max_mentions) || 4,
+        s.block_invites ? 1 : 0,
+        s.block_links ? 1 : 0,
+        parseInt(s.max_emojis) || 8,
+        parseInt(s.max_caps_percent) || 70,
+        s.punishment || 'Timeout',
+        parseInt(s.timeout_duration) || 300,
+        s.log_channel || '',
+        typeof s.ignored_roles === 'string' ? s.ignored_roles : JSON.stringify(s.ignored_roles || []),
+        typeof s.ignored_channels === 'string' ? s.ignored_channels : JSON.stringify(s.ignored_channels || [])
+    ], function(err) {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json({ success: true });
+    });
+});
+
 app.get('/api/settings/antiraid/:guild_id', (req, res) => {
     const guildId = req.params.guild_id;
     db.get("SELECT * FROM antiraid_settings WHERE guild_id = ?", [guildId], (err, row) => {

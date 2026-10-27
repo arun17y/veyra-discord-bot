@@ -6912,70 +6912,188 @@ Support: </pre>
                     <!-- 9. SUB-PANE: ANTI SPAM -->
                     <div class="sec-sub-pane" id="sec-pane-antispam" style="display:none;">
                         <h2 style="font-size: 2.2rem; font-weight: 800; color: #0F172A; text-align: center; margin: 0 0 10px 0; font-family: var(--font-display); letter-spacing:0.02em;">ANTI SPAM</h2>
-                        <p style="font-size:0.85rem; color:var(--text-secondary); text-align:center; max-width:650px; margin:0 auto 30px auto; line-height:1.6;">
-                            Protect your server from mass spams, lock your server in matter of seconds, clear all the spam messages and keep your channels clean.
+                        <p style="font-size:0.85rem; color:var(--text-secondary); text-align:center; max-width:650px; margin:0 auto 25px auto; line-height:1.6;">
+                            Intelligent real-time spam neutralization engine. Automatically intercepts chat floods, duplicate messages, mass mentions, and malicious links.
                         </p>
 
-                        <!-- Lock block for Premium only -->
-                        <div id="antispam-lock-container" style="background: rgba(239, 68, 68, 0.03); border: 1.5px dashed rgba(239,68,68,0.25); border-radius: 8px; padding: 40px 20px; text-align: center; max-width: 500px; margin: 40px auto; display: none;">
-                            <div style="font-size: 2.5rem; color: #ef4444; margin-bottom: 15px;"><i class="fas fa-lock"></i></div>
-                            <h3 style="color: #0F172A; font-family:var(--font-display); font-weight:700; margin:0 0 10px 0; text-transform:uppercase; letter-spacing:0.05em;">THIS IS A PREMIUM ONLY FEATURE</h3>
-                            <p style="color:var(--text-secondary); font-size:0.82rem;">Upgrade your operation plan to PRO or PREMIUM to activate the anti-spam matrix filters.</p>
+                        <!-- Anti Spam Master Toggle -->
+                        <div style="display:flex; justify-content:center; align-items:center; margin-bottom:12px; gap:10px;">
+                            <label class="switch">
+                                <input type="checkbox" id="sec-enable-antispam" checked onchange="toggleAntiSpamSettingsPane(this.checked)">
+                                <span class="slider"></span>
+                            </label>
+                            <span style="color:var(--text-secondary); font-size: 0.75rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;">ENABLE ANTI SPAM</span>
                         </div>
+                        <p id="antispam-disabled-notice" style="display:none; color:#ef4444; text-align:center; font-size:0.75rem; font-weight:700; letter-spacing:0.05em; margin: 0 0 25px 0;">YOU MUST ENABLE ANTI SPAM TO CONFIGURE IT</p>
 
-                        <!-- Settings container for Unlocked Premium -->
-                        <div id="antispam-settings-container" style="background: rgba(13,20,38,0.25); border: 1px solid rgba(255,255,255,0.03); border-radius: 8px; padding: 25px; max-width: 600px; margin: 0 auto; display: none;">
-                            <div style="display:flex; flex-direction:column; gap:20px;">
-                                <!-- Link Spam Toggle -->
-                                <div style="display:flex; align-items:center; justify-content:space-between;">
-                                    <div>
-                                        <h4 style="color: #0F172A; font-size:0.95rem; margin-bottom:2px; font-weight:700;">BLOCK PHISHING &amp; SPAM LINKS</h4>
-                                        <p style="color:var(--text-secondary); font-size:0.78rem; margin:0;">Delete links sent by non-whitelisted users.</p>
+                        <!-- Anti-Spam Matrix Form Container -->
+                        <div id="antispam-form-container" style="max-width: 900px; margin: 0 auto; display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; transition: opacity 0.2s ease;">
+                            
+                            <!-- Card 1: Chat Flooding / Rate Limiting -->
+                            <div style="background: rgba(30, 41, 59, 0.2); border: 1px solid rgba(255,255,255,0.03); border-radius: 8px; padding: 25px; display: flex; flex-direction: column; justify-content: space-between; position: relative; min-height: 180px;">
+                                <div style="position: absolute; top: 15px; left: 20px; font-size: 3.5rem; font-weight: 900; color: rgba(255,255,255,0.015); font-family: var(--font-display); letter-spacing: 0.05em; pointer-events: none; z-index: 1;">FLOOD</div>
+                                <div style="z-index: 2;">
+                                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                                        <h3 style="color: #0F172A; font-family: var(--font-display); font-weight: 700; font-size: 0.95rem; margin: 0; letter-spacing: 0.02em; text-transform: uppercase;">CHAT FLOOD LIMIT</h3>
+                                        <div style="display: flex; align-items: center; gap: 6px;">
+                                            <input type="number" id="antispam-max-msgs" min="2" max="25" value="5" style="width: 48px; background: rgba(0,0,0,0.3); border: 1.5px solid rgba(255,255,255,0.08); border-radius: 4px; padding: 4px; color: #0F172A !important; text-align: center; font-size: 0.8rem; font-weight: 700;">
+                                            <span style="color: var(--text-secondary); font-size: 0.72rem;">msgs /</span>
+                                            <input type="number" id="antispam-msg-secs" min="2" max="30" value="5" style="width: 48px; background: rgba(0,0,0,0.3); border: 1.5px solid rgba(255,255,255,0.08); border-radius: 4px; padding: 4px; color: #0F172A !important; text-align: center; font-size: 0.8rem; font-weight: 700;">
+                                            <span style="color: var(--text-secondary); font-size: 0.72rem;">sec</span>
+                                        </div>
                                     </div>
-                                    <label class="switch">
-                                        <input type="checkbox" id="antispam-enable-links">
-                                        <span class="slider"></span>
-                                    </label>
-                                </div>
-                                <!-- Mention Spam Toggle -->
-                                <div style="display:flex; align-items:center; justify-content:space-between;">
-                                    <div>
-                                        <h4 style="color: #0F172A; font-size:0.95rem; margin-bottom:2px; font-weight:700;">MASS MENTION PROTECTION</h4>
-                                        <p style="color:var(--text-secondary); font-size:0.78rem; margin:0;">Block messages containing more than 5 user/role mentions.</p>
-                                    </div>
-                                    <label class="switch">
-                                        <input type="checkbox" id="antispam-enable-mentions">
-                                        <span class="slider"></span>
-                                    </label>
-                                </div>
-                                <!-- Invite Link Deletion Toggle -->
-                                <div style="display:flex; align-items:center; justify-content:space-between;">
-                                    <div>
-                                        <h4 style="color: #0F172A; font-size:0.95rem; margin-bottom:2px; font-weight:700;">BLOCK SERVER INVITES</h4>
-                                        <p style="color:var(--text-secondary); font-size:0.78rem; margin:0;">Delete Discord invite links automatically.</p>
-                                    </div>
-                                    <label class="switch">
-                                        <input type="checkbox" id="antispam-enable-invites">
-                                        <span class="slider"></span>
-                                    </label>
-                                </div>
-                                <!-- Action / Punishment -->
-                                <div style="display:flex; flex-direction:column; gap:6px; margin-top:10px;">
-                                    <label style="font-size:0.82rem; font-weight:700; color: #0F172A;">MITIGATION ACTION</label>
-                                    <p style="font-size:0.75rem; color:var(--text-secondary); margin:0;">Action to apply to users who trigger spam limits.</p>
-                                    <select class="form-control" id="antispam-punishment" style="background: #FFFFFF !important; border: 1.5px solid #CBD5E1 !important; color: #0F172A !important; border-color:rgba(255,255,255,0.05); margin-top:4px;">
-                                        <option value="Timeout">Mute / Timeout (5 Minutes)</option>
-                                        <option value="Kick">Kick Member</option>
-                                        <option value="Ban">Ban Member</option>
-                                    </select>
-                                </div>
-                                
-                                <div style="display:flex; justify-content:flex-end; margin-top:15px; border-top:1px solid rgba(255,255,255,0.03); padding-top:15px;">
-                                    <button type="button" onclick="saveAntiSpamSettings()" class="btn-primary" style="background:#D96C91; border:none; padding:10px 24px; border-radius:6px; font-weight:700; cursor:pointer;">
-                                        Save Anti-Spam
-                                    </button>
+                                    <p style="color: var(--text-secondary); font-size: 0.78rem; line-height: 1.5; margin: 0;">
+                                        Intercepts and purges fast message flooding when a user exceeds the specified message burst within the time window.
+                                    </p>
                                 </div>
                             </div>
+
+                            <!-- Card 2: Duplicate Message Detection -->
+                            <div style="background: rgba(30, 41, 59, 0.2); border: 1px solid rgba(255,255,255,0.03); border-radius: 8px; padding: 25px; display: flex; flex-direction: column; justify-content: space-between; position: relative; min-height: 180px;">
+                                <div style="position: absolute; top: 15px; left: 20px; font-size: 3.5rem; font-weight: 900; color: rgba(255,255,255,0.015); font-family: var(--font-display); letter-spacing: 0.05em; pointer-events: none; z-index: 1;">REPEAT</div>
+                                <div style="z-index: 2;">
+                                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                                        <h3 style="color: #0F172A; font-family: var(--font-display); font-weight: 700; font-size: 0.95rem; margin: 0; letter-spacing: 0.02em; text-transform: uppercase;">DUPLICATE MESSAGE SPAM</h3>
+                                        <div style="display: flex; align-items: center; gap: 8px;">
+                                            <input type="number" id="antispam-max-dupes" min="2" max="10" value="3" style="width: 50px; background: rgba(0,0,0,0.3); border: 1.5px solid rgba(255,255,255,0.08); border-radius: 4px; padding: 4px; color: #0F172A !important; text-align: center; font-size: 0.8rem; font-weight: 700;">
+                                            <span style="color: var(--text-secondary); font-size: 0.75rem;">repeats</span>
+                                        </div>
+                                    </div>
+                                    <p style="color: var(--text-secondary); font-size: 0.78rem; line-height: 1.5; margin: 0;">
+                                        Prevents copying and pasting identical texts across channels. Deletes repeats immediately upon detection.
+                                    </p>
+                                </div>
+                            </div>
+
+                            <!-- Card 3: Mass Mentions Filter -->
+                            <div style="background: rgba(30, 41, 59, 0.2); border: 1px solid rgba(255,255,255,0.03); border-radius: 8px; padding: 25px; display: flex; flex-direction: column; justify-content: space-between; position: relative; min-height: 180px;">
+                                <div style="position: absolute; top: 15px; left: 20px; font-size: 3.5rem; font-weight: 900; color: rgba(255,255,255,0.015); font-family: var(--font-display); letter-spacing: 0.05em; pointer-events: none; z-index: 1;">MENTION</div>
+                                <div style="z-index: 2;">
+                                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                                        <h3 style="color: #0F172A; font-family: var(--font-display); font-weight: 700; font-size: 0.95rem; margin: 0; letter-spacing: 0.02em; text-transform: uppercase;">MASS MENTION SPAM</h3>
+                                        <div style="display: flex; align-items: center; gap: 8px;">
+                                            <input type="number" id="antispam-max-mentions" min="2" max="20" value="4" style="width: 50px; background: rgba(0,0,0,0.3); border: 1.5px solid rgba(255,255,255,0.08); border-radius: 4px; padding: 4px; color: #0F172A !important; text-align: center; font-size: 0.8rem; font-weight: 700;">
+                                            <span style="color: var(--text-secondary); font-size: 0.75rem;">mentions</span>
+                                        </div>
+                                    </div>
+                                    <p style="color: var(--text-secondary); font-size: 0.78rem; line-height: 1.5; margin: 0;">
+                                        Blocks messages containing excessive user, role, or @everyone mentions to eliminate mass-ping spam attacks.
+                                    </p>
+                                </div>
+                            </div>
+
+                            <!-- Card 4: Discord Invite Links Filter -->
+                            <div style="background: rgba(30, 41, 59, 0.2); border: 1px solid rgba(255,255,255,0.03); border-radius: 8px; padding: 25px; display: flex; flex-direction: column; justify-content: space-between; position: relative; min-height: 180px;">
+                                <div style="position: absolute; top: 15px; left: 20px; font-size: 3.5rem; font-weight: 900; color: rgba(255,255,255,0.015); font-family: var(--font-display); letter-spacing: 0.05em; pointer-events: none; z-index: 1;">INVITE</div>
+                                <div style="z-index: 2;">
+                                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                                        <h3 style="color: #0F172A; font-family: var(--font-display); font-weight: 700; font-size: 0.95rem; margin: 0; letter-spacing: 0.02em; text-transform: uppercase;">BLOCK DISCORD INVITES</h3>
+                                        <label class="switch">
+                                            <input type="checkbox" id="antispam-block-invites" checked>
+                                            <span class="slider"></span>
+                                        </label>
+                                    </div>
+                                    <p style="color: var(--text-secondary); font-size: 0.78rem; line-height: 1.5; margin: 0;">
+                                        Instantly deletes discord.gg and discord.com/invite links dispatched by non-whitelisted members.
+                                    </p>
+                                </div>
+                            </div>
+
+                            <!-- Card 5: External Phishing & URLs Filter -->
+                            <div style="background: rgba(30, 41, 59, 0.2); border: 1px solid rgba(255,255,255,0.03); border-radius: 8px; padding: 25px; display: flex; flex-direction: column; justify-content: space-between; position: relative; min-height: 180px;">
+                                <div style="position: absolute; top: 15px; left: 20px; font-size: 3.5rem; font-weight: 900; color: rgba(255,255,255,0.015); font-family: var(--font-display); letter-spacing: 0.05em; pointer-events: none; z-index: 1;">LINKS</div>
+                                <div style="z-index: 2;">
+                                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                                        <h3 style="color: #0F172A; font-family: var(--font-display); font-weight: 700; font-size: 0.95rem; margin: 0; letter-spacing: 0.02em; text-transform: uppercase;">BLOCK EXTERNAL LINKS</h3>
+                                        <label class="switch">
+                                            <input type="checkbox" id="antispam-block-links">
+                                            <span class="slider"></span>
+                                        </label>
+                                    </div>
+                                    <p style="color: var(--text-secondary); font-size: 0.78rem; line-height: 1.5; margin: 0;">
+                                        Blocks all external http/https web links to protect against phishing, token grabbers, and scam websites.
+                                    </p>
+                                </div>
+                            </div>
+
+                            <!-- Card 6: Emoji Spam Filter -->
+                            <div style="background: rgba(30, 41, 59, 0.2); border: 1px solid rgba(255,255,255,0.03); border-radius: 8px; padding: 25px; display: flex; flex-direction: column; justify-content: space-between; position: relative; min-height: 180px;">
+                                <div style="position: absolute; top: 15px; left: 20px; font-size: 3.5rem; font-weight: 900; color: rgba(255,255,255,0.015); font-family: var(--font-display); letter-spacing: 0.05em; pointer-events: none; z-index: 1;">EMOJI</div>
+                                <div style="z-index: 2;">
+                                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                                        <h3 style="color: #0F172A; font-family: var(--font-display); font-weight: 700; font-size: 0.95rem; margin: 0; letter-spacing: 0.02em; text-transform: uppercase;">EMOJI SPAM LIMIT</h3>
+                                        <div style="display: flex; align-items: center; gap: 8px;">
+                                            <input type="number" id="antispam-max-emojis" min="3" max="30" value="8" style="width: 50px; background: rgba(0,0,0,0.3); border: 1.5px solid rgba(255,255,255,0.08); border-radius: 4px; padding: 4px; color: #0F172A !important; text-align: center; font-size: 0.8rem; font-weight: 700;">
+                                            <span style="color: var(--text-secondary); font-size: 0.75rem;">emojis</span>
+                                        </div>
+                                    </div>
+                                    <p style="color: var(--text-secondary); font-size: 0.78rem; line-height: 1.5; margin: 0;">
+                                        Purges messages overloaded with custom or unicode emojis designed to lag chat clients and clutter conversation channels.
+                                    </p>
+                                </div>
+                            </div>
+
+                            <!-- Card 7: Caps Lock Filter -->
+                            <div style="background: rgba(30, 41, 59, 0.2); border: 1px solid rgba(255,255,255,0.03); border-radius: 8px; padding: 25px; display: flex; flex-direction: column; justify-content: space-between; position: relative; min-height: 180px;">
+                                <div style="position: absolute; top: 15px; left: 20px; font-size: 3.5rem; font-weight: 900; color: rgba(255,255,255,0.015); font-family: var(--font-display); letter-spacing: 0.05em; pointer-events: none; z-index: 1;">CAPS</div>
+                                <div style="z-index: 2;">
+                                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                                        <h3 style="color: #0F172A; font-family: var(--font-display); font-weight: 700; font-size: 0.95rem; margin: 0; letter-spacing: 0.02em; text-transform: uppercase;">CAPS SPAM LIMIT</h3>
+                                        <div style="display: flex; align-items: center; gap: 8px;">
+                                            <input type="number" id="antispam-max-caps" min="40" max="100" value="70" style="width: 50px; background: rgba(0,0,0,0.3); border: 1.5px solid rgba(255,255,255,0.08); border-radius: 4px; padding: 4px; color: #0F172A !important; text-align: center; font-size: 0.8rem; font-weight: 700;">
+                                            <span style="color: var(--text-secondary); font-size: 0.75rem;">%</span>
+                                        </div>
+                                    </div>
+                                    <p style="color: var(--text-secondary); font-size: 0.78rem; line-height: 1.5; margin: 0;">
+                                        Suppresses excessive shouting by deleting messages where uppercase characters exceed the defined percentage threshold.
+                                    </p>
+                                </div>
+                            </div>
+
+                            <!-- Card 8: Mitigation Action & Penalty -->
+                            <div style="background: rgba(30, 41, 59, 0.2); border: 1px solid rgba(255,255,255,0.03); border-radius: 8px; padding: 25px; display: flex; flex-direction: column; justify-content: space-between; position: relative; min-height: 180px;">
+                                <div style="position: absolute; top: 15px; left: 20px; font-size: 3.5rem; font-weight: 900; color: rgba(255,255,255,0.015); font-family: var(--font-display); letter-spacing: 0.05em; pointer-events: none; z-index: 1;">ACTION</div>
+                                <div style="z-index: 2;">
+                                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                                        <h3 style="color: #0F172A; font-family: var(--font-display); font-weight: 700; font-size: 0.95rem; margin: 0; letter-spacing: 0.02em; text-transform: uppercase;">MITIGATION ACTION</h3>
+                                        <select id="antispam-punishment-type" style="background: rgba(0,0,0,0.3); border: 1.5px solid rgba(255,255,255,0.08); border-radius: 4px; color: #0F172A !important; font-size: 0.8rem; padding: 4px; outline: none; font-weight: 700;">
+                                            <option value="Timeout">Timeout (5 Minutes)</option>
+                                            <option value="Timeout10">Timeout (10 Minutes)</option>
+                                            <option value="Timeout60">Timeout (1 Hour)</option>
+                                            <option value="Kick">Kick Member</option>
+                                            <option value="Ban">Ban Member</option>
+                                            <option value="Delete">Delete Message Only</option>
+                                        </select>
+                                    </div>
+                                    <p style="color: var(--text-secondary); font-size: 0.78rem; line-height: 1.5; margin: 0;">
+                                        The mitigation penalty applied immediately to offenders who trigger anti-spam rules.
+                                    </p>
+                                </div>
+                            </div>
+
+                            <!-- Card 9: Log Channel Selection -->
+                            <div style="background: rgba(30, 41, 59, 0.2); border: 1px solid rgba(255,255,255,0.03); border-radius: 8px; padding: 25px; display: flex; flex-direction: column; justify-content: space-between; position: relative; min-height: 180px; grid-column: span 2;">
+                                <div style="position: absolute; top: 15px; left: 20px; font-size: 3.5rem; font-weight: 900; color: rgba(255,255,255,0.015); font-family: var(--font-display); letter-spacing: 0.05em; pointer-events: none; z-index: 1;">LOGS</div>
+                                <div style="z-index: 2;">
+                                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                                        <h3 style="color: #0F172A; font-family: var(--font-display); font-weight: 700; font-size: 0.95rem; margin: 0; letter-spacing: 0.02em; text-transform: uppercase;">ANTI-SPAM AUDIT LOG CHANNEL</h3>
+                                        <select class="form-control guild-channels-dropdown" id="antispam-log-channel" style="max-width: 260px; background: rgba(0,0,0,0.3); font-size: 0.82rem; font-weight: 700; padding: 6px;">
+                                            <option value=""># Default Security Logs</option>
+                                        </select>
+                                    </div>
+                                    <p style="color: var(--text-secondary); font-size: 0.78rem; line-height: 1.5; margin: 0;">
+                                        Discord channel where real-time security embed alerts are dispatched upon detecting and neutralizing spam violations.
+                                    </p>
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <!-- Anti-Spam Save Button Row -->
+                        <div style="display: flex; justify-content: flex-end; max-width: 900px; margin: 25px auto 0 auto;">
+                            <button type="button" id="antispam-save-btn" onclick="saveAntiSpamSettings()" class="btn-primary" style="background: linear-gradient(90deg, #E11D48, #BE123C); border: none; padding: 12px 32px; border-radius: 8px; font-weight: 800; font-size: 0.92rem; color: #fff; cursor: pointer; display: flex; align-items: center; gap: 8px; box-shadow: 0 4px 14px rgba(225, 29, 72, 0.35); transition: transform 0.15s ease;">
+                                <i class="fas fa-floppy-disk"></i> Save Anti-Spam Settings
+                            </button>
                         </div>
                     </div>
 

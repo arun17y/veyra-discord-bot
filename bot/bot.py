@@ -1775,6 +1775,14 @@ async def on_message(message):
     if not message.guild or message.author.bot:
         return
 
+    # Real-Time Professional Anti-Spam Interceptor
+    try:
+        from antispam_engine import check_message_spam
+        if await check_message_spam(message, bot, get_db, is_whitelisted):
+            return
+    except Exception as spam_exc:
+        print(f"[AntiSpam Hook Error] {spam_exc}")
+
     # Check bot mention welcome card
     if bot.user in message.mentions and len(message.content.strip().split()) == 1:
         prefix = ","

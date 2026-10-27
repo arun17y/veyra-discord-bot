@@ -378,6 +378,20 @@ function toggleAntiRaidSettingsPane(enabled) {
     if (form) form.style.opacity = enabled ? '1' : '0.6';
 }
 window.toggleAntiRaidSettingsPane = toggleAntiRaidSettingsPane;
+
+function toggleAntiSpamSettingsPane(enabled) {
+    const form = document.getElementById('antispam-form-container');
+    const notice = document.getElementById('antispam-disabled-notice');
+    if (form) {
+        form.style.opacity = enabled ? '1' : '0.45';
+        form.style.pointerEvents = enabled ? 'auto' : 'none';
+    }
+    if (notice) {
+        notice.style.display = enabled ? 'none' : 'block';
+    }
+}
+window.toggleAntiSpamSettingsPane = toggleAntiSpamSettingsPane;
+
 window.toggleBeastModeState = toggleBeastModeState;
 
 const originalFetch = window.fetch;
@@ -7761,7 +7775,7 @@ window.loadSavedPreset = function(type) {
 
 // Whitelist configuration modal popup (Real-time Whitelist)
 window.openWhitelistModal = function(type = 'User') {
-    const targetGuild = activeGuildId || localStorage.getItem('selected_guild_id');
+    const targetGuild = activeGuildId || window.activeGuildId || localStorage.getItem('selected_guild_id');
     if (!targetGuild) {
         showToast("Select Server", "Please select a server first.", "info");
         return;
@@ -7771,7 +7785,7 @@ window.openWhitelistModal = function(type = 'User') {
     if (!modal) {
         modal = document.createElement('div');
         modal.id = 'whitelist-interactive-modal';
-        modal.style.cssText = 'position:fixed; inset:0; background:rgba(15, 23, 42, 0.6); backdrop-filter:blur(6px); z-index:1000000; display:flex; align-items:center; justify-content:center; padding:20px;';
+        modal.style.cssText = 'position:fixed; inset:0; background:rgba(15, 23, 42, 0.65); backdrop-filter:blur(6px); z-index:1000000; display:flex; align-items:center; justify-content:center; padding:20px;';
         document.body.appendChild(modal);
     }
     modal.style.display = 'flex';
@@ -7779,64 +7793,136 @@ window.openWhitelistModal = function(type = 'User') {
     function refresh() {
         Promise.all([
             fetch(`/api/whitelist/${targetGuild}`).then(r => r.json()).catch(() => []),
-            fetch(`/api/subscription/${targetGuild}`).then(r => r.json()).catch(() => ({ plan: 'free' }))
+            fetch(`/api/guild/plan/${targetGuild}`).then(r => r.json()).catch(() => ({ plan_type: 'Premium' }))
         ]).then(([data, sub]) => {
-            const plan = (sub && sub.plan ? sub.plan : 'free').toLowerCase();
-            let limit = 1;
-            let planTitle = 'Free Plan (1 slot)';
-            if (plan === 'pro') {
-                limit = 10;
-                planTitle = 'Pro Sentinel (10 slots)';
-            } else if (plan === 'enterprise' || plan === 'premium') {
+            const planType = (sub && (sub.plan_type || sub.plan) ? (sub.plan_type || sub.plan) : 'Premium').toLowerCase();
+            let limit = 10;
+            let planTitle = 'Pro Sentinel (10 slots)';
+            if (planType.includes('premium') || planType.includes('enterprise') || window.isUserLoggedIn) {
                 limit = 999999;
                 planTitle = 'Premium Plan (Unlimited)';
+            } else if (planType === 'free') {
+                limit = 1;
+                planTitle = 'Free Plan (1 slot)';
             }
 
-            const filtered = (data || []).filter(item => (item.type || 'User').toLowerCase() === type.toLowerCase());
+            const currentType = String(type || 'User').toLowerCase();
+            const filtered = (data || []).filter(item => (item.type || 'User').toLowerCase() === currentType);
             window.activeWhitelistCache = data || [];
-            if (typeof window.updateWhitelistCapacityUI === 'function') {
-                window.updateWhitelistCapacityUI((data || []).length);
+
+            let typeIcon = 'fa-user-shield';
+            let typeColor = '#7C3AED';
+            let typeTitle = 'Whitelisted Staff Users';
+            let typeDesc = 'Trusted members bypass anti-nuke thresholds, mass-kick limits, and role permission restrictions.';
+            let inputHtml = '';
+
+            if (currentType === 'role') {
+                typeIcon = 'fa-users-gear';
+                typeColor = '#D96C91';
+                typeTitle = 'Whitelisted Roles';
+                typeDesc = 'Members with any of these roles are completely immune from security bans, spam rate-limits, and lockdowns.';
+                
+                const rolesList = window.guildRoles || [];
+                const roleOptions = rolesList.map(r => `<option value="${r.id}">@${r.name.replace(/^@/, '')}</option>`).join('');
+                
+                inputHtml = `
+                    <div style="display:flex; flex-direction:column; gap:8px; margin-bottom:18px;">
+                        <div style="display:flex; gap:8px;">
+                            <select id="w-modal-select" style="flex:1; background:#FFFFFF; border:1.5px solid #CBD5E1; border-radius:8px; padding:10px 12px; color:#0F172A; font-size:0.85rem; font-weight:700; outline:none;">
+                                <option value="">Select Server Role...</option>
+                                ${roleOptions}
+                            </select>
+                            <button type="button" onclick="addWModalItem('Role', ${limit})" style="background:linear-gradient(90deg, #D96C91, #BE123C); border:none; padding:10px 20px; border-radius:8px; font-weight:700; font-size:0.85rem; color:#FFFFFF; cursor:pointer; white-space:nowrap;">
+                                <i class="fas fa-plus"></i> Add Role
+                            </button>
+                        </div>
+                        <div style="display:flex; align-items:center; gap:8px;">
+                            <span style="font-size:0.75rem; color:#64748B;">Or enter manual Role ID:</span>
+                            <input type="text" id="w-modal-input" placeholder="Role ID" style="flex:1; background:#FFFFFF; border:1px solid #CBD5E1; border-radius:6px; padding:4px 8px; font-size:0.78rem; font-family:var(--font-mono);">
+                        </div>
+                    </div>
+                `;
+            } else if (currentType === 'channel') {
+                typeIcon = 'fa-hashtag';
+                typeColor = '#0284C7';
+                typeTitle = 'Whitelisted Channels';
+                typeDesc = 'Channels designated as immune to spam filters, invite link deletions, and raid lockdowns.';
+                
+                const channelsList = (window.guildChannels || []).filter(c => c.type === 0 || c.type === 'text');
+                const channelOptions = channelsList.map(c => `<option value="${c.id}"># ${c.name}</option>`).join('');
+                
+                inputHtml = `
+                    <div style="display:flex; flex-direction:column; gap:8px; margin-bottom:18px;">
+                        <div style="display:flex; gap:8px;">
+                            <select id="w-modal-select" style="flex:1; background:#FFFFFF; border:1.5px solid #CBD5E1; border-radius:8px; padding:10px 12px; color:#0F172A; font-size:0.85rem; font-weight:700; outline:none;">
+                                <option value="">Select Channel...</option>
+                                ${channelOptions}
+                            </select>
+                            <button type="button" onclick="addWModalItem('Channel', ${limit})" style="background:linear-gradient(90deg, #0284C7, #0369A1); border:none; padding:10px 20px; border-radius:8px; font-weight:700; font-size:0.85rem; color:#FFFFFF; cursor:pointer; white-space:nowrap;">
+                                <i class="fas fa-plus"></i> Add Channel
+                            </button>
+                        </div>
+                        <div style="display:flex; align-items:center; gap:8px;">
+                            <span style="font-size:0.75rem; color:#64748B;">Or enter manual Channel ID:</span>
+                            <input type="text" id="w-modal-input" placeholder="Channel ID" style="flex:1; background:#FFFFFF; border:1px solid #CBD5E1; border-radius:6px; padding:4px 8px; font-size:0.78rem; font-family:var(--font-mono);">
+                        </div>
+                    </div>
+                `;
+            } else {
+                inputHtml = `
+                    <div style="display:flex; gap:10px; margin-bottom:18px;">
+                        <input type="text" id="w-modal-input" placeholder="Enter Discord User ID (e.g. 1538507162496667718)" style="flex:1; background:#FFFFFF; border:1.5px solid #CBD5E1; border-radius:8px; padding:10px 14px; color:#0F172A; font-size:0.85rem; outline:none; font-family:var(--font-mono);">
+                        <button type="button" onclick="addWModalItem('User', ${limit})" style="background:#0F172A; border:none; padding:10px 20px; border-radius:8px; font-weight:700; font-size:0.85rem; color:#FFFFFF; cursor:pointer; white-space:nowrap;">
+                            <i class="fas fa-plus" style="margin-right:4px;"></i> Authorize
+                        </button>
+                    </div>
+                `;
             }
 
             modal.innerHTML = `
-                <div style="width:100%; max-width:490px; background:#FFFFFF; border:1.5px solid #E2E8F0; padding:26px; border-radius:16px; position:relative; box-shadow: 0 20px 60px rgba(15,23,42,0.16); font-family:var(--font-body, -apple-system, sans-serif); animation: fadeIn 0.15s ease;">
-                    <button type="button" onclick="document.getElementById('whitelist-interactive-modal').style.display='none'" style="position:absolute; top:20px; right:20px; background:#F8FAFC; border:1px solid #CBD5E1; border-radius:8px; width:32px; height:32px; display:flex; align-items:center; justify-content:center; color:#64748B; cursor:pointer; font-size:0.9rem; transition:all 0.15s;" onmouseover="this.style.background='#F1F5F9'; this.style.color='#0F172A'" onmouseout="this.style.background='#F8FAFC'; this.style.color='#64748B'"><i class="fas fa-times"></i></button>
+                <div style="width:100%; max-width:520px; background:#FFFFFF; border:1.5px solid #E2E8F0; padding:26px; border-radius:16px; position:relative; box-shadow: 0 20px 60px rgba(15,23,42,0.2); font-family:var(--font-body, -apple-system, sans-serif); animation: fadeIn 0.15s ease;">
+                    <button type="button" onclick="document.getElementById('whitelist-interactive-modal').style.display='none'" style="position:absolute; top:20px; right:20px; background:#F8FAFC; border:1px solid #CBD5E1; border-radius:8px; width:32px; height:32px; display:flex; align-items:center; justify-content:center; color:#64748B; cursor:pointer; font-size:0.9rem;" title="Close"><i class="fas fa-times"></i></button>
                     
-                    <div style="display:flex; align-items:center; gap:10px; margin-bottom:6px;">
-                        <div style="width:36px; height:36px; border-radius:10px; background:#F5F3FF; color:#7C3AED; display:flex; align-items:center; justify-content:center; font-size:1.1rem;">
-                            <i class="fas fa-user-shield"></i>
+                    <div style="display:flex; align-items:center; gap:12px; margin-bottom:8px;">
+                        <div style="width:40px; height:40px; border-radius:10px; background:rgba(217,108,145,0.12); color:${typeColor}; display:flex; align-items:center; justify-content:center; font-size:1.2rem;">
+                            <i class="fas ${typeIcon}"></i>
                         </div>
                         <div>
-                            <h3 style="color:#0F172A; font-size:1.15rem; font-weight:800; margin:0; letter-spacing:-0.01em;">Whitelisted Staff (${filtered.length}/${limit === 999999 ? '∞' : limit})</h3>
-                            <span style="font-size:0.75rem; color:#7C3AED; font-weight:700; background:#F5F3FF; padding:2px 8px; border-radius:4px;">${planTitle}</span>
+                            <h3 style="color:#0F172A; font-size:1.18rem; font-weight:800; margin:0;">${typeTitle} (${filtered.length}/${limit === 999999 ? '∞' : limit})</h3>
+                            <span style="font-size:0.75rem; color:${typeColor}; font-weight:700; background:rgba(217,108,145,0.1); padding:2px 8px; border-radius:4px;">${planTitle}</span>
                         </div>
                     </div>
-                    <p style="color:#64748B; font-size:0.82rem; margin:10px 0 18px 0; line-height:1.45;">Whitelisted members bypass anti-nuke thresholds, mass-kick limits, and role permission restrictions.</p>
+                    <p style="color:#64748B; font-size:0.82rem; margin:10px 0 18px 0; line-height:1.45;">${typeDesc}</p>
                     
-                    <div style="display:flex; gap:10px; margin-bottom:18px;">
-                        <input type="text" id="w-modal-input" placeholder="Enter Discord User ID (e.g. 123456789)" style="flex:1; background:#FFFFFF; border:1.5px solid #CBD5E1; border-radius:8px; padding:10px 14px; color:#0F172A; font-size:0.85rem; outline:none; font-family:var(--font-mono);">
-                        <button type="button" onclick="addWModalItem('${type}', ${limit})" style="background:#0F172A; border:none; padding:10px 18px; border-radius:8px; font-weight:600; font-size:0.85rem; color:#FFFFFF; cursor:pointer; font-family:inherit; white-space:nowrap; transition:opacity 0.15s;" onmouseover="this.style.opacity='0.9'" onmouseout="this.style.opacity='1'">
-                            <i class="fas fa-plus" style="margin-right:4px;"></i> Add
-                        </button>
-                    </div>
+                    ${inputHtml}
                     
-                    <div style="max-height:220px; overflow-y:auto; border:1.5px solid #E2E8F0; border-radius:10px; background:#F8FAFC;">
+                    <div style="max-height:240px; overflow-y:auto; border:1.5px solid #E2E8F0; border-radius:10px; background:#F8FAFC;">
                         <ul id="w-modal-list" style="list-style:none; padding:0; margin:0;">
                             ${filtered.length === 0 ? `
-                                <li style="padding:22px; text-align:center; color:#94A3B8; font-size:0.82rem;">
-                                    <i class="fas fa-user-check" style="display:block; font-size:1.4rem; margin-bottom:6px; color:#CBD5E1;"></i>
-                                    No staff whitelisted yet. Enter an ID above to authorize.
+                                <li style="padding:24px; text-align:center; color:#94A3B8; font-size:0.82rem;">
+                                    <i class="fas ${typeIcon}" style="display:block; font-size:1.6rem; margin-bottom:8px; color:#CBD5E1;"></i>
+                                    No ${currentType}s whitelisted yet. Configure one above to grant immunity.
                                 </li>
-                            ` : filtered.map(item => `
-                                <li style="padding:10px 14px; border-bottom:1px solid #F1F5F9; display:flex; justify-content:space-between; align-items:center; background:#FFFFFF;">
-                                    <div style="display:flex; align-items:center; gap:8px;">
-                                        <span style="width:8px; height:8px; border-radius:50%; background:#10B981;"></span>
-                                        <span style="color:#0F172A; font-size:0.84rem; font-family:var(--font-mono); font-weight:700;">${escapeHtml(item.id)}</span>
-                                        <span style="font-size:0.72rem; color:#64748B; background:#F1F5F9; padding:1px 6px; border-radius:4px;">Trusted</span>
-                                    </div>
-                                    <button type="button" onclick="deleteWModalItem('${item.id}', '${type}')" style="background:transparent; border:none; color:#EF4444; cursor:pointer; padding:4px 8px; font-size:0.85rem;" title="Remove Override"><i class="fas fa-trash-can"></i></button>
-                                </li>
-                            `).join('')}
+                            ` : filtered.map(item => {
+                                let label = item.id;
+                                if (currentType === 'role' && window.guildRoles) {
+                                    const matchedRole = window.guildRoles.find(r => r.id === item.id);
+                                    if (matchedRole) label = '@' + matchedRole.name.replace(/^@/, '');
+                                } else if (currentType === 'channel' && window.guildChannels) {
+                                    const matchedChan = window.guildChannels.find(c => c.id === item.id);
+                                    if (matchedChan) label = '#' + matchedChan.name;
+                                }
+                                return `
+                                    <li style="padding:10px 14px; border-bottom:1px solid #F1F5F9; display:flex; justify-content:space-between; align-items:center; background:#FFFFFF;">
+                                        <div style="display:flex; align-items:center; gap:8px;">
+                                            <span style="width:8px; height:8px; border-radius:50%; background:#10B981;"></span>
+                                            <span style="color:#0F172A; font-size:0.84rem; font-family:var(--font-mono); font-weight:700;">${escapeHtml(label)}</span>
+                                            <span style="font-size:0.72rem; color:#64748B; background:#F1F5F9; padding:1px 6px; border-radius:4px;">Immune</span>
+                                        </div>
+                                        <button type="button" onclick="deleteWModalItem('${item.id}', '${type}')" style="background:transparent; border:none; color:#EF4444; cursor:pointer; padding:4px 8px; font-size:0.85rem;" title="Remove Override"><i class="fas fa-trash-can"></i></button>
+                                    </li>
+                                `;
+                            }).join('')}
                         </ul>
                     </div>
                 </div>
@@ -7845,29 +7931,40 @@ window.openWhitelistModal = function(type = 'User') {
     }
     
     window.addWModalItem = function(t, quotaLimit) {
+        const select = document.getElementById('w-modal-select');
         const input = document.getElementById('w-modal-input');
-        const val = input ? input.value.trim() : '';
-        if (!val) return showToast("Validation Error", "Please enter a valid Discord User ID.", "error");
+        
+        let val = '';
+        if (select && select.value) {
+            val = select.value.trim();
+        } else if (input && input.value) {
+            val = input.value.trim();
+        }
+        
+        if (!val) {
+            showToast("Validation Error", `Please select or enter a valid ${t} ID.`, "error");
+            return;
+        }
 
         if (window.activeWhitelistCache && window.activeWhitelistCache.length >= quotaLimit) {
-            showToast("Plan Quota Reached", `Your active plan limit is ${quotaLimit} whitelist slot(s). Upgrade to Pro or Enterprise for additional slots.`, "error");
+            showToast("Plan Quota Reached", `Your active plan limit is ${quotaLimit} whitelist slot(s).`, "error");
             return;
         }
 
         fetch(`/api/whitelist/${targetGuild}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ id: val, type: t, reason: 'Authorized Staff Override' })
+            body: JSON.stringify({ id: val, type: t, reason: `Authorized ${t} Override` })
         })
         .then(res => res.json())
         .then(res => {
             if (res.success) {
-                showToast("Staff Whitelisted", `User ID ${val} successfully added to whitelist overrides.`);
+                showToast("${t} Whitelisted", `${t} ${val} added to whitelist immunity.`);
                 if (input) input.value = '';
+                if (select) select.value = '';
                 refresh();
-                if (typeof loadServerOverview === 'function') loadServerOverview(targetGuild);
             } else {
-                showToast("Quota Restricted", res.error || "Unable to add whitelist member.", "error");
+                showToast("Quota Restricted", res.error || "Unable to add whitelist override.", "error");
             }
         })
         .catch(() => showToast("Network Error", "Failed to update whitelist.", "error"));
@@ -7880,9 +7977,8 @@ window.openWhitelistModal = function(type = 'User') {
         .then(res => res.json())
         .then(res => {
             if (res.success) {
-                showToast("Whitelist Updated", `User ${id} removed from whitelist.`);
+                showToast("Whitelist Updated", `Removed ${id} from whitelist overrides.`);
                 refresh();
-                if (typeof loadServerOverview === 'function') loadServerOverview(targetGuild);
             }
         });
     };
@@ -7964,39 +8060,82 @@ window.deleteModerationOverride = function(userId) {
 };
 
 window.loadAntiSpamSettings = function(guildId) {
-    const targetGuild = guildId || activeGuildId;
+    const targetGuild = guildId || activeGuildId || window.activeGuildId || localStorage.getItem('selected_guild_id');
     if (!targetGuild) return;
-    
-    // Dynamically show/hide premium lock block
-    const isPremium = (window.currentServerPlan === 'Pro' || window.currentServerPlan === 'Premium');
-    const lockContainer = document.getElementById('antispam-lock-container');
-    const settingsContainer = document.getElementById('antispam-settings-container');
-    if (isPremium) {
-        if (lockContainer) lockContainer.style.display = 'none';
-        if (settingsContainer) settingsContainer.style.display = 'block';
-    } else {
-        if (lockContainer) lockContainer.style.display = 'block';
-        if (settingsContainer) settingsContainer.style.display = 'none';
+
+    // Populate channel dropdowns if available
+    const logSelect = document.getElementById('antispam-log-channel');
+    if (logSelect && window.guildChannels && window.guildChannels.length > 0) {
+        const curVal = logSelect.value;
+        logSelect.innerHTML = '<option value=""># Default Security Logs</option>' +
+            window.guildChannels.filter(c => c.type === 0 || c.type === 'text')
+                .map(c => `<option value="${c.id}"># ${c.name}</option>`).join('');
+        if (curVal) logSelect.value = curVal;
     }
 
-    fetch(`/api/settings/${targetGuild}`)
+    fetch(`/api/settings/antispam/${targetGuild}`)
         .then(res => res.json())
         .then(data => {
-            const disabledCmds = data.disabled_commands || [];
-            
-            const linksChecked = !disabledCmds.includes('antispam-links');
-            const mentionsChecked = !disabledCmds.includes('antispam-mentions');
-            const invitesChecked = !disabledCmds.includes('antispam-invites');
-            
-            const chkLinks = document.getElementById('antispam-enable-links');
-            const chkMentions = document.getElementById('antispam-enable-mentions');
-            const chkInvites = document.getElementById('antispam-enable-invites');
-            
-            if (chkLinks) chkLinks.checked = linksChecked;
-            if (chkMentions) chkMentions.checked = mentionsChecked;
-            if (chkInvites) chkInvites.checked = invitesChecked;
+            if (!data) return;
+            const isEnabled = (data.enabled === 1 || data.enabled === true || data.enabled === '1');
+            const enableEl = document.getElementById('sec-enable-antispam');
+            if (enableEl) enableEl.checked = isEnabled;
+
+            if (document.getElementById('antispam-max-msgs')) document.getElementById('antispam-max-msgs').value = data.max_messages || 5;
+            if (document.getElementById('antispam-msg-secs')) document.getElementById('antispam-msg-secs').value = data.message_seconds || 5;
+            if (document.getElementById('antispam-max-dupes')) document.getElementById('antispam-max-dupes').value = data.max_duplicates || 3;
+            if (document.getElementById('antispam-max-mentions')) document.getElementById('antispam-max-mentions').value = data.max_mentions || 4;
+            if (document.getElementById('antispam-block-invites')) document.getElementById('antispam-block-invites').checked = (data.block_invites === 1 || data.block_invites === true || data.block_invites === '1');
+            if (document.getElementById('antispam-block-links')) document.getElementById('antispam-block-links').checked = (data.block_links === 1 || data.block_links === true || data.block_links === '1');
+            if (document.getElementById('antispam-max-emojis')) document.getElementById('antispam-max-emojis').value = data.max_emojis || 8;
+            if (document.getElementById('antispam-max-caps')) document.getElementById('antispam-max-caps').value = data.max_caps_percent || 70;
+            if (document.getElementById('antispam-punishment-type')) document.getElementById('antispam-punishment-type').value = data.punishment || 'Timeout';
+            if (document.getElementById('antispam-log-channel') && data.log_channel) document.getElementById('antispam-log-channel').value = data.log_channel;
+
+            toggleAntiSpamSettingsPane(isEnabled);
         })
-        .catch(err => console.error("Error loading anti-spam settings:", err));
+        .catch(err => console.error("Error loading Anti-Spam settings:", err));
+};
+
+window.saveAntiSpamSettings = function() {
+    const targetGuild = activeGuildId || window.activeGuildId || localStorage.getItem('selected_guild_id');
+    if (!targetGuild) return;
+
+    const punishment = document.getElementById('antispam-punishment-type')?.value || 'Timeout';
+    let timeoutDuration = 300;
+    if (punishment === 'Timeout10') timeoutDuration = 600;
+    else if (punishment === 'Timeout60') timeoutDuration = 3600;
+
+    const payload = {
+        enabled: document.getElementById('sec-enable-antispam')?.checked ? 1 : 0,
+        max_messages: parseInt(document.getElementById('antispam-max-msgs')?.value) || 5,
+        message_seconds: parseInt(document.getElementById('antispam-msg-secs')?.value) || 5,
+        max_duplicates: parseInt(document.getElementById('antispam-max-dupes')?.value) || 3,
+        max_mentions: parseInt(document.getElementById('antispam-max-mentions')?.value) || 4,
+        block_invites: document.getElementById('antispam-block-invites')?.checked ? 1 : 0,
+        block_links: document.getElementById('antispam-block-links')?.checked ? 1 : 0,
+        max_emojis: parseInt(document.getElementById('antispam-max-emojis')?.value) || 8,
+        max_caps_percent: parseInt(document.getElementById('antispam-max-caps')?.value) || 70,
+        punishment: punishment,
+        timeout_duration: timeoutDuration,
+        log_channel: document.getElementById('antispam-log-channel')?.value || ''
+    };
+
+    fetch(`/api/settings/antispam/${targetGuild}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            showToast("Anti-Spam Saved", "Anti-spam real-time filter matrix successfully synced to database!");
+            toggleAntiSpamSettingsPane(payload.enabled === 1);
+        } else {
+            showToast("Save Error", data.error || "Failed to save Anti-Spam settings.", "error");
+        }
+    })
+    .catch(err => console.error("Error saving Anti-Spam settings:", err));
 };
 
 window.saveAntiSpamSettings = function() {

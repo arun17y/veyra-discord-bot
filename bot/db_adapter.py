@@ -51,6 +51,7 @@ PK_MAP = {
     'ticket_bot_profile': ['guild_id'],
     'beastmode_settings': ['guild_id'],
     'antiraid_settings': ['guild_id'],
+    'antispam_settings': ['guild_id'],
     'subscription_history': ['id'],
     'reports_tracker': ['guild_id'],
     'bot_whitelists': ['action_type'],
