@@ -2476,14 +2476,14 @@
                 <div id="header-server-dropdown-trigger-container" style="position: relative; display: none;">
                     <div onclick="toggleHeaderDropdown('header-server-dropdown')" style="display: flex; align-items: center; gap: 6px; cursor: pointer; padding: 4px 10px; border-radius: 20px; background: #FFFFFF; border: 1px solid #EDE4E7; box-shadow: 0 2px 6px rgba(53, 43, 58, 0.04);">
                         <div id="header-server-avatar-img" style="width: 26px; height: 26px; border-radius: 50%; overflow: hidden; background: #D96C91;">
-                            <img src="assets/bypass_logs_avatar.webp" style="width: 100%; height: 100%; object-fit: cover;">
+                            <img id="header-server-avatar-img-el" src="https://cdn.discordapp.com/embed/avatars/0.png" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png'">
                         </div>
                         <i class="fas fa-caret-down" style="color: #6B7280; font-size: 0.75rem;"></i>
                     </div>
                     <div id="header-server-dropdown" style="display: none; position: absolute; right: 0; top: 42px; width: 220px; background: #FFFFFF; border: 1px solid #EDE4E7; border-radius: 12px; box-shadow: 0 16px 36px rgba(53,43,58,0.12); z-index: 1000; overflow: hidden;">
                         <div style="background: #FBE8EE; padding: 12px 14px; display: flex; align-items: center; gap: 10px;">
                             <div id="header-server-dropdown-icon" style="width: 32px; height: 32px; border-radius: 50%; overflow: hidden; background: #D96C91;">
-                                <img src="assets/bypass_logs_avatar.webp" style="width: 100%; height: 100%; object-fit: cover;">
+                                <img id="header-server-dropdown-icon-el" src="https://cdn.discordapp.com/embed/avatars/0.png" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png'">
                             </div>
                             <div>
                                 <div style="font-size: 0.65rem; font-weight: 800; color: #D96C91; letter-spacing: 0.08em; text-transform: uppercase;">ACTIVE GUILD</div>
@@ -5381,7 +5381,7 @@
                         <li class="sidebar-item" id="menu-security"><a href="#" onclick="switchTab('security')" title="Raid Protection"><i class="fas fa-shield-halved"></i> <span>Raid Protection <span class="nav-badge-pro">PRO</span></span></a></li>
                         <li class="sidebar-item" id="menu-verification"><a href="#" onclick="switchTab('verification')" title="Verification Gate"><i class="fa-solid fa-user-shield"></i> <span>Verification Gate <span class="nav-badge-pro">PRO</span></span></a></li>
                         <li class="sidebar-item" id="menu-moderation"><a href="#" onclick="switchTab('moderation')" title="Moderation Center"><i class="fas fa-gavel"></i> <span>Moderation Center <span class="nav-badge-new">NEW</span></span></a></li>
-                        <li class="sidebar-item" id="menu-automod"><a href="#" onclick="switchTab('automod')" title="AutoMod & Filters"><i class="fas fa-robot"></i> <span>AutoMod & Filters <span class="nav-badge-new">NEW</span></span></a></li>
+                        
                         <li class="sidebar-item" id="menu-weblogs"><a href="#" onclick="switchTab('weblogs')"><i class="fas fa-file-shield"></i> <span>Audit Logs</span></a></li>
                     </ul>
 
@@ -5402,9 +5402,7 @@
                         <li class="sidebar-item" id="menu-embedmessages"><a href="#" onclick="switchTab('embedmessages')"><i class="fas fa-layer-group"></i> <span>Embed Messages <span class="nav-badge-new">NEW</span></span></a></li>
                         <li class="sidebar-item" id="menu-stickymessages"><a href="#" onclick="switchTab('stickymessages')"><i class="fas fa-note-sticky"></i> <span>Sticky Messages <span class="nav-badge-pro">PRO</span></span></a></li>
                         <li class="sidebar-item" id="menu-publish"><a href="#" onclick="switchTab('publish')"><i class="fas fa-bullhorn"></i> <span>Auto-Publish <span class="nav-badge-prem">PREMIUM</span></span></a></li>
-                        <li class="sidebar-item" id="menu-autoresponders"><a href="#" onclick="switchTab('autoresponders')"><i class="fas fa-reply-all"></i> <span>Auto-Responders <span class="nav-badge-new">NEW</span></span></a></li>
-                        <li class="sidebar-item" id="menu-buttonroles"><a href="#" onclick="switchTab('buttonroles')"><i class="fas fa-hand-pointer"></i> <span>Button Roles <span class="nav-badge-new">NEW</span></span></a></li>
-                    </ul>
+                                                                    </ul>
 
                     <!-- 6. COMMUNITY TOOLS -->
                     <div class="sidebar-title" style="padding: 12px 18px 4px 18px; font-size: 0.68rem; font-family: var(--font-mono); font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em;">Community Tools</div>
@@ -5572,14 +5570,14 @@
                                 <i class="fas fa-arrows-rotate"></i> Refresh Stream
                             </button>
                         </div>
-                        <div style="overflow-x:auto;">
+                        <div style="max-height: 380px; overflow-y: auto; overflow-x: auto; border: 1px solid #F1F5F9; border-radius: 8px;">
                             <table style="width:100%; border-collapse:collapse; font-size:0.85rem; text-align:left;">
-                                <thead>
+                                <thead style="position: sticky; top: 0; background: #FFFFFF; z-index: 2; box-shadow: 0 1px 2px rgba(0,0,0,0.03);">
                                     <tr style="border-bottom:1.5px solid #E2E8F0; color:#64748B; font-size:0.75rem; text-transform:uppercase; letter-spacing:0.04em;">
-                                        <th style="padding:10px 12px;">Timestamp</th>
-                                        <th style="padding:10px 12px;">Actor</th>
-                                        <th style="padding:10px 12px;">Action Intercepted / Executed</th>
-                                        <th style="padding:10px 12px;">Status</th>
+                                        <th style="padding:10px 12px; background:#FFFFFF;">Timestamp</th>
+                                        <th style="padding:10px 12px; background:#FFFFFF;">Actor</th>
+                                        <th style="padding:10px 12px; background:#FFFFFF;">Action Intercepted / Executed</th>
+                                        <th style="padding:10px 12px; background:#FFFFFF;">Status</th>
                                     </tr>
                                 </thead>
                                 <tbody id="overview-audit-logs-body">
@@ -5832,7 +5830,7 @@ Support: </textarea>
                                     <!-- Profile Details Container -->
                                     <div style="margin-top: 45px;">
                                         <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 15px;">
-                                            <span id="preview-bot-nickname" style="font-size: 1.15rem; font-weight: 700; color: #0F172A;">VEYRA</span>
+                                            <span id="preview-bot-nickname" style="font-size: 1.15rem; font-weight: 700; color: #FFFFFF !important;">VEYRA</span>
                                             <span style="background: #5865F2; color: #fff; font-size: 0.62rem; padding: 2px 5px; border-radius: 3px; font-weight: 700; letter-spacing: 0.05em;">BOT</span>
                                         </div>
 
@@ -8505,6 +8503,49 @@ We hope to see you back soon!
                                 </div>
                             </div>
 
+                            <!-- Embed Customization Section (Exact match to Veyra Embed / Image Customizer) -->
+                            <div style="padding: 18px 0; border-bottom: 1.5px solid #F1F5F9;">
+                                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
+                                    <div style="font-weight: 800; color: #0F172A; font-size: 0.95rem;">
+                                        <i class="fas fa-palette" style="color: #E11D48; margin-right: 6px;"></i> Embed Customization
+                                    </div>
+                                    <span style="font-size: 0.72rem; background: #EFF6FF; color: #2563EB; border: 1px solid #BFDBFE; font-weight: 700; padding: 2px 8px; border-radius: 6px;">LIVE SYNC</span>
+                                </div>
+
+                                <!-- Custom Title -->
+                                <div style="margin-bottom: 12px;">
+                                    <label style="display: block; font-size: 0.8rem; font-weight: 700; color: #334155; margin-bottom: 4px;">Embed Title</label>
+                                    <input type="text" id="report-embed-title-input" class="form-control" placeholder="📊 VEYRA WEEKLY Server Growth Report" style="width: 100%; background: #F8FAFC !important; border: 1.5px solid #CBD5E1 !important; color: #0F172A !important; font-weight: 700; border-radius: 8px; padding: 9px 12px; font-size: 0.85rem;" oninput="updateReportsLivePreview()">
+                                </div>
+
+                                <!-- Accent Color & Thumbnail Row -->
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px;">
+                                    <div>
+                                        <label style="display: block; font-size: 0.8rem; font-weight: 700; color: #334155; margin-bottom: 4px;">Accent Color</label>
+                                        <div style="display: flex; align-items: center; gap: 8px;">
+                                            <input type="color" id="report-embed-color-picker" value="#E11D48" style="width: 38px; height: 38px; border-radius: 8px; border: 1.5px solid #CBD5E1; cursor: pointer; padding: 2px; background: #FFF;" oninput="document.getElementById('report-embed-color-input').value = this.value; updateReportsLivePreview()">
+                                            <input type="text" id="report-embed-color-input" class="form-control" value="#E11D48" style="flex: 1; background: #F8FAFC !important; border: 1.5px solid #CBD5E1 !important; color: #0F172A !important; font-weight: 700; border-radius: 8px; padding: 9px 10px; font-size: 0.82rem; font-family: var(--font-mono);" oninput="document.getElementById('report-embed-color-picker').value = this.value; updateReportsLivePreview()">
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label style="display: block; font-size: 0.8rem; font-weight: 700; color: #334155; margin-bottom: 4px;">Thumbnail URL</label>
+                                        <input type="text" id="report-thumbnail-url-input" class="form-control" placeholder="Server Icon (default) or Image URL" style="width: 100%; background: #F8FAFC !important; border: 1.5px solid #CBD5E1 !important; color: #0F172A !important; font-weight: 600; border-radius: 8px; padding: 9px 12px; font-size: 0.82rem;" oninput="updateReportsLivePreview()">
+                                    </div>
+                                </div>
+
+                                <!-- Banner / Large Image URL -->
+                                <div style="margin-bottom: 12px;">
+                                    <label style="display: block; font-size: 0.8rem; font-weight: 700; color: #334155; margin-bottom: 4px;">Banner / Header Image URL (GIF / PNG / JPG)</label>
+                                    <input type="text" id="report-banner-url-input" class="form-control" placeholder="https://... direct image or banner link" style="width: 100%; background: #F8FAFC !important; border: 1.5px solid #CBD5E1 !important; color: #0F172A !important; font-weight: 600; border-radius: 8px; padding: 9px 12px; font-size: 0.85rem;" oninput="updateReportsLivePreview()">
+                                </div>
+
+                                <!-- Custom Footer Text -->
+                                <div>
+                                    <label style="display: block; font-size: 0.8rem; font-weight: 700; color: #334155; margin-bottom: 4px;">Custom Footer Note</label>
+                                    <input type="text" id="report-footer-text-input" class="form-control" placeholder="VEYRA Advanced Analytics • Scheduled • Live Sync" style="width: 100%; background: #F8FAFC !important; border: 1.5px solid #CBD5E1 !important; color: #0F172A !important; font-weight: 600; border-radius: 8px; padding: 9px 12px; font-size: 0.82rem;" oninput="updateReportsLivePreview()">
+                                </div>
+                            </div>
+
                             <!-- Actions Row -->
                             <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 20px;">
                                 <button onclick="saveReportsSettings()" style="width: 100%; font-weight: 800; background: #0F172A; color: #FFFFFF; border: none; border-radius: 8px; font-size: 0.9rem; padding: 12px 20px; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.background='#1E293B'" onmouseout="this.style.background='#0F172A'">
@@ -8541,7 +8582,7 @@ We hope to see you back soon!
                                 </div>
 
                                 <!-- Discord Embed Body -->
-                                <div style="margin-left: 50px; background: #2B2D31; border-left: 4px solid #E11D48; border-radius: 4px 8px 8px 4px; padding: 14px 16px; position: relative;">
+                                <div id="report-preview-embed-card" style="margin-left: 50px; background: #2B2D31; border-left: 4px solid #E11D48; border-radius: 4px 8px 8px 4px; padding: 14px 16px; position: relative;">
                                     
                                     <!-- Title & Thumbnail -->
                                     <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; margin-bottom: 12px;">
@@ -8584,6 +8625,11 @@ We hope to see you back soon!
                                         <pre id="report-preview-ascii" style="margin: 0; background: #1E1F22; border-radius: 6px; padding: 10px 12px; font-family: 'Consolas', 'Courier New', monospace; font-size: 0.8rem; color: #DBDEE1; line-height: 1.5; overflow-x: auto;">Joins:  [░░░░░░░░░░░░░░] 0
 Leaves: [░░░░░░░░░░░░░░] 0
 Net:    [░░░░░░░░░░░░░░] +0</pre>
+                                    </div>
+
+                                    <!-- Banner / Image Visualizer -->
+                                    <div id="report-preview-banner-box" style="display:none; margin: 12px 0 10px 0; border-radius: 6px; overflow: hidden; max-height: 220px; background: #1E1F22;">
+                                        <img id="report-preview-banner-img" src="" style="width: 100%; height: auto; max-height: 220px; object-fit: cover; display: block;" onerror="this.parentElement.style.display='none';">
                                     </div>
 
                                     <!-- Footer -->
@@ -8734,9 +8780,9 @@ Net:    [░░░░░░░░░░░░░░] +0</pre>
                                 <select class="form-control guild-roles-dropdown" id="levels-reward-role-select" style="background: #FFFFFF !important; border: 1.5px solid #CBD5E1 !important; color: #0F172A !important;">
                                     <option value="">Please select a role</option>
                                 </select>
-                                <div style="display:flex; align-items:center; gap:8px; background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.06); border-radius: 6px; padding: 8px 12px;">
-                                    <span style="font-size:0.78rem; color:var(--text-secondary);">lvl</span>
-                                    <input type="number" id="levels-reward-level-input" value="1" style="border:none; background:transparent; width:30px; color: #0F172A !important; font-weight:700; outline:none;">
+                                <div style="display:flex; align-items:center; gap:8px; background: #F8FAFC; border: 1.5px solid #CBD5E1; border-radius: 8px; padding: 7px 12px;">
+                                    <span style="font-size:0.8rem; font-weight:700; color:#64748B;">Lvl</span>
+                                    <input type="number" id="levels-reward-level-input" value="1" min="1" max="999" style="border:none; background:transparent; width:45px; color: #0F172A !important; font-weight:800; font-size:0.9rem; outline:none;">
                                 </div>
                                 <button class="btn-primary" type="button" onclick="addLevelRewardRow()" style="background:#10b981; border:none; padding:10px; border-radius:6px; font-weight:700; font-size:0.8rem; display:flex; align-items:center; justify-content:center; gap:4px;"><i class="fas fa-plus"></i> Add</button>
                             </div>
@@ -8768,7 +8814,7 @@ Net:    [░░░░░░░░░░░░░░] +0</pre>
                                         <option value="">Select option</option>
                                     </select>
                                     <!-- Ignored Channels Pills Container -->
-                                    <div style="background: rgba(0,0,0,0.25); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 8px; min-height: 48px; display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 8px;" id="levels-ignored-channels-pills"></div>
+                                    <div style="background: #F8FAFC; border: 1.5px dashed #CBD5E1; border-radius: 8px; padding: 10px; min-height: 48px; display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 8px;" id="levels-ignored-channels-pills"></div>
                                 </div>
                             </div>
                         </div>
@@ -12630,15 +12676,7 @@ Our support team can assist you with:
                         <div class="glass-card" style="flex: 1; min-width: 320px; background: rgba(255,255,255,0.015); border: 1px solid rgba(255,255,255,0.03); border-radius: 12px; padding: 25px;">
                             <div style="font-family: var(--font-mono); font-size: 0.72rem; color: var(--text-secondary); text-transform: uppercase; margin-bottom: 8px;"><i class="fas fa-gear"></i> Bot Settings</div>
                             
-                            <!-- Nickname Section -->
-                            <div style="margin-bottom: 25px;">
-                                <h3 style="font-size: 1.3rem; font-weight: 800; color: #0F172A; margin: 0 0 4px 0;">Nickname</h3>
-                                <p style="font-size: 0.8rem; color: var(--text-secondary); margin: 0 0 12px 0;">Set the bot's display name in the server.</p>
-                                <div style="display: flex; gap: 10px;">
-                                    <input type="text" class="form-control" id="bot-nickname-input" value="Custom Sentinel" style="background: #FFFFFF !important; border: 1.5px solid #CBD5E1 !important; color: #0F172A !important;">
-                                    <button class="btn-primary" onclick="applyBotNickname()" style="background:#a855f7; border:none; padding:10px 20px; border-radius:6px; font-weight:700;">Apply</button>
-                                </div>
-                            </div>
+                            
 
                             <!-- Custom Prefix Section -->
                             <div style="margin-bottom: 25px;">
@@ -12864,7 +12902,7 @@ Our support team can assist you with:
                                     <li style="display: flex; align-items: center; gap: 10px;"><i class="fas fa-circle-check" style="color: #10B981;"></i> Standard Discord Ticketing</li>
                                 </ul>
                             </div>
-                            <button type="button" disabled style="width: 100%; padding: 12px 0; border-radius: 8px; font-weight: 700; font-size: 0.9rem; background: #F1F5F9; border: 1.5px solid #CBD5E1; color: #94A3B8; cursor: default;">
+                            <button type="button" id="billing-btn-free" disabled style="width: 100%; padding: 12px 0; border-radius: 8px; font-weight: 700; font-size: 0.9rem; background: #F1F5F9; border: 1.5px solid #CBD5E1; color: #94A3B8; cursor: default;">
                                 Current Free Plan
                             </button>
                         </div>
@@ -12893,7 +12931,7 @@ Our support team can assist you with:
                                     <li style="display: flex; align-items: center; gap: 10px;"><i class="fas fa-circle-check" style="color: #D96C91;"></i> Priority Fast Support Desk</li>
                                 </ul>
                             </div>
-                            <button type="button" onclick="initiateRazorpayCheckout('Pro', 199)" class="btn-primary" style="width: 100%; border: none; padding: 13px 0; border-radius: 8px; font-weight: 700; font-size: 0.95rem; background: #D96C91; color: #fff; cursor: pointer; box-shadow: 0 4px 14px rgba(217, 108, 145, 0.4); transition: transform 0.15s ease;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
+                            <button type="button" id="billing-btn-pro" onclick="initiateRazorpayCheckout('Pro', 199)" class="btn-primary" style="width: 100%; border: none; padding: 13px 0; border-radius: 8px; font-weight: 700; font-size: 0.95rem; background: #D96C91; color: #fff; cursor: pointer; box-shadow: 0 4px 14px rgba(217, 108, 145, 0.4); transition: transform 0.15s ease;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
                                 Upgrade to Pro (₹199/mo)
                             </button>
                         </div>
@@ -12918,7 +12956,7 @@ Our support team can assist you with:
                                     <li style="display: flex; align-items: center; gap: 10px;"><i class="fas fa-circle-check" style="color: #7E22CE;"></i> Automated Disaster Backups &amp; VIP Desk</li>
                                 </ul>
                             </div>
-                            <button type="button" onclick="initiateRazorpayCheckout('Enterprise', 299)" class="btn-primary" style="width: 100%; border: none; padding: 13px 0; border-radius: 8px; font-weight: 700; font-size: 0.95rem; background: #7E22CE; color: #fff; cursor: pointer; box-shadow: 0 4px 14px rgba(126, 34, 206, 0.35); transition: transform 0.15s ease;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
+                            <button type="button" id="billing-btn-enterprise" onclick="initiateRazorpayCheckout('Enterprise', 299)" class="btn-primary" style="width: 100%; border: none; padding: 13px 0; border-radius: 8px; font-weight: 700; font-size: 0.95rem; background: #7E22CE; color: #fff; cursor: pointer; box-shadow: 0 4px 14px rgba(126, 34, 206, 0.35); transition: transform 0.15s ease;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
                                 Upgrade to Enterprise (₹299/mo)
                             </button>
                         </div>

@@ -198,20 +198,51 @@ except ImportError:
     from db_adapter import get_db
 
 
+import time
+import json
+
+_GUILD_PREFIX_CACHE = {}
+
 def get_prefix(bot, message):
     default_prefixes = ["&", "?", "!", ",", ".", "v!", "V!", "v.", "V.", "-", "$"]
     if not message.guild:
         return commands.when_mentioned_or(*default_prefixes)(bot, message)
+    
+    gid = str(message.guild.id)
+    now = time.time()
+    if gid in _GUILD_PREFIX_CACHE:
+        cached_prefixes, expire_at = _GUILD_PREFIX_CACHE[gid]
+        if now < expire_at:
+            return commands.when_mentioned_or(*cached_prefixes)(bot, message)
+
     try:
         conn = get_db()
         cursor = conn.cursor()
-        cursor.execute("SELECT prefix FROM guild_settings WHERE guild_id = ?", (str(message.guild.id),))
+        cursor.execute("SELECT prefix, custom_prefixes FROM guild_settings WHERE guild_id = ?", (gid,))
         row = cursor.fetchone()
         conn.close()
-        if row and row[0]:
-            p = row[0].strip()
-            if p and p not in default_prefixes:
-                return commands.when_mentioned_or(p, *default_prefixes)(bot, message)
+        
+        server_prefixes = list(default_prefixes)
+        if row:
+            # 1. Primary custom prefix
+            if row[0]:
+                p = str(row[0]).strip()
+                if p and p not in server_prefixes:
+                    server_prefixes.insert(0, p)
+            # 2. Multi-prefix JSON list if set
+            if len(row) > 1 and row[1]:
+                try:
+                    cp_list = json.loads(row[1]) if isinstance(row[1], str) else row[1]
+                    if isinstance(cp_list, list):
+                        for cp in reversed(cp_list):
+                            clean_cp = str(cp).strip()
+                            if clean_cp and clean_cp not in server_prefixes:
+                                server_prefixes.insert(0, clean_cp)
+                except Exception:
+                    pass
+
+        _GUILD_PREFIX_CACHE[gid] = (server_prefixes, now + 30)
+        return commands.when_mentioned_or(*server_prefixes)(bot, message)
     except Exception:
         pass
     return commands.when_mentioned_or(*default_prefixes)(bot, message)
@@ -12646,6 +12677,15 @@ def start_health_check_server():
                 self.send_header('Content-Type', 'application/json')
                 self.end_headers()
                 self.wfile.write(b'{"status":"ok","service":"veyra-discord-bot","bot":"online"}\n')
+            else:
+                self.send_response(404)
+                self.end_headers()
+
+        def do_HEAD(self):
+            if self.path in ('/api/health', '/health', '/healthz', '/'):
+                self.send_response(200)
+                self.send_header('Content-Type', 'application/json')
+                self.end_headers()
             else:
                 self.send_response(404)
                 self.end_headers()

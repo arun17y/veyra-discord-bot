@@ -1060,9 +1060,20 @@ app.get('/api/guild/plan/:guild_id', (req, res) => {
     db.get("SELECT * FROM guild_subscriptions WHERE guild_id = ?", [guildId], (err, row) => {
         if (err) return res.status(500).json({ error: err.message });
         if (row) {
-            res.json({ ...row, plan_type: 'Premium', expires_at: 'Lifetime' });
+            const isExpired = row.expires_at && row.expires_at !== 'Lifetime' && new Date(row.expires_at) < new Date();
+            res.json({
+                guild_id: guildId,
+                plan_type: isExpired ? 'Free' : (row.plan_type || 'Free'),
+                expires_at: row.expires_at || null,
+                status: isExpired ? 'expired' : 'active'
+            });
         } else {
-            res.json({ plan_type: 'Premium', expires_at: 'Lifetime' });
+            res.json({
+                guild_id: guildId,
+                plan_type: 'Free',
+                expires_at: null,
+                status: 'active'
+            });
         }
     });
 });
@@ -2231,6 +2242,9 @@ app.delete('/api/settings/invites/hidden/:guild_id/:user_id', (req, res) => {
     const userId = req.params.user_id;
     db.run("DELETE FROM leaderboard_hidden WHERE guild_id = ? AND user_id = ?", [guildId, userId], function(err) {
         if (err) return res.status(500).json({ error: err.message });
+        res.json({ success: true });
+    });
+});
 
 // Invite Labels REST APIs (Real-time auto-assign roles on invite join)
 app.get('/api/settings/invite-labels/:guild_id', (req, res) => {
@@ -2281,7 +2295,33 @@ app.delete('/api/settings/invite-labels/:guild_id/:id', (req, res) => {
     });
 });
 
-        res.json({ success: true });
+// 5. Get & Save Anti-Nuke Settings
+app.get('/api/settings/security/:guild_id', (req, res) => {
+    const guildId = req.params.guild_id;
+    db.get("SELECT * FROM antinuke_settings WHERE guild_id = ?", [guildId], (err, row) => {
+        if (err) return res.status(500).json({ error: err.message });
+        if (!row) {
+            return res.json({
+                guild_id: guildId,
+                anti_ban_limit: 5, anti_ban_punish: 'Ban', anti_ban_enabled: 1,
+                anti_kick_limit: 5, anti_kick_punish: 'Ban', anti_kick_enabled: 1,
+                anti_role_create_limit: 8, anti_role_create_punish: 'Ban', anti_role_create_enabled: 1,
+                anti_role_delete_limit: 3, anti_role_delete_punish: 'Ban', anti_role_delete_enabled: 1,
+                anti_channel_create_limit: 8, anti_channel_create_punish: 'Ban', anti_channel_create_enabled: 1,
+                anti_channel_delete_limit: 3, anti_channel_delete_punish: 'Ban', anti_channel_delete_enabled: 1,
+                anti_mention_limit: 0, anti_mention_punish: 'Kick', anti_mention_enabled: 0,
+                anti_bot_add_punish: 'Ban', anti_bot_add_enabled: 1,
+                anti_prune_punish: 'Ban', anti_prune_enabled: 1,
+                anti_dangerous_role_update_punish: 'Ban', anti_dangerous_role_update_enabled: 1,
+                anti_dangerous_role_add_punish: 'Ban', anti_dangerous_role_add_enabled: 1,
+                anti_vanity_change_punish: 'Kick', anti_vanity_change_enabled: 0,
+                anti_server_rename_punish: 'Kick', anti_server_rename_enabled: 0,
+                anti_server_icon_change_punish: 'Kick', anti_server_icon_change_enabled: 0,
+                anti_role_rename_punish: 'Kick', anti_role_rename_enabled: 0,
+                anti_channel_rename_punish: 'Kick', anti_channel_rename_enabled: 0
+            });
+        }
+        res.json(row);
     });
 });
 
@@ -2343,6 +2383,10 @@ app.post('/api/settings/security/:guild_id', (req, res) => {
 });
 
 // 5b. Verification settings GET & POST
+// Alias /api/verification/:guild_id
+app.get('/api/verification/:guild_id', (req, res) => res.redirect(307, `/api/settings/verification/${req.params.guild_id}`));
+app.post('/api/verification/:guild_id', (req, res, next) => { req.url = `/api/settings/verification/${req.params.guild_id}`; app._router.handle(req, res, next); });
+
 app.get('/api/settings/verification/:guild_id', (req, res) => {
     const guildId = req.params.guild_id;
     db.get("SELECT * FROM verification_settings WHERE guild_id = ?", [guildId], (err, row) => {
@@ -4650,24 +4694,118 @@ app.get('/api/payment/history/:guild_id', (req, res) => {
 });
 
 // GET /api/subscription/:guild_id — Fetch active subscription tier
-// Real Audit Logs Stream for Guild Overview
-app.get('/api/audit-logs/:guild_id', (req, res) => {
+// Real 7-Day Discord Audit Logs & Security Activity Stream for Active Guild
+app.get('/api/audit-logs/:guild_id', async (req, res) => {
     const guildId = req.params.guild_id;
-    db.all(
-        `SELECT id, timestamp, user, action, details 
-         FROM audit_logs 
-         WHERE guild_id = ? 
-         ORDER BY id DESC 
-         LIMIT 20`,
-        [guildId],
-        (err, rows) => {
-            if (err) {
-                console.error("Error fetching audit logs:", err);
-                return res.status(500).json({ error: err.message });
-            }
-            res.json(rows || []);
+    if (!guildId) return res.status(400).json({ error: 'Missing guild_id' });
+
+    const sevenDaysAgo = Date.now() - (7 * 24 * 60 * 60 * 1000);
+    const combinedLogs = [];
+
+    // 1. Fetch real server audit logs directly from Discord REST API
+    try {
+        const dRes = await discordRequest('GET', `/guilds/${guildId}/audit-logs?limit=100`);
+        if (dRes && dRes.status === 200 && dRes.body && Array.isArray(dRes.body.audit_log_entries)) {
+            const data = dRes.body;
+            const userMap = {};
+            (data.users || []).forEach(u => {
+                userMap[u.id] = u.global_name || u.username;
+            });
+            const roleMap = {};
+            (data.roles || []).forEach(r => { roleMap[r.id] = r.name; });
+
+            data.audit_log_entries.forEach(entry => {
+                const snowflakeTime = Number((BigInt(entry.id) >> 22n) + 1420070400000n);
+                if (snowflakeTime < sevenDaysAgo) return; // Strictly last 7 days
+
+                const user = userMap[entry.user_id] || (entry.user_id ? `User ${entry.user_id}` : 'Discord System');
+                const actionName = DISCORD_AUDIT_ACTION_MAP[entry.action_type] || `Action ${entry.action_type}`;
+                
+                let detail = entry.reason ? `Reason: ${entry.reason}` : '';
+                if (entry.changes && entry.changes.length > 0) {
+                    const changeSummary = entry.changes.map(c => {
+                        let val = c.new_value !== undefined ? c.new_value : c.old_value;
+                        if (c.key === '$add' || c.key === '$remove') {
+                            const roles = Array.isArray(val) ? val.map(r => `@${r.name || roleMap[r.id] || r.id}`).join(', ') : JSON.stringify(val);
+                            return `${c.key === '$add' ? 'Added' : 'Removed'} ${roles}`;
+                        }
+                        if (typeof val === 'object') val = JSON.stringify(val);
+                        return `${c.key}: ${val}`;
+                    }).join(', ');
+                    detail = detail ? `${detail} (${changeSummary})` : changeSummary;
+                }
+                if (!detail) detail = entry.target_id ? `Target: ${entry.target_id}` : '';
+
+                const formattedAction = detail ? `${actionName}: ${detail}` : actionName;
+                const isIntercept = formattedAction.toLowerCase().includes('anti') || formattedAction.toLowerCase().includes('block') || formattedAction.toLowerCase().includes('intercept');
+
+                combinedLogs.push({
+                    id: String(entry.id),
+                    guild_id: guildId,
+                    timestamp: new Date(snowflakeTime).toISOString(),
+                    user: user,
+                    action: actionName,
+                    details: detail,
+                    display_action: formattedAction,
+                    status: isIntercept ? 'INTERCEPTED' : 'EXECUTED'
+                });
+            });
         }
-    );
+    } catch (apiErr) {
+        console.error(`[Audit Stream] Discord API fetch error for guild ${guildId}:`, apiErr.message);
+    }
+
+    // 2. Fetch real database security defenses logged by Veyra bot for this guild
+    try {
+        db.all(
+            `SELECT id, timestamp, user, action, details 
+             FROM audit_logs 
+             WHERE guild_id = ? 
+               AND action NOT LIKE '%Dummy%'
+               AND user NOT LIKE '%Staff Admin%'
+             ORDER BY id DESC 
+             LIMIT 100`,
+            [guildId],
+            (dbErr, rows) => {
+                if (!dbErr && Array.isArray(rows)) {
+                    rows.forEach(r => {
+                        try {
+                            const t = new Date(r.timestamp).getTime();
+                            if (t >= sevenDaysAgo) {
+                                const isIntercept = (r.action || '').toLowerCase().includes('anti') || (r.action || '').toLowerCase().includes('warn') || (r.action || '').toLowerCase().includes('ban');
+                                combinedLogs.push({
+                                    id: 'db_' + r.id,
+                                    guild_id: guildId,
+                                    timestamp: r.timestamp,
+                                    user: r.user || 'VEYRA Sentinel',
+                                    action: r.action || 'Security Enforcement',
+                                    details: r.details || '',
+                                    display_action: r.details ? `${r.action}: ${r.details}` : r.action,
+                                    status: isIntercept ? 'INTERCEPTED' : 'EXECUTED'
+                                });
+                            }
+                        } catch (e) {}
+                    });
+                }
+
+                // 3. Deduplicate and sort strictly latest first
+                const seen = new Set();
+                const uniqueLogs = [];
+                for (const item of combinedLogs) {
+                    const key = `${item.timestamp}_${item.user}_${item.action}`;
+                    if (!seen.has(key)) {
+                        seen.add(key);
+                        uniqueLogs.push(item);
+                    }
+                }
+                uniqueLogs.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+                res.json(uniqueLogs);
+            }
+        );
+    } catch (e) {
+        combinedLogs.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+        res.json(combinedLogs);
+    }
 });
 
 app.get('/api/subscription/:guild_id', (req, res) => {

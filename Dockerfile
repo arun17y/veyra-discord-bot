@@ -1,7 +1,7 @@
 FROM python:3.11-slim
 
 # Install system dependencies: FFmpeg, Opus, Git, Unzip, Deno, and bgutil-pot for YouTube PO Token generation
-RUN apt-get update && apt-get install -y \
+RUN apt-get update && apt-get install -y --no-install-recommends \
     curl \
     ca-certificates \
     build-essential \
@@ -10,12 +10,12 @@ RUN apt-get update && apt-get install -y \
     libopus-dev \
     git \
     unzip && \
-    curl -fsSL -o /tmp/deno.zip "https://github.com/denoland/deno/releases/latest/download/deno-x86_64-unknown-linux-gnu.zip" && \
-    unzip /tmp/deno.zip -d /usr/local/bin && \
+    (curl -fsSL -o /tmp/deno.zip "https://github.com/denoland/deno/releases/latest/download/deno-x86_64-unknown-linux-gnu.zip" && \
+    unzip -q /tmp/deno.zip -d /usr/local/bin && \
     chmod +x /usr/local/bin/deno && \
-    rm -f /tmp/deno.zip && \
-    curl -L -o /usr/local/bin/bgutil-pot "https://github.com/jim60105/bgutil-ytdlp-pot-provider-rs/releases/download/v0.8.1/bgutil-pot-linux-x86_64" && \
-    chmod +x /usr/local/bin/bgutil-pot && \
+    rm -f /tmp/deno.zip || true) && \
+    (curl -sSL -o /usr/local/bin/bgutil-pot "https://github.com/jim60105/bgutil-ytdlp-pot-provider-rs/releases/download/v0.8.1/bgutil-pot-linux-x86_64" && \
+    chmod +x /usr/local/bin/bgutil-pot || true) && \
     rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app

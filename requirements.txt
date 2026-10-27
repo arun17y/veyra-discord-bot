@@ -9,5 +9,6 @@ aiohttp>=3.9.0
 Pillow>=10.0.0
 yt-dlp[default] @ https://github.com/yt-dlp/yt-dlp/archive/master.tar.gz
 curl_cffi>=0.7.0
+gTTS>=2.4.0
 davey
 
