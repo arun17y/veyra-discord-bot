@@ -4386,8 +4386,9 @@ app.post('/api/bot/warn', async (req, res) => {
         guild_id TEXT, user_id TEXT, reason TEXT,
         moderator TEXT, timestamp TEXT
     )`, () => {
-        db.run(`INSERT INTO warnings (guild_id, user_id, reason, moderator, timestamp) VALUES (?, ?, ?, ?, ?)`,
-            [guild_id, user_id, reason || 'No reason', moderator || 'Dashboard', nowStr],
+        const modUser = moderator || 'Dashboard';
+        db.run(`INSERT INTO warnings (guild_id, user_id, reason, warned_by, moderator, timestamp) VALUES (?, ?, ?, ?, ?, ?)`,
+            [guild_id, user_id, reason || 'No reason', modUser, modUser, nowStr],
             async function(err) {
                 if (err) return res.status(500).json({ error: err.message });
                 const warnId = this.lastID;

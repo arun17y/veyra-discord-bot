@@ -52,30 +52,44 @@ const LOG_ICONS = {
 function _injectLiveLogs(logs) {
     const container = document.getElementById('live-logs-feed') || document.getElementById('weblogs-body');
     if (!container) return;
-    // logs come newest-first; prepend in DOM
+    
+    // Clear initial placeholder if present
+    const placeholder = container.querySelector('div');
+    if (placeholder && placeholder.textContent.includes('Live audit events will appear')) {
+        container.innerHTML = '';
+    }
+
     for (const log of logs) {
         const ts = new Date(log.timestamp).toLocaleTimeString('en-US', { hour12: false });
         const typeKey = Object.keys(LOG_ICONS).find(k => log.action && log.action.includes(k)) || 'default';
         const { icon, color } = LOG_ICONS[typeKey];
+        
+        let actor = log.user || 'System';
+        if (actor.toLowerCase().includes('neondb') || actor.toLowerCase().includes('owner') || actor.toLowerCase().includes('postgres')) {
+            actor = 'AutoMod Shield';
+        }
+
         const row = document.createElement('div');
         row.className = 'live-log-row';
-        row.style.cssText = `display:flex;align-items:flex-start;gap:10px;padding:8px 12px;border-bottom:1px solid rgba(255,255,255,0.04);animation:logFadeIn 0.4s ease;`;
+        row.style.cssText = `display:flex;align-items:flex-start;gap:12px;padding:12px 16px;border-bottom:1px solid #F1F5F9;background:#FFFFFF;border-radius:8px;margin-bottom:6px;transition:background 0.15s;box-shadow:0 1px 2px rgba(0,0,0,0.02);`;
+        row.onmouseenter = () => row.style.background = '#F8FAFC';
+        row.onmouseleave = () => row.style.background = '#FFFFFF';
+
         row.innerHTML = `
-            <span style="font-size:1rem;margin-top:1px;flex-shrink:0">${icon}</span>
+            <span style="font-size:1.25rem;margin-top:2px;flex-shrink:0">${icon}</span>
             <div style="flex:1;min-width:0">
-                <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
-                    <span style="color:${color};font-weight:700;font-size:0.78rem;font-family:var(--font-mono)">${escapeHtml(log.action || 'Event')}</span>
-                    <span style="color:rgba(255,255,255,0.35);font-size:0.72rem;font-family:var(--font-mono)">${ts}</span>
-                    ${log.user ? `<span style="color:#a855f7;font-size:0.72rem;font-family:var(--font-mono)">by ${escapeHtml(log.user)}</span>` : ''}
+                <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+                    <span style="color:${color};font-weight:800;font-size:0.88rem;font-family:var(--font-mono);letter-spacing:0.02em">${escapeHtml(log.action || 'Event')}</span>
+                    <span style="color:#64748B;font-size:0.75rem;font-weight:600;font-family:var(--font-mono)">${ts}</span>
+                    <span style="color:#7C3AED;background:#F3E8FF;border:1px solid #E9D5FF;border-radius:4px;padding:2px 8px;font-size:0.72rem;font-weight:700;font-family:var(--font-mono)">by ${escapeHtml(actor)}</span>
                 </div>
-                <div style="color:rgba(255,255,255,0.6);font-size:0.80rem;margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${escapeHtml(log.details || '')}">${escapeHtml(log.details || '')}</div>
+                <div style="color:#1E293B;font-size:0.84rem;margin-top:4px;line-height:1.55;font-weight:500;word-break:break-word">${escapeHtml(log.details || '')}</div>
             </div>
         `;
         if (container.firstChild) container.insertBefore(row, container.firstChild);
         else container.appendChild(row);
     }
-    // Keep max 100 rows
-    while (container.children.length > 100) container.removeChild(container.lastChild);
+    while (container.children.length > 200) container.removeChild(container.lastChild);
 }
 
 function escapeHtml(str) {
@@ -105,28 +119,28 @@ function renderMembersForModeration(members) {
     const container = document.getElementById('mod-members-list');
     if (!container) return;
     if (!members || members.length === 0) {
-        container.innerHTML = `<div style="text-align:center;padding:20px;color:#64748b;font-size:0.85rem">No members found.</div>`;
+        container.innerHTML = `<div style="text-align:center;padding:30px;color:#64748B;font-size:0.9rem;font-weight:600">No members found matching query.</div>`;
         return;
     }
     container.innerHTML = '';
     for (const m of members) {
-        if (m.bot) continue; // skip bots
+        if (m.bot) continue;
         const card = document.createElement('div');
         card.className = 'mod-member-card';
-        card.style.cssText = `display:flex;align-items:center;gap:12px;padding:10px 14px;border-radius:8px;border:1px solid rgba(255,255,255,0.04);background:rgba(255,255,255,0.02);margin-bottom:8px;cursor:pointer;transition:all 0.15s;`;
-        card.onmouseenter = () => card.style.background = 'rgba(168,85,247,0.08)';
-        card.onmouseleave = () => card.style.background = 'rgba(255,255,255,0.02)';
+        card.style.cssText = `display:flex;align-items:center;gap:14px;padding:12px 18px;border-radius:10px;border:1.5px solid #E2E8F0;background:#FFFFFF;margin-bottom:10px;cursor:pointer;transition:all 0.15s;box-shadow:0 1px 2px rgba(0,0,0,0.03);`;
+        card.onmouseenter = () => { card.style.background = '#F8FAFC'; card.style.borderColor = '#CBD5E1'; };
+        card.onmouseleave = () => { card.style.background = '#FFFFFF'; card.style.borderColor = '#E2E8F0'; };
         card.onclick = () => openModActionModal(m);
         card.innerHTML = `
-            <img src="${escapeHtml(m.avatar)}" style="width:36px;height:36px;border-radius:50%;flex-shrink:0;object-fit:cover" onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png'">
+            <img src="${escapeHtml(m.avatar)}" style="width:40px;height:40px;border-radius:50%;flex-shrink:0;object-fit:cover;border:1px solid #E2E8F0" onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png'">
             <div style="flex:1;min-width:0">
-                <div style="font-weight:700;color:#fff;font-size:0.88rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${escapeHtml(m.display_name)}</div>
-                <div style="color:#64748b;font-size:0.74rem;font-family:var(--font-mono)">${escapeHtml(m.username)} · ${m.id}</div>
+                <div style="font-weight:800;color:#0F172A;font-size:0.95rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${escapeHtml(m.display_name)}</div>
+                <div style="color:#64748B;font-size:0.76rem;font-weight:600;font-family:var(--font-mono);margin-top:2px">${escapeHtml(m.username)} · ${m.id}</div>
             </div>
-            <div style="display:flex;gap:6px">
-                <button onclick="event.stopPropagation();quickAction('ban','${m.id}','${escapeHtml(m.username)}')" title="Ban" style="background:rgba(239,68,68,0.15);border:1px solid rgba(239,68,68,0.3);color:#ef4444;border-radius:5px;padding:5px 8px;cursor:pointer;font-size:0.75rem;font-weight:700" onmouseover="this.style.background='rgba(239,68,68,0.25)'" onmouseout="this.style.background='rgba(239,68,68,0.15)'">Ban</button>
-                <button onclick="event.stopPropagation();quickAction('kick','${m.id}','${escapeHtml(m.username)}')" title="Kick" style="background:rgba(249,115,22,0.15);border:1px solid rgba(249,115,22,0.3);color:#f97316;border-radius:5px;padding:5px 8px;cursor:pointer;font-size:0.75rem;font-weight:700" onmouseover="this.style.background='rgba(249,115,22,0.25)'" onmouseout="this.style.background='rgba(249,115,22,0.15)'">Kick</button>
-                <button onclick="event.stopPropagation();quickAction('timeout','${m.id}','${escapeHtml(m.username)}')" title="Timeout" style="background:rgba(234,179,8,0.15);border:1px solid rgba(234,179,8,0.3);color:#eab308;border-radius:5px;padding:5px 8px;cursor:pointer;font-size:0.75rem;font-weight:700" onmouseover="this.style.background='rgba(234,179,8,0.25)'" onmouseout="this.style.background='rgba(234,179,8,0.15)'">TO</button>
+            <div style="display:flex;gap:8px">
+                <button onclick="event.stopPropagation();quickAction('ban','${m.id}','${escapeHtml(m.username)}')" title="Ban" style="background:#FEE2E2;border:1px solid #FECACA;color:#DC2626;border-radius:6px;padding:6px 14px;cursor:pointer;font-size:0.78rem;font-weight:700;transition:all 0.15s" onmouseover="this.style.background='#FCA5A5';this.style.color='#991B1B'" onmouseout="this.style.background='#FEE2E2';this.style.color='#DC2626'">Ban</button>
+                <button onclick="event.stopPropagation();quickAction('kick','${m.id}','${escapeHtml(m.username)}')" title="Kick" style="background:#FFEDD5;border:1px solid #FED7AA;color:#EA580C;border-radius:6px;padding:6px 14px;cursor:pointer;font-size:0.78rem;font-weight:700;transition:all 0.15s" onmouseover="this.style.background='#FDBA74';this.style.color='#9A3412'" onmouseout="this.style.background='#FFEDD5';this.style.color='#EA580C'">Kick</button>
+                <button onclick="event.stopPropagation();quickAction('timeout','${m.id}','${escapeHtml(m.username)}')" title="Timeout" style="background:#FEF9C3;border:1px solid #FEF08A;color:#CA8A04;border-radius:6px;padding:6px 14px;cursor:pointer;font-size:0.78rem;font-weight:700;transition:all 0.15s" onmouseover="this.style.background='#FDE047';this.style.color='#854D0E'" onmouseout="this.style.background='#FEF9C3';this.style.color='#CA8A04'">TO</button>
             </div>
         `;
         container.appendChild(card);
@@ -199,6 +213,9 @@ async function executeModAction(action) {
         if (data.success) {
             if (resultEl) { resultEl.textContent = `✅ ${data.message || 'Action completed!'}`; resultEl.style.color = '#22c55e'; }
             if (typeof showToast === 'function') showToast('Action Completed', data.message || `${action} executed successfully.`);
+            if (typeof _pollLiveLogs === 'function') _pollLiveLogs();
+            if (typeof refreshMembers === 'function') refreshMembers();
+            if (typeof refreshBanList === 'function') refreshBanList();
             setTimeout(closeModActionModal, 1500);
         } else {
             if (resultEl) { resultEl.textContent = `❌ ${data.error || 'Action failed'}`; resultEl.style.color = '#ef4444'; }
@@ -325,28 +342,28 @@ function _updateEl(id, value) {
 async function loadBanList(guildId) {
     const container = document.getElementById('ban-list-container');
     if (!container) return;
-    container.innerHTML = `<div style="text-align:center;padding:20px;color:#64748b">Loading ban list...</div>`;
+    container.innerHTML = `<div style="text-align:center;padding:30px;color:#64748B;font-weight:600">Loading live ban list from Discord...</div>`;
     try {
         const r = await fetch(`/api/bot/bans/${guildId}`);
         const bans = await r.json();
         if (!bans || !bans.length) {
-            container.innerHTML = `<div style="text-align:center;padding:20px;color:#64748b;font-size:0.85rem">No banned users.</div>`;
+            container.innerHTML = `<div style="text-align:center;padding:30px;color:#64748B;font-size:0.88rem;font-weight:600">No banned users found in this guild.</div>`;
             return;
         }
         container.innerHTML = bans.map(b => `
-            <div style="display:flex;align-items:center;gap:12px;padding:10px 14px;border-bottom:1px solid rgba(255,255,255,0.04)">
-                <img src="https://cdn.discordapp.com/embed/avatars/${parseInt(b.user.id) % 6}.png" style="width:32px;height:32px;border-radius:50%">
+            <div style="display:flex;align-items:center;gap:14px;padding:12px 16px;border-bottom:1px solid #F1F5F9;background:#FFFFFF;border-radius:8px;margin-bottom:6px">
+                <img src="https://cdn.discordapp.com/embed/avatars/${parseInt(b.user.id || 0) % 6}.png" style="width:36px;height:36px;border-radius:50%;border:1px solid #E2E8F0">
                 <div style="flex:1">
-                    <div style="font-weight:700;color:#fff;font-size:0.85rem">${escapeHtml(b.user.username)}</div>
-                    <div style="color:#64748b;font-size:0.74rem">${b.user.id} · ${escapeHtml(b.reason || 'No reason')}</div>
+                    <div style="font-weight:800;color:#0F172A;font-size:0.92rem">${escapeHtml(b.user.username)}</div>
+                    <div style="color:#64748B;font-size:0.75rem;font-weight:600;font-family:var(--font-mono);margin-top:2px">${b.user.id} · <span style="color:#DC2626">${escapeHtml(b.reason || 'No reason specified')}</span></div>
                 </div>
                 <button onclick="unbanUser('${b.user.id}','${escapeHtml(b.user.username)}')"
-                    style="background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.3);color:#22c55e;border-radius:5px;padding:5px 10px;cursor:pointer;font-size:0.75rem;font-weight:700"
-                    onmouseover="this.style.background='rgba(34,197,94,0.2)'" onmouseout="this.style.background='rgba(34,197,94,0.1)'">Unban</button>
+                    style="background:#DCFCE7;border:1px solid #BBF7D0;color:#16A34A;border-radius:6px;padding:6px 14px;cursor:pointer;font-size:0.78rem;font-weight:700;transition:all 0.15s"
+                    onmouseover="this.style.background='#86EFAC';this.style.color='#14532D'" onmouseout="this.style.background='#DCFCE7';this.style.color='#16A34A'">Unban</button>
             </div>
         `).join('');
     } catch (e) {
-        container.innerHTML = `<div style="text-align:center;padding:20px;color:#ef4444;font-size:0.85rem">Failed: ${e.message}</div>`;
+        container.innerHTML = `<div style="text-align:center;padding:30px;color:#EF4444;font-size:0.85rem">Failed to load ban list: ${e.message}</div>`;
     }
 }
 

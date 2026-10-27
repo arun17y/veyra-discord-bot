@@ -401,6 +401,8 @@ function switchSecTab(tabName) {
         loadVerificationSettings(activeGuildId);
     } else if (tabName === 'moderation') {
         if (typeof window.loadModerationOverrides === 'function') window.loadModerationOverrides(activeGuildId);
+        if (typeof window.loadMembersForModeration === 'function') window.loadMembersForModeration(activeGuildId);
+        if (typeof window.startLiveLogPolling === 'function') window.startLiveLogPolling(activeGuildId);
     } else if (tabName === 'whitelist') {
         if (typeof window.loadWhitelist === 'function') window.loadWhitelist(activeGuildId);
     } else if (tabName === 'logs') {
