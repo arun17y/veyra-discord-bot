@@ -1875,11 +1875,11 @@
         }
         let style = '#webgl-canvas, #ui-layer { display: none !important; } #main-content { opacity: 1 !important; pointer-events: auto !important; }';
         if (initialScreen !== 'landing') {
-            style += ' #screen-landing { display: none; }';
+            style += ' #screen-landing { display: none !important; }';
             if (initialScreen === 'servers') {
-                style += ' #screen-servers { display: block; }';
+                style += ' #screen-servers { display: block !important; }';
             } else if (initialScreen === 'dashboard') {
-                style += ' #screen-dashboard { display: flex; }';
+                style += ' #screen-dashboard { display: flex !important; }';
             }
         }
         document.write('<style>' + style + '</style>');
@@ -2744,10 +2744,7 @@
                 <p style="font-size: 1.1rem; color: var(--text-secondary); max-width: 640px; margin: 0 auto 35px auto; font-family: var(--font-body); font-weight: 550; line-height: 1.6;">
                     From quiet gaming groups to active community hubs with thousands of members
                 </p>
-                <div style="display: flex; justify-content: center; gap: 12px; margin-bottom: 45px; font-size: 1.2rem;">
-                    <span>🛡️</span>
-                    <span>⚡</span>
-                </div>
+
 
                 <!-- 2-Column Interactive Tabs & Mockup with 5-Second Auto-Cycling -->
                 <div class="amari-feature-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 36px; align-items: start; text-align: left;">
