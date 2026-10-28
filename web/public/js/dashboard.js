@@ -553,6 +553,17 @@ window.saveVerificationSettings = saveVerificationSettings;
 window.saveBeastModeSettings = saveBeastModeSettings;
 window.saveAntiRaidSettings = saveAntiRaidSettings;
 window.toggleVerificationSettingsPane = toggleVerificationSettingsPane;
+function toggleCaptchaOptionsBypass() {
+    const pane = document.getElementById('captcha-options-pane');
+    const chk = document.getElementById('ver-enable-captcha');
+    if (pane) {
+        if (chk) {
+            pane.style.display = chk.checked ? 'flex' : 'none';
+        } else {
+            pane.style.display = 'flex';
+        }
+    }
+}
 window.toggleCaptchaOptionsBypass = toggleCaptchaOptionsBypass;
 
 function toggleAntiRaidSettingsPane(enabled) {
@@ -4217,7 +4228,8 @@ document.head.appendChild(styleNode);
             const offCanvas = document.createElement('canvas');
             offCanvas.width = width;
             offCanvas.height = height;
-            const offCtx = offCanvas.getContext('2d');
+            const offCtx = offCanvas.getContext ? offCanvas.getContext('2d') : null;
+            if (!offCtx) return;
 
             let fontSize = Math.min(width / (text.length * 0.62), 34);
             if (width < 500) fontSize = Math.min(width / (text.length * 0.65), 22);
@@ -4560,21 +4572,25 @@ setTimeout(() => {
         
         const charElements = container.querySelectorAll('.float-char');
         
-        gsap.to(charElements, {
-            scrollTrigger: {
-                trigger: container,
-                start: 'top bottom+=30%',
-                end: 'bottom bottom-=20%',
-                toggleActions: 'play none none reverse'
-            },
-            opacity: 1,
-            y: 0,
-            rotate: 0,
-            duration: 1, // animationDuration
-            ease: 'back.inOut(2)', // ease
-            stagger: 0.03, // stagger
-            overwrite: 'auto'
-        });
+        if (typeof gsap !== 'undefined') {
+            gsap.to(charElements, {
+                scrollTrigger: {
+                    trigger: container,
+                    start: 'top bottom+=30%',
+                    end: 'bottom bottom-=20%',
+                    toggleActions: 'play none none reverse'
+                },
+                opacity: 1,
+                y: 0,
+                rotate: 0,
+                duration: 1, // animationDuration
+                ease: 'back.inOut(2)', // ease
+                stagger: 0.03, // stagger
+                overwrite: 'auto'
+            });
+        } else {
+            charElements.forEach(el => { el.style.opacity = '1'; el.style.transform = 'none'; });
+        }
     });
 })();
 
