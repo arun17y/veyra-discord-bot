@@ -2423,7 +2423,11 @@ html, body {
     overflow-x: hidden !important;
     max-width: 100vw !important;
     width: 100% !important;
+    position: relative !important;
+    margin: 0 !important;
+    padding: 0 !important;
     box-sizing: border-box !important;
+    -webkit-text-size-adjust: 100% !important;
 }
 
 *, *::before, *::after {
@@ -2431,7 +2435,8 @@ html, body {
 }
 
 /* Show mobile sidebar toggle button ONLY when dashboard is active */
-body.in-dashboard #mobile-sidebar-toggle-btn {
+body.in-dashboard #mobile-sidebar-toggle-btn,
+html.in-dashboard #mobile-sidebar-toggle-btn {
     display: inline-flex !important;
 }
 @media (min-width: 769px) {
@@ -2441,7 +2446,7 @@ body.in-dashboard #mobile-sidebar-toggle-btn {
 }
 
 @media (max-width: 768px) {
-    /* 1. Top Navbar */
+    /* 1. Header Navigation Bar */
     .amari-nav {
         padding: 8px 12px !important;
         gap: 8px !important;
@@ -2472,7 +2477,10 @@ body.in-dashboard #mobile-sidebar-toggle-btn {
     .amari-nav-links {
         display: none !important;
     }
+    .amari-nav-actions,
     .amari-nav > div[style*="display: flex"] {
+        display: flex !important;
+        align-items: center !important;
         gap: 6px !important;
         flex-shrink: 0 !important;
     }
@@ -2564,30 +2572,33 @@ body.in-dashboard #mobile-sidebar-toggle-btn {
     }
 
     /* 3. Section 2 Feature Showcase */
+    .amari-section-showcase,
     div[style*="border-radius: 40px 40px 0 0"] {
-        padding: 36px 12px 36px 12px !important;
-        border-radius: 24px 24px 0 0 !important;
+        padding: 30px 12px 36px 12px !important;
+        border-radius: 20px 20px 0 0 !important;
         margin-top: -15px !important;
         width: 100% !important;
         box-sizing: border-box !important;
     }
+    .amari-section-showcase h2,
     div[style*="border-radius: 40px 40px 0 0"] h2 {
-        font-size: clamp(1.5rem, 5.5vw, 1.95rem) !important;
+        font-size: clamp(1.4rem, 5.5vw, 1.85rem) !important;
         line-height: 1.25 !important;
         word-break: break-word !important;
-        margin-bottom: 10px !important;
+        margin-bottom: 8px !important;
         padding: 0 4px !important;
     }
+    .amari-section-showcase p,
     div[style*="border-radius: 40px 40px 0 0"] p {
-        font-size: 0.9rem !important;
-        line-height: 1.5 !important;
+        font-size: 0.88rem !important;
+        line-height: 1.45 !important;
         max-width: 100% !important;
-        margin-bottom: 20px !important;
+        margin-bottom: 16px !important;
         padding: 0 6px !important;
     }
     .amari-feature-grid {
         grid-template-columns: 1fr !important;
-        gap: 16px !important;
+        gap: 14px !important;
         width: 100% !important;
         min-width: 0 !important;
     }
@@ -2596,7 +2607,7 @@ body.in-dashboard #mobile-sidebar-toggle-btn {
         gap: 10px !important;
     }
     .amari-feat-tab {
-        padding: 16px 14px !important;
+        padding: 14px 14px !important;
         width: 100% !important;
         box-sizing: border-box !important;
         border-radius: 12px !important;
@@ -2616,7 +2627,7 @@ body.in-dashboard #mobile-sidebar-toggle-btn {
         box-sizing: border-box !important;
     }
     #dynamic-mock-body {
-        padding: 16px 12px !important;
+        padding: 14px 10px !important;
         overflow-x: hidden !important;
         width: 100% !important;
         box-sizing: border-box !important;
@@ -2786,6 +2797,7 @@ body.in-dashboard #mobile-sidebar-toggle-btn {
     .amari-brand-sub {
         display: none !important;
     }
+    .amari-nav-actions,
     .amari-nav > div[style*="display: flex"] {
         gap: 4px !important;
     }
@@ -2800,6 +2812,20 @@ body.in-dashboard #mobile-sidebar-toggle-btn {
     }
     .review-marquee-card {
         width: 260px !important;
+    }
+}
+
+/* Ultra Small Viewport (< 375px) */
+@media (max-width: 375px) {
+    #nav-dashboard-button .nav-btn-text {
+        display: none !important;
+    }
+    #nav-dashboard-button {
+        padding: 6px 9px !important;
+    }
+    #login-btn {
+        padding: 5px 7px !important;
+        font-size: 0.72rem !important;
     }
 }
 
@@ -2863,12 +2889,12 @@ body.in-dashboard #mobile-sidebar-toggle-btn {
             <li><a href="https://discord.gg/77P5Cq837X" target="_blank" rel="noreferrer">Support</a></li>
         </ul>
 
-        <div style="display: flex; align-items: center; gap: 12px;">
+        <div class="amari-nav-actions" style="display: flex; align-items: center; gap: 12px;">
             <a href="/manage" id="nav-dashboard-button" class="amari-login-btn" style="background: #D96C91 !important; color: #FFFFFF !important; border: 1.5px solid #D96C91 !important; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; font-weight: 700;">
-                <i class="fas fa-table-cells-large"></i> Dashboard
+                <i class="fas fa-table-cells-large"></i> <span class="nav-btn-text">Dashboard</span>
             </a>
             <a href="/api/auth/login" id="login-btn" class="amari-login-btn" style="background: #FFFFFF !important; border: 1.5px solid #D96C91 !important; color: #D96C91 !important; display: inline-flex; align-items: center; gap: 8px; text-decoration: none; font-weight: 700;">
-                <i class="fab fa-discord" style="font-size: 1.1rem;"></i> Login
+                <i class="fab fa-discord" style="font-size: 1.1rem;"></i> <span class="nav-btn-text">Login</span>
             </a>
 
             <!-- Logged-in Header Dropdown Buttons -->
@@ -3027,7 +3053,7 @@ body.in-dashboard #mobile-sidebar-toggle-btn {
 
         
         <!-- [SECTION 2: ORGANIC CURVED WHITE FEATURE SHOWCASE CONTAINER] -->
-        <div style="position: relative; z-index: 20; background: #FFFCFA !important; border-top: 1px solid var(--border-color); border-radius: 40px 40px 0 0; padding: 80px 24px 60px 24px; box-shadow: 0 -15px 40px rgba(53, 43, 58, 0.04); margin-top: -30px;">
+        <div class="amari-section-showcase" style="position: relative; z-index: 20; background: #FFFCFA !important; border-top: 1px solid var(--border-color); border-radius: 40px 40px 0 0; padding: 80px 24px 60px 24px; box-shadow: 0 -15px 40px rgba(53, 43, 58, 0.04); margin-top: -30px;">
             <div style="max-width: 1200px; margin: 0 auto; text-align: center;">
                 <div style="font-family: var(--font-mono); font-size: 0.75rem; color: var(--accent-primary); letter-spacing: 0.16em; text-transform: uppercase; margin-bottom: 12px; font-weight: 700;">
                     SIMPLE ON THE SURFACE. POWERFUL UNDERNEATH.
