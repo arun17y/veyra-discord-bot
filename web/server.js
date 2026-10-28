@@ -123,6 +123,14 @@ app.use((req, res, next) => {
 // Serve static dashboard web resources
 app.use(express.static(path.join(__dirname, 'public')));
 
+// Explicit Favicon Delivery
+app.get(['/favicon.ico', '/favicon.png'], (req, res) => {
+    res.setHeader('Content-Type', 'image/x-icon');
+    res.setHeader('Cache-Control', 'public, max-age=86400');
+    res.sendFile(path.join(__dirname, 'public', 'favicon.ico'));
+});
+
+
 // Connect to Database (Neon PostgreSQL with SQLite fallback)
 const fs = require('fs');
 const { getDatabase } = require('./db_adapter');

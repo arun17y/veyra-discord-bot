@@ -4,6 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>VEYRA — Friendly All-In-One Discord Bot</title>
+    <!-- VEYRA Official Favicon & App Icons -->
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="icon" type="image/webp" href="/assets/bypass_logs_avatar.webp">
+    <link rel="shortcut icon" href="/favicon.ico">
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+
     
     <!-- Modern typography and FontAwesome icons -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700;800&family=Plus+Jakarta+Sans:wght@500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap">
@@ -1760,6 +1768,129 @@
                 text-align: center;
             }
         }
+
+        /* =========================================================================
+           MOBILE RESPONSIVENESS OVERHAUL (SMARTPHONE & TABLET ADAPTATION)
+        ========================================================================= */
+        @media (max-width: 768px) {
+            html, body {
+                overflow-x: hidden !important;
+                max-width: 100vw !important;
+            }
+            .amari-nav {
+                padding: 10px 14px !important;
+                height: auto !important;
+                min-height: 58px !important;
+            }
+            .amari-brand-name {
+                font-size: 1.15rem !important;
+            }
+            .amari-brand-sub {
+                font-size: 0.65rem !important;
+            }
+            .amari-nav-links {
+                display: none !important;
+            }
+            .amari-login-btn {
+                padding: 7px 12px !important;
+                font-size: 0.78rem !important;
+                gap: 5px !important;
+            }
+            #screen-servers {
+                max-width: 100% !important;
+                width: 100% !important;
+                margin: 12px auto !important;
+                padding: 16px 14px !important;
+                box-sizing: border-box !important;
+            }
+            .server-card-item {
+                padding: 14px 12px !important;
+                border-radius: 12px !important;
+            }
+            .dashboard-container {
+                display: flex !important;
+                flex-direction: column !important;
+                width: 100vw !important;
+                max-width: 100% !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                overflow-x: hidden !important;
+            }
+            .sidebar {
+                width: 100% !important;
+                height: auto !important;
+                max-height: none !important;
+                position: relative !important;
+                top: 0 !important;
+                border-right: none !important;
+                border-bottom: 1.5px solid var(--border-color) !important;
+                background: #FFFFFF !important;
+                z-index: 50 !important;
+            }
+            .sidebar-pinned-top {
+                padding: 10px 14px !important;
+            }
+            .sidebar-menu-scroll {
+                display: flex !important;
+                flex-direction: row !important;
+                overflow-x: auto !important;
+                overflow-y: hidden !important;
+                padding: 8px 12px !important;
+                gap: 8px !important;
+                -webkit-overflow-scrolling: touch !important;
+                white-space: nowrap !important;
+            }
+            .sidebar-menu {
+                display: flex !important;
+                flex-direction: row !important;
+                gap: 8px !important;
+                padding: 0 !important;
+                margin: 0 !important;
+            }
+            .sidebar-title {
+                display: none !important;
+            }
+            .sidebar-item {
+                flex-shrink: 0 !important;
+            }
+            .sidebar-item a {
+                padding: 7px 12px !important;
+                border-radius: 8px !important;
+                font-size: 0.8rem !important;
+                white-space: nowrap !important;
+                border: 1px solid var(--border-color) !important;
+                background: var(--surface) !important;
+            }
+            .sidebar-pinned-bottom {
+                display: none !important;
+            }
+            .dashboard-content, .main-panel, .content-area {
+                width: 100% !important;
+                max-width: 100% !important;
+                padding: 16px 12px !important;
+                box-sizing: border-box !important;
+                overflow-x: hidden !important;
+            }
+            .stats-grid, .grid-3, .grid-2 {
+                grid-template-columns: 1fr !important;
+                gap: 12px !important;
+            }
+            .tab-content, .tab-pane {
+                padding: 0 !important;
+                max-width: 100% !important;
+                overflow-x: hidden !important;
+            }
+            table {
+                display: block !important;
+                overflow-x: auto !important;
+                width: 100% !important;
+                -webkit-overflow-scrolling: touch !important;
+            }
+            .header-user-widgets {
+                gap: 6px !important;
+            }
+        }
+
 </style>
 
     <script>
@@ -13448,7 +13579,7 @@ Our support team can assist you with:
     <!-- JS Execution libraries -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
-    <script src="js/dashboard.js?v=v50_live_realtime_botui"></script>
+    <script src="js/dashboard.js?v=v75_realtime_mobile_fav_live"></script>
     <script src="js/moderation.js?v=v55_realtime_botui"></script>
     <!-- smokey fluid cursor removed -->
 
