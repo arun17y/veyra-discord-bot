@@ -7895,12 +7895,30 @@ window.openWhitelistModal = function(type = 'User') {
                     </div>
                 `;
             } else {
+                const membersList = window.allMembers || window._membersCache || [];
+                const memberOptions = membersList.map(m => `<option value="${m.id}">${m.display_name} (@${m.username})${m.bot ? ' [BOT]' : ''}</option>`).join('');
                 inputHtml = `
-                    <div style="display:flex; gap:10px; margin-bottom:18px;">
-                        <input type="text" id="w-modal-input" placeholder="Enter Discord User ID (e.g. 1538507162496667718)" style="flex:1; background:#FFFFFF; border:1.5px solid #CBD5E1; border-radius:8px; padding:10px 14px; color:#0F172A; font-size:0.85rem; outline:none; font-family:var(--font-mono);">
-                        <button type="button" onclick="addWModalItem('User', ${limit})" style="background:#0F172A; border:none; padding:10px 20px; border-radius:8px; font-weight:700; font-size:0.85rem; color:#FFFFFF; cursor:pointer; white-space:nowrap;">
-                            <i class="fas fa-plus" style="margin-right:4px;"></i> Authorize
-                        </button>
+                    <div style="display:flex; flex-direction:column; gap:8px; margin-bottom:18px;">
+                        ${membersList.length > 0 ? `
+                        <div style="display:flex; gap:8px;">
+                            <select id="w-modal-select" onchange="if(this.value) document.getElementById('w-modal-input').value = this.value;" style="flex:1; background:#FFFFFF; border:1.5px solid #CBD5E1; border-radius:8px; padding:10px 12px; color:#0F172A; font-size:0.85rem; font-weight:700; outline:none;">
+                                <option value="">Select Server Member...</option>
+                                ${memberOptions}
+                            </select>
+                            <button type="button" onclick="addWModalItem('User', ${limit})" style="background:#0F172A; border:none; padding:10px 20px; border-radius:8px; font-weight:700; font-size:0.85rem; color:#FFFFFF; cursor:pointer; white-space:nowrap;">
+                                <i class="fas fa-plus" style="margin-right:4px;"></i> Authorize
+                            </button>
+                        </div>
+                        ` : ''}
+                        <div style="display:flex; align-items:center; gap:8px;">
+                            <span style="font-size:0.75rem; color:#64748B;">${membersList.length > 0 ? 'Or manual User ID:' : 'User ID:'}</span>
+                            <input type="text" id="w-modal-input" placeholder="Enter Discord User ID" style="flex:1; background:#FFFFFF; border:1.5px solid #CBD5E1; border-radius:8px; padding:8px 12px; color:#0F172A; font-size:0.85rem; outline:none; font-family:var(--font-mono);">
+                            ${membersList.length === 0 ? `
+                            <button type="button" onclick="addWModalItem('User', ${limit})" style="background:#0F172A; border:none; padding:10px 20px; border-radius:8px; font-weight:700; font-size:0.85rem; color:#FFFFFF; cursor:pointer; white-space:nowrap;">
+                                <i class="fas fa-plus" style="margin-right:4px;"></i> Authorize
+                            </button>
+                            ` : ''}
+                        </div>
                     </div>
                 `;
             }
@@ -7937,6 +7955,9 @@ window.openWhitelistModal = function(type = 'User') {
                                 } else if (currentType === 'channel' && window.guildChannels) {
                                     const matchedChan = window.guildChannels.find(c => c.id === item.id);
                                     if (matchedChan) label = '#' + matchedChan.name;
+                                } else if (currentType === 'user') {
+                                    const matchedUser = (window.allMembers || window._membersCache || []).find(m => m.id === item.id);
+                                    if (matchedUser) label = `${matchedUser.display_name} (@${matchedUser.username})`;
                                 }
                                 return `
                                     <li style="padding:10px 14px; border-bottom:1px solid #F1F5F9; display:flex; justify-content:space-between; align-items:center; background:#FFFFFF;">
@@ -8021,20 +8042,24 @@ window.loadModerationOverrides = function(guildId) {
             const listEl = document.getElementById('moderation-overrides-list');
             if (!listEl) return;
             if (data.length === 0) {
-                listEl.innerHTML = '<li style="padding:15px; text-align:center; color:var(--text-secondary);">No moderation overrides configured.</li>';
+                listEl.innerHTML = '<li style="padding:15px; text-align:center; color:#64748B; font-weight:600;">No moderation overrides configured.</li>';
                 return;
             }
-            listEl.innerHTML = data.map(item => `
-                <li style="padding:12px; border-bottom:1px solid rgba(255,255,255,0.02); display:flex; justify-content:space-between; align-items:center;">
+            listEl.innerHTML = data.map(item => {
+                const member = (window.allMembers || []).find(m => m.id === item.user_id);
+                const displayName = member ? `${member.display_name} (@${member.username})` : item.user_id;
+                return `
+                <li style="padding:12px 16px; border:1.5px solid #E2E8F0; background:#FFFFFF; border-radius:8px; margin-bottom:8px; display:flex; justify-content:space-between; align-items:center; box-shadow:0 1px 2px rgba(0,0,0,0.02);">
                     <div>
-                        <strong style="color:#fff;">${item.user_id}</strong>
-                        <span style="font-size:0.75rem; color:var(--text-secondary); margin-left:10px;">${item.reason}</span>
+                        <strong style="color:#0F172A; font-size:0.92rem; font-weight:800;">${displayName}</strong>
+                        <span style="font-size:0.76rem; color:#64748B; margin-left:8px; font-family:var(--font-mono);">${item.user_id}</span>
+                        <span style="font-size:0.74rem; color:#7C3AED; background:#F3E8FF; border:1px solid #E9D5FF; padding:2px 8px; border-radius:4px; font-weight:700; margin-left:8px;">${item.reason || 'Dashboard Override'}</span>
                     </div>
-                    <button onclick="deleteModerationOverride('${item.user_id}')" style="background:transparent; border:none; color:var(--text-secondary); cursor:pointer;" onmouseover="this.style.color='#ef4444'" onmouseout="this.style.color='var(--text-secondary)'">
-                        <i class="fas fa-trash"></i>
+                    <button onclick="deleteModerationOverride('${item.user_id}')" style="background:#FEE2E2; border:1px solid #FECACA; color:#DC2626; border-radius:6px; padding:6px 12px; font-size:0.78rem; font-weight:700; cursor:pointer; transition:all 0.15s;" onmouseover="this.style.background='#FCA5A5';this.style.color='#991B1B'" onmouseout="this.style.background='#FEE2E2';this.style.color='#DC2626'">
+                        <i class="fas fa-trash"></i> Remove
                     </button>
                 </li>
-            `).join('');
+            `;}).join('');
         })
         .catch(err => console.error("Error loading moderation overrides:", err));
 };

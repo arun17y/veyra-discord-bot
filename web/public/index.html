@@ -6780,13 +6780,21 @@ Support: </pre>
                         <!-- OVERRIDES PANEL -->
                         <div id="modpanel-overrides" style="display:none">
                             <div style="background: #FFFFFF; border: 1.5px solid #E2E8F0; border-radius: 12px; padding: 25px; margin-bottom: 25px; box-shadow: 0 1px 3px rgba(0,0,0,0.04);">
-                                <div style="display:flex; flex-direction:column; gap:6px;">
-                                    <label style="font-size:0.78rem; color:var(--text-secondary); font-weight:700; text-transform:uppercase;">USER ID</label>
-                                    <div style="display:flex; gap:10px; margin-top:4px;">
-                                        <input type="text" class="form-control" id="mod-user-id-grant" placeholder="Enter Discord User ID..." style="flex:1; background: #FFFFFF !important; border: 1.5px solid #CBD5E1 !important; color: #0F172A !important; border-color:rgba(255,255,255,0.05); padding:10px 14px;">
-                                        <button class="btn-primary" onclick="addModerationOverride()" style="background:#D96C91; border:none; padding:10px 20px; border-radius:6px; font-weight:700; cursor:pointer;">
-                                            Add Override
-                                        </button>
+                                <div style="display:flex; flex-direction:column; gap:12px;">
+                                    <div>
+                                        <label style="font-size:0.78rem; color:#475569; font-weight:700; text-transform:uppercase; margin-bottom:6px; display:block;">Select Server Member</label>
+                                        <select id="mod-override-user-select" class="form-control" onchange="if(this.value) { document.getElementById('mod-user-id-grant').value = this.value; }" style="width:100%; background: #FFFFFF !important; border: 1.5px solid #CBD5E1 !important; color: #0F172A !important; padding:10px 14px; border-radius:8px; font-size:0.9rem; font-weight:600; cursor:pointer;">
+                                            <option value="">-- Choose from server members --</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label style="font-size:0.78rem; color:#475569; font-weight:700; text-transform:uppercase; margin-bottom:6px; display:block;">Discord User ID</label>
+                                        <div style="display:flex; gap:10px;">
+                                            <input type="text" class="form-control" id="mod-user-id-grant" placeholder="Enter or paste Discord User ID..." style="flex:1; background: #FFFFFF !important; border: 1.5px solid #CBD5E1 !important; color: #0F172A !important; padding:10px 14px; border-radius:8px; font-family:var(--font-mono); font-size:0.88rem;">
+                                            <button class="btn-primary" onclick="addModerationOverride()" style="background:#D96C91; border:none; padding:10px 22px; border-radius:8px; font-weight:700; cursor:pointer; color:#FFFFFF; font-size:0.88rem; box-shadow:0 2px 4px rgba(217,108,145,0.25);">
+                                                Add Override
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -6818,6 +6826,12 @@ Support: </pre>
                         }
                         if (tab === 'bans' && guildId && typeof loadBanList === 'function') {
                             loadBanList(guildId);
+                        }
+                        if (tab === 'overrides' && guildId) {
+                            if (typeof loadModerationOverrides === 'function') loadModerationOverrides(guildId);
+                            if (typeof loadMembersForModeration === 'function' && (!window._membersCache || window._membersCache.length === 0)) {
+                                loadMembersForModeration(guildId);
+                            }
                         }
                     }
                     function refreshMembers() {

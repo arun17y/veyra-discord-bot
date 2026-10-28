@@ -99,21 +99,41 @@ function escapeHtml(str) {
 
 // ── MEMBER SEARCH & LOAD ─────────────────────────────────────────────────────
 let _membersCache = [];
+let _memberTypeFilter = 'all';
 
 async function loadMembersForModeration(guildId, query = '') {
     const container = document.getElementById('mod-members-list');
     if (!container) return;
-    container.innerHTML = `<div style="text-align:center;padding:20px;color:#64748b;font-size:0.85rem">Loading members...</div>`;
+    container.innerHTML = `<div style="text-align:center;padding:30px;color:#64748B;font-size:0.9rem;font-weight:600">Loading all server members...</div>`;
     try {
-        const url = `/api/bot/members/${guildId}?limit=200${query ? '&query=' + encodeURIComponent(query) : ''}`;
+        const url = `/api/bot/members/${guildId}?limit=1000${query ? '&query=' + encodeURIComponent(query) : ''}`;
         const r = await fetch(url);
         if (!r.ok) throw new Error('Failed to load members');
         _membersCache = await r.json();
+        window._membersCache = _membersCache;
+        window.allMembers = _membersCache;
+        _populateOverrideUserSelect(_membersCache);
         renderMembersForModeration(_membersCache);
     } catch (e) {
-        container.innerHTML = `<div style="text-align:center;padding:20px;color:#ef4444;font-size:0.85rem">Failed to load members: ${e.message}</div>`;
+        container.innerHTML = `<div style="text-align:center;padding:30px;color:#EF4444;font-size:0.85rem">Failed to load members: ${e.message}</div>`;
     }
 }
+
+function _populateOverrideUserSelect(members) {
+    const sel = document.getElementById('mod-override-user-select');
+    if (!sel || !members) return;
+    const curVal = sel.value;
+    sel.innerHTML = `<option value="">-- Choose from server members (${members.length}) --</option>` +
+        members.map(m => `<option value="${m.id}">${escapeHtml(m.display_name)} (@${escapeHtml(m.username)})${m.bot ? ' [BOT]' : ''} — ${m.id}</option>`).join('');
+    if (curVal) sel.value = curVal;
+}
+window._populateOverrideUserSelect = _populateOverrideUserSelect;
+
+function setMemberTypeFilter(filterType) {
+    _memberTypeFilter = filterType;
+    renderMembersForModeration(_membersCache);
+}
+window.setMemberTypeFilter = setMemberTypeFilter;
 
 function renderMembersForModeration(members) {
     const container = document.getElementById('mod-members-list');
@@ -122,19 +142,47 @@ function renderMembersForModeration(members) {
         container.innerHTML = `<div style="text-align:center;padding:30px;color:#64748B;font-size:0.9rem;font-weight:600">No members found matching query.</div>`;
         return;
     }
-    container.innerHTML = '';
-    for (const m of members) {
-        if (m.bot) continue;
+
+    const totalCount = members.length;
+    const humanCount = members.filter(m => !m.bot).length;
+    const botCount = members.filter(m => m.bot).length;
+
+    let filtered = members;
+    if (_memberTypeFilter === 'humans') filtered = members.filter(m => !m.bot);
+    else if (_memberTypeFilter === 'bots') filtered = members.filter(m => m.bot);
+
+    container.innerHTML = `
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; flex-wrap:wrap; gap:10px;">
+            <div style="display:flex; gap:6px;">
+                <button onclick="setMemberTypeFilter('all')" style="background:${_memberTypeFilter === 'all' ? '#0F172A' : '#F1F5F9'}; color:${_memberTypeFilter === 'all' ? '#FFFFFF' : '#475569'}; border:1px solid ${_memberTypeFilter === 'all' ? '#0F172A' : '#E2E8F0'}; border-radius:6px; padding:5px 12px; font-size:0.78rem; font-weight:700; cursor:pointer; transition:all 0.15s">All (${totalCount})</button>
+                <button onclick="setMemberTypeFilter('humans')" style="background:${_memberTypeFilter === 'humans' ? '#0F172A' : '#F1F5F9'}; color:${_memberTypeFilter === 'humans' ? '#FFFFFF' : '#475569'}; border:1px solid ${_memberTypeFilter === 'humans' ? '#0F172A' : '#E2E8F0'}; border-radius:6px; padding:5px 12px; font-size:0.78rem; font-weight:700; cursor:pointer; transition:all 0.15s">Members (${humanCount})</button>
+                <button onclick="setMemberTypeFilter('bots')" style="background:${_memberTypeFilter === 'bots' ? '#0F172A' : '#F1F5F9'}; color:${_memberTypeFilter === 'bots' ? '#FFFFFF' : '#475569'}; border:1px solid ${_memberTypeFilter === 'bots' ? '#0F172A' : '#E2E8F0'}; border-radius:6px; padding:5px 12px; font-size:0.78rem; font-weight:700; cursor:pointer; transition:all 0.15s">Bots (${botCount})</button>
+            </div>
+            <span style="color:#64748B; font-size:0.78rem; font-weight:600">Showing ${filtered.length} of ${totalCount}</span>
+        </div>
+        <div id="mod-members-cards-container"></div>
+    `;
+
+    const cardsContainer = document.getElementById('mod-members-cards-container');
+    for (const m of filtered) {
         const card = document.createElement('div');
         card.className = 'mod-member-card';
         card.style.cssText = `display:flex;align-items:center;gap:14px;padding:12px 18px;border-radius:10px;border:1.5px solid #E2E8F0;background:#FFFFFF;margin-bottom:10px;cursor:pointer;transition:all 0.15s;box-shadow:0 1px 2px rgba(0,0,0,0.03);`;
         card.onmouseenter = () => { card.style.background = '#F8FAFC'; card.style.borderColor = '#CBD5E1'; };
         card.onmouseleave = () => { card.style.background = '#FFFFFF'; card.style.borderColor = '#E2E8F0'; };
         card.onclick = () => openModActionModal(m);
+
+        const botBadge = m.bot 
+            ? `<span style="background:#5865F2;color:#FFFFFF;font-size:0.62rem;font-weight:800;padding:2px 6px;border-radius:4px;letter-spacing:0.04em;margin-left:6px;vertical-align:middle;">BOT</span>`
+            : '';
+
         card.innerHTML = `
-            <img src="${escapeHtml(m.avatar)}" style="width:40px;height:40px;border-radius:50%;flex-shrink:0;object-fit:cover;border:1px solid #E2E8F0" onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png'">
+            <img src="${escapeHtml(m.avatar)}" style="width:42px;height:42px;border-radius:50%;flex-shrink:0;object-fit:cover;border:1.5px solid #E2E8F0" onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png'">
             <div style="flex:1;min-width:0">
-                <div style="font-weight:800;color:#0F172A;font-size:0.95rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${escapeHtml(m.display_name)}</div>
+                <div style="display:flex;align-items:center;gap:6px">
+                    <span style="font-weight:800;color:#0F172A;font-size:0.95rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${escapeHtml(m.display_name)}</span>
+                    ${botBadge}
+                </div>
                 <div style="color:#64748B;font-size:0.76rem;font-weight:600;font-family:var(--font-mono);margin-top:2px">${escapeHtml(m.username)} · ${m.id}</div>
             </div>
             <div style="display:flex;gap:8px">
@@ -143,7 +191,7 @@ function renderMembersForModeration(members) {
                 <button onclick="event.stopPropagation();quickAction('timeout','${m.id}','${escapeHtml(m.username)}')" title="Timeout" style="background:#FEF9C3;border:1px solid #FEF08A;color:#CA8A04;border-radius:6px;padding:6px 14px;cursor:pointer;font-size:0.78rem;font-weight:700;transition:all 0.15s" onmouseover="this.style.background='#FDE047';this.style.color='#854D0E'" onmouseout="this.style.background='#FEF9C3';this.style.color='#CA8A04'">TO</button>
             </div>
         `;
-        container.appendChild(card);
+        cardsContainer.appendChild(card);
     }
 }
 

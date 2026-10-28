@@ -4216,33 +4216,99 @@ app.post('/api/embed/post', async (req, res) => {
 });
 
 // Helper: log audit entry to DB
-function logAuditEntry(guildId, user, action, details) {
+async function logAuditEntry(guildId, user, action, details) {
     const nowStr = new Date().toISOString();
     db.run(`INSERT INTO audit_logs (timestamp, user, action, guild_id, details) VALUES (?, ?, ?, ?, ?)`,
         [nowStr, user, action, guildId, details], (err) => {
             if (err) console.error('[AUDIT LOG ERROR]', err.message);
         });
+
+    if (!guildId) return;
+
+    try {
+        db.get("SELECT moderation_logs, security_logs FROM guild_settings WHERE guild_id = ?", [guildId], async (err, row) => {
+            if (err || !row) return;
+
+            const isSecurityAction = /antinuke|antiraid|antispam|panic|beast|lockdown|whitelist|blacklist|quarantine|security|bypass|shield/i.test(action || '');
+            let targetChannel = isSecurityAction ? row.security_logs : row.moderation_logs;
+            if (!targetChannel || targetChannel === 'none' || !/^\d{17,20}$/.test(targetChannel)) {
+                targetChannel = isSecurityAction ? row.moderation_logs : row.security_logs;
+            }
+
+            if (!targetChannel || targetChannel === 'none' || !/^\d{17,20}$/.test(targetChannel)) {
+                return;
+            }
+
+            let color = 0x5865F2; // Blurple
+            let emoji = '🛡️';
+            const actLower = (action || '').toLowerCase();
+            if (actLower.includes('ban')) {
+                color = 0xEF4444; // Red
+                emoji = '🔨';
+            } else if (actLower.includes('kick')) {
+                color = 0xF97316; // Orange
+                emoji = '👢';
+            } else if (actLower.includes('timeout')) {
+                if (actLower.includes('remove') || actLower.includes('untimeout')) {
+                    color = 0x10B981; // Green
+                    emoji = '🔊';
+                } else {
+                    color = 0xEAB308; // Yellow
+                    emoji = '⏳';
+                }
+            } else if (actLower.includes('warn')) {
+                color = 0xFBBF24; // Amber
+                emoji = '⚠️';
+            } else if (actLower.includes('unban')) {
+                color = 0x10B981; // Green
+                emoji = '🔓';
+            } else if (isSecurityAction) {
+                color = 0xDC2626; // Crimson
+                emoji = '🚨';
+            }
+
+            const embed = {
+                title: `${emoji} **${action}**`,
+                description: `${details || 'No details specified.'}`,
+                fields: [
+                    { name: 'Moderator', value: `${user || 'Dashboard'}`, inline: true },
+                    { name: 'Target Channel', value: `<#${targetChannel}>`, inline: true }
+                ],
+                color: color,
+                timestamp: nowStr,
+                footer: {
+                    text: 'VEYRA Real-Time Security & Moderation Shield'
+                }
+            };
+
+            const sendRes = await discordRequest('POST', `/channels/${targetChannel}/messages`, {
+                embeds: [embed]
+            });
+            if (sendRes.status === 200 || sendRes.status === 201) {
+                console.log(`[DISCORD AUDIT EMBED SENT] Action=${action} Channel=${targetChannel}`);
+            } else {
+                console.error(`[DISCORD AUDIT EMBED FAILED] status=${sendRes.status}:`, sendRes.body);
+            }
+        });
+    } catch (e) {
+        console.error('[DISCORD AUDIT EMBED EXCEPTION]:', e);
+    }
 }
 
 // GET /api/bot/members/:guild_id - List guild members
 app.get('/api/bot/members/:guild_id', async (req, res) => {
     const { guild_id } = req.params;
-    const limit = Math.min(parseInt(req.query.limit) || 100, 1000);
-    const query = (req.query.query || '').toLowerCase();
+    const limit = Math.min(parseInt(req.query.limit) || 1000, 1000);
+    const query = (req.query.query || '').trim();
     try {
-        let endpoint = `/guilds/${guild_id}/members?limit=${limit}`;
+        let endpoint = query 
+            ? `/guilds/${guild_id}/members/search?query=${encodeURIComponent(query)}&limit=${limit}`
+            : `/guilds/${guild_id}/members?limit=${limit}`;
         const result = await discordRequest('GET', endpoint);
         if (result.status !== 200) {
             return res.status(result.status).json({ error: 'Discord API error', detail: result.body });
         }
-        let members = result.body;
-        if (query) {
-            members = members.filter(m =>
-                (m.user.username && m.user.username.toLowerCase().includes(query)) ||
-                (m.nick && m.nick.toLowerCase().includes(query)) ||
-                (m.user.id && m.user.id.includes(query))
-            );
-        }
+        let members = result.body || [];
         res.json(members.map(m => ({
             id: m.user.id,
             username: m.user.username,
@@ -4252,7 +4318,7 @@ app.get('/api/bot/members/:guild_id', async (req, res) => {
                 : `https://cdn.discordapp.com/embed/avatars/${(parseInt(m.user.id) >> 22) % 6}.png`,
             roles: m.roles,
             joined_at: m.joined_at,
-            bot: m.user.bot || false
+            bot: !!(m.user && m.user.bot)
         })));
     } catch (e) {
         res.status(500).json({ error: e.message });
