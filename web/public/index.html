@@ -1775,12 +1775,14 @@
         }
         let style = '#webgl-canvas, #ui-layer { display: none !important; } #main-content { opacity: 1 !important; pointer-events: auto !important; }';
         if (initialScreen !== 'landing') {
-            style += ' #screen-landing { display: none; }';
+            style += ' #screen-landing { display: none !important; }';
             if (initialScreen === 'servers') {
-                style += ' #screen-servers { display: block; }';
+                style += ' #screen-servers { display: block !important; }';
             } else if (initialScreen === 'dashboard') {
-                style += ' #screen-dashboard { display: flex; }';
+                style += ' #screen-dashboard { display: flex !important; }';
             }
+        } else {
+            style += ' #screen-landing { display: block !important; }';
         }
         document.write('<style>' + style + '</style>');
     </script>
