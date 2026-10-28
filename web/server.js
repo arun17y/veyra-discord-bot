@@ -110,6 +110,16 @@ app.use('/api/discord-proxy', async (req, res) => {
     }
 });
 
+// Cache-busting middleware for real-time frontend assets
+app.use((req, res, next) => {
+    if (req.url.endsWith('.js') || req.url.endsWith('.html') || req.url === '/' || req.url.startsWith('/manage') || req.url.startsWith('/dashboard')) {
+        res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+        res.setHeader('Pragma', 'no-cache');
+        res.setHeader('Expires', '0');
+    }
+    next();
+});
+
 // Serve static dashboard web resources
 app.use(express.static(path.join(__dirname, 'public')));
 
@@ -4514,18 +4524,87 @@ app.get('/api/bot/bans/:guild_id', async (req, res) => {
     }
 });
 
-// GET /api/logs/live/:guild_id - Live audit log polling (last N entries since a timestamp)
-app.get('/api/logs/live/:guild_id', (req, res) => {
+// GET /api/logs/live/:guild_id - Real-Time Live Audit Log Stream (Discord Native + Live DB)
+app.get('/api/logs/live/:guild_id', async (req, res) => {
     const { guild_id } = req.params;
     const since = req.query.since || new Date(0).toISOString();
-    const limit = Math.min(parseInt(req.query.limit) || 50, 200);
+    const limit = Math.min(parseInt(req.query.limit) || 30, 100);
+
+    let combinedLogs = [];
+
+    // 1. Fetch real native Discord audit logs
+    try {
+        const dRes = await discordRequest('GET', `/guilds/${guild_id}/audit-logs?limit=${limit}`);
+        if (dRes && dRes.status === 200 && dRes.body && dRes.body.audit_log_entries) {
+            const data = dRes.body;
+            const userMap = {};
+            (data.users || []).forEach(u => {
+                userMap[u.id] = u.global_name || u.username;
+            });
+
+            for (const entry of data.audit_log_entries) {
+                const user = userMap[entry.user_id] || (entry.user_id ? `User ${entry.user_id}` : 'System');
+                const action = DISCORD_AUDIT_ACTION_MAP[entry.action_type] || `Action ${entry.action_type}`;
+                let detail = entry.reason ? `Reason: ${entry.reason}` : '';
+                if (entry.changes && entry.changes.length > 0) {
+                    const changeSummary = entry.changes.map(c => `${c.key}: ${JSON.stringify(c.new_value !== undefined ? c.new_value : c.old_value)}`).join(', ');
+                    detail = detail ? `${detail} (${changeSummary})` : changeSummary;
+                }
+                if (!detail) detail = `Executed ${action} on target ${entry.target_id || ''}`.trim();
+
+                const snowflakeTime = Number((BigInt(entry.id) >> 22n) + 1420070400000n);
+                const timestamp = new Date(snowflakeTime).toISOString();
+
+                combinedLogs.push({
+                    id: String(entry.id),
+                    guild_id: guild_id,
+                    timestamp: timestamp,
+                    user: user,
+                    action: action,
+                    details: detail
+                });
+            }
+        }
+    } catch (apiErr) {
+        console.error('[Live Audit Logs] Discord API error:', apiErr.message);
+    }
+
+    // 2. Fetch live actions logged from dashboard (warn, timeout, kick, ban)
     db.all(
-        `SELECT * FROM audit_logs WHERE guild_id = ? AND timestamp > ? ORDER BY timestamp DESC LIMIT ?`,
-        [guild_id, since, limit],
+        `SELECT id, guild_id, timestamp, "user", action, details FROM audit_logs WHERE guild_id = ? ORDER BY id DESC LIMIT 20`,
+        [guild_id],
         (err, rows) => {
-            if (err) return res.status(500).json({ error: err.message });
+            if (!err && rows && rows.length > 0) {
+                for (const r of rows) {
+                    combinedLogs.push({
+                        id: 'db_' + r.id,
+                        guild_id: r.guild_id,
+                        timestamp: r.timestamp,
+                        user: r.user,
+                        action: r.action,
+                        details: r.details
+                    });
+                }
+            }
+
+            // Deduplicate and sort descending by timestamp
+            const seen = new Set();
+            const uniqueLogs = [];
+            combinedLogs.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+            for (const item of combinedLogs) {
+                const key = `${item.action}_${item.details}_${item.user}_${item.timestamp.slice(0, 16)}`;
+                if (!seen.has(key)) {
+                    seen.add(key);
+                    uniqueLogs.push(item);
+                }
+            }
+
+            const filtered = since && since !== new Date(0).toISOString()
+                ? uniqueLogs.filter(l => l.timestamp > since)
+                : uniqueLogs;
+
             res.json({
-                logs: rows || [],
+                logs: filtered.slice(0, limit),
                 server_time: new Date().toISOString()
             });
         }

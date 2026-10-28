@@ -5,12 +5,12 @@
 
 // ── LIVE LOG POLLING ──────────────────────────────────────────────────────────
 let _liveLogPollInterval = null;
-let _liveLogLastSeen = new Date(Date.now() - 30 * 60 * 1000).toISOString(); // last 30 min on first load
+let _liveLogLastSeen = null; // null on first load to get latest live events
 let _liveLogGuildId = null;
 
 function startLiveLogPolling(guildId) {
     _liveLogGuildId = guildId;
-    _liveLogLastSeen = new Date(Date.now() - 30 * 60 * 1000).toISOString();
+    _liveLogLastSeen = null;
     if (_liveLogPollInterval) clearInterval(_liveLogPollInterval);
     _pollLiveLogs(); // immediate first poll
     _liveLogPollInterval = setInterval(_pollLiveLogs, 5000); // poll every 5s
@@ -23,12 +23,16 @@ function stopLiveLogPolling() {
 async function _pollLiveLogs() {
     if (!_liveLogGuildId) return;
     try {
-        const r = await fetch(`/api/logs/live/${_liveLogGuildId}?since=${encodeURIComponent(_liveLogLastSeen)}&limit=30`);
+        const url = _liveLogLastSeen 
+            ? `/api/logs/live/${_liveLogGuildId}?since=${encodeURIComponent(_liveLogLastSeen)}&limit=30`
+            : `/api/logs/live/${_liveLogGuildId}?limit=30`;
+        const r = await fetch(url);
         if (!r.ok) return;
         const data = await r.json();
         if (data.logs && data.logs.length > 0) {
+            const isInitial = !_liveLogLastSeen;
             _liveLogLastSeen = data.server_time || new Date().toISOString();
-            _injectLiveLogs(data.logs);
+            _injectLiveLogs(data.logs, isInitial);
         }
     } catch (e) { /* silent */ }
 }
@@ -49,47 +53,63 @@ const LOG_ICONS = {
     'default': { icon: '📋', color: '#64748b' }
 };
 
-function _injectLiveLogs(logs) {
+function _injectLiveLogs(logs, isInitial = false) {
     const container = document.getElementById('live-logs-feed') || document.getElementById('weblogs-body');
     if (!container) return;
     
-    // Clear initial placeholder if present
+    // Clear initial placeholder or loading state
     const placeholder = container.querySelector('div');
-    if (placeholder && placeholder.textContent.includes('Live audit events will appear')) {
+    if (placeholder && (placeholder.textContent.includes('Live audit events will appear') || placeholder.textContent.includes('Connecting to real-time'))) {
         container.innerHTML = '';
     }
 
-    for (const log of logs) {
-        const ts = new Date(log.timestamp).toLocaleTimeString('en-US', { hour12: false });
-        const typeKey = Object.keys(LOG_ICONS).find(k => log.action && log.action.includes(k)) || 'default';
-        const { icon, color } = LOG_ICONS[typeKey];
-        
-        let actor = log.user || 'System';
-        if (actor.toLowerCase().includes('neondb') || actor.toLowerCase().includes('owner') || actor.toLowerCase().includes('postgres')) {
-            actor = 'AutoMod Shield';
+    if (isInitial || container.children.length === 0) {
+        container.innerHTML = '';
+        for (const log of logs) {
+            const row = _createLiveLogRow(log);
+            container.appendChild(row);
         }
+        return;
+    }
 
-        const row = document.createElement('div');
-        row.className = 'live-log-row';
-        row.style.cssText = `display:flex;align-items:flex-start;gap:12px;padding:12px 16px;border-bottom:1px solid #F1F5F9;background:#FFFFFF;border-radius:8px;margin-bottom:6px;transition:background 0.15s;box-shadow:0 1px 2px rgba(0,0,0,0.02);`;
-        row.onmouseenter = () => row.style.background = '#F8FAFC';
-        row.onmouseleave = () => row.style.background = '#FFFFFF';
-
-        row.innerHTML = `
-            <span style="font-size:1.25rem;margin-top:2px;flex-shrink:0">${icon}</span>
-            <div style="flex:1;min-width:0">
-                <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
-                    <span style="color:${color};font-weight:800;font-size:0.88rem;font-family:var(--font-mono);letter-spacing:0.02em">${escapeHtml(log.action || 'Event')}</span>
-                    <span style="color:#64748B;font-size:0.75rem;font-weight:600;font-family:var(--font-mono)">${ts}</span>
-                    <span style="color:#7C3AED;background:#F3E8FF;border:1px solid #E9D5FF;border-radius:4px;padding:2px 8px;font-size:0.72rem;font-weight:700;font-family:var(--font-mono)">by ${escapeHtml(actor)}</span>
-                </div>
-                <div style="color:#1E293B;font-size:0.84rem;margin-top:4px;line-height:1.55;font-weight:500;word-break:break-word">${escapeHtml(log.details || '')}</div>
-            </div>
-        `;
+    // New real-time delta items: insert newest at top
+    const reversed = [...logs].reverse();
+    for (const log of reversed) {
+        const row = _createLiveLogRow(log);
         if (container.firstChild) container.insertBefore(row, container.firstChild);
         else container.appendChild(row);
     }
     while (container.children.length > 200) container.removeChild(container.lastChild);
+}
+
+function _createLiveLogRow(log) {
+    const ts = new Date(log.timestamp).toLocaleTimeString('en-US', { hour12: false });
+    const typeKey = Object.keys(LOG_ICONS).find(k => log.action && log.action.includes(k)) || 'default';
+    const { icon, color } = LOG_ICONS[typeKey] || LOG_ICONS['default'];
+    
+    let actor = (log.user || '').trim();
+    if (actor.toLowerCase().includes('neondb') || actor.toLowerCase().includes('postgres') || actor.toLowerCase().includes('automod') || actor.toLowerCase().includes('shield')) {
+        actor = '';
+    }
+
+    const row = document.createElement('div');
+    row.className = 'live-log-row';
+    row.style.cssText = `display:flex;align-items:flex-start;gap:12px;padding:12px 16px;border-bottom:1px solid #F1F5F9;background:#FFFFFF;border-radius:8px;margin-bottom:6px;transition:background 0.15s;box-shadow:0 1px 2px rgba(0,0,0,0.02);`;
+    row.onmouseenter = () => row.style.background = '#F8FAFC';
+    row.onmouseleave = () => row.style.background = '#FFFFFF';
+
+    row.innerHTML = `
+        <span style="font-size:1.25rem;margin-top:2px;flex-shrink:0">${icon}</span>
+        <div style="flex:1;min-width:0">
+            <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+                <span style="color:${color};font-weight:800;font-size:0.88rem;font-family:var(--font-mono);letter-spacing:0.02em">${escapeHtml(log.action || 'Event')}</span>
+                <span style="color:#64748B;font-size:0.75rem;font-weight:600;font-family:var(--font-mono)">${ts}</span>
+                ${actor ? `<span style="color:#64748B;font-size:0.75rem;font-weight:600;font-family:var(--font-mono)">• by ${escapeHtml(actor)}</span>` : ''}
+            </div>
+            <div style="color:#1E293B;font-size:0.84rem;margin-top:4px;line-height:1.55;font-weight:500;word-break:break-word">${escapeHtml(log.details || '')}</div>
+        </div>
+    `;
+    return row;
 }
 
 function escapeHtml(str) {

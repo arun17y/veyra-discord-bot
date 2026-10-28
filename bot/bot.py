@@ -2902,18 +2902,20 @@ async def nick_command(ctx, member: discord.Member, *, new_nick: str):
 
 @bot.command(name="whitelist")
 async def add_whitelist(ctx, member: discord.Member):
-    """Adds a member to the trusted whitelist bypass."""
+    """Adds a member to the trusted whitelist bypass with interactive permissions select."""
+    from interactive_ui import build_whitelist_embed
     conn = get_db()
     try:
         conn.execute("INSERT OR IGNORE INTO whitelists (guild_id, user_id, reason) VALUES (?, ?, ?)",
                      (str(ctx.guild.id), str(member.id), "Whitelisted via client commands"))
         conn.commit()
-        await ctx.send(f"{member.mention} has been whitelisted for **all events**.")
-        await log_system_event_async(ctx.guild, ctx.author.name, 'Whitelist command', f"Added user {member.name} to whitelist overrides")
-    except Exception as e:
-        await ctx.send(f"❌ Transaction failed: {e}")
+        await log_system_event_async(ctx.guild, ctx.author.name, 'Whitelist command', f"Configuring whitelist matrix for {member.name}")
+    except Exception:
+        pass
     finally:
         conn.close()
+    embed, view = build_whitelist_embed(member)
+    await ctx.send(embed=embed, view=view)
 
 @bot.command(name="unwhitelist")
 async def remove_whitelist(ctx, member: discord.Member):
