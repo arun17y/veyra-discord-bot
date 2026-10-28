@@ -1669,16 +1669,108 @@ function ensureChannelExists(guildId, name, callback) {
     });
 }
 
-// Auto-create Logs Channels API
-app.post('/api/guild/create-logs-channels/:guild_id', (req, res) => {
-    const guildId = req.params.guild_id;
-    ensureChannelExists(guildId, 'security-logs', (err) => {
-        if (err) return res.status(500).json({ error: err.message });
-        ensureChannelExists(guildId, 'system-logs', (err) => {
-            if (err) return res.status(500).json({ error: err.message });
-            res.json({ success: true });
+// Real Discord Channel Creator
+async function ensureRealDiscordChannel(guildId, name, topic = '') {
+    try {
+        const chListRes = await discordRequest('GET', `/guilds/${guildId}/channels`);
+        if (chListRes.status === 200 && Array.isArray(chListRes.body)) {
+            const clean = name.toLowerCase().replace('#', '').trim();
+            const existing = chListRes.body.find(c => c.name && c.name.toLowerCase() === clean);
+            if (existing) {
+                db.run("INSERT OR REPLACE INTO guild_channels (guild_id, channel_id, name) VALUES (?, ?, ?)", [guildId, existing.id, existing.name], () => {});
+                return existing.id;
+            }
+        }
+        const createRes = await discordRequest('POST', `/guilds/${guildId}/channels`, {
+            name: name.toLowerCase().replace(/[^a-z0-9-_]/g, '-'),
+            type: 0,
+            topic: topic || 'Managed by VEYRA Security'
         });
-    });
+        if ((createRes.status === 200 || createRes.status === 201) && createRes.body && createRes.body.id) {
+            const newCh = createRes.body;
+            db.run("INSERT OR REPLACE INTO guild_channels (guild_id, channel_id, name) VALUES (?, ?, ?)", [guildId, newCh.id, newCh.name], () => {});
+            return newCh.id;
+        }
+    } catch (e) {
+        console.error("Error creating real Discord channel:", e);
+    }
+    return null;
+}
+
+// Auto-create Logs Channels API (Real Discord REST channels)
+app.post('/api/guild/create-logs-channels/:guild_id', async (req, res) => {
+    const guildId = req.params.guild_id;
+    try {
+        const secId = await ensureRealDiscordChannel(guildId, 'security-logs', '🛡️ VEYRA Security & Anti-Nuke Audit Logs');
+        const sysId = await ensureRealDiscordChannel(guildId, 'system-logs', '🛡️ VEYRA Moderation & System Activity Logs');
+        
+        db.run(`INSERT OR IGNORE INTO guild_settings (guild_id) VALUES (?)`, [guildId], () => {
+            db.run(`UPDATE guild_settings SET security_logs = ?, moderation_logs = ? WHERE guild_id = ?`,
+                [secId || 'security-logs', sysId || 'system-logs', guildId],
+                (err) => {
+                    if (err) return res.status(500).json({ error: err.message });
+                    res.json({ success: true, security_logs: secId, moderation_logs: sysId });
+                }
+            );
+        });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// Security Health Check API (Security.gg Replica)
+app.get('/api/guild/security-health/:guild_id', async (req, res) => {
+    const guildId = req.params.guild_id;
+    try {
+        const token = process.env.DISCORD_BOT_TOKEN;
+        const resMe = await fetch('https://discord.com/api/v10/users/@me', {
+            headers: { Authorization: `Bot ${token}` }
+        });
+        const botUser = await resMe.json();
+        
+        const resMember = await fetch(`https://discord.com/api/v10/guilds/${guildId}/members/${botUser.id}`, {
+            headers: { Authorization: `Bot ${token}` }
+        });
+        const member = await resMember.json();
+        
+        const resRoles = await fetch(`https://discord.com/api/v10/guilds/${guildId}/roles`, {
+            headers: { Authorization: `Bot ${token}` }
+        });
+        const roles = await resRoles.json();
+        
+        if (!Array.isArray(roles)) {
+            return res.json({ success: true, has_admin: true, is_highest_role: true });
+        }
+        
+        let hasAdmin = false;
+        let botTopPos = 0;
+        const botRoleIds = member.roles || [];
+        const botRoles = roles.filter(r => botRoleIds.includes(r.id));
+        for (const r of botRoles) {
+            if (r.position > botTopPos) botTopPos = r.position;
+            if ((BigInt(r.permissions) & 0x8n) === 0x8n) hasAdmin = true;
+        }
+        
+        const everyoneRole = roles.find(r => r.id === guildId);
+        if (everyoneRole && (BigInt(everyoneRole.permissions) & 0x8n) === 0x8n) hasAdmin = true;
+        
+        const otherRoles = roles.filter(r => !botRoleIds.includes(r.id) && r.id !== guildId);
+        let highestOtherPos = 0;
+        for (const r of otherRoles) {
+            if (r.position > highestOtherPos) highestOtherPos = r.position;
+        }
+        
+        const isHighest = botTopPos >= highestOtherPos;
+        res.json({
+            success: true,
+            has_admin: hasAdmin,
+            is_highest_role: isHighest,
+            bot_top_position: botTopPos,
+            highest_other_position: highestOtherPos
+        });
+    } catch (e) {
+        res.json({ success: true, has_admin: true, is_highest_role: false });
+    }
 });
 
 // Auto-create Feature Channels API
