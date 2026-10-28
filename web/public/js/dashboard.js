@@ -3402,11 +3402,6 @@ function checkSession(forceRefresh = false) {
                     })
                     .catch(e => console.error("Admin check error:", e));
                 
-                const urlParams = new URLSearchParams(window.location.search);
-                const queryGuildId = urlParams.get('guild_id');
-                const savedGuildId = queryGuildId || sessionStorage.getItem('activeGuildId');
-                const activeScr = sessionStorage.getItem('activeScreen');
-
                 const serversList = data.guilds || [];
                 renderUserGuilds(serversList, true);
                 if (savedGuildId && Array.isArray(serversList)) {
@@ -3419,10 +3414,13 @@ function checkSession(forceRefresh = false) {
                 if (typeof window.initRazorpayCheckoutFlow === 'function') {
                     window.initRazorpayCheckoutFlow();
                 }
-
+                const urlParams = new URLSearchParams(window.location.search);
+                const queryGuildId = urlParams.get('guild_id');
+                const savedGuildId = queryGuildId || sessionStorage.getItem('activeGuildId');
+                const activeScr = sessionStorage.getItem('activeScreen');
+                
                 const isAlreadyViewingGuild = (currentScreen === 'dashboard' || activeScr === 'dashboard') && window.activeGuildId && String(window.activeGuildId) === String(savedGuildId);
                 if ((activeScr === 'dashboard' || queryGuildId) && savedGuildId && typeof loadServerDashboard === 'function') {
-                    showScreen('dashboard');
                     if (!isAlreadyViewingGuild) {
                         loadServerDashboard(savedGuildId);
                     }
@@ -3459,13 +3457,6 @@ function checkSession(forceRefresh = false) {
                 }
                 updateHeaderWidgetsVisibility(false);
                 renderUserGuilds([], false);
-                const urlParams = new URLSearchParams(window.location.search);
-                const queryGuildId = urlParams.get('guild_id');
-                if (window.location.pathname.includes('/manage') || window.location.pathname.includes('/dashboard') || queryGuildId) {
-                    showScreen('servers');
-                } else {
-                    showScreen('landing');
-                }
                 const loginBtn = document.getElementById('login-btn');
                 if (loginBtn) {
                     loginBtn.innerHTML = `
@@ -3493,13 +3484,6 @@ function checkSession(forceRefresh = false) {
             updateHeaderWidgetsVisibility(false);
             console.error("Session fetch failed, using empty fallback:", err);
             renderUserGuilds([], false);
-            const urlParams = new URLSearchParams(window.location.search);
-            const queryGuildId = urlParams.get('guild_id');
-            if (window.location.pathname.includes('/manage') || window.location.pathname.includes('/dashboard') || queryGuildId) {
-                showScreen('servers');
-            } else {
-                showScreen('landing');
-            }
         });
 }
 
