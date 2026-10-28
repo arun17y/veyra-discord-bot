@@ -839,12 +839,18 @@ function showScreen(screenId, preserveScroll = false) {
     }
 
     if (screenId === 'landing') {
+        document.body.classList.remove('in-dashboard');
+        closeMobileSidebar();
         if (screenLanding) screenLanding.style.display = 'block';
         if (!preserveScroll) setNavBtnActive(navHome, true);
     } else if (screenId === 'servers') {
+        document.body.classList.remove('in-dashboard');
+        closeMobileSidebar();
         if (screenServers) screenServers.style.display = 'block';
         if (!preserveScroll) setNavBtnActive(navManageServers, true);
     } else if (screenId === 'dashboard') {
+        document.body.classList.add('in-dashboard');
+        if (window.innerWidth <= 768) { closeMobileSidebar(); }
         if (screenDashboard) screenDashboard.style.display = 'flex';
         if (!preserveScroll) setNavBtnActive(navManageServers, true);
         const activeTab = document.querySelector('.tab-pane[style*="display: block"]');
@@ -1662,6 +1668,7 @@ window.loadServerOverview = loadServerOverview;
 
 
 function switchTab(tabId) {
+    if (window.innerWidth <= 768 && typeof closeMobileSidebar === 'function') closeMobileSidebar();
     const requiredPlan = tabPermissions[tabId] || 'Free';
     const currentPlan = window.currentServerPlan || 'Free';
     
@@ -3102,8 +3109,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const toggleBtn = document.getElementById('sidebar-toggle-btn');
     const sidebar = document.querySelector('.sidebar');
     if (toggleBtn && sidebar) {
-        // Restore user collapse preference immediately
-        if (localStorage.getItem('sidebar_collapsed') === 'true') {
+        // Restore user collapse preference or default to collapsed on mobile
+        if (window.innerWidth <= 768) {
+            sidebar.classList.add('collapsed');
+            toggleBtn.classList.add('crossed');
+        } else if (localStorage.getItem('sidebar_collapsed') === 'true') {
             sidebar.classList.add('collapsed');
             toggleBtn.classList.add('crossed');
         }
@@ -3112,7 +3122,13 @@ document.addEventListener('DOMContentLoaded', () => {
             e.stopPropagation();
             sidebar.classList.toggle('collapsed');
             toggleBtn.classList.toggle('crossed');
-            localStorage.setItem('sidebar_collapsed', sidebar.classList.contains('collapsed') ? 'true' : 'false');
+            const backdrop = document.getElementById('mobile-sidebar-backdrop');
+            if (backdrop && window.innerWidth <= 768) {
+                backdrop.style.display = sidebar.classList.contains('collapsed') ? 'none' : 'block';
+            }
+            if (window.innerWidth > 768) {
+                localStorage.setItem('sidebar_collapsed', sidebar.classList.contains('collapsed') ? 'true' : 'false');
+            }
         });
     }
 
@@ -12108,3 +12124,27 @@ window.runLiveSecurityScan = function() {
             });
     }, 1200);
 };
+
+
+// =========================================================================
+// MOBILE SIDEBAR RESPONSIVE CONTROLLER
+// =========================================================================
+function toggleMobileSidebar(e) {
+    if (e) e.stopPropagation();
+    const sidebar = document.querySelector('.sidebar');
+    const backdrop = document.getElementById('mobile-sidebar-backdrop');
+    if (!sidebar) return;
+    const isNowCollapsed = sidebar.classList.toggle('collapsed');
+    if (backdrop) {
+        backdrop.style.display = isNowCollapsed ? 'none' : 'block';
+    }
+}
+
+function closeMobileSidebar() {
+    const sidebar = document.querySelector('.sidebar');
+    const backdrop = document.getElementById('mobile-sidebar-backdrop');
+    if (sidebar) sidebar.classList.add('collapsed');
+    if (backdrop) backdrop.style.display = 'none';
+}
+window.toggleMobileSidebar = toggleMobileSidebar;
+window.closeMobileSidebar = closeMobileSidebar;
