@@ -112,9 +112,8 @@ app.use('/api/discord-proxy', async (req, res) => {
 
 // Cache-busting middleware for real-time frontend assets
 app.use((req, res, next) => {
-    const cleanPath = (req.path || req.url || '').split('?')[0];
-    if (cleanPath.endsWith('.js') || cleanPath.endsWith('.html') || cleanPath.endsWith('.css') || req.url.includes('.js?') || req.url.includes('.css?') || req.url === '/' || req.url.startsWith('/manage') || req.url.startsWith('/dashboard') || req.url.startsWith('/api/')) {
-        res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0');
+    if (req.url.endsWith('.js') || req.url.endsWith('.html') || req.url === '/' || req.url.startsWith('/manage') || req.url.startsWith('/dashboard')) {
+        res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
         res.setHeader('Pragma', 'no-cache');
         res.setHeader('Expires', '0');
     }
@@ -802,14 +801,7 @@ function getSessionData(req) {
     if (req.cookies && (req.cookies.VEYRA_session || req.cookies.SENTRIX_session)) {
         rawSession = req.cookies.VEYRA_session || req.cookies.SENTRIX_session;
     }
-    // Direct header cookie regex fallback (critical for Vercel serverless / edge proxy)
-    if (!rawSession && req.headers && req.headers.cookie) {
-        const match = req.headers.cookie.match(/(?:^|;\s*)(?:VEYRA_session|SENTRIX_session)=([^;]+)/);
-        if (match && match[1]) {
-            rawSession = match[1];
-        }
-    }
-    if ((!rawSession || rawSession === 'undefined') && req.headers && req.headers.authorization) {
+    if ((!rawSession || rawSession === 'undefined') && req.headers.authorization) {
         const parts = req.headers.authorization.split(' ');
         if (parts.length === 2 && parts[0] === 'Bearer') {
             rawSession = decodeURIComponent(parts[1]);
@@ -817,20 +809,11 @@ function getSessionData(req) {
     }
     if (rawSession && rawSession !== 'undefined') {
         try {
-            let parsed = rawSession;
-            // Decode repeatedly if multiple percent-encodings exist
-            for (let i = 0; i < 3; i++) {
-                if (typeof parsed === 'string' && (parsed.startsWith('%7B') || parsed.startsWith('%22') || parsed.includes('%22') || parsed.includes('%20'))) {
-                    parsed = decodeURIComponent(parsed);
-                } else {
-                    break;
-                }
+            if (typeof rawSession === 'string' && (rawSession.startsWith('%7B') || rawSession.includes('%22'))) {
+                rawSession = decodeURIComponent(rawSession);
             }
-            if (typeof parsed === 'string' && parsed.startsWith('j:')) {
-                parsed = parsed.slice(2);
-            }
-            if (typeof parsed === 'object' && parsed !== null) return parsed;
-            return JSON.parse(parsed);
+            if (typeof rawSession === 'object') return rawSession;
+            return JSON.parse(rawSession);
         } catch (e) {
             console.error("[AUTH] getSessionData parse error:", e);
         }
