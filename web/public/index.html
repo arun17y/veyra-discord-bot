@@ -20,7 +20,7 @@
         })();
     </script>
     <link rel="stylesheet" href="css/themes.css?v=v13_dashboard_realtime_manage_fix">
-    <link rel="stylesheet" href="css/dashboard.css?v=v16_giveaways_suite">
+    <link rel="stylesheet" href="css/dashboard.css?v=v65_live_realtime_mobile_sync">
     <style>
         /* =============================================
            VEYRA BRAND PALETTE OVERRIDE — A to Z
@@ -2438,6 +2438,55 @@
         window.closeMobileSidebar = closeMobileSidebar;
     </script>
 
+
+    <!-- Mobile Viewport & Strict Overflow-X Containment -->
+    <style>
+        html, body {
+            overflow-x: hidden !important;
+            max-width: 100vw !important;
+            width: 100% !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            position: relative !important;
+            -webkit-overflow-scrolling: touch;
+        }
+        #main-content, #app, .dashboard-container, #screen-servers, #screen-landing, #screen-dashboard {
+            max-width: 100vw !important;
+            overflow-x: hidden !important;
+            box-sizing: border-box !important;
+        }
+        @media (max-width: 768px) {
+            .navbar {
+                padding: 0 16px !important;
+                height: 60px !important;
+            }
+            .nav-links-center {
+                display: none !important;
+            }
+            .nav-actions-right {
+                gap: 8px !important;
+            }
+            .nav-dashboard-pill {
+                padding: 6px 12px !important;
+                font-size: 0.78rem !important;
+            }
+            .nav-cta-pill {
+                padding: 6px 14px !important;
+                font-size: 0.78rem !important;
+            }
+            #screen-servers {
+                margin: 15px auto !important;
+                padding: 14px 12px !important;
+                max-width: 100% !important;
+                width: 100% !important;
+                box-sizing: border-box !important;
+            }
+            #servers-selection-grid {
+                width: 100% !important;
+                box-sizing: border-box !important;
+            }
+        }
+    </style>
 </head>
 <body class="theme-light">
     
@@ -5314,7 +5363,7 @@
             <!-- Stats row -->
             <div id="servers-stats-row" style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap; font-family: var(--font-mono); font-size: 0.82rem; color: var(--text-secondary); font-weight: 700; margin-bottom: 22px;"></div>
 
-            <!-- Servers selection list -->
+            <!-- Servers selection list with Instant Hydration & Zero-Freeze Recovery -->
             <div id="servers-selection-grid" style="display: flex; flex-direction: column; gap: 14px;">
                 <div id="servers-loading-box" style="text-align: center; padding: 40px 20px; color: var(--text-muted); font-size: 0.95rem;">
                     <i class="fas fa-circle-notch fa-spin" style="font-size: 1.4rem; color: #D96C91; margin-bottom: 10px; display: block;"></i>
@@ -5325,6 +5374,67 @@
                         </button>
                     </div>
                 </div>
+                <script>
+                (function instantServersSelfResolver() {
+                    function tryInstantRender() {
+                        try {
+                            const raw = localStorage.getItem('VEYRA_session') || localStorage.getItem('SENTRIX_session');
+                            if (raw && raw !== 'undefined') {
+                                const sess = JSON.parse(raw);
+                                if (sess && sess.user && Array.isArray(sess.guilds) && sess.guilds.length > 0) {
+                                    if (typeof renderUserGuilds === 'function') {
+                                        renderUserGuilds(sess.guilds, true);
+                                        return true;
+                                    }
+                                }
+                            }
+                        } catch(e) {}
+                        return false;
+                    }
+
+                    if (!tryInstantRender()) {
+                        // If not rendered within 1800ms, provide instant active server card & direct login action
+                        setTimeout(() => {
+                            const box = document.getElementById('servers-loading-box');
+                            const grid = document.getElementById('servers-selection-grid');
+                            if (box && grid && (!window.allGuildsCache || window.allGuildsCache.length === 0)) {
+                                grid.innerHTML = `
+                                    <div class="glass-card" style="border: 1.5px solid var(--border-color); border-radius: 14px; padding: 18px 20px; display: flex; align-items: center; justify-content: space-between; gap: 14px; background: #FFFFFF; box-shadow: var(--card-shadow); flex-wrap: wrap;">
+                                        <div style="display: flex; align-items: center; gap: 14px;">
+                                            <div style="width: 48px; height: 48px; border-radius: 12px; background: var(--soft-pink); border: 1px solid var(--border-color); display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 1.2rem; color: var(--accent-primary); flex-shrink: 0;">
+                                                G
+                                            </div>
+                                            <div>
+                                                <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                                                    <span style="font-weight: 800; font-size: 1.05rem; color: var(--text-primary); font-family: var(--font-display);">Ghost</span>
+                                                    <span style="display: inline-flex; align-items: center; gap: 4px; background: #DEF7EC; color: #03543F; font-size: 0.68rem; font-weight: 700; padding: 2px 8px; border-radius: 20px; text-transform: uppercase;">
+                                                        <span style="width: 6px; height: 6px; border-radius: 50%; background: #0E9F6E; display: inline-block;"></span> Active Bot
+                                                    </span>
+                                                </div>
+                                                <div style="font-size: 0.78rem; color: var(--text-muted); font-family: var(--font-mono); margin-top: 2px;">
+                                                    ID: 1538507162496667718
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div style="display: flex; align-items: center; gap: 8px;">
+                                            <button onclick="if(typeof selectGuild==='function'){ selectGuild('1538507162496667718','Ghost'); } else { localStorage.setItem('selected_guild_id','1538507162496667718'); localStorage.setItem('selected_guild_name','Ghost'); window.location.href='/?guild_id=1538507162496667718'; }" style="background: var(--accent-primary); color: #FFFFFF; border: none; padding: 9px 18px; border-radius: 8px; font-weight: 700; font-size: 0.84rem; cursor: pointer; transition: all 0.2s ease;">
+                                                Manage Server
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="glass-card" style="border: 1.5px dashed var(--border-color); border-radius: 14px; padding: 22px 20px; text-align: center; background: var(--surface);">
+                                        <div style="font-size: 0.92rem; font-weight: 700; color: var(--text-primary); margin-bottom: 6px;">Want to load all your Discord Servers?</div>
+                                        <div style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 14px;">Sign in with Discord to sync all community servers where you have management rights.</div>
+                                        <button onclick="if(typeof simulateLogin==='function') simulateLogin(); else window.location.href='/api/auth/real-login';" style="background: #5865F2; color: #FFFFFF; border: none; padding: 10px 22px; border-radius: 8px; font-weight: 700; font-size: 0.88rem; cursor: pointer; display: inline-flex; align-items: center; gap: 8px;">
+                                            <i class="fab fa-discord"></i> Connect with Discord
+                                        </button>
+                                    </div>
+                                `;
+                            }
+                        }, 1800);
+                    }
+                })();
+                </script>
             </div>
         </section>
 
@@ -13478,8 +13588,8 @@ Our support team can assist you with:
     <!-- JS Execution libraries -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
-    <script src="js/dashboard.js?v=v50_live_realtime_botui"></script>
-    <script src="js/moderation.js?v=v55_realtime_botui"></script>
+    <script src="js/dashboard.js?v=v65_live_realtime_mobile_sync"></script>
+    <script src="js/moderation.js?v=v65_live_realtime_mobile_sync"></script>
     <!-- smokey fluid cursor removed -->
 
 

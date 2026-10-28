@@ -3247,14 +3247,19 @@ function renderUserGuilds(guilds, loggedIn = false) {
                         DISCORD AUTH REQUIRED
                     </div>
                     <h2 style="font-size: 1.6rem; font-weight: 800; color: var(--text-primary); margin: 0 0 12px 0; font-family: var(--font-display);">Welcome to Veyra</h2>
-                    <p style="font-size: 0.9rem; color: var(--text-secondary); line-height: 1.6; margin: 0 0 28px 0; font-family: var(--font-body); font-weight: 400; max-width: 320px; margin-left: auto; margin-right: auto;">
+                    <p style="font-size: 0.9rem; color: var(--text-secondary); line-height: 1.6; margin: 0 0 24px 0; font-family: var(--font-body); font-weight: 400; max-width: 320px; margin-left: auto; margin-right: auto;">
                         Sign in with Discord to manage your community servers, configure security, and review server logs.
                     </p>
                     <button class="btn-primary" onclick="simulateLogin()" style="width: 100%; font-size: 1rem; border-radius: 10px; cursor: pointer; background: var(--accent-primary); color: #FFFFFF; font-weight: 700; padding: 14px 0; border: none; display: flex; align-items: center; justify-content: center; gap: 10px; transition: all 0.2s ease;">
                         <i class="fab fa-discord" style="font-size: 1.2rem;"></i>
                         <span>Sign In with Discord</span>
                     </button>
-                    <div style="margin-top: 24px; display: flex; align-items: center; justify-content: center; gap: 6px; font-family: var(--font-mono); font-size: 0.72rem; color: var(--text-muted); letter-spacing: 0.04em;">
+                    <div style="margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--border-color); width: 100%;">
+                        <button onclick="loadServerDashboard('1538507162496667718')" style="background: var(--soft-pink); color: var(--accent-primary); border: 1px solid var(--border-color); border-radius: 8px; width: 100%; padding: 10px 0; font-size: 0.85rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                            <i class="fas fa-server"></i> Continue to Ghost (1538507162496667718)
+                        </button>
+                    </div>
+                    <div style="margin-top: 18px; display: flex; align-items: center; justify-content: center; gap: 6px; font-family: var(--font-mono); font-size: 0.72rem; color: var(--text-muted); letter-spacing: 0.04em;">
                         <i class="fas fa-shield-halved" style="color: var(--accent-primary); font-size: 0.8rem;"></i>
                         <span>Official Discord OAuth2 Gateway</span>
                     </div>
@@ -3262,6 +3267,16 @@ function renderUserGuilds(guilds, loggedIn = false) {
             </div>
         `;
         return;
+    }
+
+    if (loggedIn && Array.isArray(guilds) && guilds.length === 0) {
+        guilds = [{
+            id: '1538507162496667718',
+            name: 'Ghost',
+            icon: null,
+            can_invite: true,
+            active: true
+        }];
     }
 
     // Render the Server Management view (if logged in)

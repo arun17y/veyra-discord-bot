@@ -112,8 +112,9 @@ app.use('/api/discord-proxy', async (req, res) => {
 
 // Cache-busting middleware for real-time frontend assets
 app.use((req, res, next) => {
-    if (req.url.endsWith('.js') || req.url.endsWith('.html') || req.url === '/' || req.url.startsWith('/manage') || req.url.startsWith('/dashboard')) {
-        res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+    const cleanPath = (req.path || req.url || '').split('?')[0];
+    if (cleanPath.endsWith('.js') || cleanPath.endsWith('.html') || cleanPath.endsWith('.css') || req.url.includes('.js?') || req.url.includes('.css?') || req.url === '/' || req.url.startsWith('/manage') || req.url.startsWith('/dashboard') || req.url.startsWith('/api/')) {
+        res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0');
         res.setHeader('Pragma', 'no-cache');
         res.setHeader('Expires', '0');
     }
@@ -824,6 +825,9 @@ function getSessionData(req) {
                 } else {
                     break;
                 }
+            }
+            if (typeof parsed === 'string' && parsed.startsWith('j:')) {
+                parsed = parsed.slice(2);
             }
             if (typeof parsed === 'object' && parsed !== null) return parsed;
             return JSON.parse(parsed);

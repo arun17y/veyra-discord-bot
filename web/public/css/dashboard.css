@@ -3464,7 +3464,8 @@ input:checked + .slider:before,
     border: 1px solid #FBCFE8 !important;
 }
 
-/* 3. DESKTOP & RESPONSIVE COMPACT ICON-ONLY SIDEBAR SYSTEM */
+/* 3. DESKTOP ONLY: COMPACT ICON-ONLY SIDEBAR SYSTEM */
+@media (min-width: 769px) {
 .sidebar {
     width: 260px !important;
     min-width: 260px !important;
@@ -3601,6 +3602,7 @@ input:checked + .slider:before,
 .sidebar.collapsed #sidebar-user-name,
 .sidebar.collapsed .sidebar-pinned-bottom .user-tag {
     display: none !important;
+}
 }
 
 /* ==========================================================================
