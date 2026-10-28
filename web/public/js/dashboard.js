@@ -968,43 +968,51 @@ function loadServerDashboard(guildId) {
     localStorage.setItem('selected_guild_id', guildId);
     sessionStorage.setItem('activeGuildId', guildId);
 
+    function applyActiveGuildDetails(name, iconUrl, memberCount) {
+        if (name) {
+            localStorage.setItem('selected_guild_name', name);
+            ['sidebar-guild-name', 'managing-server-name', 'dashboard-server-name', 'header-server-dropdown-name', 'tickets-sidebar-guild-name'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.innerText = name;
+            });
+        }
+        if (iconUrl) {
+            try { localStorage.setItem('selected_guild_icon', iconUrl); } catch(e) {}
+            window.updateActiveGuildUI(guildId, name, iconUrl);
+            const sideImg = document.getElementById('sidebar-guild-avatar-img');
+            if (sideImg) sideImg.src = iconUrl;
+            const overviewImg = document.getElementById('overview-server-avatar');
+            if (overviewImg) {
+                overviewImg.innerHTML = `<img src="${iconUrl}" style="width: 100%; height: 100%; border-radius: 12px; object-fit: cover;">`;
+            }
+        }
+        const ticketsSidebarMembers = document.getElementById('tickets-sidebar-guild-members');
+        if (ticketsSidebarMembers && memberCount) {
+            ticketsSidebarMembers.innerText = `${memberCount.toLocaleString()} members`;
+        }
+    }
+
     const activeGuild = (window.allGuildsCache || []).find(g => g.id === guildId);
     if (activeGuild) {
-        const guildName = activeGuild.name;
-        localStorage.setItem('selected_guild_name', guildName);
-        if (document.getElementById('sidebar-guild-name')) {
-            document.getElementById('sidebar-guild-name').innerText = guildName;
-        }
-        if (document.getElementById('managing-server-name')) {
-            document.getElementById('managing-server-name').innerText = guildName;
-        }
-        if (document.getElementById('dashboard-server-name')) {
-            document.getElementById('dashboard-server-name').innerText = guildName;
-        }
-        if (document.getElementById('header-server-dropdown-name')) {
-            document.getElementById('header-server-dropdown-name').innerText = guildName;
-        }
-        if (document.getElementById('tickets-sidebar-guild-name')) {
-            document.getElementById('tickets-sidebar-guild-name').innerText = guildName;
-        }
-        
-        // Update server icons
-        const iconUrl = (activeGuild && activeGuild.icon) 
+        const iconUrl = activeGuild.icon 
             ? `https://cdn.discordapp.com/icons/${activeGuild.id}/${activeGuild.icon}.png?size=128`
             : (localStorage.getItem('selected_guild_icon') || 'https://cdn.discordapp.com/embed/avatars/0.png');
-        try { localStorage.setItem('selected_guild_icon', iconUrl); } catch(e) {}
-            
-        window.updateActiveGuildUI(guildId, guildName, iconUrl);
-        if (typeof loadSecuritySettings === 'function') loadSecuritySettings(guildId);
-
-        // Update member count
-        const ticketsSidebarMembers = document.getElementById('tickets-sidebar-guild-members');
-        if (ticketsSidebarMembers) {
-            const members = activeGuild.member_count || (guildName === 'GHOST' ? 1452 : 2083);
-            ticketsSidebarMembers.innerText = `${members.toLocaleString()} members`;
-        }
+        applyActiveGuildDetails(activeGuild.name, iconUrl, activeGuild.member_count);
         if (typeof renderSidebarGuilds === 'function') renderSidebarGuilds();
+    } else {
+        fetch(`/api/guild/${guildId}/utilities/serverinfo`)
+            .then(res => res.json())
+            .then(resData => {
+                if (resData && resData.server) {
+                    applyActiveGuildDetails(resData.server.name, resData.server.icon, resData.server.approximate_member_count);
+                }
+            })
+            .catch(() => {});
     }
+
+    if (typeof loadSecuritySettings === 'function') loadSecuritySettings(guildId);
+    if (typeof loadSecurityGeneralHealth === 'function') loadSecurityGeneralHealth(guildId);
+    if (typeof loadServerOverview === 'function') loadServerOverview(guildId);
     
     showScreen('dashboard');
     const pendingTab = window.currentTab || sessionStorage.getItem('activeTab') || sessionStorage.getItem('pendingTab') || 'overview';
@@ -3141,6 +3149,10 @@ document.addEventListener('DOMContentLoaded', () => {
         sessionStorage.setItem('activeScreen', 'dashboard');
         sessionStorage.setItem('activeGuildId', queryGuildId);
         window.activeGuildId = queryGuildId;
+        setTimeout(() => {
+            loadServerDashboard(queryGuildId);
+            if (typeof switchTab === 'function') switchTab('overview');
+        }, 10);
     }
     if (urlParams.has('tab')) {
         sessionStorage.setItem('pendingTab', urlParams.get('tab'));
@@ -3436,12 +3448,9 @@ function checkSession(forceRefresh = false) {
                     window.initRazorpayCheckoutFlow();
                 }
 
-                const isAlreadyViewingGuild = (currentScreen === 'dashboard' || activeScr === 'dashboard') && window.activeGuildId && String(window.activeGuildId) === String(savedGuildId);
                 if ((activeScr === 'dashboard' || queryGuildId) && savedGuildId && typeof loadServerDashboard === 'function') {
                     showScreen('dashboard');
-                    if (!isAlreadyViewingGuild) {
-                        loadServerDashboard(savedGuildId);
-                    }
+                    loadServerDashboard(savedGuildId);
                 } else if (window.location.pathname.includes('/manage') || window.location.pathname.includes('/dashboard')) {
                     showScreen('servers');
                 } else {
