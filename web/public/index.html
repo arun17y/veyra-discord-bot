@@ -1775,11 +1775,11 @@
         }
         let style = '#webgl-canvas, #ui-layer { display: none !important; } #main-content { opacity: 1 !important; pointer-events: auto !important; }';
         if (initialScreen !== 'landing') {
-            style += ' #screen-landing { display: none; }';
+            style += ' #screen-landing { display: none !important; }';
             if (initialScreen === 'servers') {
-                style += ' #screen-servers { display: block; }';
+                style += ' #screen-servers { display: block !important; }';
             } else if (initialScreen === 'dashboard') {
-                style += ' #screen-dashboard { display: flex; }';
+                style += ' #screen-dashboard { display: flex !important; }';
             }
         }
         document.write('<style>' + style + '</style>');
@@ -5722,7 +5722,7 @@ html.in-dashboard #mobile-sidebar-toggle-btn {
         <!-- [SCREEN 3: SERVER DASHBOARD WORKSPACE] -->
             <!-- Mobile Sidebar Backdrop Overlay -->
     <div id="mobile-sidebar-backdrop" onclick="closeMobileSidebar()" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.5); z-index: 1040; backdrop-filter: blur(2px);"></div>
-    <section id="screen-dashboard" class="dashboard-container" style="display:none;">
+    <section id="screen-dashboard" class="dashboard-container">
             <!-- Sidebar navigation panel -->
             <aside class="sidebar">
                 <!-- Pinned Top: Brand Header & Server Switcher Card -->
