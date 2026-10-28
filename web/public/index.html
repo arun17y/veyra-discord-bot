@@ -1774,15 +1774,14 @@
             initialScreen = 'servers';
         }
         let style = '#webgl-canvas, #ui-layer { display: none !important; } #main-content { opacity: 1 !important; pointer-events: auto !important; }';
-        if (initialScreen !== 'landing') {
-            style += ' #screen-landing { display: none; }';
-            if (initialScreen === 'servers') {
-                style += ' #screen-servers { display: block; }';
-            } else if (initialScreen === 'dashboard') {
-                style += ' #screen-dashboard { display: flex; }';
-            }
+        if (initialScreen === 'servers') {
+            style += ' #screen-landing { display: none !important; } #screen-dashboard { display: none !important; } #screen-servers { display: block !important; }';
+        } else if (initialScreen === 'dashboard') {
+            style += ' #screen-landing { display: none !important; } #screen-servers { display: none !important; } #screen-dashboard { display: flex !important; }';
+        } else {
+            style += ' #screen-landing { display: block !important; } #screen-servers { display: none !important; } #screen-dashboard { display: none !important; }';
         }
-        document.write('<style>' + style + '</style>');
+        document.write('<style id="pre-render-screen-style">' + style + '</style>');
     </script>
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 

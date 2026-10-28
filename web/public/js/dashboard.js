@@ -800,6 +800,9 @@ function showScreen(screenId, preserveScroll = false) {
     const screenDashboard = document.getElementById('screen-dashboard');
     const screenAdmin = document.getElementById('screen-admin');
     
+    const preStyle = document.getElementById('pre-render-screen-style');
+    if (preStyle) preStyle.remove();
+
     // If none of these screen elements exist, we are on a static page and should redirect to manage if showing servers/dashboard
     if (!screenLanding && !screenServers && !screenDashboard && !screenAdmin) {
         if (screenId === 'servers' || screenId === 'dashboard') {
@@ -808,10 +811,22 @@ function showScreen(screenId, preserveScroll = false) {
         return;
     }
     
-    if (screenLanding) screenLanding.style.display = 'none';
-    if (screenServers) screenServers.style.display = 'none';
-    if (screenDashboard) screenDashboard.style.display = 'none';
-    if (screenAdmin) screenAdmin.style.display = 'none';
+    if (screenLanding) {
+        screenLanding.style.removeProperty('display');
+        screenLanding.style.setProperty('display', 'none', 'important');
+    }
+    if (screenServers) {
+        screenServers.style.removeProperty('display');
+        screenServers.style.setProperty('display', 'none', 'important');
+    }
+    if (screenDashboard) {
+        screenDashboard.style.removeProperty('display');
+        screenDashboard.style.setProperty('display', 'none', 'important');
+    }
+    if (screenAdmin) {
+        screenAdmin.style.removeProperty('display');
+        screenAdmin.style.setProperty('display', 'none', 'important');
+    }
     
     const navHome = document.getElementById('nav-home');
     const navManageServers = document.getElementById('nav-manage-servers');
@@ -839,13 +854,22 @@ function showScreen(screenId, preserveScroll = false) {
     }
 
     if (screenId === 'landing') {
-        if (screenLanding) screenLanding.style.display = 'block';
+        if (screenLanding) {
+            screenLanding.style.removeProperty('display');
+            screenLanding.style.setProperty('display', 'block', 'important');
+        }
         if (!preserveScroll) setNavBtnActive(navHome, true);
     } else if (screenId === 'servers') {
-        if (screenServers) screenServers.style.display = 'block';
+        if (screenServers) {
+            screenServers.style.removeProperty('display');
+            screenServers.style.setProperty('display', 'block', 'important');
+        }
         if (!preserveScroll) setNavBtnActive(navManageServers, true);
     } else if (screenId === 'dashboard') {
-        if (screenDashboard) screenDashboard.style.display = 'flex';
+        if (screenDashboard) {
+            screenDashboard.style.removeProperty('display');
+            screenDashboard.style.setProperty('display', 'flex', 'important');
+        }
         if (!preserveScroll) setNavBtnActive(navManageServers, true);
         const activeTab = document.querySelector('.tab-pane[style*="display: block"]');
         if (!activeTab && typeof switchTab === 'function') {
@@ -3057,7 +3081,7 @@ function initAnimatedRevealFooter() {
 window.initAnimatedRevealFooter = initAnimatedRevealFooter;
 
 // --- 12. INITIALIZATION ON LOAD ---
-document.addEventListener('DOMContentLoaded', () => {
+function initDashboardApp() {
 
 // --- INSTANT PERSISTENT SERVER SELECTION RESTORATION ON LOAD ---
 (function restoreActiveServerInstant() {
@@ -3236,7 +3260,13 @@ document.addEventListener('DOMContentLoaded', () => {
         dateInput.value = localIso;
         updateEmbedBuilderPreview();
     }
-});
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initDashboardApp);
+} else {
+    initDashboardApp();
+}
 
 // --- 11.8 LEGACY THREAT SIMULATOR (DEPRECATED & SAFELY STUBBED) ---
 window.simulateThreat = function(type, isAuto = false) { /* no-op */ };
@@ -3317,6 +3347,11 @@ window.clickManageServers = function() {
 
 // Check for active Discord OAuth2 session
 function checkSession(forceRefresh = false) {
+    const urlParams = new URLSearchParams(window.location.search);
+    const queryGuildId = urlParams.get('guild_id');
+    const savedGuildId = queryGuildId || localStorage.getItem('selected_guild_id') || sessionStorage.getItem('activeGuildId');
+    const activeScr = sessionStorage.getItem('activeScreen');
+
     const localSess = localStorage.getItem('VEYRA_session') || localStorage.getItem('SENTRIX_session');
     const fetchHeaders = {};
     if (localSess && localSess !== 'undefined') {
@@ -3414,10 +3449,6 @@ function checkSession(forceRefresh = false) {
                 if (typeof window.initRazorpayCheckoutFlow === 'function') {
                     window.initRazorpayCheckoutFlow();
                 }
-                const urlParams = new URLSearchParams(window.location.search);
-                const queryGuildId = urlParams.get('guild_id');
-                const savedGuildId = queryGuildId || sessionStorage.getItem('activeGuildId');
-                const activeScr = sessionStorage.getItem('activeScreen');
                 
                 const isAlreadyViewingGuild = (currentScreen === 'dashboard' || activeScr === 'dashboard') && window.activeGuildId && String(window.activeGuildId) === String(savedGuildId);
                 if ((activeScr === 'dashboard' || queryGuildId) && savedGuildId && typeof loadServerDashboard === 'function') {
@@ -3477,13 +3508,35 @@ function checkSession(forceRefresh = false) {
                 if (sidebarName) {
                     sidebarName.innerText = 'Not Logged In';
                 }
+
+                // Deterministic Screen Fallback for Unauthenticated Visitors
+                if (queryGuildId) {
+                    showScreen('dashboard');
+                    if (typeof loadServerDashboard === 'function') {
+                        loadServerDashboard(queryGuildId);
+                    }
+                } else if (window.location.pathname.includes('/manage') || window.location.pathname.includes('/dashboard')) {
+                    showScreen('servers');
+                } else {
+                    showScreen('landing');
+                }
             }
         })
         .catch(err => {
             window.isUserLoggedIn = false;
             updateHeaderWidgetsVisibility(false);
-            console.error("Session fetch failed, using empty fallback:", err);
+            console.error("Session fetch failed, using fallback:", err);
             renderUserGuilds([], false);
+            if (queryGuildId) {
+                showScreen('dashboard');
+                if (typeof loadServerDashboard === 'function') {
+                    loadServerDashboard(queryGuildId);
+                }
+            } else if (window.location.pathname.includes('/manage') || window.location.pathname.includes('/dashboard')) {
+                showScreen('servers');
+            } else {
+                showScreen('landing');
+            }
         });
 }
 
