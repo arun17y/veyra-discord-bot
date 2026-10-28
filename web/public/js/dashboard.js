@@ -3057,10 +3057,15 @@ function initAnimatedRevealFooter() {
 window.initAnimatedRevealFooter = initAnimatedRevealFooter;
 
 // --- 12. INITIALIZATION ON LOAD ---
-document.addEventListener('DOMContentLoaded', () => {
+function initDashboardApp() {
+    // A. Priority Session Check (Optimistic Instant Render)
+    try {
+        checkSession();
+    } catch(e) {
+        console.error("checkSession init error:", e);
+    }
 
-// --- INSTANT PERSISTENT SERVER SELECTION RESTORATION ON LOAD ---
-(function restoreActiveServerInstant() {
+    // B. Instant Guild UI Restoration
     try {
         const urlParams = new URLSearchParams(window.location.search);
         const queryGid = urlParams.get('guild_id');
@@ -3068,256 +3073,79 @@ document.addEventListener('DOMContentLoaded', () => {
         const savedName = localStorage.getItem('selected_guild_name');
         const savedIcon = localStorage.getItem('selected_guild_icon');
 
-        if (savedName) {
-            const sideName = document.getElementById('sidebar-guild-name');
-            if (sideName) sideName.innerText = savedName;
-            const mgName = document.getElementById('managing-server-name');
-            if (mgName) mgName.innerText = savedName;
-            const dsName = document.getElementById('dashboard-server-name');
-            if (dsName) dsName.innerText = savedName;
-            const hdName = document.getElementById('header-server-dropdown-name');
-            if (hdName) hdName.innerText = savedName;
-            const tkName = document.getElementById('tickets-sidebar-guild-name');
-            if (tkName) tkName.innerText = savedName;
-        }
-        if (savedIcon || savedName) {
+        if (savedName && typeof window.updateActiveGuildUI === 'function') {
             window.updateActiveGuildUI(savedGid, savedName, savedIcon);
         }
-        // Ensure sidebar server dropdown is closed by default
         const sDrop = document.getElementById('sidebar-server-dropdown');
         if (sDrop) sDrop.style.display = 'none';
         const sChev = document.getElementById('sidebar-guild-chevron');
         if (sChev) sChev.style.transform = 'rotate(0deg)';
     } catch(e) {}
-})();
 
-    loadActiveTheme();
-    filterCommands('all');
-    updateEmbedPreview();
+    // C. Setup sidebar collapse toggle listener with mobile drawer support
+    try {
+        const toggleBtn = document.getElementById('sidebar-toggle-btn');
+        const sidebar = document.querySelector('.sidebar');
+        if (toggleBtn && sidebar) {
+            if (window.innerWidth <= 768) {
+                sidebar.classList.add('collapsed');
+                toggleBtn.classList.add('crossed');
+            } else if (localStorage.getItem('sidebar_collapsed') === 'true') {
+                sidebar.classList.add('collapsed');
+                toggleBtn.classList.add('crossed');
+            }
 
-    // Setup security sub-pane toggles
-    // Handled globally by switchSecTab() without locks!
-
-    // Setup sidebar collapse toggle listener with persistent icon-only state
-    const toggleBtn = document.getElementById('sidebar-toggle-btn');
-    const sidebar = document.querySelector('.sidebar');
-    if (toggleBtn && sidebar) {
-        // Restore user collapse preference immediately
-        if (localStorage.getItem('sidebar_collapsed') === 'true') {
-            sidebar.classList.add('collapsed');
-            toggleBtn.classList.add('crossed');
-        }
-
-        toggleBtn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            sidebar.classList.toggle('collapsed');
-            toggleBtn.classList.toggle('crossed');
-            localStorage.setItem('sidebar_collapsed', sidebar.classList.contains('collapsed') ? 'true' : 'false');
-        });
-    }
-
-    // Check if guild_id or tab is supplied in URL query string
-    const urlParams = new URLSearchParams(window.location.search);
-    let shouldCleanUrl = false;
-    if (urlParams.has('guild_id')) {
-        const queryGuildId = urlParams.get('guild_id');
-        sessionStorage.setItem('hasEntered', 'true');
-        sessionStorage.setItem('activeScreen', 'dashboard');
-        sessionStorage.setItem('activeGuildId', queryGuildId);
-        window.activeGuildId = queryGuildId;
-    }
-    if (urlParams.has('tab')) {
-        sessionStorage.setItem('pendingTab', urlParams.get('tab'));
-    }
-    if (urlParams.has('action')) {
-        sessionStorage.setItem('pendingAction', urlParams.get('action'));
-    }
-
-    // Invoke session check on load
-    checkSession();
-    
-    // Bind captcha bypass triggers
-    const verTypeDropdown = document.getElementById('ver-type');
-    const verCapCheckbox = document.getElementById('ver-enable-captcha');
-    if (verTypeDropdown) {
-        verTypeDropdown.addEventListener('change', () => {
-            toggleCaptchaOptionsBypass();
-        });
-    }
-    if (verCapCheckbox) {
-        verCapCheckbox.addEventListener('change', () => {
-            toggleCaptchaOptionsBypass();
-        });
-    }
-
-    // Parse URL hash for direct landing page sections
-    const hash = window.location.hash ? window.location.hash.substring(1).toLowerCase() : "";
-    const hasSectionHash = ['features', 'pricing', 'faq'].includes(hash);
-    
-    // Restore active screen on page refresh/reload if user has already entered
-    const path = window.location.pathname.toLowerCase();
-    const isStaticSubpage = path.includes('/ticket');
-    
-    if (sessionStorage.getItem('hasEntered') === 'true' && !isStaticSubpage && !hasSectionHash) {
-        const webglCanvas = document.getElementById('webgl-canvas');
-        if (webglCanvas) webglCanvas.style.display = 'none';
-        const uiLayer = document.getElementById('ui-layer');
-        if (uiLayer) uiLayer.style.display = 'none';
-        const mainContent = document.getElementById('main-content');
-        if (mainContent) {
-            mainContent.style.opacity = '1';
-            mainContent.style.pointerEvents = 'auto';
-        }
-        
-        const urlParams = new URLSearchParams(window.location.search);
-        const queryGuildId = urlParams.get('guild_id');
-        const isLoginSuccess = urlParams.get('login') === 'success';
-        const isManagePath = window.location.pathname.includes('/manage') || window.location.pathname.includes('/dashboard');
-
-        let activeScreen = 'landing';
-        if (queryGuildId) {
-            activeScreen = 'dashboard';
-            window.activeGuildId = queryGuildId;
-            sessionStorage.setItem('activeGuildId', queryGuildId);
-            sessionStorage.setItem('activeScreen', 'dashboard');
-        } else if (isLoginSuccess || isManagePath) {
-            activeScreen = 'servers';
-            sessionStorage.setItem('activeScreen', 'servers');
-        } else {
-            if (isManagePath) {
-                const savedScreen = sessionStorage.getItem('activeScreen');
-                const savedGuild = sessionStorage.getItem('activeGuildId');
-                if (savedScreen === 'dashboard' && savedGuild) {
-                    activeScreen = 'dashboard';
-                    window.activeGuildId = savedGuild;
-                } else {
-                    activeScreen = 'servers';
+            toggleBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                sidebar.classList.toggle('collapsed');
+                toggleBtn.classList.toggle('crossed');
+                const backdrop = document.getElementById('mobile-sidebar-backdrop');
+                if (backdrop && window.innerWidth <= 768) {
+                    backdrop.style.display = sidebar.classList.contains('collapsed') ? 'none' : 'block';
                 }
-            } else {
-                activeScreen = 'landing';
-                sessionStorage.setItem('activeScreen', 'landing');
-            }
+                if (window.innerWidth > 768) {
+                    localStorage.setItem('sidebar_collapsed', sidebar.classList.contains('collapsed') ? 'true' : 'false');
+                }
+            });
         }
-        
-        setTimeout(() => {
-            if (activeScreen === 'dashboard' && (window.activeGuildId || queryGuildId)) {
-                const targetGid = window.activeGuildId || queryGuildId;
-                loadServerDashboard(targetGid);
-            } else {
-                showScreen(activeScreen);
-            }
-        }, 150);
-    } else if (!isStaticSubpage) {
-        // If we are on the homepage and have a section hash, show screen 'landing' and scroll
-        if (hasSectionHash) {
-            const webglCanvas = document.getElementById('webgl-canvas');
-            if (webglCanvas) webglCanvas.style.display = 'none';
-            const uiLayer = document.getElementById('ui-layer');
-            if (uiLayer) uiLayer.style.display = 'none';
-            const mainContent = document.getElementById('main-content');
-            if (mainContent) {
-                mainContent.style.opacity = '1';
-                mainContent.style.pointerEvents = 'auto';
-            }
-            showScreen('landing');
-            setTimeout(() => {
-                clickNavSection(hash);
-            }, 300);
-        }
-    }
+    } catch(e) {}
 
-    // Background floating particles disabled by user request
-
-    // Set default value for embed builder date input on load
-    const dateInput = document.getElementById('eb-date-input');
-    if (dateInput) {
-        const now = new Date();
-        const localIso = new Date(now.getTime() - now.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
-        dateInput.value = localIso;
-        updateEmbedBuilderPreview();
-    }
-});
-
-// --- 11.8 LEGACY THREAT SIMULATOR (DEPRECATED & SAFELY STUBBED) ---
-window.simulateThreat = function(type, isAuto = false) { /* no-op */ };
-function animateThreatParticles(type) { /* no-op */ }
-// Helper to render procedural guild icons matching user screenshots
-function getCustomServerIcon(serverName) {
-    const name = serverName.toUpperCase();
-    
-    if (name.includes("RUSHI")) {
-        return `<div class="dyno-server-icon" style="background: url('https://cdn.discordapp.com/embed/avatars/1.png'); background-size: cover;"><i class="fas fa-user-tie" style="color: rgba(255,255,255,0.2); font-size: 1.6rem;"></i></div>`;
-    }
-    if (name.includes("SERVER ONE")) {
-        return `<div class="dyno-server-icon" style="background: #000; color: #fff; font-family: Impact, sans-serif; font-size: 0.85rem; padding: 4px; text-align: center; border-radius: 12px; line-height:1.2; text-shadow: 0 0 5px rgba(255,255,255,0.4); display:flex; flex-direction:column; justify-content:center; align-items:center;">SERVER<br>ONE</div>`;
-    }
-    if (name === "GHOST") {
-        return `<div class="dyno-server-icon" style="background: #ef4444; color: #fff; display:flex; align-items:center; justify-content:center; border: 1.5px solid rgba(255,255,255,0.25);"><i class="fas fa-ghost"></i></div>`;
-    }
-    if (name.includes("SERVER TWO")) {
-        return `<div class="dyno-server-icon" style="background: linear-gradient(135deg, #ef4444, #7f1d1d); font-family: 'Arial Black', sans-serif; font-size: 0.68rem; line-height: 1.1; color: #fff; text-shadow: 0 2px 4px #000; display:flex; flex-direction:column; justify-content:center; align-items:center;">SERVER<br>TWO</div>`;
-    }
-    if (name === "STAR") {
-        return `<div class="dyno-server-icon" style="background: radial-gradient(circle, #1e293b, #0f172a); color: #fbbf24; display:flex; align-items:center; justify-content:center;"><i class="fas fa-star" style="filter: drop-shadow(0 0 8px #fbbf24);"></i></div>`;
-    }
-    if (name.includes("LALA")) {
-        return `<div class="dyno-server-icon" style="background: linear-gradient(135deg, #f59e0b, #d97706); color: #fff; display:flex; align-items:center; justify-content:center;"><i class="fas fa-smile-beam"></i></div>`;
-    }
-    if (name.includes("GUNS")) {
-        return `<div class="dyno-server-icon" style="background: #18181b; color: #E26749; border: 1.5px solid rgba(168, 85, 247, 0.4); display:flex; align-items:center; justify-content:center;"><i class="fas fa-crosshairs"></i></div>`;
-    }
-    if (name.includes("OBSIDIAN")) {
-        return `<div class="dyno-server-icon" style="background: linear-gradient(135deg, #1e1b4b, #311042); color: #c084fc; display:flex; align-items:center; justify-content:center;"><i class="fas fa-gem"></i></div>`;
-    }
-    if (name.includes("CHAMELEON")) {
-        return `<div class="dyno-server-icon" style="background: linear-gradient(135deg, #10b981, #064e3b); color: #fff; font-weight:800; font-family:sans-serif; display:flex; align-items:center; justify-content:center;">MC</div>`;
-    }
-    if (name.includes("COUNTER-STRIKE")) {
-        return `<div class="dyno-server-icon" style="background: radial-gradient(circle, #27272a, #09090b); color: #fb923c; display:flex; align-items:center; justify-content:center;"><i class="fas fa-shield-halved"></i></div>`;
-    }
-    if (name.includes("MAGIC CHEATS")) {
-        return `<div class="dyno-server-icon" style="background: #0f172a; color: #38bdf8; border: 1.5px solid #38bdf8; display:flex; align-items:center; justify-content:center;"><i class="fas fa-wand-magic-sparkles"></i></div>`;
-    }
-    if (name.includes("CLOUD CHEAT")) {
-        return `<div class="dyno-server-icon" style="background: linear-gradient(135deg, #06b6d4, #083344); color: #fff; display:flex; align-items:center; justify-content:center;"><i class="fas fa-cloud-bolt"></i></div>`;
-    }
-    if (name.includes("CODES")) {
-        return `<div class="dyno-server-icon" style="background: #000; color: #10b981; border: 1.5px solid #10b981; font-family: monospace; font-size: 1.4rem; display:flex; align-items:center; justify-content:center;">&lt;/&gt;</div>`;
-    }
-    if (name.includes("GFF")) {
-        return `<div class="dyno-server-icon" style="background: linear-gradient(135deg, #2563eb, #1d4ed8); color: #fff; font-family: 'Impact', sans-serif; display:flex; align-items:center; justify-content:center;">GFF</div>`;
-    }
-    if (name.includes("PRITAM")) {
-        return `<div class="dyno-server-icon" style="background: radial-gradient(circle, #f43f5e, #881337); color: #fff; display:flex; align-items:center; justify-content:center;"><i class="fas fa-user-ninja"></i></div>`;
-    }
-    if (name.includes("COREDEV")) {
-        return `<div class="dyno-server-icon" style="background: #111827; color: #f97316; border: 1.5px solid #f97316; display:flex; align-items:center; justify-content:center;"><i class="fas fa-dragon"></i></div>`;
-    }
-    if (name.includes("QUANTREX")) {
-        return `<div class="dyno-server-icon" style="background: #1e1b4b; color: #818cf8; border: 1.5px solid #818cf8; display:flex; align-items:center; justify-content:center;"><i class="fas fa-cubes"></i></div>`;
-    }
-    if (name.includes("UPAKUL")) {
-        return `<div class="dyno-server-icon" style="background: linear-gradient(135deg, #ec4899, #be185d); color: #fff; font-family: sans-serif; font-weight:800; display:flex; align-items:center; justify-content:center;">UK</div>`;
-    }
-    if (name.includes("ROCKSTAR")) {
-        return `<div class="dyno-server-icon" style="background: #facc15; color: #000; font-family: 'Impact', sans-serif; border: 2px solid #000; font-size: 2.2rem; line-height: 1; display:flex; align-items:center; justify-content:center;">R*</div>`;
-    }
-    if (name.includes("BLAZE")) {
-        return `<div class="dyno-server-icon" style="background: linear-gradient(135deg, #b91c1c, #000); color: #f87171; font-family: 'Arial Black', sans-serif; font-size: 0.8rem; display:flex; align-items:center; justify-content:center;">BLAZE</div>`;
-    }
-    
-    // Default fallback letters
-    const firstChar = serverName.charAt(0).toUpperCase();
-    return `<div class="dyno-server-icon" style="background: linear-gradient(135deg, #3b82f6, #8b5cf6); color: #fff; display:flex; align-items:center; justify-content:center;">${firstChar}</div>`;
+    // D. Safe subordinate feature initializers
+    try { if (typeof loadActiveTheme === 'function') loadActiveTheme(); } catch(e) {}
+    try { if (typeof filterCommands === 'function') filterCommands('all'); } catch(e) {}
+    try { if (typeof updateEmbedPreview === 'function') updateEmbedPreview(); } catch(e) {}
 }
 
-window.clickManageServers = function() {
-    window.location.href = '/manage';
-};
+// Immediate + DOMContentLoaded execution guard
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initDashboardApp);
+} else {
+    initDashboardApp();
+}
+
+window.initDashboardApp = initDashboardApp;
 
 // Check for active Discord OAuth2 session
 function checkSession(forceRefresh = false) {
     const localSess = localStorage.getItem('VEYRA_session') || localStorage.getItem('SENTRIX_session');
+    
+    // 1. OPTIMISTIC INSTANT RENDER (0ms latency, eliminates loading spinner freeze)
+    if (localSess && localSess !== 'undefined') {
+        try {
+            const cached = JSON.parse(localSess);
+            if (cached && cached.user) {
+                window.isUserLoggedIn = true;
+                window.currentUser = cached.user;
+                if (Array.isArray(cached.guilds) && cached.guilds.length > 0) {
+                    renderUserGuilds(cached.guilds, true);
+                }
+                updateHeaderWidgetsVisibility(true, cached.user);
+            }
+        } catch(e) {
+            console.warn("Cached session parse notice:", e);
+        }
+    }
+
     const fetchHeaders = {};
     if (localSess && localSess !== 'undefined') {
         try {
@@ -3334,8 +3162,8 @@ function checkSession(forceRefresh = false) {
                     localStorage.setItem('VEYRA_session', JSON.stringify({ user: data.user, guilds: data.guilds }));
                     localStorage.setItem('SENTRIX_session', JSON.stringify({ user: data.user, guilds: data.guilds }));
                 } catch(e) {}
-                const tag = (data.user.global_name || data.user.username) ? (data.user.global_name || data.user.username) : '!! DADDY';
-                let avatarUrl = 'https://cdn.discordapp.com/avatars/1256986886631854080/e5f2679c33de4dfea4d337d6ea14d4c3.png?size=256';
+                const tag = (data.user.global_name || data.user.username) ? (data.user.global_name || data.user.username) : 'User';
+                let avatarUrl = 'assets/bypass_logs_avatar.webp';
                 if (data.user.id && data.user.avatar && data.user.avatar !== 'user_avatar') {
                     const ext = data.user.avatar.startsWith('a_') ? 'gif' : 'png';
                     avatarUrl = `https://cdn.discordapp.com/avatars/${data.user.id}/${data.user.avatar}.${ext}?size=256`;
@@ -3349,158 +3177,55 @@ function checkSession(forceRefresh = false) {
                 
                 const loginBtn = document.getElementById('login-btn');
                 if (loginBtn) {
-                    loginBtn.innerHTML = `<img src="${avatarUrl}" style="width:32px; height:32px; border-radius:50%; margin-right:10px; border: 1.5px solid rgba(255,255,255,0.15); vertical-align:middle; display:inline-block; object-fit: cover;"> ${tag}`;
+                    loginBtn.innerHTML = `<img src="${avatarUrl}" style="width:24px; height:24px; border-radius:50%; margin-right:6px; vertical-align:middle; display:inline-block; object-fit: cover;"> <span>${tag}</span>`;
                     loginBtn.onclick = () => showScreen('servers');
                 }
 
-                const sidebarAvatar = document.getElementById('sidebar-user-avatar');
-                const sidebarName = document.getElementById('sidebar-user-name');
-                if (sidebarAvatar) {
-                    sidebarAvatar.innerHTML = `<img src="${avatarUrl}" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">`;
-                    sidebarAvatar.style.background = 'transparent';
-                }
-                if (sidebarName) {
-                    sidebarName.innerText = tag;
-                }
-
-                // Update Server Selection header profile avatar & labels
-                const serversAvatar = document.getElementById('servers-user-avatar');
-                const serversDisplayName = document.getElementById('servers-user-displayname');
-                const serversHandle = document.getElementById('servers-user-handle');
-                if (serversAvatar) {
-                    serversAvatar.innerHTML = `<img src="${avatarUrl}" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">`;
-                    serversAvatar.style.background = 'transparent';
-                }
-                if (serversDisplayName) {
-                    serversDisplayName.innerText = data.user.global_name || data.user.username;
-                }
-                if (serversHandle) {
-                    serversHandle.innerText = `@${data.user.username}`;
-                }
-
-                // Update simulation live preview avatars
-                const simAvatar = document.getElementById('sim-user-avatar');
-                const leaveSimAvatar = document.getElementById('leave-sim-user-avatar');
-                if (simAvatar) {
-                    simAvatar.innerHTML = `<img src="assets/bypass_logs_avatar.webp" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">`;
-                }
-                if (leaveSimAvatar) {
-                    leaveSimAvatar.innerHTML = `<img src="assets/bypass_logs_avatar.webp" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">`;
-                }
-                
-                const navDash = document.getElementById('nav-dashboard');
-                if (navDash) navDash.style.display = 'block';
-
-                // Check Sovereign Admin Authorization (Restricted to ID: 1256986886631854080)
-                fetch('/api/admin/check?t=' + Date.now(), { cache: 'no-store' })
-                    .then(res => res.json())
-                    .then(admData => {
-                        window.isUserAdmin = admData.isAdmin;
-                        const navAdmin = document.getElementById('nav-admin');
-                        if (navAdmin) navAdmin.style.display = admData.isAdmin ? 'inline-block' : 'none';
-                        if (admData.isAdmin) loadAdminGuilds();
-                    })
-                    .catch(e => console.error("Admin check error:", e));
-                
-                const urlParams = new URLSearchParams(window.location.search);
-                const queryGuildId = urlParams.get('guild_id');
-                const savedGuildId = queryGuildId || sessionStorage.getItem('activeGuildId');
-                const activeScr = sessionStorage.getItem('activeScreen');
-
                 const serversList = data.guilds || [];
                 renderUserGuilds(serversList, true);
-                if (savedGuildId && Array.isArray(serversList)) {
-                    const matchedG = serversList.find(g => String(g.id) === String(savedGuildId));
-                    if (matchedG) {
-                        const mIcon = matchedG.icon ? `https://cdn.discordapp.com/icons/${matchedG.id}/${matchedG.icon}.png?size=128` : (localStorage.getItem('selected_guild_icon') || 'https://cdn.discordapp.com/embed/avatars/0.png');
-                        window.updateActiveGuildUI(matchedG.id, matchedG.name, mIcon);
-                    }
-                }
-                if (typeof window.initRazorpayCheckoutFlow === 'function') {
-                    window.initRazorpayCheckoutFlow();
-                }
-
-                const isAlreadyViewingGuild = (currentScreen === 'dashboard' || activeScr === 'dashboard') && window.activeGuildId && String(window.activeGuildId) === String(savedGuildId);
-                if ((activeScr === 'dashboard' || queryGuildId) && savedGuildId && typeof loadServerDashboard === 'function') {
-                    showScreen('dashboard');
-                    if (!isAlreadyViewingGuild) {
-                        loadServerDashboard(savedGuildId);
-                    }
-                } else if (window.location.pathname.includes('/manage') || window.location.pathname.includes('/dashboard')) {
-                    showScreen('servers');
-                } else {
-                    if (!queryGuildId && currentScreen !== 'dashboard') {
-                        showScreen('landing');
-                    }
-                }
                 
-                if (urlParams.has('login')) {
-                    sessionStorage.setItem('hasEntered', 'true');
-                    sessionStorage.setItem('activeScreen', 'servers');
-                    window.location.href = '/manage';
-                    return;
-                }
-                
-                const pendingAction = sessionStorage.getItem('pendingAction');
-                if (pendingAction === 'invite') {
-                    sessionStorage.removeItem('pendingAction');
-                    setTimeout(() => {
-                        showScreen('servers');
-                    }, 200);
+                // Clean URL query string if login was completed
+                if (window.location.search.includes('login=')) {
+                    try {
+                        const cleanUrl = new URL(window.location.href);
+                        cleanUrl.searchParams.delete('login');
+                        window.history.replaceState({}, '', cleanUrl.toString());
+                    } catch(e) {}
                 }
             } else {
-                window.isUserLoggedIn = false;
-                const urlParams = new URLSearchParams(window.location.search);
-                const queryGuildId = urlParams.get('guild_id');
-
-                const pendingAction = sessionStorage.getItem('pendingAction');
-                if (pendingAction === 'invite') {
-                    sessionStorage.removeItem('pendingAction');
-                    setTimeout(() => {
-                        simulateLogin();
-                    }, 200);
-                }
-                updateHeaderWidgetsVisibility(false);
-                renderUserGuilds([], false);
-                if (window.location.pathname.includes('/manage') || window.location.pathname.includes('/dashboard') || queryGuildId) {
-                    showScreen('servers');
+                // If backend returned loggedIn: false, check if we have local session
+                if (!localSess || localSess === 'undefined') {
+                    window.isUserLoggedIn = false;
+                    updateHeaderWidgetsVisibility(false);
+                    renderUserGuilds([], false);
                 } else {
-                    showScreen('landing');
-                }
-                const loginBtn = document.getElementById('login-btn');
-                if (loginBtn) {
-                    loginBtn.innerHTML = `
-                        <div class="liquid-metal-btn-inner">
-                            <i class="fab fa-discord" style="color: #E26749;"></i>
-                            <span>Login with Discord</span>
-                        </div>
-                    `;
-                    loginBtn.onclick = () => simulateLogin();
-                }
-
-                const sidebarAvatar = document.getElementById('sidebar-user-avatar');
-                const sidebarName = document.getElementById('sidebar-user-name');
-                if (sidebarAvatar) {
-                    sidebarAvatar.innerText = 'D';
-                    sidebarAvatar.style.background = '#9333ea';
-                }
-                if (sidebarName) {
-                    sidebarName.innerText = 'Not Logged In';
+                    try {
+                        const cached = JSON.parse(localSess);
+                        if (cached && cached.user && Array.isArray(cached.guilds) && cached.guilds.length > 0) {
+                            renderUserGuilds(cached.guilds, true);
+                            updateHeaderWidgetsVisibility(true, cached.user);
+                        } else {
+                            renderUserGuilds([], false);
+                        }
+                    } catch(e) {
+                        renderUserGuilds([], false);
+                    }
                 }
             }
         })
         .catch(err => {
-            window.isUserLoggedIn = false;
-            updateHeaderWidgetsVisibility(false);
-            console.error("Session fetch failed, using empty fallback:", err);
-            renderUserGuilds([], false);
-            const urlParams = new URLSearchParams(window.location.search);
-            const queryGuildId = urlParams.get('guild_id');
-            if (window.location.pathname.includes('/manage') || window.location.pathname.includes('/dashboard') || queryGuildId) {
-                showScreen('servers');
-            } else {
-                showScreen('landing');
+            console.error("Session fetch network error:", err);
+            if (localSess && localSess !== 'undefined') {
+                try {
+                    const cached = JSON.parse(localSess);
+                    if (cached && cached.user && Array.isArray(cached.guilds) && cached.guilds.length > 0) {
+                        renderUserGuilds(cached.guilds, true);
+                        updateHeaderWidgetsVisibility(true, cached.user);
+                        return;
+                    }
+                } catch(e) {}
             }
+            renderUserGuilds([], false);
         });
 }
 

@@ -2416,6 +2416,28 @@
     opacity: 1;
 }
 </style>
+
+    <script>
+        function toggleMobileSidebar(e) {
+            if (e) e.stopPropagation();
+            const sidebar = document.querySelector('.sidebar');
+            const backdrop = document.getElementById('mobile-sidebar-backdrop');
+            if (!sidebar) return;
+            const isNowCollapsed = sidebar.classList.toggle('collapsed');
+            if (backdrop) {
+                backdrop.style.display = isNowCollapsed ? 'none' : 'block';
+            }
+        }
+        function closeMobileSidebar() {
+            const sidebar = document.querySelector('.sidebar');
+            const backdrop = document.getElementById('mobile-sidebar-backdrop');
+            if (sidebar) sidebar.classList.add('collapsed');
+            if (backdrop) backdrop.style.display = 'none';
+        }
+        window.toggleMobileSidebar = toggleMobileSidebar;
+        window.closeMobileSidebar = closeMobileSidebar;
+    </script>
+
 </head>
 <body class="theme-light">
     
@@ -3004,7 +3026,7 @@
             </section>
 
             <!-- ==================== 30+ CONTINUOUS MOVING REVIEWS ==================== -->
-            <section class="reviews-section" style="max-width: 100%; overflow: visible; margin: 90px 0 60px 0; padding: 40px 0 20px 0; text-align: center;">
+            <section class="reviews-section" style="width: 100%; max-width: 100vw; overflow: hidden !important; margin: 90px 0 60px 0; padding: 40px 0 20px 0; text-align: center;">
                 <div style="max-width: 900px; margin: 0 auto 36px auto; padding: 16px 20px 0 20px;">
                     <h2 style="font-size: 2.5rem; font-weight: 800; color: var(--text-primary); line-height: 1.35; padding: 14px 0 6px 0; margin: 0 0 12px 0; letter-spacing: -0.02em; font-family: var(--font-display);">
                         TRUSTED BY WORLD-CLASS GUILDS
@@ -5294,9 +5316,14 @@
 
             <!-- Servers selection list -->
             <div id="servers-selection-grid" style="display: flex; flex-direction: column; gap: 14px;">
-                <div style="text-align: center; padding: 40px; color: var(--text-muted); font-size: 0.95rem;">
+                <div id="servers-loading-box" style="text-align: center; padding: 40px 20px; color: var(--text-muted); font-size: 0.95rem;">
                     <i class="fas fa-circle-notch fa-spin" style="font-size: 1.4rem; color: #D96C91; margin-bottom: 10px; display: block;"></i>
-                    Loading your Discord servers...
+                    <span>Loading your Discord servers...</span>
+                    <div style="margin-top: 14px;">
+                        <button type="button" onclick="if(typeof checkSession === 'function') checkSession(true); else window.location.reload();" style="background: var(--soft-pink); color: var(--accent-primary); border: 1.5px solid var(--border-color); border-radius: 8px; font-weight: 700; font-size: 0.82rem; padding: 8px 16px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
+                            <i class="fas fa-arrows-rotate"></i> Retry Server Load
+                        </button>
+                    </div>
                 </div>
             </div>
         </section>
@@ -5449,7 +5476,7 @@
             <div class="content-area" id="workspace-content">
                 
                 <!-- [TAB 1: OVERVIEW] -->
-                <div class="tab-pane" id="tab-overview" style="display:none; width: 100%; max-width: 1100px; padding: 20px;">
+                <div class="tab-pane active" id="tab-overview" style="display:block; width: 100%; max-width: 1100px; padding: 20px;">
                     <!-- Server Overview Header -->
                     <div class="section-header" style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 24px; flex-wrap: wrap; gap: 16px;">
                         <div>

@@ -801,7 +801,14 @@ function getSessionData(req) {
     if (req.cookies && (req.cookies.VEYRA_session || req.cookies.SENTRIX_session)) {
         rawSession = req.cookies.VEYRA_session || req.cookies.SENTRIX_session;
     }
-    if ((!rawSession || rawSession === 'undefined') && req.headers.authorization) {
+    // Direct header cookie regex fallback (critical for Vercel serverless / edge proxy)
+    if (!rawSession && req.headers && req.headers.cookie) {
+        const match = req.headers.cookie.match(/(?:^|;\s*)(?:VEYRA_session|SENTRIX_session)=([^;]+)/);
+        if (match && match[1]) {
+            rawSession = match[1];
+        }
+    }
+    if ((!rawSession || rawSession === 'undefined') && req.headers && req.headers.authorization) {
         const parts = req.headers.authorization.split(' ');
         if (parts.length === 2 && parts[0] === 'Bearer') {
             rawSession = decodeURIComponent(parts[1]);
@@ -809,11 +816,17 @@ function getSessionData(req) {
     }
     if (rawSession && rawSession !== 'undefined') {
         try {
-            if (typeof rawSession === 'string' && (rawSession.startsWith('%7B') || rawSession.includes('%22'))) {
-                rawSession = decodeURIComponent(rawSession);
+            let parsed = rawSession;
+            // Decode repeatedly if multiple percent-encodings exist
+            for (let i = 0; i < 3; i++) {
+                if (typeof parsed === 'string' && (parsed.startsWith('%7B') || parsed.startsWith('%22') || parsed.includes('%22') || parsed.includes('%20'))) {
+                    parsed = decodeURIComponent(parsed);
+                } else {
+                    break;
+                }
             }
-            if (typeof rawSession === 'object') return rawSession;
-            return JSON.parse(rawSession);
+            if (typeof parsed === 'object' && parsed !== null) return parsed;
+            return JSON.parse(parsed);
         } catch (e) {
             console.error("[AUTH] getSessionData parse error:", e);
         }
