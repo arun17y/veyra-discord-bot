@@ -84,12 +84,22 @@
         }
 
         /* Nav */
+        header {
+            position: sticky !important;
+            top: 0 !important;
+            z-index: 1000 !important;
+            width: 100% !important;
+            background: rgba(18, 20, 24, 0.95) !important;
+            backdrop-filter: blur(14px) !important;
+            -webkit-backdrop-filter: blur(14px) !important;
+            border-bottom: 1px solid var(--border-subtle) !important;
+        }
         .amari-nav {
             position: relative;
             z-index: 50;
             max-width: 1280px;
             margin: 0 auto;
-            padding: 24px 30px;
+            padding: 16px 30px;
             display: flex;
             align-items: center;
             justify-content: space-between;

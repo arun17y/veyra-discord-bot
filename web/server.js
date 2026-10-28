@@ -1355,6 +1355,29 @@ app.get('/api/guild/roles/:guild_id', async (req, res) => {
 });
 
 // Get Real Server Channels (Live Discord REST API with DB fallback)
+
+// Get Real Server Invites (Live Discord REST API)
+app.get('/api/guild/invites/:guild_id', async (req, res) => {
+    const guildId = req.params.guild_id;
+    try {
+        const discordRes = await discordRequest('GET', '/guilds/' + guildId + '/invites');
+        if (discordRes.status === 200 && Array.isArray(discordRes.body)) {
+            const invites = discordRes.body.map(inv => ({
+                code: inv.code,
+                channel_name: inv.channel ? inv.channel.name : 'unknown',
+                channel_id: inv.channel ? inv.channel.id : '',
+                uses: inv.uses || 0,
+                inviter: inv.inviter ? (inv.inviter.global_name || inv.inviter.username) : 'System',
+                created_at: inv.created_at
+            }));
+            return res.json(invites);
+        }
+    } catch (apiErr) {
+        console.warn('[INVITES API ERROR] Live fetch failed for guild ' + guildId + ':', apiErr.message);
+    }
+    res.json([]);
+});
+
 app.get('/api/guild/channels/:guild_id', async (req, res) => {
     const guildId = req.params.guild_id;
     try {
@@ -2433,33 +2456,129 @@ app.post('/api/settings/verification/:guild_id', (req, res) => {
     const v = req.body;
     db.run(`INSERT OR REPLACE INTO verification_settings (
                 guild_id, enabled, captcha_enabled, verified_role, unverified_role, channel, type,
-                captcha_lines, captcha_numbers, captcha_sensitive, captcha_timeout
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                captcha_lines, captcha_numbers, captcha_sensitive, captcha_timeout,
+                embed_title, embed_desc, embed_color, embed_image, embed_thumbnail, embed_footer,
+                button_text, button_color, timeout_action
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         [
             guildId,
             v.enabled ? 1 : 0,
             v.captcha_enabled !== undefined ? (v.captcha_enabled ? 1 : 0) : 1,
-            v.verified_role || 'Member',
-            v.unverified_role || 'Unverified',
+            v.verified_role || 'none',
+            v.unverified_role || 'none',
             v.channel || 'verify',
-            v.type || 'Captcha Code',
+            v.type || 'Button',
             v.captcha_lines !== undefined ? parseInt(v.captcha_lines) : 5,
             v.captcha_numbers ? 1 : 0,
             v.captcha_sensitive ? 1 : 0,
-            v.captcha_timeout !== undefined ? parseInt(v.captcha_timeout) : 60
+            v.captcha_timeout !== undefined ? parseInt(v.captcha_timeout) : 90,
+            v.embed_title || '🛡️ Member Verification Required',
+            v.embed_desc || 'Welcome to the server!\n\nTo access server channels, media, and community chats, please verify your Discord account using the button below.\n\n✅ **Instant Access:** You will immediately be granted the member role.',
+            v.embed_color || '#E11D48',
+            v.embed_image || '',
+            v.embed_thumbnail || '',
+            v.embed_footer || 'VEYRA Security Protocol • Automated Gatekeeper',
+            v.button_text || 'Verify Access',
+            v.button_color || 'green',
+            v.timeout_action || 'Kick'
         ],
         function(err) {
             if (err) return res.status(500).json({ error: err.message });
             
-            // Add audit log
             const now = new Date().toISOString();
-            db.run(`INSERT INTO audit_logs (guild_id, timestamp, user, action, details) 
-                    VALUES (?, ?, '@itzarun170', 'Verification Gate', 'Updated server join verification configuration rules')`, 
-                [guildId, now]);
+            db.run(`INSERT INTO audit_logs (guild_id, timestamp, "user", action, details) 
+                    VALUES (?, ?, ?, ?, ?)`, 
+                [guildId, now, 'Dashboard Admin', 'VERIFICATION_CONFIG_UPDATE', `Updated Verification Gate (Role: ${v.verified_role}, Unverified: ${v.unverified_role}, Enabled: ${v.enabled ? 'Yes' : 'No'})`]);
                 
-            res.json({ success: true });
+            dispatchRealTimeSecurityLog(guildId, 'Verification Gate Updated', `Verification configuration synced. Status: ${v.enabled ? 'ACTIVE' : 'DISABLED'} | Verified: ${v.verified_role} | Unverified: ${v.unverified_role}`, 'Dashboard Admin');
+
+            res.json({ success: true, verification: v });
         }
     );
+});
+
+// Deploy Interactive Verification Panel to Discord Channel API
+app.post('/api/verification/deploy-panel/:guild_id', async (req, res) => {
+    const guildId = req.params.guild_id;
+    try {
+        db.get("SELECT * FROM verification_settings WHERE guild_id = ?", [guildId], async (err, v) => {
+            if (err || !v) return res.status(400).json({ error: 'Verification settings not found.' });
+            
+            const targetCh = v.channel || 'verify';
+            let targetChannelId = null;
+            if (/^\d{17,20}$/.test(targetCh)) {
+                targetChannelId = targetCh;
+            } else {
+                const chRes = await discordRequest('GET', `/guilds/${guildId}/channels`);
+                if (chRes.status === 200 && Array.isArray(chRes.body)) {
+                    const match = chRes.body.find(c => c.name && c.name.toLowerCase() === targetCh.toLowerCase().replace('#',''));
+                    if (match) targetChannelId = match.id;
+                }
+            }
+            if (!targetChannelId) {
+                targetChannelId = await ensureRealDiscordChannel(guildId, targetCh || 'verify', '🛡️ Verification Gate');
+            }
+            if (!targetChannelId) {
+                return res.status(400).json({ error: 'Could not find or create verification channel.' });
+            }
+
+            let colInt = 0xE11D48;
+            if (v.embed_color) {
+                const parsed = parseInt(String(v.embed_color).replace('#',''), 16);
+                if (!isNaN(parsed)) colInt = parsed;
+            }
+
+            const embed = {
+                title: v.embed_title || '🛡️ Member Verification Required',
+                description: v.embed_desc || 'Welcome to the server!\n\nTo access server channels, media, and community chats, please verify your Discord account using the button below.\n\n✅ **Instant Access:** You will immediately be granted the member role.',
+                color: colInt,
+                footer: {
+                    text: v.embed_footer || 'VEYRA Security Protocol • Automated Gatekeeper'
+                },
+                timestamp: new Date().toISOString()
+            };
+            if (v.embed_image && v.embed_image.startsWith('http')) {
+                embed.image = { url: v.embed_image };
+            }
+            if (v.embed_thumbnail && v.embed_thumbnail.startsWith('http')) {
+                embed.thumbnail = { url: v.embed_thumbnail };
+            }
+
+            let btnStyle = 3; // Green / Success
+            const bCol = (v.button_color || 'green').toLowerCase();
+            if (bCol.includes('blurple') || bCol.includes('blue') || bCol.includes('primary')) btnStyle = 1;
+            else if (bCol.includes('grey') || bCol.includes('gray') || bCol.includes('secondary')) btnStyle = 2;
+            else if (bCol.includes('red') || bCol.includes('danger')) btnStyle = 4;
+
+            const components = [
+                {
+                    type: 1, // ActionRow
+                    components: [
+                        {
+                            type: 2, // Button
+                            style: btnStyle,
+                            label: v.button_text || 'Verify Access',
+                            custom_id: 'veyra_verify_now',
+                            emoji: { name: '✅' }
+                        }
+                    ]
+                }
+            ];
+
+            const sendRes = await discordRequest('POST', `/channels/${targetChannelId}/messages`, {
+                embeds: [embed],
+                components: components
+            });
+
+            if (sendRes.status === 200 || sendRes.status === 201) {
+                res.json({ success: true, channel_id: targetChannelId, message: 'Verification panel deployed live to Discord!' });
+            } else {
+                res.status(500).json({ error: 'Discord API error: ' + JSON.stringify(sendRes.body) });
+            }
+        });
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
 });
 
 // 5c. Beast Mode settings GET & POST

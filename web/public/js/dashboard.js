@@ -119,6 +119,64 @@ function loadSecuritySettings(guildId) {
 }
 window.loadSecuritySettings = loadSecuritySettings;
 
+// --- SECURITY GENERAL HEALTH CHECK (Security.gg Replica) ---
+window.loadSecurityGeneralHealth = function(guildId) {
+    const targetGuild = guildId || activeGuildId || window.activeGuildId || localStorage.getItem('selected_guild_id');
+    if (!targetGuild) return;
+    
+    fetch(`/api/guild/security-health/${targetGuild}`)
+        .then(res => res.json())
+        .then(data => {
+            const adminCard = document.getElementById('sec-health-admin-card');
+            const adminTitle = document.getElementById('sec-health-admin-title');
+            const adminDesc = document.getElementById('sec-health-admin-desc');
+            const adminIcon = document.getElementById('sec-health-admin-icon');
+            
+            if (adminCard && adminTitle && adminDesc && adminIcon) {
+                if (data.has_admin) {
+                    adminCard.className = 'audit-card ok';
+                    adminCard.style.borderLeftColor = '#10b981';
+                    adminTitle.innerText = 'LOOKING FINE';
+                    adminDesc.innerText = 'Security has the administrator which means all the features should work fine.';
+                    adminIcon.style.color = '#10b981';
+                    adminIcon.innerHTML = '<i class="fas fa-check-circle"></i>';
+                } else {
+                    adminCard.className = 'audit-card threat';
+                    adminCard.style.borderLeftColor = '#ef4444';
+                    adminTitle.innerText = 'THINGS TO DO';
+                    adminDesc.innerText = 'Security does not have Administrator permission. Please grant Administrator so all protection features can act.';
+                    adminIcon.style.color = '#ef4444';
+                    adminIcon.innerHTML = '<i class="fas fa-times-circle"></i>';
+                }
+            }
+            
+            const roleCard = document.getElementById('sec-health-role-card');
+            const roleTitle = document.getElementById('sec-health-role-title');
+            const roleDesc = document.getElementById('sec-health-role-desc');
+            const roleIcon = document.getElementById('sec-health-role-icon');
+            
+            if (roleCard && roleTitle && roleDesc && roleIcon) {
+                if (data.is_highest_role) {
+                    roleCard.className = 'audit-card ok';
+                    roleCard.style.borderLeftColor = '#10b981';
+                    roleTitle.innerText = 'LOOKING FINE';
+                    roleDesc.innerText = 'Security has the highest role hierarchy. All member actions can be moderated effectively.';
+                    roleIcon.style.color = '#10b981';
+                    roleIcon.innerHTML = '<i class="fas fa-check-circle"></i>';
+                } else {
+                    roleCard.className = 'audit-card threat';
+                    roleCard.style.borderLeftColor = '#ef4444';
+                    roleTitle.innerText = 'THINGS TO DO';
+                    roleDesc.innerText = "Security doesn't have the highest role which means it cannot punish some of your users even if they bypass limits.";
+                    roleIcon.style.color = '#ef4444';
+                    roleIcon.innerHTML = '<i class="fas fa-times-circle"></i>';
+                }
+            }
+        })
+        .catch(err => console.error("Error loading security health:", err));
+};
+
+// --- VERIFICATION GATE ENGINE & EMBED CUSTOMIZER ---
 function loadVerificationSettings(guildId) {
     const targetGuild = guildId || activeGuildId || window.activeGuildId || localStorage.getItem('selected_guild_id');
     if (!targetGuild) return;
@@ -127,82 +185,136 @@ function loadVerificationSettings(guildId) {
         .then(v => {
             if (!v) return;
             const isEnabled = isTrue(v.enabled);
-            const verEnableEl = document.getElementById('sec-enable-verification') || document.getElementById('verif-enable');
+            const verEnableEl = document.getElementById('verif-enable') || document.getElementById('sec-enable-verification');
             if (verEnableEl) verEnableEl.checked = isEnabled;
             
-            const capEnableEl = document.getElementById('ver-enable-captcha');
-            if (capEnableEl) capEnableEl.checked = v.captcha_enabled !== undefined ? isTrue(v.captcha_enabled) : true;
+            const verLevelEl = document.getElementById('verif-level');
+            if (verLevelEl) verLevelEl.value = 'Button';
             
-            const verTypeEl = document.getElementById('ver-type') || document.getElementById('verif-level');
-            if (verTypeEl) verTypeEl.value = v.type || 'Captcha Code';
+            const verUnverifiedEl = document.getElementById('verif-unverified-role');
+            if (verUnverifiedEl && v.unverified_role) verUnverifiedEl.value = v.unverified_role;
             
-            const verUnverifiedEl = document.getElementById('ver-unverified-role');
-            if (verUnverifiedEl) verUnverifiedEl.value = v.unverified_role || 'Unverified';
+            const verVerifiedEl = document.getElementById('verif-role');
+            if (verVerifiedEl && v.verified_role) verVerifiedEl.value = v.verified_role;
             
-            const verChannelEl = document.getElementById('ver-channel') || document.getElementById('verif-channel');
-            if (verChannelEl) verChannelEl.value = v.channel || 'verify';
+            const verActionEl = document.getElementById('verif-action');
+            if (verActionEl) verActionEl.value = v.timeout_action || 'Kick';
             
-            const verVerifiedEl = document.getElementById('ver-verified-role') || document.getElementById('verif-role');
-            if (verVerifiedEl) verVerifiedEl.value = v.verified_role || 'Member';
+            const verTimeoutEl = document.getElementById('verif-timeout');
+            if (verTimeoutEl) verTimeoutEl.value = v.captcha_timeout !== undefined ? v.captcha_timeout : 90;
             
-            const verTimeoutEl = document.getElementById('ver-timeout') || document.getElementById('verif-timeout');
-            if (verTimeoutEl) verTimeoutEl.value = v.captcha_timeout !== undefined ? v.captcha_timeout : 60;
+            const verChannelEl = document.getElementById('verif-channel');
+            if (verChannelEl && v.channel) verChannelEl.value = v.channel;
             
-            const verLengthEl = document.getElementById('ver-length');
-            if (verLengthEl) verLengthEl.value = v.captcha_lines !== undefined ? v.captcha_lines : 5;
+            // Embed Customizer fields
+            if (document.getElementById('verif-embed-title')) {
+                document.getElementById('verif-embed-title').value = v.embed_title || '🛡️ Member Verification Required';
+            }
+            if (document.getElementById('verif-embed-desc')) {
+                document.getElementById('verif-embed-desc').value = v.embed_desc || 'Welcome to the server!\n\nTo gain full access to server channels, voice rooms, and media, please verify your Discord account using the button below.\n\n✅ **Instant Access:** You will immediately be granted the member role.';
+            }
+            if (document.getElementById('verif-embed-color')) {
+                const col = v.embed_color || '#E11D48';
+                document.getElementById('verif-embed-color').value = col;
+                if (document.getElementById('verif-embed-color-picker')) document.getElementById('verif-embed-color-picker').value = col;
+            }
+            if (document.getElementById('verif-embed-thumb')) {
+                document.getElementById('verif-embed-thumb').value = v.embed_thumbnail || '';
+            }
+            if (document.getElementById('verif-embed-banner')) {
+                document.getElementById('verif-embed-banner').value = v.embed_image || '';
+            }
+            if (document.getElementById('verif-embed-footer')) {
+                document.getElementById('verif-embed-footer').value = v.embed_footer || 'VEYRA Security Protocol • Automated Gatekeeper';
+            }
+            if (document.getElementById('verif-button-text')) {
+                document.getElementById('verif-button-text').value = v.button_text || 'Verify Access';
+            }
+            if (document.getElementById('verif-button-style')) {
+                document.getElementById('verif-button-style').value = (v.button_color || 'green').toLowerCase();
+            }
             
-            const verLinesEl = document.getElementById('ver-lines');
-            if (verLinesEl) verLinesEl.value = v.captcha_lines !== undefined ? v.captcha_lines : 5;
-            
-            const verNumbersEl = document.getElementById('ver-numbers');
-            if (verNumbersEl) verNumbersEl.checked = isTrue(v.captcha_numbers);
-            
-            const verCaseEl = document.getElementById('ver-case-sensitive');
-            if (verCaseEl) verCaseEl.checked = isTrue(v.captcha_sensitive);
-            
-            toggleVerificationSettingsPane(isEnabled);
-            toggleCaptchaOptionsBypass();
+            updateVerificationPreview();
         })
         .catch(err => console.error("Error loading verification settings:", err));
 }
 
-function toggleCaptchaOptionsBypass() {
-    const verType = document.getElementById('ver-type')?.value;
-    const captchaEnabled = document.getElementById('ver-enable-captcha')?.checked;
-    const shouldDisable = (verType === 'One-Click Verification') || (!captchaEnabled);
+window.updateVerificationPreview = function() {
+    const title = document.getElementById('verif-embed-title')?.value || '🛡️ Member Verification Required';
+    const desc = document.getElementById('verif-embed-desc')?.value || 'Welcome to the server!';
+    const color = document.getElementById('verif-embed-color')?.value || '#E11D48';
+    const thumb = document.getElementById('verif-embed-thumb')?.value || '';
+    const banner = document.getElementById('verif-embed-banner')?.value || '';
+    const footer = document.getElementById('verif-embed-footer')?.value || 'VEYRA Security Protocol • Automated Gatekeeper';
+    const btnLabel = document.getElementById('verif-button-text')?.value || 'Verify Access';
+    const btnStyle = (document.getElementById('verif-button-style')?.value || 'green').toLowerCase();
     
-    // Disable or enable fields
-    const inputs = [
-        document.getElementById('ver-timeout'),
-        document.getElementById('ver-length'),
-        document.getElementById('ver-lines'),
-        document.getElementById('ver-numbers'),
-        document.getElementById('ver-case-sensitive')
-    ];
-    inputs.forEach(input => {
-        if (input) {
-            input.disabled = shouldDisable;
-            input.style.opacity = shouldDisable ? '0.45' : '1';
+    const pCard = document.getElementById('verif-preview-card');
+    if (pCard) pCard.style.borderLeftColor = color;
+    
+    const pTitle = document.getElementById('verif-preview-title');
+    if (pTitle) pTitle.innerText = title;
+    
+    const pDesc = document.getElementById('verif-preview-desc');
+    if (pDesc) pDesc.innerText = desc;
+    
+    const pFooter = document.getElementById('verif-preview-footer');
+    if (pFooter) pFooter.innerText = footer;
+    
+    const pThumb = document.getElementById('verif-preview-thumb');
+    if (pThumb) {
+        if (thumb && thumb.startsWith('http')) {
+            pThumb.src = thumb;
+            pThumb.style.display = 'block';
+        } else {
+            pThumb.style.display = 'none';
         }
-    });
-}
+    }
+    
+    const pBanner = document.getElementById('verif-preview-banner');
+    if (pBanner) {
+        if (banner && banner.startsWith('http')) {
+            pBanner.src = banner;
+            pBanner.style.display = 'block';
+        } else {
+            pBanner.style.display = 'none';
+        }
+    }
+    
+    const pBtnLabel = document.getElementById('verif-preview-btn-label');
+    if (pBtnLabel) pBtnLabel.innerText = btnLabel;
+    
+    const pBtn = document.getElementById('verif-preview-btn');
+    if (pBtn) {
+        if (btnStyle === 'blurple') pBtn.style.background = '#5865F2';
+        else if (btnStyle === 'grey' || btnStyle === 'gray') pBtn.style.background = '#4E5058';
+        else if (btnStyle === 'red') pBtn.style.background = '#DA373C';
+        else pBtn.style.background = '#248046'; // default green
+    }
+};
 
 function saveVerificationSettings() {
     if (window.isDashboardHydrating) return;
     const targetGuild = activeGuildId || window.activeGuildId || localStorage.getItem('selected_guild_id');
     if (!targetGuild) return;
-    const isEnabled = (document.getElementById('sec-enable-verification') || document.getElementById('verif-enable'))?.checked ? 1 : 0;
+    
+    const isEnabled = (document.getElementById('verif-enable') || document.getElementById('sec-enable-verification'))?.checked ? 1 : 0;
     const payload = {
         enabled: isEnabled,
-        captcha_enabled: document.getElementById('ver-enable-captcha')?.checked ? 1 : 0,
-        type: (document.getElementById('ver-type') || document.getElementById('verif-level'))?.value || 'Captcha Code',
-        unverified_role: document.getElementById('ver-unverified-role')?.value || 'Unverified',
-        channel: (document.getElementById('ver-channel') || document.getElementById('verif-channel'))?.value || 'verify',
-        verified_role: (document.getElementById('ver-verified-role') || document.getElementById('verif-role'))?.value || 'Member',
-        captcha_timeout: parseInt((document.getElementById('ver-timeout') || document.getElementById('verif-timeout'))?.value || 60),
-        captcha_lines: parseInt(document.getElementById('ver-length')?.value || 5),
-        captcha_numbers: document.getElementById('ver-numbers')?.checked ? 1 : 0,
-        captcha_sensitive: document.getElementById('ver-case-sensitive')?.checked ? 1 : 0
+        type: 'Button',
+        unverified_role: document.getElementById('verif-unverified-role')?.value || '',
+        verified_role: document.getElementById('verif-role')?.value || '',
+        channel: document.getElementById('verif-channel')?.value || 'verify',
+        timeout_action: document.getElementById('verif-action')?.value || 'Kick',
+        captcha_timeout: parseInt(document.getElementById('verif-timeout')?.value || 90),
+        embed_title: document.getElementById('verif-embed-title')?.value || '🛡️ Member Verification Required',
+        embed_desc: document.getElementById('verif-embed-desc')?.value || '',
+        embed_color: document.getElementById('verif-embed-color')?.value || '#E11D48',
+        embed_thumbnail: document.getElementById('verif-embed-thumb')?.value || '',
+        embed_image: document.getElementById('verif-embed-banner')?.value || '',
+        embed_footer: document.getElementById('verif-embed-footer')?.value || 'VEYRA Security Protocol • Automated Gatekeeper',
+        button_text: document.getElementById('verif-button-text')?.value || 'Verify Access',
+        button_color: document.getElementById('verif-button-style')?.value || 'green'
     };
     
     fetch(`/api/settings/verification/${targetGuild}`, {
@@ -213,16 +325,40 @@ function saveVerificationSettings() {
     .then(res => res.json())
     .then(data => {
         if (data.success) {
-            showToast("Verification Gate Saved", "Server verification gateway rules successfully written to database.");
-            if (payload.enabled && typeof createFeatureChannels === 'function') {
-                createFeatureChannels(["verification"]);
-            }
+            showToast("Verification Gate Saved", "Verification gateway configurations synced to database in real time.");
+            updateVerificationPreview();
         } else {
             showToast("Save Error", data.error || "Failed to save verification settings", "error");
         }
     })
-    .catch(err => console.error("Error saving verification settings:", err));
+    .catch(err => {
+        console.error("Error saving verification settings:", err);
+        showToast("Error", "Failed to communicate with verification API.", "error");
+    });
 }
+
+window.deployVerificationPanel = function() {
+    const targetGuild = activeGuildId || window.activeGuildId || localStorage.getItem('selected_guild_id');
+    if (!targetGuild) return;
+    
+    // Save first, then deploy
+    saveVerificationSettings();
+    showToast("Deploying Panel", "Dispatching interactive verification embed to server channel...");
+    
+    fetch(`/api/verification/deploy-panel/${targetGuild}`, { method: 'POST' })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                showToast("Panel Deployed!", "Verification panel with interactive button is now live in your server!");
+            } else {
+                showToast("Deploy Failed", data.error || "Unable to send panel to channel.", "error");
+            }
+        })
+        .catch(err => {
+            console.error("Error deploying verification panel:", err);
+            showToast("Error", "Failed to deploy verification panel.", "error");
+        });
+};
 
 function toggleVerificationSettingsPane(enabled) {
     const form = document.getElementById('verification-form-container');
@@ -2317,6 +2453,15 @@ const commandsData = [
     { name: "space", desc: "Sends a spacer message.", cat: "utility", enabled: true }
 ];
 
+const PRO_COMMANDS_SET = new Set([
+    "beastmode-toggle", "beastmode-status", "antiraid-enable", "antiraid-disable", "antiraid-config",
+    "antibot-toggle", "antibot-punish", "emergency-lockdown", "emergency-unlock", "antiguillotine-mode",
+    "stickyrole-enable", "stickyrole-disable", "ticket-setup", "ticket-close", "ticket-add", "ticket-remove",
+    "level-rewards-add", "level-rewards-remove", "level-xp-rate", "level-rewards-clear", "level-config",
+    "level-xp-add", "level-xp-remove", "level-leaderboard", "level-rank",
+    "role-all", "role-bots", "role-cancel", "slowmode-all", "purge-webhooks", "purge-mentions", "infractions-clear"
+]);
+
 function filterCommands(category, btnElement) {
     const container = document.getElementById('commands-toggle-container');
     if (!container) return;
@@ -2345,9 +2490,25 @@ function filterCommands(category, btnElement) {
         }
     }
     
+    // Check if active server has Pro or Premium subscription
+    const rawPlan = (window.activeGuildPlan || '').toLowerCase();
+    const isProServer = rawPlan.includes('pro') || rawPlan.includes('premium') || rawPlan.includes('enterprise');
+
+    const availableCmds = [];
+    const lockedCmds = [];
+
     commandsData.forEach((cmd, idx) => {
         if (category !== 'all' && cmd.cat !== category) return;
-        
+        const isProCmd = PRO_COMMANDS_SET.has(cmd.name);
+        if (isProCmd && !isProServer) {
+            lockedCmds.push({ cmd, idx });
+        } else {
+            availableCmds.push({ cmd, idx });
+        }
+    });
+
+    // 1. Render Available/Unlocked Commands in Main Grid
+    availableCmds.forEach(({ cmd, idx }) => {
         const box = document.createElement('div');
         box.className = 'command-box';
         box.innerHTML = `
@@ -2362,6 +2523,51 @@ function filterCommands(category, btnElement) {
         `;
         container.appendChild(box);
     });
+
+    // 2. Render Locked Pro Commands at the very bottom with Upgrade Prompt
+    if (lockedCmds.length > 0) {
+        const lockedSection = document.createElement('div');
+        lockedSection.style.cssText = 'grid-column: 1 / -1; margin-top: 36px; padding-top: 24px; border-top: 1.5px solid #F1F5F9;';
+        
+        lockedSection.innerHTML = `
+            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom: 20px; background: #FFF5F7; border: 1.5px solid #FFE4E6; border-radius: 12px; padding: 16px 20px;">
+                <div>
+                    <h3 style="font-size: 1.05rem; font-weight: 800; color: #9F1239; margin: 0 0 3px 0; display:flex; align-items:center; gap:8px;">
+                        <i class="fas fa-lock" style="color: #E11D48;"></i> Upgrade to Unlock These Commands (${lockedCmds.length})
+                    </h3>
+                    <p style="font-size: 0.8rem; color: #BE123C; margin: 0;">These enterprise anti-nuke, mass role, and automation commands are locked. Upgrade your server plan to activate them.</p>
+                </div>
+                <button type="button" onclick="switchTab('billing')" style="background: linear-gradient(135deg, #E11D48, #BE185D); color: #FFFFFF; border: none; padding: 8px 18px; border-radius: 8px; font-weight: 800; font-size: 0.82rem; cursor: pointer; box-shadow: 0 2px 8px rgba(225,29,72,0.3); display:flex; align-items:center; gap:6px; transition:opacity 0.2s;" onmouseover="this.style.opacity='0.9'" onmouseout="this.style.opacity='1'">
+                    <i class="fas fa-crown" style="color:#FDE047;"></i> Upgrade Now
+                </button>
+            </div>
+            <div class="commands-list-grid" id="locked-commands-grid"></div>
+        `;
+        container.appendChild(lockedSection);
+
+        const lockedGrid = lockedSection.querySelector('#locked-commands-grid');
+        lockedCmds.forEach(({ cmd, idx }) => {
+            const box = document.createElement('div');
+            box.className = 'command-box';
+            box.style.cssText = 'opacity: 0.75; background: #F8FAFC; border: 1.5px solid #E2E8F0; position: relative;';
+            box.innerHTML = `
+                <div class="command-info">
+                    <div style="display:flex; align-items:center; gap:8px; margin-bottom:4px;">
+                        <h4 style="margin:0; color:#475569;">/${cmd.name}</h4>
+                        <span style="background: #FFF1F2; color: #E11D48; border: 1px solid #FFE4E6; font-size: 0.65rem; font-weight: 800; padding: 2px 6px; border-radius: 4px; display:inline-flex; align-items:center; gap:3px;">
+                            <i class="fas fa-lock" style="font-size:0.6rem;"></i> PRO
+                        </span>
+                    </div>
+                    <p style="color:#64748B;">${cmd.desc}</p>
+                </div>
+                <label class="switch" style="cursor: not-allowed; opacity: 0.45;" title="Upgrade to Pro to enable this command">
+                    <input type="checkbox" disabled>
+                    <span class="slider" onclick="event.preventDefault(); showToast('Pro Feature', 'Upgrade to Veyra Pro to unlock /' + '${cmd.name}', 'error'); setTimeout(() => switchTab('billing'), 600);"></span>
+                </label>
+            `;
+            lockedGrid.appendChild(box);
+        });
+    }
 }
 
 function toggleCommand(index) {
