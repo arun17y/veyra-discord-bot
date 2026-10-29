@@ -119,7 +119,7 @@
         })();
     </script>
     <link rel="stylesheet" href="css/themes.css?v=v13_dashboard_realtime_manage_fix">
-    <link rel="stylesheet" href="css/dashboard.css?v=v88_clean_original">
+    <link rel="stylesheet" href="css/dashboard.css?v=v89_harmonized_embed_editor">
     <style>
         /* =============================================
            VEYRA BRAND PALETTE OVERRIDE — A to Z
@@ -7693,68 +7693,151 @@ Support: </pre>
                                 </div>
 
                                 <!-- Nested Embed Box -->
-                                <div style="border-left: 4px solid #a855f7; background: rgba(0,0,0,0.18); border-radius: 6px; padding: 16px; display: flex; flex-direction: column; gap: 14px;" id="welcome-builder-box">
-                                    
-                                    <div>
-                                        <button class="btn-secondary" type="button" onclick="toggleColorPickerField('welcome')" style="background:#a855f7; border:none; padding:6px 14px; border-radius:6px; font-weight:700; font-size:0.8rem; color:#fff; cursor:pointer;">Toggle color picker</button>
-                                        <div id="welcome-color-picker-wrapper" style="display: none; margin-top: 10px; align-items:center; gap:10px;">
-                                            <input type="color" id="welcome-embed-color-picker" value="#a855f7" oninput="document.getElementById('welcome-color-hex').value = this.value; updateWelcomeLivePreview()" style="width: 45px; height: 32px; border: none; cursor: pointer; background: transparent;">
-                                            <input type="text" id="welcome-color-hex" value="#a855f7" class="form-control" style="width: 110px; background: #FFFFFF !important; border: 1.5px solid #CBD5E1 !important; color: #0F172A !important; font-family: var(--font-mono); font-size:0.82rem;" oninput="document.getElementById('welcome-embed-color-picker').value = this.value; updateWelcomeLivePreview()">
+                                <div class="veyra-embed-editor" id="welcome-embed-editor">
+                                    <!-- Actions -->
+                                    <div class="ee-section">
+                                        <h4 class="ee-title">Actions</h4>
+                                        <p class="ee-desc">Reset this embed to its default values.</p>
+                                        <button type="button" class="ee-btn-reset" onclick="resetEmbedToDefaults('welcome')">
+                                            <i class="fa-solid fa-rotate-left"></i> Reset
+                                        </button>
+                                    </div>
+
+                                    <!-- Embed Color -->
+                                    <div class="ee-section">
+                                        <h4 class="ee-title">Embed Color</h4>
+                                        <p class="ee-desc">The accent color of this embed.</p>
+                                        <div class="ee-color-row">
+                                            <span class="ee-color-swatch" id="welcome-color-swatch" style="background: #a855f7;" onclick="document.getElementById('welcome-embed-color-picker').click();"></span>
+                                            <label class="ee-btn-color" for="welcome-embed-color-picker">
+                                                <i class="fa-solid fa-palette"></i> Change Color
+                                                <input type="color" id="welcome-embed-color-picker" value="#a855f7" style="position: absolute; opacity: 0; width: 0; height: 0; pointer-events: none;" oninput="document.getElementById('welcome-color-hex').value = this.value; document.getElementById('welcome-color-swatch').style.background = this.value; updateWelcomeLivePreview();">
+                                            </label>
+                                            <input type="text" id="welcome-color-hex" value="#a855f7" class="ee-hex-input" placeholder="#HEX" oninput="document.getElementById('welcome-embed-color-picker').value = this.value; document.getElementById('welcome-color-swatch').style.background = this.value; updateWelcomeLivePreview();">
                                         </div>
                                     </div>
 
-                                    <!-- Row 1: Icon URL, Name, Name URL -->
-                                    <div style="display: grid; grid-template-columns: 1fr 1.5fr 1fr; gap: 8px;">
-                                        <input type="text" placeholder="Icon url" class="form-control" id="welcome-author-icon" style="background: #FFFFFF !important; border: 1.5px solid #CBD5E1 !important; color: #0F172A !important; font-size:0.82rem;" oninput="updateWelcomeLivePreview()">
-                                        <input type="text" placeholder="Name" class="form-control" id="welcome-author-name" style="background: #FFFFFF !important; border: 1.5px solid #CBD5E1 !important; color: #0F172A !important; font-size:0.82rem;" oninput="updateWelcomeLivePreview()">
-                                        <input type="text" placeholder="Name url" class="form-control" id="welcome-author-url" style="background: #FFFFFF !important; border: 1.5px solid #CBD5E1 !important; color: #0F172A !important; font-size:0.82rem;" oninput="updateWelcomeLivePreview()">
+                                    <!-- Author Information -->
+                                    <div class="ee-section">
+                                        <h4 class="ee-title">Author Information</h4>
+                                        <p class="ee-desc">Information that is displayed at the top of the embed.</p>
+                                        <div class="ee-grid-2">
+                                            <div class="ee-input-group">
+                                                <label class="ee-label">Author Name</label>
+                                                <div class="ee-input-wrap">
+                                                    <i class="fa-regular fa-user ee-input-icon"></i>
+                                                    <input type="text" class="ee-input" id="welcome-author-name" placeholder="Enter author name..." oninput="updateWelcomeLivePreview();">
+                                                </div>
+                                            </div>
+                                            <div class="ee-input-group">
+                                                <label class="ee-label">Author URL</label>
+                                                <div class="ee-input-wrap">
+                                                    <i class="fa-solid fa-link ee-input-icon"></i>
+                                                    <input type="text" class="ee-input" id="welcome-author-url" placeholder="https://example.com" oninput="updateWelcomeLivePreview();">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="ee-input-group" style="margin-top: 12px;">
+                                            <label class="ee-label">Author Icon URL</label>
+                                            <div class="ee-input-wrap">
+                                                <i class="fa-regular fa-image ee-input-icon"></i>
+                                                <input type="text" class="ee-input" id="welcome-author-icon" placeholder="https://example.com/image.png" oninput="updateWelcomeLivePreview();">
+                                            </div>
+                                        </div>
                                     </div>
 
-                                    <!-- Row 2: Title, Emoji, Title URL -->
-                                    <div style="display: grid; grid-template-columns: 2fr auto 1fr; gap: 8px;">
-                                        <input type="text" placeholder="Title" class="form-control" id="welcome-embed-title" value="♡ WELCOME TO VEYRA ALL-IN-ONE SECURITY BOT ♡" style="background: #FFFFFF !important; border: 1.5px solid #CBD5E1 !important; color: #0F172A !important; font-size:0.82rem;" oninput="updateWelcomeLivePreview()">
-                                        <button type="button" onclick="openServerEmojiPicker('welcome-embed-title')" title="Insert Server Emoji" style="background: rgba(255,255,255,0.08); border: none; border-radius: 4px; padding: 0 10px; cursor: pointer; color: #fff; font-size: 0.95rem;">😊</button>
-                                        <input type="text" placeholder="Title url" class="form-control" id="welcome-title-url" style="background: #FFFFFF !important; border: 1.5px solid #CBD5E1 !important; color: #0F172A !important; font-size:0.82rem;" oninput="updateWelcomeLivePreview()">
-                                    </div>
-
-                                    <!-- Row 3: Description -->
-                                    <div class="form-group" style="margin:0; position: relative;">
-                                        <textarea placeholder="Description" class="form-control" id="welcome-embed-desc" style="height: 85px; background: #FFFFFF !important; border: 1.5px solid #CBD5E1 !important; color: #0F172A !important; font-family: var(--font-mono); font-size: 0.8rem; padding-right: 45px;" oninput="updateWelcomeLivePreview()">⚡ CHAT ZONE ➔ #rules-info
+                                    <!-- Embed Content -->
+                                    <div class="ee-section">
+                                        <h4 class="ee-title">Embed Content</h4>
+                                        <p class="ee-desc">Edit the main content of the embed. You can use <a href="https://support.discord.com/hc/en-us/articles/210298617-Markdown-Text-101-Chat-Formatting-Bold-Italic-Underline" target="_blank" class="ee-link">Markdown</a> to add extra styles and formatting.</p>
+                                        <div class="ee-grid-2">
+                                            <div class="ee-input-group">
+                                                <label class="ee-label">Title</label>
+                                                <div class="ee-input-wrap">
+                                                    <span class="ee-text-icon">T</span>
+                                                    <input type="text" class="ee-input" id="welcome-embed-title" placeholder="Title" value="♡ WELCOME TO VEYRA ALL-IN-ONE SECURITY BOT ♡" oninput="updateWelcomeLivePreview();">
+                                                </div>
+                                            </div>
+                                            <div class="ee-input-group">
+                                                <label class="ee-label">Title URL</label>
+                                                <div class="ee-input-wrap">
+                                                    <i class="fa-solid fa-link ee-input-icon"></i>
+                                                    <input type="text" class="ee-input" id="welcome-title-url" placeholder="https://example.com" oninput="updateWelcomeLivePreview();">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="ee-input-group" style="margin-top: 12px;">
+                                            <label class="ee-label">Description</label>
+                                            <div class="ee-textarea-wrap">
+                                                <textarea class="ee-textarea" id="welcome-embed-desc" placeholder="Enter embed description..." oninput="updateCharCounter(this, 'welcome-char-counter'); updateWelcomeLivePreview();">⚡ CHAT ZONE ➔ #rules-info
 ⚡ VIEW REVIEWS ➔ #reviews
 ⚡ PURCHASE PANEL ➔ #buy-here</textarea>
-                                        <button type="button" onclick="openServerEmojiPicker('welcome-embed-desc')" title="Insert Server Emoji" style="position: absolute; right: 10px; top: 10px; background: rgba(255,255,255,0.1); border: none; border-radius: 6px; padding: 4px 8px; cursor: pointer; color: #fff; font-size: 0.95rem;">😊</button>
-                                    </div>
-
-                                    <!-- Add Field Button -->
-                                    <div>
-                                        <button class="btn-secondary" type="button" style="width: 100%; padding: 10px; border-radius: 6px; font-weight: 600; font-size: 0.82rem; background: rgba(255,255,255,0.06); color: #fff; border: 1px solid rgba(255,255,255,0.08); cursor: pointer;" onclick="addEmbedField('welcome')">Add field</button>
-                                    </div>
-
-                                    <!-- Dynamic Fields Container -->
-                                    <div id="welcome-fields-container" style="display:flex; flex-direction:column; gap:8px;"></div>
-
-                                    <!-- Row 4: Image URL, Thumbnail URL -->
-                                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
-                                        <input type="text" placeholder="Image url (big at the bottom)" class="form-control" id="welcome-embed-image" value="assets/bypass_logs_banner.webp" style="background: #FFFFFF !important; border: 1.5px solid #CBD5E1 !important; color: #0F172A !important; font-size:0.82rem;" oninput="updateWelcomeLivePreview()">
-                                        <input type="text" placeholder="Thumbnail url (small top right)" class="form-control" id="welcome-thumbnail-url" style="background: #FFFFFF !important; border: 1.5px solid #CBD5E1 !important; color: #0F172A !important; font-size:0.82rem;" oninput="updateWelcomeLivePreview()">
-                                    </div>
-
-                                    <!-- Row 5: Footer, Emoji, Footer Icon, Date, Clear -->
-                                    <div style="display: grid; grid-template-columns: 1.5fr auto 1fr 1.2fr 0.6fr; gap: 8px; align-items: center;">
-                                        <input type="text" placeholder="Footer" class="form-control" id="welcome-embed-footer" value="✦ THANKS FOR JOINING ✦" style="background: #FFFFFF !important; border: 1.5px solid #CBD5E1 !important; color: #0F172A !important; font-size:0.82rem;" oninput="updateWelcomeLivePreview()">
-                                        <button type="button" onclick="openServerEmojiPicker('welcome-embed-footer')" title="Insert Server Emoji" style="background: rgba(255,255,255,0.08); border: none; border-radius: 4px; padding: 0 10px; height: 36px; cursor: pointer; color: #fff; font-size: 0.95rem;">😊</button>
-                                        <input type="text" placeholder="Footer icon" class="form-control" id="welcome-footer-icon" style="background: #FFFFFF !important; border: 1.5px solid #CBD5E1 !important; color: #0F172A !important; font-size:0.82rem;" oninput="updateWelcomeLivePreview()">
-                                        <div style="display: flex; align-items: center; background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.06); border-radius: 6px; padding: 4px 8px;">
-                                            <i class="fa-regular fa-calendar" style="color: var(--text-secondary); margin-right: 6px; font-size:0.8rem;"></i>
-                                            <input type="datetime-local" id="welcome-date-input" style="background: transparent; border: none; color: #0F172A !important; font-size: 0.75rem; outline: none; cursor: pointer; width: 100%;" onchange="updateWelcomeLivePreview()">
+                                                <button type="button" class="ee-emoji-btn" onclick="openServerEmojiPicker('welcome-embed-desc')" title="Insert Emoji">
+                                                    <i class="fa-regular fa-face-smile"></i>
+                                                </button>
+                                                <span class="ee-char-counter" id="welcome-char-counter">0/4096</span>
+                                            </div>
                                         </div>
-                                        <button type="button" class="btn-primary" style="background: #ef4444; border: none; padding: 6px 10px; border-radius: 6px; font-weight: 700; font-size: 0.78rem; cursor:pointer;" onclick="clearEmbedDate('welcome')">Clear</button>
                                     </div>
 
-                                </div>
+                                    <!-- Media Content -->
+                                    <div class="ee-section">
+                                        <h4 class="ee-title">Media Content</h4>
+                                        <p class="ee-desc">Set up the embed’s thumbnail and main image.</p>
+                                        <div class="ee-grid-2">
+                                            <div class="ee-input-group">
+                                                <label class="ee-label">Image URL</label>
+                                                <div class="ee-input-wrap">
+                                                    <i class="fa-regular fa-image ee-input-icon"></i>
+                                                    <input type="text" class="ee-input" id="welcome-embed-image" value="assets/bypass_logs_banner.webp" placeholder="https://example.com/image.png" oninput="updateWelcomeLivePreview();">
+                                                </div>
+                                            </div>
+                                            <div class="ee-input-group">
+                                                <label class="ee-label">Thumbnail URL</label>
+                                                <div class="ee-input-wrap">
+                                                    <i class="fa-regular fa-image ee-input-icon"></i>
+                                                    <input type="text" class="ee-input" id="welcome-thumbnail-url" placeholder="https://example.com/thumbnail.png" oninput="updateWelcomeLivePreview();">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
 
-                                <div style="display: flex; gap: 12px; margin-top: 15px;">
-                                    <button onclick="postEmbedMessage('welcome')" type="button" class="btn-primary" style="flex:1; background: #00aff4; font-weight:700; padding:10px; border:none; border-radius:6px; color:#fff; cursor:pointer;">
+                                    <!-- Footer Content -->
+                                    <div class="ee-section">
+                                        <h4 class="ee-title">Footer Content</h4>
+                                        <p class="ee-desc">Appears at the bottom of the embed.</p>
+                                        <div class="ee-grid-2">
+                                            <div class="ee-input-group">
+                                                <label class="ee-label">Footer Text</label>
+                                                <div class="ee-input-wrap">
+                                                    <span class="ee-text-icon">T</span>
+                                                    <input type="text" class="ee-input" id="welcome-embed-footer" value="✦ THANKS FOR JOINING ✦" placeholder="Footer text..." oninput="updateWelcomeLivePreview();">
+                                                </div>
+                                            </div>
+                                            <div class="ee-input-group">
+                                                <label class="ee-label">Footer Icon URL</label>
+                                                <div class="ee-input-wrap">
+                                                    <i class="fa-regular fa-image ee-input-icon"></i>
+                                                    <input type="text" class="ee-input" id="welcome-footer-icon" placeholder="https://example.com/icon.png" oninput="updateWelcomeLivePreview();">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Fields -->
+                                    <div class="ee-section" style="border-bottom: none;">
+                                        <h4 class="ee-title">Fields</h4>
+                                        <p class="ee-desc">Add up to 25 fields to this embed.</p>
+                                        <div id="welcome-fields-container" style="display:flex; flex-direction:column; gap:8px; margin-bottom: 12px;"></div>
+                                        <button type="button" class="ee-btn-add-field" onclick="addEmbedField('welcome')">
+                                            <i class="fa-solid fa-plus"></i> Add Field
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div style="display: flex; gap: 12px; margin-top: 15px;">
+                                <button onclick="postEmbedMessage('welcome')" type="button" class="btn-primary" style="flex:1; background: #00aff4; font-weight:700; padding:10px; border:none; border-radius:6px; color:#fff; cursor:pointer;">
                                         <i class="fas fa-paper-plane"></i> Post Embed Message
                                     </button>
                                     <button onclick="triggerSimulatedJoin()" type="button" class="btn-primary" style="flex:1; background: #10b981; font-weight:700; padding:10px; border:none; border-radius:6px; color:#fff; cursor:pointer;">
@@ -7937,66 +8020,149 @@ Support: </pre>
                                 </div>
 
                                 <!-- Nested Embed Box -->
-                                <div style="border-left: 4px solid #ef4444; background: rgba(0,0,0,0.18); border-radius: 6px; padding: 16px; display: flex; flex-direction: column; gap: 14px;" id="leave-builder-box">
-                                    
-                                    <div>
-                                        <button class="btn-secondary" type="button" onclick="toggleColorPickerField('leave')" style="background:#ef4444; border:none; padding:6px 14px; border-radius:6px; font-weight:700; font-size:0.8rem; color:#fff; cursor:pointer;">Toggle color picker</button>
-                                        <div id="leave-color-picker-wrapper" style="display: none; margin-top: 10px; align-items:center; gap:10px;">
-                                            <input type="color" id="leave-embed-color-picker" value="#ef4444" oninput="document.getElementById('leave-color-hex').value = this.value; updateLeaveLivePreview()" style="width: 45px; height: 32px; border: none; cursor: pointer; background: transparent;">
-                                            <input type="text" id="leave-color-hex" value="#ef4444" class="form-control" style="width: 110px; background: #FFFFFF !important; border: 1.5px solid #CBD5E1 !important; color: #0F172A !important; font-family: var(--font-mono); font-size:0.82rem;" oninput="document.getElementById('leave-embed-color-picker').value = this.value; updateLeaveLivePreview()">
+                                <div class="veyra-embed-editor" id="leave-embed-editor">
+                                    <!-- Actions -->
+                                    <div class="ee-section">
+                                        <h4 class="ee-title">Actions</h4>
+                                        <p class="ee-desc">Reset this embed to its default values.</p>
+                                        <button type="button" class="ee-btn-reset" onclick="resetEmbedToDefaults('leave')">
+                                            <i class="fa-solid fa-rotate-left"></i> Reset
+                                        </button>
+                                    </div>
+
+                                    <!-- Embed Color -->
+                                    <div class="ee-section">
+                                        <h4 class="ee-title">Embed Color</h4>
+                                        <p class="ee-desc">The accent color of this embed.</p>
+                                        <div class="ee-color-row">
+                                            <span class="ee-color-swatch" id="leave-color-swatch" style="background: #ef4444;" onclick="document.getElementById('leave-embed-color-picker').click();"></span>
+                                            <label class="ee-btn-color" for="leave-embed-color-picker">
+                                                <i class="fa-solid fa-palette"></i> Change Color
+                                                <input type="color" id="leave-embed-color-picker" value="#ef4444" style="position: absolute; opacity: 0; width: 0; height: 0; pointer-events: none;" oninput="document.getElementById('leave-color-hex').value = this.value; document.getElementById('leave-color-swatch').style.background = this.value; updateLeaveLivePreview();">
+                                            </label>
+                                            <input type="text" id="leave-color-hex" value="#ef4444" class="ee-hex-input" placeholder="#HEX" oninput="document.getElementById('leave-embed-color-picker').value = this.value; document.getElementById('leave-color-swatch').style.background = this.value; updateLeaveLivePreview();">
                                         </div>
                                     </div>
 
-                                    <!-- Row 1: Icon URL, Name, Name URL -->
-                                    <div style="display: grid; grid-template-columns: 1fr 1.5fr 1fr; gap: 8px;">
-                                        <input type="text" placeholder="Icon url" class="form-control" id="leave-author-icon" style="background: #FFFFFF !important; border: 1.5px solid #CBD5E1 !important; color: #0F172A !important; font-size:0.82rem;" oninput="updateLeaveLivePreview()">
-                                        <input type="text" placeholder="Name" class="form-control" id="leave-author-name" style="background: #FFFFFF !important; border: 1.5px solid #CBD5E1 !important; color: #0F172A !important; font-size:0.82rem;" oninput="updateLeaveLivePreview()">
-                                        <input type="text" placeholder="Name url" class="form-control" id="leave-author-url" style="background: #FFFFFF !important; border: 1.5px solid #CBD5E1 !important; color: #0F172A !important; font-size:0.82rem;" oninput="updateLeaveLivePreview()">
-                                    </div>
-
-                                    <!-- Row 2: Title, Emoji, Title URL -->
-                                    <div style="display: grid; grid-template-columns: 2fr auto 1fr; gap: 8px;">
-                                        <input type="text" placeholder="Title" class="form-control" id="leave-embed-title" value="♡ GOODBYE FROM VEYRA SECURITY ♡" style="background: #FFFFFF !important; border: 1.5px solid #CBD5E1 !important; color: #0F172A !important; font-size:0.82rem;" oninput="updateLeaveLivePreview()">
-                                        <button type="button" onclick="openServerEmojiPicker('leave-embed-title')" title="Insert Server Emoji" style="background: rgba(255,255,255,0.08); border: none; border-radius: 4px; padding: 0 10px; cursor: pointer; color: #fff; font-size: 0.95rem;">😊</button>
-                                        <input type="text" placeholder="Title url" class="form-control" id="leave-title-url" style="background: #FFFFFF !important; border: 1.5px solid #CBD5E1 !important; color: #0F172A !important; font-size:0.82rem;" oninput="updateLeaveLivePreview()">
-                                    </div>
-
-                                    <!-- Row 3: Description -->
-                                    <div class="form-group" style="margin:0; position: relative;">
-                                        <textarea placeholder="Description" class="form-control" id="leave-embed-desc" style="height: 85px; background: #FFFFFF !important; border: 1.5px solid #CBD5E1 !important; color: #0F172A !important; font-family: var(--font-mono); font-size: 0.8rem; padding-right: 45px;" oninput="updateLeaveLivePreview()">We hope to see you back soon. Stay safe!</textarea>
-                                        <button type="button" onclick="openServerEmojiPicker('leave-embed-desc')" title="Insert Server Emoji" style="position: absolute; right: 10px; top: 10px; background: rgba(255,255,255,0.1); border: none; border-radius: 6px; padding: 4px 8px; cursor: pointer; color: #fff; font-size: 0.95rem;">😊</button>
-                                    </div>
-
-                                    <!-- Add Field Button -->
-                                    <div>
-                                        <button class="btn-secondary" type="button" style="width: 100%; padding: 10px; border-radius: 6px; font-weight: 600; font-size: 0.82rem; background: rgba(255,255,255,0.06); color: #fff; border: 1px solid rgba(255,255,255,0.08); cursor: pointer;" onclick="addEmbedField('leave')">Add field</button>
-                                    </div>
-
-                                    <!-- Dynamic Fields Container -->
-                                    <div id="leave-fields-container" style="display:flex; flex-direction:column; gap:8px;"></div>
-
-                                    <!-- Row 4: Image URL, Thumbnail URL -->
-                                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
-                                        <input type="text" placeholder="Image url (big at the bottom)" class="form-control" id="leave-embed-image" value="assets/bypass_logs_banner.webp" style="background: #FFFFFF !important; border: 1.5px solid #CBD5E1 !important; color: #0F172A !important; font-size:0.82rem;" oninput="updateLeaveLivePreview()">
-                                        <input type="text" placeholder="Thumbnail url (small top right)" class="form-control" id="leave-thumbnail-url" style="background: #FFFFFF !important; border: 1.5px solid #CBD5E1 !important; color: #0F172A !important; font-size:0.82rem;" oninput="updateLeaveLivePreview()">
-                                    </div>
-
-                                    <!-- Row 5: Footer, Emoji, Footer Icon, Date, Clear -->
-                                    <div style="display: grid; grid-template-columns: 1.5fr auto 1fr 1.2fr 0.6fr; gap: 8px; align-items: center;">
-                                        <input type="text" placeholder="Footer" class="form-control" id="leave-embed-footer" value="✦ SEE YOU SOON ✦" style="background: #FFFFFF !important; border: 1.5px solid #CBD5E1 !important; color: #0F172A !important; font-size:0.82rem;" oninput="updateLeaveLivePreview()">
-                                        <button type="button" onclick="openServerEmojiPicker('leave-embed-footer')" title="Insert Server Emoji" style="background: rgba(255,255,255,0.08); border: none; border-radius: 4px; padding: 0 10px; height: 36px; cursor: pointer; color: #fff; font-size: 0.95rem;">😊</button>
-                                        <input type="text" placeholder="Footer icon" class="form-control" id="leave-footer-icon" style="background: #FFFFFF !important; border: 1.5px solid #CBD5E1 !important; color: #0F172A !important; font-size:0.82rem;" oninput="updateLeaveLivePreview()">
-                                        <div style="display: flex; align-items: center; background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.06); border-radius: 6px; padding: 4px 8px;">
-                                            <i class="fa-regular fa-calendar" style="color: var(--text-secondary); margin-right: 6px; font-size:0.8rem;"></i>
-                                            <input type="datetime-local" id="leave-date-input" style="background: transparent; border: none; color: #0F172A !important; font-size: 0.75rem; outline: none; cursor: pointer; width: 100%;" onchange="updateLeaveLivePreview()">
+                                    <!-- Author Information -->
+                                    <div class="ee-section">
+                                        <h4 class="ee-title">Author Information</h4>
+                                        <p class="ee-desc">Information that is displayed at the top of the embed.</p>
+                                        <div class="ee-grid-2">
+                                            <div class="ee-input-group">
+                                                <label class="ee-label">Author Name</label>
+                                                <div class="ee-input-wrap">
+                                                    <i class="fa-regular fa-user ee-input-icon"></i>
+                                                    <input type="text" class="ee-input" id="leave-author-name" placeholder="Enter author name..." oninput="updateLeaveLivePreview();">
+                                                </div>
+                                            </div>
+                                            <div class="ee-input-group">
+                                                <label class="ee-label">Author URL</label>
+                                                <div class="ee-input-wrap">
+                                                    <i class="fa-solid fa-link ee-input-icon"></i>
+                                                    <input type="text" class="ee-input" id="leave-author-url" placeholder="https://example.com" oninput="updateLeaveLivePreview();">
+                                                </div>
+                                            </div>
                                         </div>
-                                        <button type="button" class="btn-primary" style="background: #ef4444; border: none; padding: 6px 10px; border-radius: 6px; font-weight: 700; font-size: 0.78rem; cursor:pointer;" onclick="clearEmbedDate('leave')">Clear</button>
+                                        <div class="ee-input-group" style="margin-top: 12px;">
+                                            <label class="ee-label">Author Icon URL</label>
+                                            <div class="ee-input-wrap">
+                                                <i class="fa-regular fa-image ee-input-icon"></i>
+                                                <input type="text" class="ee-input" id="leave-author-icon" placeholder="https://example.com/image.png" oninput="updateLeaveLivePreview();">
+                                            </div>
+                                        </div>
                                     </div>
 
+                                    <!-- Embed Content -->
+                                    <div class="ee-section">
+                                        <h4 class="ee-title">Embed Content</h4>
+                                        <p class="ee-desc">Edit the main content of the embed. You can use <a href="https://support.discord.com/hc/en-us/articles/210298617-Markdown-Text-101-Chat-Formatting-Bold-Italic-Underline" target="_blank" class="ee-link">Markdown</a> to add extra styles and formatting.</p>
+                                        <div class="ee-grid-2">
+                                            <div class="ee-input-group">
+                                                <label class="ee-label">Title</label>
+                                                <div class="ee-input-wrap">
+                                                    <span class="ee-text-icon">T</span>
+                                                    <input type="text" class="ee-input" id="leave-embed-title" placeholder="Title" value="✦ MEMBER LEFT ✦" oninput="updateLeaveLivePreview();">
+                                                </div>
+                                            </div>
+                                            <div class="ee-input-group">
+                                                <label class="ee-label">Title URL</label>
+                                                <div class="ee-input-wrap">
+                                                    <i class="fa-solid fa-link ee-input-icon"></i>
+                                                    <input type="text" class="ee-input" id="leave-title-url" placeholder="https://example.com" oninput="updateLeaveLivePreview();">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="ee-input-group" style="margin-top: 12px;">
+                                            <label class="ee-label">Description</label>
+                                            <div class="ee-textarea-wrap">
+                                                <textarea class="ee-textarea" id="leave-embed-desc" placeholder="Enter embed description..." oninput="updateCharCounter(this, 'leave-char-counter'); updateLeaveLivePreview();">We are sad to see you go. Thanks for spending time with us.</textarea>
+                                                <button type="button" class="ee-emoji-btn" onclick="openServerEmojiPicker('leave-embed-desc')" title="Insert Emoji">
+                                                    <i class="fa-regular fa-face-smile"></i>
+                                                </button>
+                                                <span class="ee-char-counter" id="leave-char-counter">0/4096</span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Media Content -->
+                                    <div class="ee-section">
+                                        <h4 class="ee-title">Media Content</h4>
+                                        <p class="ee-desc">Set up the embed’s thumbnail and main image.</p>
+                                        <div class="ee-grid-2">
+                                            <div class="ee-input-group">
+                                                <label class="ee-label">Image URL</label>
+                                                <div class="ee-input-wrap">
+                                                    <i class="fa-regular fa-image ee-input-icon"></i>
+                                                    <input type="text" class="ee-input" id="leave-embed-image" placeholder="https://example.com/image.png" oninput="updateLeaveLivePreview();">
+                                                </div>
+                                            </div>
+                                            <div class="ee-input-group">
+                                                <label class="ee-label">Thumbnail URL</label>
+                                                <div class="ee-input-wrap">
+                                                    <i class="fa-regular fa-image ee-input-icon"></i>
+                                                    <input type="text" class="ee-input" id="leave-thumbnail-url" placeholder="https://example.com/thumbnail.png" oninput="updateLeaveLivePreview();">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Footer Content -->
+                                    <div class="ee-section">
+                                        <h4 class="ee-title">Footer Content</h4>
+                                        <p class="ee-desc">Appears at the bottom of the embed.</p>
+                                        <div class="ee-grid-2">
+                                            <div class="ee-input-group">
+                                                <label class="ee-label">Footer Text</label>
+                                                <div class="ee-input-wrap">
+                                                    <span class="ee-text-icon">T</span>
+                                                    <input type="text" class="ee-input" id="leave-embed-footer" value="Veyra Goodbye Logs" placeholder="Footer text..." oninput="updateLeaveLivePreview();">
+                                                </div>
+                                            </div>
+                                            <div class="ee-input-group">
+                                                <label class="ee-label">Footer Icon URL</label>
+                                                <div class="ee-input-wrap">
+                                                    <i class="fa-regular fa-image ee-input-icon"></i>
+                                                    <input type="text" class="ee-input" id="leave-footer-icon" placeholder="https://example.com/icon.png" oninput="updateLeaveLivePreview();">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Fields -->
+                                    <div class="ee-section" style="border-bottom: none;">
+                                        <h4 class="ee-title">Fields</h4>
+                                        <p class="ee-desc">Add up to 25 fields to this embed.</p>
+                                        <div id="leave-fields-container" style="display:flex; flex-direction:column; gap:8px; margin-bottom: 12px;"></div>
+                                        <button type="button" class="ee-btn-add-field" onclick="addEmbedField('leave')">
+                                            <i class="fa-solid fa-plus"></i> Add Field
+                                        </button>
+                                    </div>
                                 </div>
+                            </div>
 
-                                <div style="display: flex; gap: 12px; margin-top: 15px;">
-                                    <button onclick="postEmbedMessage('leave')" type="button" class="btn-primary" style="flex:1; background: #00aff4; font-weight:700; padding:10px; border:none; border-radius:6px; color:#fff; cursor:pointer;">
+                            <div style="display: flex; gap: 12px; margin-top: 15px;">
+                                <button onclick="postEmbedMessage('leave')" type="button" class="btn-primary" style="flex:1; background: #00aff4; font-weight:700; padding:10px; border:none; border-radius:6px; color:#fff; cursor:pointer;">
                                         <i class="fas fa-paper-plane"></i> Post Embed Message
                                     </button>
                                     <button onclick="triggerSimulatedLeave()" type="button" class="btn-primary" style="flex:1; background: #ef4444; font-weight:700; padding:10px; border:none; border-radius:6px; color:#fff; cursor:pointer;">
@@ -8175,66 +8341,149 @@ We hope to see you back soon!
                                 </div>
 
                                 <!-- Nested Embed Box -->
-                                <div style="border-left: 4px solid #a855f7; background: rgba(0,0,0,0.18); border-radius: 6px; padding: 16px; display: flex; flex-direction: column; gap: 14px;" id="invitetracker-builder-box">
-                                    
-                                    <div>
-                                        <button class="btn-secondary" type="button" onclick="toggleColorPickerField('invitetracker')" style="background:#a855f7; border:none; padding:6px 14px; border-radius:6px; font-weight:700; font-size:0.8rem; color:#fff; cursor:pointer;">Toggle color picker</button>
-                                        <div id="invitetracker-color-picker-wrapper" style="display: none; margin-top: 10px; align-items:center; gap:10px;">
-                                            <input type="color" id="invitetracker-embed-color-picker" value="#a855f7" oninput="document.getElementById('invitetracker-color-hex').value = this.value; updateInviteTrackerLivePreview()" style="width: 45px; height: 32px; border: none; cursor: pointer; background: transparent;">
-                                            <input type="text" id="invitetracker-color-hex" value="#a855f7" class="form-control" style="width: 110px; background: #FFFFFF !important; border: 1.5px solid #CBD5E1 !important; color: #0F172A !important; font-family: var(--font-mono); font-size:0.82rem;" oninput="document.getElementById('invitetracker-embed-color-picker').value = this.value; updateInviteTrackerLivePreview()">
+                                <div class="veyra-embed-editor" id="invitetracker-embed-editor">
+                                    <!-- Actions -->
+                                    <div class="ee-section">
+                                        <h4 class="ee-title">Actions</h4>
+                                        <p class="ee-desc">Reset this embed to its default values.</p>
+                                        <button type="button" class="ee-btn-reset" onclick="resetEmbedToDefaults('invitetracker')">
+                                            <i class="fa-solid fa-rotate-left"></i> Reset
+                                        </button>
+                                    </div>
+
+                                    <!-- Embed Color -->
+                                    <div class="ee-section">
+                                        <h4 class="ee-title">Embed Color</h4>
+                                        <p class="ee-desc">The accent color of this embed.</p>
+                                        <div class="ee-color-row">
+                                            <span class="ee-color-swatch" id="invitetracker-color-swatch" style="background: #a855f7;" onclick="document.getElementById('invitetracker-embed-color-picker').click();"></span>
+                                            <label class="ee-btn-color" for="invitetracker-embed-color-picker">
+                                                <i class="fa-solid fa-palette"></i> Change Color
+                                                <input type="color" id="invitetracker-embed-color-picker" value="#a855f7" style="position: absolute; opacity: 0; width: 0; height: 0; pointer-events: none;" oninput="document.getElementById('invitetracker-color-hex').value = this.value; document.getElementById('invitetracker-color-swatch').style.background = this.value; updateInviteTrackerLivePreview();">
+                                            </label>
+                                            <input type="text" id="invitetracker-color-hex" value="#a855f7" class="ee-hex-input" placeholder="#HEX" oninput="document.getElementById('invitetracker-embed-color-picker').value = this.value; document.getElementById('invitetracker-color-swatch').style.background = this.value; updateInviteTrackerLivePreview();">
                                         </div>
                                     </div>
 
-                                    <!-- Row 1: Icon URL, Name, Name URL -->
-                                    <div style="display: grid; grid-template-columns: 1fr 1.5fr 1fr; gap: 8px;">
-                                        <input type="text" placeholder="Icon url" class="form-control" id="invitetracker-author-icon" style="background: #FFFFFF !important; border: 1.5px solid #CBD5E1 !important; color: #0F172A !important; font-size:0.82rem;" oninput="updateInviteTrackerLivePreview()">
-                                        <input type="text" placeholder="Name" class="form-control" id="invitetracker-author-name" style="background: #FFFFFF !important; border: 1.5px solid #CBD5E1 !important; color: #0F172A !important; font-size:0.82rem;" oninput="updateInviteTrackerLivePreview()">
-                                        <input type="text" placeholder="Name url" class="form-control" id="invitetracker-author-url" style="background: #FFFFFF !important; border: 1.5px solid #CBD5E1 !important; color: #0F172A !important; font-size:0.82rem;" oninput="updateInviteTrackerLivePreview()">
-                                    </div>
-
-                                    <!-- Row 2: Title, Emoji, Title URL -->
-                                    <div style="display: grid; grid-template-columns: 2fr auto 1fr; gap: 8px;">
-                                        <input type="text" placeholder="Title" class="form-control" id="invitetracker-embed-title" value="✨ Member Joined via Invite" style="background: #FFFFFF !important; border: 1.5px solid #CBD5E1 !important; color: #0F172A !important; font-size:0.82rem;" oninput="updateInviteTrackerLivePreview()">
-                                        <button type="button" onclick="openServerEmojiPicker('invitetracker-embed-title')" title="Insert Server Emoji" style="background: rgba(255,255,255,0.08); border: none; border-radius: 4px; padding: 0 10px; cursor: pointer; color: #fff; font-size: 0.95rem;">😊</button>
-                                        <input type="text" placeholder="Title url" class="form-control" id="invitetracker-title-url" style="background: #FFFFFF !important; border: 1.5px solid #CBD5E1 !important; color: #0F172A !important; font-size:0.82rem;" oninput="updateInviteTrackerLivePreview()">
-                                    </div>
-
-                                    <!-- Row 3: Description -->
-                                    <div class="form-group" style="margin:0; position: relative;">
-                                        <textarea placeholder="Description" class="form-control" id="invitetracker-embed-desc" style="height: 75px; background: #FFFFFF !important; border: 1.5px solid #CBD5E1 !important; color: #0F172A !important; font-family: var(--font-mono); font-size: 0.8rem; padding-right: 45px;" oninput="updateInviteTrackerLivePreview()">User %member_mention% joined using invite code veyra-vip.</textarea>
-                                        <button type="button" onclick="openServerEmojiPicker('invitetracker-embed-desc')" title="Insert Server Emoji" style="position: absolute; right: 10px; top: 10px; background: rgba(255,255,255,0.1); border: none; border-radius: 6px; padding: 4px 8px; cursor: pointer; color: #fff; font-size: 0.95rem;">😊</button>
-                                    </div>
-
-                                    <!-- Add Field Button -->
-                                    <div>
-                                        <button class="btn-secondary" type="button" style="width: 100%; padding: 10px; border-radius: 6px; font-weight: 600; font-size: 0.82rem; background: rgba(255,255,255,0.06); color: #fff; border: 1px solid rgba(255,255,255,0.08); cursor: pointer;" onclick="addEmbedField('invitetracker')">Add field</button>
-                                    </div>
-
-                                    <!-- Dynamic Fields Container -->
-                                    <div id="invitetracker-fields-container" style="display:flex; flex-direction:column; gap:8px;"></div>
-
-                                    <!-- Row 4: Image URL, Thumbnail URL -->
-                                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
-                                        <input type="text" placeholder="Image url (big at the bottom)" class="form-control" id="invitetracker-embed-image" value="assets/bypass_logs_banner.webp" style="background: #FFFFFF !important; border: 1.5px solid #CBD5E1 !important; color: #0F172A !important; font-size:0.82rem;" oninput="updateInviteTrackerLivePreview()">
-                                        <input type="text" placeholder="Thumbnail url (small top right)" class="form-control" id="invitetracker-thumbnail-url" style="background: #FFFFFF !important; border: 1.5px solid #CBD5E1 !important; color: #0F172A !important; font-size:0.82rem;" oninput="updateInviteTrackerLivePreview()">
-                                    </div>
-
-                                    <!-- Row 5: Footer, Emoji, Footer Icon, Date, Clear -->
-                                    <div style="display: grid; grid-template-columns: 1.5fr auto 1fr 1.2fr 0.6fr; gap: 8px; align-items: center;">
-                                        <input type="text" placeholder="Footer" class="form-control" id="invitetracker-embed-footer" value="✦ VEYRA INVITE TRACKER ✦" style="background: #FFFFFF !important; border: 1.5px solid #CBD5E1 !important; color: #0F172A !important; font-size:0.82rem;" oninput="updateInviteTrackerLivePreview()">
-                                        <button type="button" onclick="openServerEmojiPicker('invitetracker-embed-footer')" title="Insert Server Emoji" style="background: rgba(255,255,255,0.08); border: none; border-radius: 4px; padding: 0 10px; height: 36px; cursor: pointer; color: #fff; font-size: 0.95rem;">😊</button>
-                                        <input type="text" placeholder="Footer icon" class="form-control" id="invitetracker-footer-icon" style="background: #FFFFFF !important; border: 1.5px solid #CBD5E1 !important; color: #0F172A !important; font-size:0.82rem;" oninput="updateInviteTrackerLivePreview()">
-                                        <div style="display: flex; align-items: center; background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.06); border-radius: 6px; padding: 4px 8px;">
-                                            <i class="fa-regular fa-calendar" style="color: var(--text-secondary); margin-right: 6px; font-size:0.8rem;"></i>
-                                            <input type="datetime-local" id="invitetracker-date-input" style="background: transparent; border: none; color: #0F172A !important; font-size: 0.75rem; outline: none; cursor: pointer; width: 100%;" onchange="updateInviteTrackerLivePreview()">
+                                    <!-- Author Information -->
+                                    <div class="ee-section">
+                                        <h4 class="ee-title">Author Information</h4>
+                                        <p class="ee-desc">Information that is displayed at the top of the embed.</p>
+                                        <div class="ee-grid-2">
+                                            <div class="ee-input-group">
+                                                <label class="ee-label">Author Name</label>
+                                                <div class="ee-input-wrap">
+                                                    <i class="fa-regular fa-user ee-input-icon"></i>
+                                                    <input type="text" class="ee-input" id="invitetracker-author-name" placeholder="Enter author name..." oninput="updateInviteTrackerLivePreview();">
+                                                </div>
+                                            </div>
+                                            <div class="ee-input-group">
+                                                <label class="ee-label">Author URL</label>
+                                                <div class="ee-input-wrap">
+                                                    <i class="fa-solid fa-link ee-input-icon"></i>
+                                                    <input type="text" class="ee-input" id="invitetracker-author-url" placeholder="https://example.com" oninput="updateInviteTrackerLivePreview();">
+                                                </div>
+                                            </div>
                                         </div>
-                                        <button type="button" class="btn-primary" style="background: #ef4444; border: none; padding: 6px 10px; border-radius: 6px; font-weight: 700; font-size: 0.78rem; cursor:pointer;" onclick="clearEmbedDate('invitetracker')">Clear</button>
+                                        <div class="ee-input-group" style="margin-top: 12px;">
+                                            <label class="ee-label">Author Icon URL</label>
+                                            <div class="ee-input-wrap">
+                                                <i class="fa-regular fa-image ee-input-icon"></i>
+                                                <input type="text" class="ee-input" id="invitetracker-author-icon" placeholder="https://example.com/image.png" oninput="updateInviteTrackerLivePreview();">
+                                            </div>
+                                        </div>
                                     </div>
 
+                                    <!-- Embed Content -->
+                                    <div class="ee-section">
+                                        <h4 class="ee-title">Embed Content</h4>
+                                        <p class="ee-desc">Edit the main content of the embed. You can use <a href="https://support.discord.com/hc/en-us/articles/210298617-Markdown-Text-101-Chat-Formatting-Bold-Italic-Underline" target="_blank" class="ee-link">Markdown</a> to add extra styles and formatting.</p>
+                                        <div class="ee-grid-2">
+                                            <div class="ee-input-group">
+                                                <label class="ee-label">Title</label>
+                                                <div class="ee-input-wrap">
+                                                    <span class="ee-text-icon">T</span>
+                                                    <input type="text" class="ee-input" id="invitetracker-embed-title" placeholder="Title" value="✨ Member Joined via Invite" oninput="updateInviteTrackerLivePreview();">
+                                                </div>
+                                            </div>
+                                            <div class="ee-input-group">
+                                                <label class="ee-label">Title URL</label>
+                                                <div class="ee-input-wrap">
+                                                    <i class="fa-solid fa-link ee-input-icon"></i>
+                                                    <input type="text" class="ee-input" id="invitetracker-title-url" placeholder="https://example.com" oninput="updateInviteTrackerLivePreview();">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="ee-input-group" style="margin-top: 12px;">
+                                            <label class="ee-label">Description</label>
+                                            <div class="ee-textarea-wrap">
+                                                <textarea class="ee-textarea" id="invitetracker-embed-desc" placeholder="Enter embed description..." oninput="updateCharCounter(this, 'invitetracker-char-counter'); updateInviteTrackerLivePreview();">User %member_mention% joined using invite code veyra-vip.</textarea>
+                                                <button type="button" class="ee-emoji-btn" onclick="openServerEmojiPicker('invitetracker-embed-desc')" title="Insert Emoji">
+                                                    <i class="fa-regular fa-face-smile"></i>
+                                                </button>
+                                                <span class="ee-char-counter" id="invitetracker-char-counter">0/4096</span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Media Content -->
+                                    <div class="ee-section">
+                                        <h4 class="ee-title">Media Content</h4>
+                                        <p class="ee-desc">Set up the embed’s thumbnail and main image.</p>
+                                        <div class="ee-grid-2">
+                                            <div class="ee-input-group">
+                                                <label class="ee-label">Image URL</label>
+                                                <div class="ee-input-wrap">
+                                                    <i class="fa-regular fa-image ee-input-icon"></i>
+                                                    <input type="text" class="ee-input" id="invitetracker-embed-image" value="assets/bypass_logs_banner.webp" placeholder="https://example.com/image.png" oninput="updateInviteTrackerLivePreview();">
+                                                </div>
+                                            </div>
+                                            <div class="ee-input-group">
+                                                <label class="ee-label">Thumbnail URL</label>
+                                                <div class="ee-input-wrap">
+                                                    <i class="fa-regular fa-image ee-input-icon"></i>
+                                                    <input type="text" class="ee-input" id="invitetracker-thumbnail-url" placeholder="https://example.com/thumbnail.png" oninput="updateInviteTrackerLivePreview();">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Footer Content -->
+                                    <div class="ee-section">
+                                        <h4 class="ee-title">Footer Content</h4>
+                                        <p class="ee-desc">Appears at the bottom of the embed.</p>
+                                        <div class="ee-grid-2">
+                                            <div class="ee-input-group">
+                                                <label class="ee-label">Footer Text</label>
+                                                <div class="ee-input-wrap">
+                                                    <span class="ee-text-icon">T</span>
+                                                    <input type="text" class="ee-input" id="invitetracker-embed-footer" value="✦ VEYRA INVITE TRACKER ✦" placeholder="Footer text..." oninput="updateInviteTrackerLivePreview();">
+                                                </div>
+                                            </div>
+                                            <div class="ee-input-group">
+                                                <label class="ee-label">Footer Icon URL</label>
+                                                <div class="ee-input-wrap">
+                                                    <i class="fa-regular fa-image ee-input-icon"></i>
+                                                    <input type="text" class="ee-input" id="invitetracker-footer-icon" placeholder="https://example.com/icon.png" oninput="updateInviteTrackerLivePreview();">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Fields -->
+                                    <div class="ee-section" style="border-bottom: none;">
+                                        <h4 class="ee-title">Fields</h4>
+                                        <p class="ee-desc">Add up to 25 fields to this embed.</p>
+                                        <div id="invitetracker-fields-container" style="display:flex; flex-direction:column; gap:8px; margin-bottom: 12px;"></div>
+                                        <button type="button" class="ee-btn-add-field" onclick="addEmbedField('invitetracker')">
+                                            <i class="fa-solid fa-plus"></i> Add Field
+                                        </button>
+                                    </div>
                                 </div>
+                            </div>
 
-                                <div style="display: flex; gap: 12px; margin-top: 15px;">
-                                    <button onclick="postEmbedMessage('invitetracker')" type="button" class="btn-primary" style="flex:1; background: #00aff4; font-weight:700; padding:10px; border:none; border-radius:6px; color:#fff; cursor:pointer;">
+                            <div style="display: flex; gap: 12px; margin-top: 15px;">
+                                <button onclick="postEmbedMessage('invitetracker')" type="button" class="btn-primary" style="flex:1; background: #00aff4; font-weight:700; padding:10px; border:none; border-radius:6px; color:#fff; cursor:pointer;">
                                         <i class="fas fa-paper-plane"></i> Post Embed Message
                                     </button>
                                     <button onclick="saveInviteTrackerConfig()" type="button" class="btn-primary" style="flex:1; background: linear-gradient(90deg, #7c3aed, #a855f7); font-weight:700; padding:10px; border:none; border-radius:6px; color:#fff; cursor:pointer;">
@@ -8707,70 +8956,147 @@ To gain full access to server channels, voice rooms, and media, please verify yo
                             </div>
 
                             <!-- Nested Embed Builder Container with Blue Accent Border -->
-                            <div style="border-left: 4px solid #a855f7; background: rgba(0,0,0,0.15); border-radius: 4px; padding: 20px; display: flex; flex-direction: column; gap: 16px;">
-                                
-                                <div>
-                                    <button class="btn-secondary" onclick="toggleColorPickerField()" style="background:#a855f7; border:none; padding:8px 16px; border-radius:6px; font-weight:700; font-size:0.82rem; color:#fff;">Toggle color picker</button>
-                                    <div id="eb-color-picker-wrapper" style="display: none; margin-top: 10px;">
-                                        <input type="color" id="eb-color-picker" value="#a855f7" oninput="updateEmbedBuilderPreview()" style="width: 50px; height: 35px; border: none; cursor: pointer; background: transparent;">
+                            <div class="veyra-embed-editor" id="eb-embed-editor">
+                                    <!-- Actions -->
+                                    <div class="ee-section">
+                                        <h4 class="ee-title">Actions</h4>
+                                        <p class="ee-desc">Reset this embed to its default values.</p>
+                                        <button type="button" class="ee-btn-reset" onclick="resetEmbedToDefaults('eb')">
+                                            <i class="fa-solid fa-rotate-left"></i> Reset
+                                        </button>
+                                    </div>
+
+                                    <!-- Embed Color -->
+                                    <div class="ee-section">
+                                        <h4 class="ee-title">Embed Color</h4>
+                                        <p class="ee-desc">The accent color of this embed.</p>
+                                        <div class="ee-color-row">
+                                            <span class="ee-color-swatch" id="eb-color-swatch" style="background: #a855f7;" onclick="document.getElementById('eb-color-picker').click();"></span>
+                                            <label class="ee-btn-color" for="eb-color-picker">
+                                                <i class="fa-solid fa-palette"></i> Change Color
+                                                <input type="color" id="eb-color-picker" value="#a855f7" style="position: absolute; opacity: 0; width: 0; height: 0; pointer-events: none;" oninput="document.getElementById('eb-color-hex').value = this.value; document.getElementById('eb-color-swatch').style.background = this.value; updateEmbedBuilderPreview();">
+                                            </label>
+                                            <input type="text" id="eb-color-hex" value="#a855f7" class="ee-hex-input" placeholder="#HEX" oninput="document.getElementById('eb-color-picker').value = this.value; document.getElementById('eb-color-swatch').style.background = this.value; updateEmbedBuilderPreview();">
+                                        </div>
+                                    </div>
+
+                                    <!-- Author Information -->
+                                    <div class="ee-section">
+                                        <h4 class="ee-title">Author Information</h4>
+                                        <p class="ee-desc">Information that is displayed at the top of the embed.</p>
+                                        <div class="ee-grid-2">
+                                            <div class="ee-input-group">
+                                                <label class="ee-label">Author Name</label>
+                                                <div class="ee-input-wrap">
+                                                    <i class="fa-regular fa-user ee-input-icon"></i>
+                                                    <input type="text" class="ee-input" id="eb-author-name" placeholder="Enter author name..." oninput="updateEmbedBuilderPreview();">
+                                                </div>
+                                            </div>
+                                            <div class="ee-input-group">
+                                                <label class="ee-label">Author URL</label>
+                                                <div class="ee-input-wrap">
+                                                    <i class="fa-solid fa-link ee-input-icon"></i>
+                                                    <input type="text" class="ee-input" id="eb-author-url" placeholder="https://example.com" oninput="updateEmbedBuilderPreview();">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="ee-input-group" style="margin-top: 12px;">
+                                            <label class="ee-label">Author Icon URL</label>
+                                            <div class="ee-input-wrap">
+                                                <i class="fa-regular fa-image ee-input-icon"></i>
+                                                <input type="text" class="ee-input" id="eb-author-icon" placeholder="https://example.com/image.png" oninput="updateEmbedBuilderPreview();">
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Embed Content -->
+                                    <div class="ee-section">
+                                        <h4 class="ee-title">Embed Content</h4>
+                                        <p class="ee-desc">Edit the main content of the embed. You can use <a href="https://support.discord.com/hc/en-us/articles/210298617-Markdown-Text-101-Chat-Formatting-Bold-Italic-Underline" target="_blank" class="ee-link">Markdown</a> to add extra styles and formatting.</p>
+                                        <div class="ee-grid-2">
+                                            <div class="ee-input-group">
+                                                <label class="ee-label">Title</label>
+                                                <div class="ee-input-wrap">
+                                                    <span class="ee-text-icon">T</span>
+                                                    <input type="text" class="ee-input" id="eb-title" placeholder="Title" value="Help & Support" oninput="updateEmbedBuilderPreview();">
+                                                </div>
+                                            </div>
+                                            <div class="ee-input-group">
+                                                <label class="ee-label">Title URL</label>
+                                                <div class="ee-input-wrap">
+                                                    <i class="fa-solid fa-link ee-input-icon"></i>
+                                                    <input type="text" class="ee-input" id="eb-title-url" placeholder="https://example.com" oninput="updateEmbedBuilderPreview();">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="ee-input-group" style="margin-top: 12px;">
+                                            <label class="ee-label">Description</label>
+                                            <div class="ee-textarea-wrap">
+                                                <textarea class="ee-textarea" id="eb-description" placeholder="Enter embed description..." oninput="updateCharCounter(this, 'eb-desc-counter'); updateEmbedBuilderPreview();"></textarea>
+                                                <button type="button" class="ee-emoji-btn" onclick="openServerEmojiPicker('eb-description')" title="Insert Emoji">
+                                                    <i class="fa-regular fa-face-smile"></i>
+                                                </button>
+                                                <span class="ee-char-counter" id="eb-desc-counter">0/4096</span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Media Content -->
+                                    <div class="ee-section">
+                                        <h4 class="ee-title">Media Content</h4>
+                                        <p class="ee-desc">Set up the embed’s thumbnail and main image.</p>
+                                        <div class="ee-grid-2">
+                                            <div class="ee-input-group">
+                                                <label class="ee-label">Image URL</label>
+                                                <div class="ee-input-wrap">
+                                                    <i class="fa-regular fa-image ee-input-icon"></i>
+                                                    <input type="text" class="ee-input" id="eb-image-url" placeholder="https://example.com/image.png" oninput="updateEmbedBuilderPreview();">
+                                                </div>
+                                            </div>
+                                            <div class="ee-input-group">
+                                                <label class="ee-label">Thumbnail URL</label>
+                                                <div class="ee-input-wrap">
+                                                    <i class="fa-regular fa-image ee-input-icon"></i>
+                                                    <input type="text" class="ee-input" id="eb-thumbnail-url" placeholder="https://example.com/thumbnail.png" oninput="updateEmbedBuilderPreview();">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Footer Content -->
+                                    <div class="ee-section">
+                                        <h4 class="ee-title">Footer Content</h4>
+                                        <p class="ee-desc">Appears at the bottom of the embed.</p>
+                                        <div class="ee-grid-2">
+                                            <div class="ee-input-group">
+                                                <label class="ee-label">Footer Text</label>
+                                                <div class="ee-input-wrap">
+                                                    <span class="ee-text-icon">T</span>
+                                                    <input type="text" class="ee-input" id="eb-footer-text" placeholder="Footer text..." oninput="updateEmbedBuilderPreview();">
+                                                </div>
+                                            </div>
+                                            <div class="ee-input-group">
+                                                <label class="ee-label">Footer Icon URL</label>
+                                                <div class="ee-input-wrap">
+                                                    <i class="fa-regular fa-image ee-input-icon"></i>
+                                                    <input type="text" class="ee-input" id="eb-footer-icon" placeholder="https://example.com/icon.png" oninput="updateEmbedBuilderPreview();">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Fields -->
+                                    <div class="ee-section" style="border-bottom: none;">
+                                        <h4 class="ee-title">Fields</h4>
+                                        <p class="ee-desc">Add up to 25 fields to this embed.</p>
+                                        <div id="eb-fields-container" style="display:flex; flex-direction:column; gap:8px; margin-bottom: 12px;"></div>
+                                        <button type="button" class="ee-btn-add-field" onclick="addEmbedField('eb')">
+                                            <i class="fa-solid fa-plus"></i> Add Field
+                                        </button>
                                     </div>
                                 </div>
 
-                                <!-- Row 1: Icon URL, Name, Name URL -->
-                                <div style="display: grid; grid-template-columns: 1fr 1.5fr 1fr; gap: 10px;">
-                                    <input type="text" placeholder="Icon url" class="form-control" id="eb-author-icon" style="background: #FFFFFF !important; border: 1.5px solid #CBD5E1 !important; color: #0F172A !important;" oninput="updateEmbedBuilderPreview()">
-                                    <input type="text" placeholder="Name" class="form-control" id="eb-author-name" style="background: #FFFFFF !important; border: 1.5px solid #CBD5E1 !important; color: #0F172A !important;" oninput="updateEmbedBuilderPreview()">
-                                    <input type="text" placeholder="Name url" class="form-control" id="eb-author-url" style="background: #FFFFFF !important; border: 1.5px solid #CBD5E1 !important; color: #0F172A !important;" oninput="updateEmbedBuilderPreview()">
-                                </div>
-
-                                <!-- Row 2: Title, Title URL -->
-                                <div style="display: grid; grid-template-columns: 2fr auto 1fr; gap: 8px;">
-                                    <input type="text" placeholder="Title" class="form-control" id="eb-title" style="background: #FFFFFF !important; border: 1.5px solid #CBD5E1 !important; color: #0F172A !important;" oninput="updateEmbedBuilderPreview()">
-                                    <button type="button" onclick="openServerEmojiPicker('eb-title')" title="Insert Server Emoji" style="background: rgba(255,255,255,0.08); border: none; border-radius: 4px; padding: 0 10px; cursor: pointer; color: #fff; font-size: 0.95rem;">😊</button>
-                                    <input type="text" placeholder="Title url" class="form-control" id="eb-title-url" style="background: #FFFFFF !important; border: 1.5px solid #CBD5E1 !important; color: #0F172A !important;" oninput="updateEmbedBuilderPreview()">
-                                </div>
-                                <div style="font-size: 0.72rem; color: var(--text-secondary); margin-top: -10px; font-family: var(--font-mono); text-align: left;" id="eb-title-counter">0/256</div>
-
-                                <!-- Row 3: Description -->
-                                <div class="form-group" style="position: relative;">
-                                    <textarea placeholder="Description" class="form-control" id="eb-description" style="height: 100px; background: #FFFFFF !important; border: 1.5px solid #CBD5E1 !important; color: #0F172A !important; padding-right: 45px;" oninput="updateEmbedBuilderPreview()"></textarea>
-                                    <button type="button" onclick="openServerEmojiPicker('eb-description')" title="Insert Server Emoji" style="position: absolute; right: 10px; top: 10px; background: rgba(255,255,255,0.1); border: none; border-radius: 6px; padding: 4px 8px; cursor: pointer; color: #fff; font-size: 0.95rem;">😊</button>
-                                    <div style="display: flex; justify-content: space-between; font-size: 0.72rem; color: var(--text-secondary); margin-top: 4px; font-family: var(--font-mono);">
-                                        <span id="eb-desc-counter">0/2048</span>
-                                    </div>
-                                </div>
-
-                                <!-- Add Field Button -->
-                                <div>
-                                    <button class="btn-secondary" style="width: 100%; padding: 12px; border-radius: 8px; font-weight: 600; font-size: 0.85rem;" onclick="addEmbedBuilderField()">Add field</button>
-                                    <div style="font-size: 0.72rem; color: var(--text-secondary); margin-top: 4px; font-family: var(--font-mono); text-align: left;">0/25 fields</div>
-                                </div>
-
-                                <!-- Custom fields container -->
-                                <div id="eb-fields-container" style="display:flex; flex-direction:column; gap:10px;"></div>
-
-                                <!-- Row 4: Image URL, Thumbnail URL -->
-                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-                                    <input type="text" placeholder="Image url (big at the bottom)" class="form-control" id="eb-image-url" style="background: #FFFFFF !important; border: 1.5px solid #CBD5E1 !important; color: #0F172A !important;" oninput="updateEmbedBuilderPreview()">
-                                    <input type="text" placeholder="Thumbnail url (small top right)" class="form-control" id="eb-thumbnail-url" style="background: #FFFFFF !important; border: 1.5px solid #CBD5E1 !important; color: #0F172A !important;" oninput="updateEmbedBuilderPreview()">
-                                </div>
-
-                                <!-- Row 5: Footer, Footer Icon, Date, Clear -->
-                                <div style="display: grid; grid-template-columns: 1.5fr auto 1fr 1.2fr 0.6fr; gap: 8px; align-items: center;">
-                                    <input type="text" placeholder="Footer" class="form-control" id="eb-footer-text" style="background: #FFFFFF !important; border: 1.5px solid #CBD5E1 !important; color: #0F172A !important;" oninput="updateEmbedBuilderPreview()">
-                                    <button type="button" onclick="openServerEmojiPicker('eb-footer-text')" title="Insert Server Emoji" style="background: rgba(255,255,255,0.08); border: none; border-radius: 4px; padding: 0 10px; height: 36px; cursor: pointer; color: #fff; font-size: 0.95rem;">😊</button>
-                                    <input type="text" placeholder="Footer icon" class="form-control" id="eb-footer-icon" style="background: #FFFFFF !important; border: 1.5px solid #CBD5E1 !important; color: #0F172A !important;" oninput="updateEmbedBuilderPreview()">
-                                    <div style="display: flex; align-items: center; background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.06); border-radius: 6px; padding: 4px 10px; box-sizing: border-box;">
-                                        <i class="fa-regular fa-calendar" style="color: var(--text-secondary); margin-right: 8px;"></i>
-                                        <input type="datetime-local" id="eb-date-input" style="background: transparent; border: none; color: #0F172A !important; font-size: 0.8rem; font-family: inherit; outline: none; cursor: pointer; width: 100%;" onchange="updateEmbedBuilderPreview()">
-                                    </div>
-                                    <button class="btn-primary" style="background: #ef4444; border: none; padding: 8px 12px; border-radius: 6px; font-weight: 700; font-size: 0.8rem;" onclick="clearEmbedBuilderDate()">Clear</button>
-                                </div>
-                                <div style="font-size: 0.72rem; color: var(--text-secondary); margin-top: -10px; font-family: var(--font-mono); text-align: left;">0/2048</div>
-
-                            </div>
-
-                            <!-- Add Embed Button -->
+                                <!-- Add Embed Button -->
                             <button class="btn-secondary" style="width: 100%; padding: 12px; border-radius: 8px; font-weight: 700; font-size: 0.9rem;" onclick="showToast('Embed Builder', 'Secondary embed layer added (Premium only).')">Add embed</button>
 
                             <!-- Destination Section -->
@@ -9040,8 +9366,8 @@ To gain full access to server channels, voice rooms, and media, please verify yo
                                 </div>
                             </div>
 
-                            <!-- Embed Customization Section (Exact match to Veyra Embed / Image Customizer) -->
-                            <div style="padding: 18px 0; border-bottom: 1.5px solid #F1F5F9;">
+                            <!-- Embed Customization Section (Harmonized Veyra 7-Section Architecture) -->
+                            <div style="padding: 10px 0 18px 0; border-bottom: 1.5px solid #F1F5F9;">
                                 <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
                                     <div style="font-weight: 800; color: #0F172A; font-size: 0.95rem;">
                                         <i class="fas fa-palette" style="color: #E11D48; margin-right: 6px;"></i> Embed Customization
@@ -9049,37 +9375,144 @@ To gain full access to server channels, voice rooms, and media, please verify yo
                                     <span style="font-size: 0.72rem; background: #EFF6FF; color: #2563EB; border: 1px solid #BFDBFE; font-weight: 700; padding: 2px 8px; border-radius: 6px;">LIVE SYNC</span>
                                 </div>
 
-                                <!-- Custom Title -->
-                                <div style="margin-bottom: 12px;">
-                                    <label style="display: block; font-size: 0.8rem; font-weight: 700; color: #334155; margin-bottom: 4px;">Embed Title</label>
-                                    <input type="text" id="report-embed-title-input" class="form-control" placeholder="📊 VEYRA WEEKLY Server Growth Report" style="width: 100%; background: #F8FAFC !important; border: 1.5px solid #CBD5E1 !important; color: #0F172A !important; font-weight: 700; border-radius: 8px; padding: 9px 12px; font-size: 0.85rem;" oninput="updateReportsLivePreview()">
-                                </div>
+                                <div class="veyra-embed-editor" id="report-embed-editor">
+                                    <!-- Actions -->
+                                    <div class="ee-section">
+                                        <h4 class="ee-title">Actions</h4>
+                                        <p class="ee-desc">Reset this embed to its default values.</p>
+                                        <button type="button" class="ee-btn-reset" onclick="resetEmbedToDefaults('report')">
+                                            <i class="fa-solid fa-rotate-left"></i> Reset
+                                        </button>
+                                    </div>
 
-                                <!-- Accent Color & Thumbnail Row -->
-                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px;">
-                                    <div>
-                                        <label style="display: block; font-size: 0.8rem; font-weight: 700; color: #334155; margin-bottom: 4px;">Accent Color</label>
-                                        <div style="display: flex; align-items: center; gap: 8px;">
-                                            <input type="color" id="report-embed-color-picker" value="#E11D48" style="width: 38px; height: 38px; border-radius: 8px; border: 1.5px solid #CBD5E1; cursor: pointer; padding: 2px; background: #FFF;" oninput="document.getElementById('report-embed-color-input').value = this.value; updateReportsLivePreview()">
-                                            <input type="text" id="report-embed-color-input" class="form-control" value="#E11D48" style="flex: 1; background: #F8FAFC !important; border: 1.5px solid #CBD5E1 !important; color: #0F172A !important; font-weight: 700; border-radius: 8px; padding: 9px 10px; font-size: 0.82rem; font-family: var(--font-mono);" oninput="document.getElementById('report-embed-color-picker').value = this.value; updateReportsLivePreview()">
+                                    <!-- Embed Color -->
+                                    <div class="ee-section">
+                                        <h4 class="ee-title">Embed Color</h4>
+                                        <p class="ee-desc">The accent color of this embed.</p>
+                                        <div class="ee-color-row">
+                                            <span class="ee-color-swatch" id="report-color-swatch" style="background: #E11D48;" onclick="document.getElementById('report-embed-color-picker').click();"></span>
+                                            <label class="ee-btn-color" for="report-embed-color-picker">
+                                                <i class="fa-solid fa-palette"></i> Change Color
+                                                <input type="color" id="report-embed-color-picker" value="#E11D48" style="position: absolute; opacity: 0; width: 0; height: 0; pointer-events: none;" oninput="document.getElementById('report-embed-color-input').value = this.value; document.getElementById('report-color-swatch').style.background = this.value; updateReportsLivePreview();">
+                                            </label>
+                                            <input type="text" id="report-embed-color-input" value="#E11D48" class="ee-hex-input" placeholder="#HEX" oninput="document.getElementById('report-embed-color-picker').value = this.value; document.getElementById('report-color-swatch').style.background = this.value; updateReportsLivePreview();">
                                         </div>
                                     </div>
-                                    <div>
-                                        <label style="display: block; font-size: 0.8rem; font-weight: 700; color: #334155; margin-bottom: 4px;">Thumbnail URL</label>
-                                        <input type="text" id="report-thumbnail-url-input" class="form-control" placeholder="Server Icon (default) or Image URL" style="width: 100%; background: #F8FAFC !important; border: 1.5px solid #CBD5E1 !important; color: #0F172A !important; font-weight: 600; border-radius: 8px; padding: 9px 12px; font-size: 0.82rem;" oninput="updateReportsLivePreview()">
+
+                                    <!-- Author Information -->
+                                    <div class="ee-section">
+                                        <h4 class="ee-title">Author Information</h4>
+                                        <p class="ee-desc">Information that is displayed at the top of the embed.</p>
+                                        <div class="ee-grid-2">
+                                            <div class="ee-input-group">
+                                                <label class="ee-label">Author Name</label>
+                                                <div class="ee-input-wrap">
+                                                    <i class="fa-regular fa-user ee-input-icon"></i>
+                                                    <input type="text" class="ee-input" id="report-author-name" placeholder="Enter author name..." oninput="updateReportsLivePreview();">
+                                                </div>
+                                            </div>
+                                            <div class="ee-input-group">
+                                                <label class="ee-label">Author URL</label>
+                                                <div class="ee-input-wrap">
+                                                    <i class="fa-solid fa-link ee-input-icon"></i>
+                                                    <input type="text" class="ee-input" id="report-author-url" placeholder="https://example.com" oninput="updateReportsLivePreview();">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="ee-input-group" style="margin-top: 12px;">
+                                            <label class="ee-label">Author Icon URL</label>
+                                            <div class="ee-input-wrap">
+                                                <i class="fa-regular fa-image ee-input-icon"></i>
+                                                <input type="text" class="ee-input" id="report-author-icon" placeholder="https://example.com/image.png" oninput="updateReportsLivePreview();">
+                                            </div>
+                                        </div>
                                     </div>
-                                </div>
 
-                                <!-- Banner / Large Image URL -->
-                                <div style="margin-bottom: 12px;">
-                                    <label style="display: block; font-size: 0.8rem; font-weight: 700; color: #334155; margin-bottom: 4px;">Banner / Header Image URL (GIF / PNG / JPG)</label>
-                                    <input type="text" id="report-banner-url-input" class="form-control" placeholder="https://... direct image or banner link" style="width: 100%; background: #F8FAFC !important; border: 1.5px solid #CBD5E1 !important; color: #0F172A !important; font-weight: 600; border-radius: 8px; padding: 9px 12px; font-size: 0.85rem;" oninput="updateReportsLivePreview()">
-                                </div>
+                                    <!-- Embed Content -->
+                                    <div class="ee-section">
+                                        <h4 class="ee-title">Embed Content</h4>
+                                        <p class="ee-desc">Edit the main content of the embed. You can use <a href="https://support.discord.com/hc/en-us/articles/210298617-Markdown-Text-101-Chat-Formatting-Bold-Italic-Underline" target="_blank" class="ee-link">Markdown</a> to add extra styles and formatting.</p>
+                                        <div class="ee-grid-2">
+                                            <div class="ee-input-group">
+                                                <label class="ee-label">Title</label>
+                                                <div class="ee-input-wrap">
+                                                    <span class="ee-text-icon">T</span>
+                                                    <input type="text" class="ee-input" id="report-embed-title-input" placeholder="Title" value="📊 VEYRA WEEKLY Server Growth Report" oninput="updateReportsLivePreview();">
+                                                </div>
+                                            </div>
+                                            <div class="ee-input-group">
+                                                <label class="ee-label">Title URL</label>
+                                                <div class="ee-input-wrap">
+                                                    <i class="fa-solid fa-link ee-input-icon"></i>
+                                                    <input type="text" class="ee-input" id="report-title-url" placeholder="https://example.com" oninput="updateReportsLivePreview();">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="ee-input-group" style="margin-top: 12px;">
+                                            <label class="ee-label">Description</label>
+                                            <div class="ee-textarea-wrap">
+                                                <textarea class="ee-textarea" id="report-embed-desc" placeholder="Enter embed description..." oninput="updateCharCounter(this, 'report-char-counter'); updateReportsLivePreview();"></textarea>
+                                                <button type="button" class="ee-emoji-btn" onclick="openServerEmojiPicker('report-embed-desc')" title="Insert Emoji">
+                                                    <i class="fa-regular fa-face-smile"></i>
+                                                </button>
+                                                <span class="ee-char-counter" id="report-char-counter">0/4096</span>
+                                            </div>
+                                        </div>
+                                    </div>
 
-                                <!-- Custom Footer Text -->
-                                <div>
-                                    <label style="display: block; font-size: 0.8rem; font-weight: 700; color: #334155; margin-bottom: 4px;">Custom Footer Note</label>
-                                    <input type="text" id="report-footer-text-input" class="form-control" placeholder="VEYRA Advanced Analytics • Scheduled • Live Sync" style="width: 100%; background: #F8FAFC !important; border: 1.5px solid #CBD5E1 !important; color: #0F172A !important; font-weight: 600; border-radius: 8px; padding: 9px 12px; font-size: 0.82rem;" oninput="updateReportsLivePreview()">
+                                    <!-- Media Content -->
+                                    <div class="ee-section">
+                                        <h4 class="ee-title">Media Content</h4>
+                                        <p class="ee-desc">Set up the embed’s thumbnail and main image.</p>
+                                        <div class="ee-grid-2">
+                                            <div class="ee-input-group">
+                                                <label class="ee-label">Image URL</label>
+                                                <div class="ee-input-wrap">
+                                                    <i class="fa-regular fa-image ee-input-icon"></i>
+                                                    <input type="text" class="ee-input" id="report-banner-url-input" placeholder="https://example.com/image.png" oninput="updateReportsLivePreview();">
+                                                </div>
+                                            </div>
+                                            <div class="ee-input-group">
+                                                <label class="ee-label">Thumbnail URL</label>
+                                                <div class="ee-input-wrap">
+                                                    <i class="fa-regular fa-image ee-input-icon"></i>
+                                                    <input type="text" class="ee-input" id="report-thumbnail-url-input" placeholder="https://example.com/thumbnail.png" oninput="updateReportsLivePreview();">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Footer Content -->
+                                    <div class="ee-section">
+                                        <h4 class="ee-title">Footer Content</h4>
+                                        <p class="ee-desc">Appears at the bottom of the embed.</p>
+                                        <div class="ee-grid-2">
+                                            <div class="ee-input-group">
+                                                <label class="ee-label">Footer Text</label>
+                                                <div class="ee-input-wrap">
+                                                    <span class="ee-text-icon">T</span>
+                                                    <input type="text" class="ee-input" id="report-footer-text-input" placeholder="Footer text..." oninput="updateReportsLivePreview();">
+                                                </div>
+                                            </div>
+                                            <div class="ee-input-group">
+                                                <label class="ee-label">Footer Icon URL</label>
+                                                <div class="ee-input-wrap">
+                                                    <i class="fa-regular fa-image ee-input-icon"></i>
+                                                    <input type="text" class="ee-input" id="report-footer-icon" placeholder="https://example.com/icon.png" oninput="updateReportsLivePreview();">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Fields -->
+                                    <div class="ee-section" style="border-bottom: none;">
+                                        <h4 class="ee-title">Fields</h4>
+                                        <p class="ee-desc">Add up to 25 fields to this embed.</p>
+                                        <div id="report-fields-container" style="display:flex; flex-direction:column; gap:8px; margin-bottom: 12px;"></div>
+                                        <button type="button" class="ee-btn-add-field" onclick="addEmbedField('report')">
+                                            <i class="fa-solid fa-plus"></i> Add Field
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
 
@@ -9243,43 +9676,143 @@ Net:    [░░░░░░░░░░░░░░] +0</pre>
                                 <button type="button" id="levels-embed-toggle-btn" class="btn-secondary" onclick="toggleEmbedBuilderBox('levels')" style="width:100%; margin-top:10px; font-weight:700; font-size:0.82rem; padding:10px; cursor:pointer;">Show embed builder</button>
                                 
                                 <!-- Nested Embed Box for Levels -->
-                                <div style="display: none; border-left: 4px solid #a855f7; background: rgba(0,0,0,0.18); border-radius: 6px; padding: 16px; margin-top: 15px; flex-direction: column; gap: 14px;" id="levels-builder-box">
-                                    <div>
-                                        <button class="btn-secondary" type="button" onclick="toggleColorPickerField('levels')" style="background:#a855f7; border:none; padding:6px 14px; border-radius:6px; font-weight:700; font-size:0.8rem; color:#fff; cursor:pointer;">Toggle color picker</button>
-                                        <div id="levels-color-picker-wrapper" style="display: none; margin-top: 10px; align-items:center; gap:10px;">
-                                            <input type="color" id="levels-embed-color-picker" value="#a855f7" oninput="document.getElementById('levels-color-hex').value = this.value;" style="width: 45px; height: 32px; border: none; cursor: pointer; background: transparent;">
-                                            <input type="text" id="levels-color-hex" value="#a855f7" class="form-control" style="width: 110px; background: #FFFFFF !important; border: 1.5px solid #CBD5E1 !important; color: #0F172A !important; font-family: var(--font-mono); font-size:0.82rem;" oninput="document.getElementById('levels-embed-color-picker').value = this.value;">
+                                <div class="veyra-embed-editor" id="levels-builder-box" style="display: none; margin-top: 15px;">
+                                    <!-- Actions -->
+                                    <div class="ee-section">
+                                        <h4 class="ee-title">Actions</h4>
+                                        <p class="ee-desc">Reset this embed to its default values.</p>
+                                        <button type="button" class="ee-btn-reset" onclick="resetEmbedToDefaults('levels')">
+                                            <i class="fa-solid fa-rotate-left"></i> Reset
+                                        </button>
+                                    </div>
+
+                                    <!-- Embed Color -->
+                                    <div class="ee-section">
+                                        <h4 class="ee-title">Embed Color</h4>
+                                        <p class="ee-desc">The accent color of this embed.</p>
+                                        <div class="ee-color-row">
+                                            <span class="ee-color-swatch" id="levels-color-swatch" style="background: #a855f7;" onclick="document.getElementById('levels-embed-color-picker').click();"></span>
+                                            <label class="ee-btn-color" for="levels-embed-color-picker">
+                                                <i class="fa-solid fa-palette"></i> Change Color
+                                                <input type="color" id="levels-embed-color-picker" value="#a855f7" style="position: absolute; opacity: 0; width: 0; height: 0; pointer-events: none;" oninput="document.getElementById('levels-color-hex').value = this.value; document.getElementById('levels-color-swatch').style.background = this.value;">
+                                            </label>
+                                            <input type="text" id="levels-color-hex" value="#a855f7" class="ee-hex-input" placeholder="#HEX" oninput="document.getElementById('levels-embed-color-picker').value = this.value; document.getElementById('levels-color-swatch').style.background = this.value;">
                                         </div>
                                     </div>
 
-                                    <!-- Row 1: Icon URL, Name, Name URL -->
-                                    <div style="display: grid; grid-template-columns: 1fr 1.5fr 1fr; gap: 8px;">
-                                        <input type="text" placeholder="Icon url" class="form-control" id="levels-author-icon" style="background: #FFFFFF !important; border: 1.5px solid #CBD5E1 !important; color: #0F172A !important; font-size:0.82rem;">
-                                        <input type="text" placeholder="Name" class="form-control" id="levels-author-name" style="background: #FFFFFF !important; border: 1.5px solid #CBD5E1 !important; color: #0F172A !important; font-size:0.82rem;">
-                                        <input type="text" placeholder="Name url" class="form-control" id="levels-author-url" style="background: #FFFFFF !important; border: 1.5px solid #CBD5E1 !important; color: #0F172A !important; font-size:0.82rem;">
+                                    <!-- Author Information -->
+                                    <div class="ee-section">
+                                        <h4 class="ee-title">Author Information</h4>
+                                        <p class="ee-desc">Information that is displayed at the top of the embed.</p>
+                                        <div class="ee-grid-2">
+                                            <div class="ee-input-group">
+                                                <label class="ee-label">Author Name</label>
+                                                <div class="ee-input-wrap">
+                                                    <i class="fa-regular fa-user ee-input-icon"></i>
+                                                    <input type="text" class="ee-input" id="levels-author-name" placeholder="Enter author name...">
+                                                </div>
+                                            </div>
+                                            <div class="ee-input-group">
+                                                <label class="ee-label">Author URL</label>
+                                                <div class="ee-input-wrap">
+                                                    <i class="fa-solid fa-link ee-input-icon"></i>
+                                                    <input type="text" class="ee-input" id="levels-author-url" placeholder="https://example.com">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="ee-input-group" style="margin-top: 12px;">
+                                            <label class="ee-label">Author Icon URL</label>
+                                            <div class="ee-input-wrap">
+                                                <i class="fa-regular fa-image ee-input-icon"></i>
+                                                <input type="text" class="ee-input" id="levels-author-icon" placeholder="https://example.com/image.png">
+                                            </div>
+                                        </div>
                                     </div>
 
-                                    <!-- Row 2: Title, Title URL -->
-                                    <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 8px;">
-                                        <input type="text" placeholder="Title" class="form-control" id="levels-embed-title" value="LEVEL UP!" style="background: #FFFFFF !important; border: 1.5px solid #CBD5E1 !important; color: #0F172A !important; font-size:0.82rem;">
-                                        <input type="text" placeholder="Title url" class="form-control" id="levels-title-url" style="background: #FFFFFF !important; border: 1.5px solid #CBD5E1 !important; color: #0F172A !important; font-size:0.82rem;">
+                                    <!-- Embed Content -->
+                                    <div class="ee-section">
+                                        <h4 class="ee-title">Embed Content</h4>
+                                        <p class="ee-desc">Edit the main content of the embed. You can use <a href="https://support.discord.com/hc/en-us/articles/210298617-Markdown-Text-101-Chat-Formatting-Bold-Italic-Underline" target="_blank" class="ee-link">Markdown</a> to add extra styles and formatting.</p>
+                                        <div class="ee-grid-2">
+                                            <div class="ee-input-group">
+                                                <label class="ee-label">Title</label>
+                                                <div class="ee-input-wrap">
+                                                    <span class="ee-text-icon">T</span>
+                                                    <input type="text" class="ee-input" id="levels-embed-title" placeholder="Title" value="LEVEL UP!">
+                                                </div>
+                                            </div>
+                                            <div class="ee-input-group">
+                                                <label class="ee-label">Title URL</label>
+                                                <div class="ee-input-wrap">
+                                                    <i class="fa-solid fa-link ee-input-icon"></i>
+                                                    <input type="text" class="ee-input" id="levels-title-url" placeholder="https://example.com">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="ee-input-group" style="margin-top: 12px;">
+                                            <label class="ee-label">Description</label>
+                                            <div class="ee-textarea-wrap">
+                                                <textarea class="ee-textarea" id="levels-embed-desc" placeholder="Enter embed description..." oninput="updateCharCounter(this, 'levels-char-counter');">GG {user}, you leveled up to level {lvl}!</textarea>
+                                                <button type="button" class="ee-emoji-btn" onclick="openServerEmojiPicker('levels-embed-desc')" title="Insert Emoji">
+                                                    <i class="fa-regular fa-face-smile"></i>
+                                                </button>
+                                                <span class="ee-char-counter" id="levels-char-counter">0/4096</span>
+                                            </div>
+                                        </div>
                                     </div>
 
-                                    <!-- Row 3: Description -->
-                                    <div class="form-group" style="margin:0;">
-                                        <textarea placeholder="Description" class="form-control" id="levels-embed-desc" style="height: 85px; background: #FFFFFF !important; border: 1.5px solid #CBD5E1 !important; color: #0F172A !important; font-family: var(--font-mono); font-size: 0.8rem;">GG {user}, you leveled up to level {lvl}!</textarea>
+                                    <!-- Media Content -->
+                                    <div class="ee-section">
+                                        <h4 class="ee-title">Media Content</h4>
+                                        <p class="ee-desc">Set up the embed’s thumbnail and main image.</p>
+                                        <div class="ee-grid-2">
+                                            <div class="ee-input-group">
+                                                <label class="ee-label">Image URL</label>
+                                                <div class="ee-input-wrap">
+                                                    <i class="fa-regular fa-image ee-input-icon"></i>
+                                                    <input type="text" class="ee-input" id="levels-embed-image" placeholder="https://example.com/image.png">
+                                                </div>
+                                            </div>
+                                            <div class="ee-input-group">
+                                                <label class="ee-label">Thumbnail URL</label>
+                                                <div class="ee-input-wrap">
+                                                    <i class="fa-regular fa-image ee-input-icon"></i>
+                                                    <input type="text" class="ee-input" id="levels-thumbnail-url" placeholder="https://example.com/thumbnail.png">
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
 
-                                    <!-- Row 4: Image URL, Thumbnail URL -->
-                                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
-                                        <input type="text" placeholder="Image url (big at the bottom)" class="form-control" id="levels-embed-image" style="background: #FFFFFF !important; border: 1.5px solid #CBD5E1 !important; color: #0F172A !important; font-size:0.82rem;">
-                                        <input type="text" placeholder="Thumbnail url (small top right)" class="form-control" id="levels-thumbnail-url" style="background: #FFFFFF !important; border: 1.5px solid #CBD5E1 !important; color: #0F172A !important; font-size:0.82rem;">
+                                    <!-- Footer Content -->
+                                    <div class="ee-section">
+                                        <h4 class="ee-title">Footer Content</h4>
+                                        <p class="ee-desc">Appears at the bottom of the embed.</p>
+                                        <div class="ee-grid-2">
+                                            <div class="ee-input-group">
+                                                <label class="ee-label">Footer Text</label>
+                                                <div class="ee-input-wrap">
+                                                    <span class="ee-text-icon">T</span>
+                                                    <input type="text" class="ee-input" id="levels-embed-footer" value="Keep chatting to earn more XP!" placeholder="Footer text...">
+                                                </div>
+                                            </div>
+                                            <div class="ee-input-group">
+                                                <label class="ee-label">Footer Icon URL</label>
+                                                <div class="ee-input-wrap">
+                                                    <i class="fa-regular fa-image ee-input-icon"></i>
+                                                    <input type="text" class="ee-input" id="levels-footer-icon" placeholder="https://example.com/icon.png">
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
 
-                                    <!-- Row 5: Footer, Footer Icon -->
-                                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
-                                        <input type="text" placeholder="Footer" class="form-control" id="levels-embed-footer" value="Keep chatting to earn more XP!" style="background: #FFFFFF !important; border: 1.5px solid #CBD5E1 !important; color: #0F172A !important; font-size:0.82rem;">
-                                        <input type="text" placeholder="Footer icon" class="form-control" id="levels-footer-icon" style="background: #FFFFFF !important; border: 1.5px solid #CBD5E1 !important; color: #0F172A !important; font-size:0.82rem;">
+                                    <!-- Fields -->
+                                    <div class="ee-section" style="border-bottom: none;">
+                                        <h4 class="ee-title">Fields</h4>
+                                        <p class="ee-desc">Add up to 25 fields to this embed.</p>
+                                        <div id="levels-fields-container" style="display:flex; flex-direction:column; gap:8px; margin-bottom: 12px;"></div>
+                                        <button type="button" class="ee-btn-add-field" onclick="addEmbedField('levels')">
+                                            <i class="fa-solid fa-plus"></i> Add Field
+                                        </button>
                                     </div>
                                 </div>
                             </div>
@@ -13670,7 +14203,7 @@ Our support team can assist you with:
     <!-- JS Execution libraries -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
-    <script src="js/dashboard.js?v=v88_clean_original"></script>
+    <script src="js/dashboard.js?v=v89_harmonized_embed_editor"></script>
     <script src="js/moderation.js?v=v55_realtime_botui"></script>
     <!-- smokey fluid cursor removed -->
 

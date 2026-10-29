@@ -3892,3 +3892,272 @@ input[type="number"]::-webkit-inner-spin-button {
     transform: translateY(-4px) !important;
     box-shadow: 0 12px 30px rgba(15, 23, 42, 0.08) !important;
 }
+
+
+/* --- VEYRA DISCORD EMBED EDITOR (HARMONIZED NATIVE DASHBOARD STYLING) --- */
+.veyra-embed-editor {
+    background: #FFFFFF !important;
+    border: 1.5px solid #E2E8F0 !important;
+    border-radius: 12px;
+    padding: 0;
+    overflow: hidden;
+    color: #0F172A !important;
+    margin-top: 12px;
+    margin-bottom: 20px;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+}
+.ee-section {
+    padding: 16px 20px;
+    border-bottom: 1.5px solid #F1F5F9;
+}
+.ee-section:last-child {
+    border-bottom: none;
+}
+.ee-title {
+    font-size: 0.95rem;
+    font-weight: 800;
+    color: #0F172A !important;
+    margin: 0 0 3px 0;
+    letter-spacing: -0.01em;
+}
+.ee-desc {
+    font-size: 0.8rem;
+    color: #64748B !important;
+    margin: 0 0 12px 0;
+    line-height: 1.45;
+}
+.ee-desc a.ee-link {
+    color: #E11D48 !important;
+    text-decoration: underline;
+    font-weight: 600;
+}
+.ee-btn-reset {
+    background: #F8FAFC;
+    color: #334155 !important;
+    border: 1.5px solid #CBD5E1;
+    border-radius: 6px;
+    padding: 7px 15px;
+    font-size: 0.82rem;
+    font-weight: 700;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.15s ease;
+}
+.ee-btn-reset:hover {
+    background: #F1F5F9;
+    border-color: #94A3B8;
+    color: #0F172A !important;
+}
+.ee-color-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+.ee-color-swatch {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    border: 2px solid #CBD5E1;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+    display: inline-block;
+    flex-shrink: 0;
+    cursor: pointer;
+}
+.ee-btn-color {
+    background: #F8FAFC;
+    color: #334155 !important;
+    border: 1.5px solid #CBD5E1;
+    border-radius: 6px;
+    padding: 7px 15px;
+    font-size: 0.82rem;
+    font-weight: 700;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.15s ease;
+    user-select: none;
+    position: relative;
+}
+.ee-btn-color:hover {
+    background: #F1F5F9;
+    border-color: #94A3B8;
+    color: #0F172A !important;
+}
+.ee-hex-input {
+    width: 105px;
+    background: #FFFFFF !important;
+    border: 1.5px solid #CBD5E1 !important;
+    border-radius: 6px;
+    color: #0F172A !important;
+    padding: 7px 10px;
+    font-size: 0.84rem;
+    font-family: var(--font-mono, monospace);
+    font-weight: 700;
+}
+.ee-grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+.ee-input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+.ee-label {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: #334155 !important;
+}
+.ee-input-wrap {
+    position: relative;
+    display: flex;
+    align-items: center;
+    background: #F8FAFC !important;
+    border: 1.5px solid #CBD5E1 !important;
+    border-radius: 8px;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.ee-input-wrap:focus-within {
+    border-color: #E11D48 !important;
+    box-shadow: 0 0 0 2px rgba(225, 29, 72, 0.15);
+}
+.ee-input-icon {
+    position: absolute;
+    left: 12px;
+    color: #64748B !important;
+    font-size: 0.85rem;
+    pointer-events: none;
+}
+.ee-text-icon {
+    position: absolute;
+    left: 12px;
+    color: #64748B !important;
+    font-weight: 800;
+    font-size: 0.88rem;
+    font-family: monospace;
+    pointer-events: none;
+}
+.ee-input {
+    width: 100%;
+    background: transparent !important;
+    border: none !important;
+    outline: none !important;
+    color: #0F172A !important;
+    font-size: 0.85rem;
+    padding: 9px 12px 9px 36px;
+    font-family: inherit;
+    font-weight: 600;
+    box-sizing: border-box;
+}
+.ee-input::placeholder {
+    color: #94A3B8 !important;
+    font-weight: 500;
+}
+.ee-textarea-wrap {
+    position: relative;
+    background: #F8FAFC !important;
+    border: 1.5px solid #CBD5E1 !important;
+    border-radius: 8px;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.ee-textarea-wrap:focus-within {
+    border-color: #E11D48 !important;
+    box-shadow: 0 0 0 2px rgba(225, 29, 72, 0.15);
+}
+.ee-textarea {
+    width: 100%;
+    min-height: 95px;
+    background: transparent !important;
+    border: none !important;
+    outline: none !important;
+    color: #0F172A !important;
+    font-size: 0.85rem;
+    padding: 10px 36px 26px 12px;
+    font-family: inherit;
+    font-weight: 500;
+    resize: vertical;
+    line-height: 1.5;
+    box-sizing: border-box;
+}
+.ee-textarea::placeholder {
+    color: #94A3B8 !important;
+}
+.ee-emoji-btn {
+    position: absolute;
+    top: 9px;
+    right: 9px;
+    background: transparent;
+    border: none;
+    color: #64748B;
+    font-size: 1.05rem;
+    cursor: pointer;
+    transition: color 0.15s ease;
+    padding: 4px;
+}
+.ee-emoji-btn:hover {
+    color: #E11D48;
+}
+.ee-char-counter {
+    position: absolute;
+    bottom: 6px;
+    right: 12px;
+    font-size: 0.72rem;
+    color: #64748B !important;
+    font-family: monospace;
+    font-weight: 600;
+    pointer-events: none;
+}
+.ee-btn-add-field {
+    width: 100%;
+    background: #F8FAFC;
+    border: 1.5px dashed #CBD5E1;
+    border-radius: 8px;
+    padding: 10px;
+    color: #334155 !important;
+    font-weight: 700;
+    font-size: 0.82rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: all 0.15s ease;
+}
+.ee-btn-add-field:hover {
+    border-color: #E11D48;
+    color: #E11D48 !important;
+    background: #FFF1F5;
+}
+.ee-field-row {
+    background: #F8FAFC;
+    border: 1px solid #E2E8F0;
+    border-radius: 8px;
+    padding: 12px;
+    margin-bottom: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    position: relative;
+}
+.ee-field-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.ee-field-del-btn {
+    background: transparent;
+    border: none;
+    color: #EF4444;
+    cursor: pointer;
+    font-size: 0.85rem;
+    padding: 2px 6px;
+    border-radius: 4px;
+    transition: all 0.15s ease;
+}
+.ee-field-del-btn:hover {
+    background: rgba(239, 68, 68, 0.1);
+}
