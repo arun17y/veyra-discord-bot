@@ -6874,26 +6874,7 @@ function toggleColorPickerField(prefix) {
     }
 }
 
-function addEmbedField(prefix) {
-    const container = document.getElementById(`${prefix}-fields-container`) || document.getElementById('eb-fields-container');
-    if (!container) return;
     
-    const fieldCount = container.children.length + 1;
-    if (fieldCount > 25) {
-        showToast("Limit Reached", "Discord limits embeds to a maximum of 25 fields.", "warning");
-        return;
-    }
-    
-    const div = document.createElement('div');
-    div.style.cssText = "display: grid; grid-template-columns: 1fr 2fr 0.4fr; gap: 8px; align-items: center; background: rgba(0,0,0,0.15); padding: 8px; border-radius: 4px;";
-    div.innerHTML = `
-        <input type="text" placeholder="Field name" class="form-control" style="background: rgba(0,0,0,0.25); font-size: 0.8rem;">
-        <input type="text" placeholder="Field value" class="form-control" style="background: rgba(0,0,0,0.25); font-size: 0.8rem;">
-        <button type="button" onclick="this.parentElement.remove()" style="background:#ef4444; border:none; color:#fff; border-radius:4px; padding:6px; cursor:pointer;" title="Remove field"><i class="fas fa-trash"></i></button>
-    `;
-    container.appendChild(div);
-    showToast("Field Added", `Added field #${fieldCount} to embed.`);
-}
 
 function clearEmbedDate(prefix) {
     const input = document.getElementById(`${prefix}-date-input`) || document.getElementById('eb-date-input');
@@ -12366,4 +12347,332 @@ window.runLiveSecurityScan = function() {
                 loadServerOverview(activeGuildId);
             });
     }, 1200);
+};
+
+
+
+// --- STANDARDIZED EMBED EDITOR HELPERS (1:1 Discord Spec) ---
+window.updateCharCounter = function(el, counterId) {
+    if (!el) return;
+    const counter = document.getElementById(counterId);
+    if (counter) {
+        const len = (el.value || '').length;
+        const max = el.getAttribute('maxlength') || 4096;
+        counter.textContent = `${len}/${max}`;
+    }
+};
+
+window.resetEmbedToDefaults = function(prefix) {
+    console.log(`[Embed Editor] Resetting embed to defaults for prefix: ${prefix}`);
+    
+    if (prefix === 'report') {
+        const titleEl = document.getElementById('report-embed-title-input');
+        if (titleEl) titleEl.value = 'VEYRA';
+        const colorInput = document.getElementById('report-embed-color-input');
+        if (colorInput) colorInput.value = '#00ffcc';
+        const colorPicker = document.getElementById('report-embed-color-picker');
+        if (colorPicker) colorPicker.value = '#00ffcc';
+        const swatch = document.getElementById('report-color-swatch');
+        if (swatch) swatch.style.background = '#00ffcc';
+        
+        const authorName = document.getElementById('report-author-name');
+        if (authorName) authorName.value = '';
+        const authorUrl = document.getElementById('report-author-url');
+        if (authorUrl) authorUrl.value = '';
+        const authorIcon = document.getElementById('report-author-icon');
+        if (authorIcon) authorIcon.value = '';
+        
+        const titleUrl = document.getElementById('report-title-url');
+        if (titleUrl) titleUrl.value = '';
+        const descEl = document.getElementById('report-embed-desc');
+        if (descEl) {
+            descEl.value = '';
+            window.updateCharCounter(descEl, 'report-char-counter');
+        }
+        
+        const bannerEl = document.getElementById('report-banner-url-input');
+        if (bannerEl) bannerEl.value = '';
+        const thumbEl = document.getElementById('report-thumbnail-url-input');
+        if (thumbEl) thumbEl.value = '';
+        
+        const footerEl = document.getElementById('report-footer-text-input');
+        if (footerEl) footerEl.value = '';
+        const footerIcon = document.getElementById('report-footer-icon');
+        if (footerIcon) footerIcon.value = '';
+        
+        const fields = document.getElementById('report-fields-container');
+        if (fields) fields.innerHTML = '';
+        
+        if (typeof updateReportsLivePreview === 'function') updateReportsLivePreview();
+        if (typeof showToast === 'function') showToast("Embed Reset", "Report embed values restored to defaults.", "info");
+        return;
+    }
+
+    if (prefix === 'welcome') {
+        const titleEl = document.getElementById('welcome-embed-title');
+        if (titleEl) titleEl.value = '♡ WELCOME TO VEYRA ALL-IN-ONE SECURITY BOT ♡';
+        const colorHex = document.getElementById('welcome-color-hex');
+        if (colorHex) colorHex.value = '#a855f7';
+        const colorPicker = document.getElementById('welcome-embed-color-picker');
+        if (colorPicker) colorPicker.value = '#a855f7';
+        const swatch = document.getElementById('welcome-color-swatch');
+        if (swatch) swatch.style.background = '#a855f7';
+        
+        const authorName = document.getElementById('welcome-author-name');
+        if (authorName) authorName.value = '';
+        const authorUrl = document.getElementById('welcome-author-url');
+        if (authorUrl) authorUrl.value = '';
+        const authorIcon = document.getElementById('welcome-author-icon');
+        if (authorIcon) authorIcon.value = '';
+        
+        const titleUrl = document.getElementById('welcome-title-url');
+        if (titleUrl) titleUrl.value = '';
+        const descEl = document.getElementById('welcome-embed-desc');
+        if (descEl) {
+            descEl.value = '⚡ CHAT ZONE ➔ #rules-info\n⚡ VIEW REVIEWS ➔ #reviews\n⚡ PURCHASE PANEL ➔ #buy-here';
+            window.updateCharCounter(descEl, 'welcome-char-counter');
+        }
+        
+        const imgEl = document.getElementById('welcome-embed-image');
+        if (imgEl) imgEl.value = 'assets/bypass_logs_banner.webp';
+        const thumbEl = document.getElementById('welcome-thumbnail-url');
+        if (thumbEl) thumbEl.value = '';
+        
+        const footerEl = document.getElementById('welcome-embed-footer');
+        if (footerEl) footerEl.value = '✦ THANKS FOR JOINING ✦';
+        const footerIcon = document.getElementById('welcome-footer-icon');
+        if (footerIcon) footerIcon.value = '';
+        
+        const fields = document.getElementById('welcome-fields-container');
+        if (fields) fields.innerHTML = '';
+        
+        if (typeof updateWelcomeLivePreview === 'function') updateWelcomeLivePreview();
+        if (typeof showToast === 'function') showToast("Embed Reset", "Welcome embed values restored to defaults.", "info");
+        return;
+    }
+
+    if (prefix === 'leave') {
+        const titleEl = document.getElementById('leave-embed-title');
+        if (titleEl) titleEl.value = '✦ MEMBER LEFT ✦';
+        const colorHex = document.getElementById('leave-color-hex');
+        if (colorHex) colorHex.value = '#ef4444';
+        const colorPicker = document.getElementById('leave-embed-color-picker');
+        if (colorPicker) colorPicker.value = '#ef4444';
+        const swatch = document.getElementById('leave-color-swatch');
+        if (swatch) swatch.style.background = '#ef4444';
+        
+        const authorName = document.getElementById('leave-author-name');
+        if (authorName) authorName.value = '';
+        const authorUrl = document.getElementById('leave-author-url');
+        if (authorUrl) authorUrl.value = '';
+        const authorIcon = document.getElementById('leave-author-icon');
+        if (authorIcon) authorIcon.value = '';
+        
+        const titleUrl = document.getElementById('leave-title-url');
+        if (titleUrl) titleUrl.value = '';
+        const descEl = document.getElementById('leave-embed-desc');
+        if (descEl) {
+            descEl.value = 'We are sad to see you go. Thanks for spending time with us.';
+            window.updateCharCounter(descEl, 'leave-char-counter');
+        }
+        
+        const imgEl = document.getElementById('leave-embed-image');
+        if (imgEl) imgEl.value = '';
+        const thumbEl = document.getElementById('leave-thumbnail-url');
+        if (thumbEl) thumbEl.value = '';
+        
+        const footerEl = document.getElementById('leave-embed-footer');
+        if (footerEl) footerEl.value = 'Veyra Goodbye Logs';
+        const footerIcon = document.getElementById('leave-footer-icon');
+        if (footerIcon) footerIcon.value = '';
+        
+        const fields = document.getElementById('leave-fields-container');
+        if (fields) fields.innerHTML = '';
+        
+        if (typeof updateLeaveLivePreview === 'function') updateLeaveLivePreview();
+        if (typeof showToast === 'function') showToast("Embed Reset", "Leave embed values restored to defaults.", "info");
+        return;
+    }
+
+    if (prefix === 'invitetracker') {
+        const titleEl = document.getElementById('invitetracker-embed-title');
+        if (titleEl) titleEl.value = '✨ Member Joined via Invite';
+        const colorHex = document.getElementById('invitetracker-color-hex');
+        if (colorHex) colorHex.value = '#a855f7';
+        const colorPicker = document.getElementById('invitetracker-embed-color-picker');
+        if (colorPicker) colorPicker.value = '#a855f7';
+        const swatch = document.getElementById('invitetracker-color-swatch');
+        if (swatch) swatch.style.background = '#a855f7';
+        
+        const authorName = document.getElementById('invitetracker-author-name');
+        if (authorName) authorName.value = '';
+        const authorUrl = document.getElementById('invitetracker-author-url');
+        if (authorUrl) authorUrl.value = '';
+        const authorIcon = document.getElementById('invitetracker-author-icon');
+        if (authorIcon) authorIcon.value = '';
+        
+        const titleUrl = document.getElementById('invitetracker-title-url');
+        if (titleUrl) titleUrl.value = '';
+        const descEl = document.getElementById('invitetracker-embed-desc');
+        if (descEl) {
+            descEl.value = 'User %member_mention% joined using invite code veyra-vip.';
+            window.updateCharCounter(descEl, 'invitetracker-char-counter');
+        }
+        
+        const imgEl = document.getElementById('invitetracker-embed-image');
+        if (imgEl) imgEl.value = 'assets/bypass_logs_banner.webp';
+        const thumbEl = document.getElementById('invitetracker-thumbnail-url');
+        if (thumbEl) thumbEl.value = '';
+        
+        const footerEl = document.getElementById('invitetracker-embed-footer');
+        if (footerEl) footerEl.value = '✦ VEYRA INVITE TRACKER ✦';
+        const footerIcon = document.getElementById('invitetracker-footer-icon');
+        if (footerIcon) footerIcon.value = '';
+        
+        const fields = document.getElementById('invitetracker-fields-container');
+        if (fields) fields.innerHTML = '';
+        
+        if (typeof updateInviteTrackerLivePreview === 'function') updateInviteTrackerLivePreview();
+        if (typeof showToast === 'function') showToast("Embed Reset", "Invite Tracker embed restored to defaults.", "info");
+        return;
+    }
+
+    if (prefix === 'levels') {
+        const titleEl = document.getElementById('levels-embed-title');
+        if (titleEl) titleEl.value = 'LEVEL UP!';
+        const colorHex = document.getElementById('levels-color-hex');
+        if (colorHex) colorHex.value = '#a855f7';
+        const colorPicker = document.getElementById('levels-embed-color-picker');
+        if (colorPicker) colorPicker.value = '#a855f7';
+        const swatch = document.getElementById('levels-color-swatch');
+        if (swatch) swatch.style.background = '#a855f7';
+        
+        const authorName = document.getElementById('levels-author-name');
+        if (authorName) authorName.value = '';
+        const authorUrl = document.getElementById('levels-author-url');
+        if (authorUrl) authorUrl.value = '';
+        const authorIcon = document.getElementById('levels-author-icon');
+        if (authorIcon) authorIcon.value = '';
+        
+        const titleUrl = document.getElementById('levels-title-url');
+        if (titleUrl) titleUrl.value = '';
+        const descEl = document.getElementById('levels-embed-desc');
+        if (descEl) {
+            descEl.value = 'GG {user}, you leveled up to level {lvl}!';
+            window.updateCharCounter(descEl, 'levels-char-counter');
+        }
+        
+        const imgEl = document.getElementById('levels-embed-image');
+        if (imgEl) imgEl.value = '';
+        const thumbEl = document.getElementById('levels-thumbnail-url');
+        if (thumbEl) thumbEl.value = '';
+        
+        const footerEl = document.getElementById('levels-embed-footer');
+        if (footerEl) footerEl.value = 'Keep chatting to earn more XP!';
+        const footerIcon = document.getElementById('levels-footer-icon');
+        if (footerIcon) footerIcon.value = '';
+        
+        const fields = document.getElementById('levels-fields-container');
+        if (fields) fields.innerHTML = '';
+        
+        if (typeof showToast === 'function') showToast("Embed Reset", "Levels embed restored to defaults.", "info");
+        return;
+    }
+
+    if (prefix === 'eb') {
+        const titleEl = document.getElementById('eb-title');
+        if (titleEl) titleEl.value = 'Help & Support';
+        const colorHex = document.getElementById('eb-color-hex');
+        if (colorHex) colorHex.value = '#a855f7';
+        const colorPicker = document.getElementById('eb-color-picker');
+        if (colorPicker) colorPicker.value = '#a855f7';
+        const swatch = document.getElementById('eb-color-swatch');
+        if (swatch) swatch.style.background = '#a855f7';
+        
+        const authorName = document.getElementById('eb-author-name');
+        if (authorName) authorName.value = '';
+        const authorUrl = document.getElementById('eb-author-url');
+        if (authorUrl) authorUrl.value = '';
+        const authorIcon = document.getElementById('eb-author-icon');
+        if (authorIcon) authorIcon.value = '';
+        
+        const titleUrl = document.getElementById('eb-title-url');
+        if (titleUrl) titleUrl.value = '';
+        const descEl = document.getElementById('eb-description');
+        if (descEl) {
+            descEl.value = '';
+            window.updateCharCounter(descEl, 'eb-desc-counter');
+        }
+        
+        const imgEl = document.getElementById('eb-image-url');
+        if (imgEl) imgEl.value = '';
+        const thumbEl = document.getElementById('eb-thumbnail-url');
+        if (thumbEl) thumbEl.value = '';
+        
+        const footerEl = document.getElementById('eb-footer-text');
+        if (footerEl) footerEl.value = '';
+        const footerIcon = document.getElementById('eb-footer-icon');
+        if (footerIcon) footerIcon.value = '';
+        
+        const fields = document.getElementById('eb-fields-container');
+        if (fields) fields.innerHTML = '';
+        window.embedFieldsCount = 0;
+        
+        if (typeof updateEmbedBuilderPreview === 'function') updateEmbedBuilderPreview();
+        if (typeof showToast === 'function') showToast("Embed Reset", "Custom embed restored to defaults.", "info");
+        return;
+    }
+};
+
+window.addEmbedField = function(prefix) {
+    const container = document.getElementById(`${prefix}-fields-container`) || document.getElementById('eb-fields-container');
+    if (!container) return;
+    
+    const fieldCount = container.children.length + 1;
+    if (fieldCount > 25) {
+        if (typeof showToast === 'function') showToast("Limit Reached", "Discord limits embeds to a maximum of 25 fields.", "warning");
+        return;
+    }
+    
+    const fieldId = `${prefix}-field-${Date.now()}-${fieldCount}`;
+    const row = document.createElement('div');
+    row.className = 'ee-field-row';
+    row.id = fieldId;
+    
+    // Live preview callback determination
+    let previewCallbackStr = '';
+    if (prefix === 'report') previewCallbackStr = 'if(typeof updateReportsLivePreview === "function") updateReportsLivePreview();';
+    else if (prefix === 'welcome') previewCallbackStr = 'if(typeof updateWelcomeLivePreview === "function") updateWelcomeLivePreview();';
+    else if (prefix === 'leave') previewCallbackStr = 'if(typeof updateLeaveLivePreview === "function") updateLeaveLivePreview();';
+    else if (prefix === 'invitetracker') previewCallbackStr = 'if(typeof updateInviteTrackerLivePreview === "function") updateInviteTrackerLivePreview();';
+    else if (prefix === 'eb') previewCallbackStr = 'if(typeof updateEmbedBuilderPreview === "function") updateEmbedBuilderPreview();';
+    
+    row.innerHTML = `
+        <div class="ee-field-header">
+            <span style="font-size:0.78rem; font-weight:700; color:#CBD5E1;">Field #${fieldCount}</span>
+            <button type="button" class="ee-field-del-btn" onclick="this.closest('.ee-field-row').remove(); ${previewCallbackStr}" title="Delete Field">
+                <i class="fa-regular fa-trash-can"></i>
+            </button>
+        </div>
+        <div class="ee-grid-2">
+            <div class="ee-input-wrap">
+                <span class="ee-text-icon">T</span>
+                <input type="text" class="ee-input ee-field-name-input" placeholder="Field Name" oninput="${previewCallbackStr}">
+            </div>
+            <div class="ee-input-wrap">
+                <input type="text" class="ee-input ee-field-val-input" style="padding-left: 12px;" placeholder="Field Value" oninput="${previewCallbackStr}">
+            </div>
+        </div>
+        <div style="display:flex; align-items:center; gap:8px; margin-top:4px;">
+            <label style="font-size:0.75rem; color:#94A3B8; display:flex; align-items:center; gap:6px; cursor:pointer;">
+                <input type="checkbox" class="ee-field-inline-input" onchange="${previewCallbackStr}"> Inline Field
+            </label>
+        </div>
+    `;
+    
+    container.appendChild(row);
+    if (previewCallbackStr) {
+        try { eval(previewCallbackStr); } catch(e) {}
+    }
+    if (typeof showToast === 'function') showToast("Field Added", `Added Field #${fieldCount}.`, "info");
 };
