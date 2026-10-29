@@ -1631,7 +1631,8 @@ async def process_rate_limit(guild, executor, db_key, limit_name, count_incremen
         
         print(f"[BEAST MODE] Executor {executor.name} threat score: {curr_score}/{beast_score_limit} (Added {action_score} for {limit_name})")
         
-        if curr_score > beast_score_limit:
+        # Score Limit 0 = Instant 0-tolerance punishment on 1st infraction!
+        if beast_score_limit == 0 or curr_score >= beast_score_limit:
             await apply_penalty(guild, executor, "BEAST MODE", f"Exceeded threat score limit ({curr_score}/{beast_score_limit})", beast_punish)
             bot.beast_scores[executor_key] = (0, now)
         return
@@ -1669,7 +1670,8 @@ async def process_rate_limit(guild, executor, db_key, limit_name, count_incremen
     
     print(f"[{limit_name}] Executor {executor.name} count: {curr_count}/{limit_val}")
     
-    if curr_count > limit_val:
+    # Limit 0 = Instant 0-tolerance punishment on 1st infraction!
+    if limit_val == 0 or curr_count >= limit_val:
         await apply_penalty(guild, executor, limit_name, action_desc, punish_type)
         bot.audit_counters[composite_key] = (0, now)
 

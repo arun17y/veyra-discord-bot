@@ -6757,9 +6757,15 @@ Support: </pre>
                                 <div style="z-index: 2;">
                                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
                                         <h3 style="color: #0F172A; font-family: var(--font-display); font-weight: 700; font-size: 0.95rem; margin: 0; letter-spacing: 0.02em; text-transform: uppercase;">JOIN RATE THRESHOLD</h3>
-                                        <div style="display: flex; align-items: center; gap: 8px;">
-                                            <input type="number" id="raid-join-rate" min="2" max="100" value="10" style="width: 50px; background: rgba(0,0,0,0.3); border: 1.5px solid rgba(255,255,255,0.08); border-radius: 4px; padding: 4px; color: #0F172A !important; text-align: center; font-size: 0.8rem; font-weight: 700;">
-                                            <span style="color: var(--text-secondary); font-size: 0.75rem;">joins</span>
+                                        <div style="display: flex; align-items: center; gap: 12px;">
+                                            <div style="display: flex; align-items: center; gap: 6px;">
+                                                <input type="number" id="raid-join-rate" min="0" max="100" value="10" style="width: 55px; background: #FFFFFF !important; border: 1.5px solid #CBD5E1 !important; border-radius: 6px; padding: 5px; color: #0F172A !important; text-align: center; font-size: 0.82rem; font-weight: 800;">
+                                                <span style="color: #64748B; font-size: 0.75rem; font-weight: 700;">joins</span>
+                                            </div>
+                                            <label class="switch">
+                                                <input type="checkbox" id="raid-join-rate-enable" checked>
+                                                <span class="slider"></span>
+                                            </label>
                                         </div>
                                     </div>
                                     <p style="color: var(--text-secondary); font-size: 0.78rem; line-height: 1.5; margin: 0;">
@@ -6774,9 +6780,15 @@ Support: </pre>
                                 <div style="z-index: 2;">
                                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
                                         <h3 style="color: #0F172A; font-family: var(--font-display); font-weight: 700; font-size: 0.95rem; margin: 0; letter-spacing: 0.02em; text-transform: uppercase;">MINIMUM ACCOUNT AGE</h3>
-                                        <div style="display: flex; align-items: center; gap: 8px;">
-                                            <input type="number" id="raid-min-age" min="0" max="60" value="3" style="width: 50px; background: rgba(0,0,0,0.3); border: 1.5px solid rgba(255,255,255,0.08); border-radius: 4px; padding: 4px; color: #0F172A !important; text-align: center; font-size: 0.8rem; font-weight: 700;">
-                                            <span style="color: var(--text-secondary); font-size: 0.75rem;">days</span>
+                                        <div style="display: flex; align-items: center; gap: 12px;">
+                                            <div style="display: flex; align-items: center; gap: 6px;">
+                                                <input type="number" id="raid-min-age" min="0" max="60" value="3" style="width: 55px; background: #FFFFFF !important; border: 1.5px solid #CBD5E1 !important; border-radius: 6px; padding: 5px; color: #0F172A !important; text-align: center; font-size: 0.82rem; font-weight: 800;">
+                                                <span style="color: #64748B; font-size: 0.75rem; font-weight: 700;">days</span>
+                                            </div>
+                                            <label class="switch">
+                                                <input type="checkbox" id="raid-account-age-enable" checked>
+                                                <span class="slider"></span>
+                                            </label>
                                         </div>
                                     </div>
                                     <p style="color: var(--text-secondary); font-size: 0.78rem; line-height: 1.5; margin: 0;">
@@ -7189,11 +7201,17 @@ Support: </pre>
                                 <div style="z-index: 2;">
                                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
                                         <h3 style="color: #0F172A; font-family: var(--font-display); font-weight: 700; font-size: 0.95rem; margin: 0; letter-spacing: 0.02em; text-transform: uppercase;">CHAT FLOOD LIMIT</h3>
-                                        <div style="display: flex; align-items: center; gap: 6px;">
-                                            <input type="number" id="antispam-max-msgs" min="2" max="25" value="5" style="width: 48px; background: rgba(0,0,0,0.3); border: 1.5px solid rgba(255,255,255,0.08); border-radius: 4px; padding: 4px; color: #0F172A !important; text-align: center; font-size: 0.8rem; font-weight: 700;">
-                                            <span style="color: var(--text-secondary); font-size: 0.72rem;">msgs /</span>
-                                            <input type="number" id="antispam-msg-secs" min="2" max="30" value="5" style="width: 48px; background: rgba(0,0,0,0.3); border: 1.5px solid rgba(255,255,255,0.08); border-radius: 4px; padding: 4px; color: #0F172A !important; text-align: center; font-size: 0.8rem; font-weight: 700;">
-                                            <span style="color: var(--text-secondary); font-size: 0.72rem;">sec</span>
+                                        <div style="display: flex; align-items: center; gap: 10px;">
+                                            <div style="display: flex; align-items: center; gap: 4px;">
+                                                <input type="number" id="antispam-max-msgs" min="0" max="25" value="4" style="width: 44px; background: #FFFFFF !important; border: 1.5px solid #CBD5E1 !important; border-radius: 6px; padding: 4px; color: #0F172A !important; text-align: center; font-size: 0.8rem; font-weight: 800;">
+                                                <span style="color: #64748B; font-size: 0.72rem; font-weight: 700;">msgs /</span>
+                                                <input type="number" id="antispam-msg-secs" min="1" max="30" value="1" style="width: 44px; background: #FFFFFF !important; border: 1.5px solid #CBD5E1 !important; border-radius: 6px; padding: 4px; color: #0F172A !important; text-align: center; font-size: 0.8rem; font-weight: 800;">
+                                                <span style="color: #64748B; font-size: 0.72rem; font-weight: 700;">sec</span>
+                                            </div>
+                                            <label class="switch">
+                                                <input type="checkbox" id="antispam-flood-enable" checked>
+                                                <span class="slider"></span>
+                                            </label>
                                         </div>
                                     </div>
                                     <p style="color: var(--text-secondary); font-size: 0.78rem; line-height: 1.5; margin: 0;">
@@ -7208,9 +7226,15 @@ Support: </pre>
                                 <div style="z-index: 2;">
                                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
                                         <h3 style="color: #0F172A; font-family: var(--font-display); font-weight: 700; font-size: 0.95rem; margin: 0; letter-spacing: 0.02em; text-transform: uppercase;">DUPLICATE MESSAGE SPAM</h3>
-                                        <div style="display: flex; align-items: center; gap: 8px;">
-                                            <input type="number" id="antispam-max-dupes" min="2" max="10" value="3" style="width: 50px; background: rgba(0,0,0,0.3); border: 1.5px solid rgba(255,255,255,0.08); border-radius: 4px; padding: 4px; color: #0F172A !important; text-align: center; font-size: 0.8rem; font-weight: 700;">
-                                            <span style="color: var(--text-secondary); font-size: 0.75rem;">repeats</span>
+                                        <div style="display: flex; align-items: center; gap: 10px;">
+                                            <div style="display: flex; align-items: center; gap: 6px;">
+                                                <input type="number" id="antispam-max-dupes" min="0" max="10" value="3" style="width: 50px; background: #FFFFFF !important; border: 1.5px solid #CBD5E1 !important; border-radius: 6px; padding: 4px; color: #0F172A !important; text-align: center; font-size: 0.8rem; font-weight: 800;">
+                                                <span style="color: #64748B; font-size: 0.75rem; font-weight: 700;">repeats</span>
+                                            </div>
+                                            <label class="switch">
+                                                <input type="checkbox" id="antispam-duplicate-enable" checked>
+                                                <span class="slider"></span>
+                                            </label>
                                         </div>
                                     </div>
                                     <p style="color: var(--text-secondary); font-size: 0.78rem; line-height: 1.5; margin: 0;">
@@ -7225,9 +7249,15 @@ Support: </pre>
                                 <div style="z-index: 2;">
                                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
                                         <h3 style="color: #0F172A; font-family: var(--font-display); font-weight: 700; font-size: 0.95rem; margin: 0; letter-spacing: 0.02em; text-transform: uppercase;">MASS MENTION SPAM</h3>
-                                        <div style="display: flex; align-items: center; gap: 8px;">
-                                            <input type="number" id="antispam-max-mentions" min="2" max="20" value="4" style="width: 50px; background: rgba(0,0,0,0.3); border: 1.5px solid rgba(255,255,255,0.08); border-radius: 4px; padding: 4px; color: #0F172A !important; text-align: center; font-size: 0.8rem; font-weight: 700;">
-                                            <span style="color: var(--text-secondary); font-size: 0.75rem;">mentions</span>
+                                        <div style="display: flex; align-items: center; gap: 10px;">
+                                            <div style="display: flex; align-items: center; gap: 6px;">
+                                                <input type="number" id="antispam-max-mentions" min="0" max="20" value="3" style="width: 50px; background: #FFFFFF !important; border: 1.5px solid #CBD5E1 !important; border-radius: 6px; padding: 4px; color: #0F172A !important; text-align: center; font-size: 0.8rem; font-weight: 800;">
+                                                <span style="color: #64748B; font-size: 0.75rem; font-weight: 700;">mentions</span>
+                                            </div>
+                                            <label class="switch">
+                                                <input type="checkbox" id="antispam-mention-enable" checked>
+                                                <span class="slider"></span>
+                                            </label>
                                         </div>
                                     </div>
                                     <p style="color: var(--text-secondary); font-size: 0.78rem; line-height: 1.5; margin: 0;">
@@ -7276,9 +7306,15 @@ Support: </pre>
                                 <div style="z-index: 2;">
                                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
                                         <h3 style="color: #0F172A; font-family: var(--font-display); font-weight: 700; font-size: 0.95rem; margin: 0; letter-spacing: 0.02em; text-transform: uppercase;">EMOJI SPAM LIMIT</h3>
-                                        <div style="display: flex; align-items: center; gap: 8px;">
-                                            <input type="number" id="antispam-max-emojis" min="3" max="30" value="8" style="width: 50px; background: rgba(0,0,0,0.3); border: 1.5px solid rgba(255,255,255,0.08); border-radius: 4px; padding: 4px; color: #0F172A !important; text-align: center; font-size: 0.8rem; font-weight: 700;">
-                                            <span style="color: var(--text-secondary); font-size: 0.75rem;">emojis</span>
+                                        <div style="display: flex; align-items: center; gap: 10px;">
+                                            <div style="display: flex; align-items: center; gap: 6px;">
+                                                <input type="number" id="antispam-max-emojis" min="0" max="30" value="5" style="width: 50px; background: #FFFFFF !important; border: 1.5px solid #CBD5E1 !important; border-radius: 6px; padding: 4px; color: #0F172A !important; text-align: center; font-size: 0.8rem; font-weight: 800;">
+                                                <span style="color: #64748B; font-size: 0.75rem; font-weight: 700;">emojis</span>
+                                            </div>
+                                            <label class="switch">
+                                                <input type="checkbox" id="antispam-emoji-enable" checked>
+                                                <span class="slider"></span>
+                                            </label>
                                         </div>
                                     </div>
                                     <p style="color: var(--text-secondary); font-size: 0.78rem; line-height: 1.5; margin: 0;">
@@ -7716,37 +7752,7 @@ Support: </pre>
                                             <input type="text" id="welcome-color-hex" value="#a855f7" class="ee-hex-input" placeholder="#HEX" oninput="document.getElementById('welcome-embed-color-picker').value = this.value; document.getElementById('welcome-color-swatch').style.background = this.value; updateWelcomeLivePreview();">
                                         </div>
                                     </div>
-
-                                    <!-- Author Information -->
-                                    <div class="ee-section">
-                                        <h4 class="ee-title">Author Information</h4>
-                                        <p class="ee-desc">Information that is displayed at the top of the embed.</p>
-                                        <div class="ee-grid-2">
-                                            <div class="ee-input-group">
-                                                <label class="ee-label">Author Name</label>
-                                                <div class="ee-input-wrap">
-                                                    <i class="fa-regular fa-user ee-input-icon"></i>
-                                                    <input type="text" class="ee-input" id="welcome-author-name" placeholder="Enter author name..." oninput="updateWelcomeLivePreview();">
-                                                </div>
-                                            </div>
-                                            <div class="ee-input-group">
-                                                <label class="ee-label">Author URL</label>
-                                                <div class="ee-input-wrap">
-                                                    <i class="fa-solid fa-link ee-input-icon"></i>
-                                                    <input type="text" class="ee-input" id="welcome-author-url" placeholder="https://example.com" oninput="updateWelcomeLivePreview();">
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="ee-input-group" style="margin-top: 12px;">
-                                            <label class="ee-label">Author Icon URL</label>
-                                            <div class="ee-input-wrap">
-                                                <i class="fa-regular fa-image ee-input-icon"></i>
-                                                <input type="text" class="ee-input" id="welcome-author-icon" placeholder="https://example.com/image.png" oninput="updateWelcomeLivePreview();">
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <!-- Embed Content -->
+<!-- Embed Content -->
                                     <div class="ee-section">
                                         <h4 class="ee-title">Embed Content</h4>
                                         <p class="ee-desc">Edit the main content of the embed. You can use <a href="https://support.discord.com/hc/en-us/articles/210298617-Markdown-Text-101-Chat-Formatting-Bold-Italic-Underline" target="_blank" class="ee-link">Markdown</a> to add extra styles and formatting.</p>
@@ -7831,6 +7837,12 @@ Support: </pre>
                                         <div id="welcome-fields-container" style="display:flex; flex-direction:column; gap:8px; margin-bottom: 12px;"></div>
                                         <button type="button" class="ee-btn-add-field" onclick="addEmbedField('welcome')">
                                             <i class="fa-solid fa-plus"></i> Add Field
+                                        </button>
+                                    </div>
+                                    <!-- Add Another Embed Option -->
+                                    <div class="ee-add-embed-wrap" style="padding: 16px 20px; border-top: 1.5px solid #F1F5F9; background: #FAF5FF; text-align: center;">
+                                        <button type="button" class="ee-btn-add-embed" onclick="addSecondaryEmbed(this, 'welcome')">
+                                            <i class="fa-solid fa-plus"></i> Add Another Embed Message
                                         </button>
                                     </div>
                                 </div>
@@ -8043,37 +8055,7 @@ Support: </pre>
                                             <input type="text" id="leave-color-hex" value="#ef4444" class="ee-hex-input" placeholder="#HEX" oninput="document.getElementById('leave-embed-color-picker').value = this.value; document.getElementById('leave-color-swatch').style.background = this.value; updateLeaveLivePreview();">
                                         </div>
                                     </div>
-
-                                    <!-- Author Information -->
-                                    <div class="ee-section">
-                                        <h4 class="ee-title">Author Information</h4>
-                                        <p class="ee-desc">Information that is displayed at the top of the embed.</p>
-                                        <div class="ee-grid-2">
-                                            <div class="ee-input-group">
-                                                <label class="ee-label">Author Name</label>
-                                                <div class="ee-input-wrap">
-                                                    <i class="fa-regular fa-user ee-input-icon"></i>
-                                                    <input type="text" class="ee-input" id="leave-author-name" placeholder="Enter author name..." oninput="updateLeaveLivePreview();">
-                                                </div>
-                                            </div>
-                                            <div class="ee-input-group">
-                                                <label class="ee-label">Author URL</label>
-                                                <div class="ee-input-wrap">
-                                                    <i class="fa-solid fa-link ee-input-icon"></i>
-                                                    <input type="text" class="ee-input" id="leave-author-url" placeholder="https://example.com" oninput="updateLeaveLivePreview();">
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="ee-input-group" style="margin-top: 12px;">
-                                            <label class="ee-label">Author Icon URL</label>
-                                            <div class="ee-input-wrap">
-                                                <i class="fa-regular fa-image ee-input-icon"></i>
-                                                <input type="text" class="ee-input" id="leave-author-icon" placeholder="https://example.com/image.png" oninput="updateLeaveLivePreview();">
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <!-- Embed Content -->
+<!-- Embed Content -->
                                     <div class="ee-section">
                                         <h4 class="ee-title">Embed Content</h4>
                                         <p class="ee-desc">Edit the main content of the embed. You can use <a href="https://support.discord.com/hc/en-us/articles/210298617-Markdown-Text-101-Chat-Formatting-Bold-Italic-Underline" target="_blank" class="ee-link">Markdown</a> to add extra styles and formatting.</p>
@@ -8156,6 +8138,12 @@ Support: </pre>
                                         <div id="leave-fields-container" style="display:flex; flex-direction:column; gap:8px; margin-bottom: 12px;"></div>
                                         <button type="button" class="ee-btn-add-field" onclick="addEmbedField('leave')">
                                             <i class="fa-solid fa-plus"></i> Add Field
+                                        </button>
+                                    </div>
+                                    <!-- Add Another Embed Option -->
+                                    <div class="ee-add-embed-wrap" style="padding: 16px 20px; border-top: 1.5px solid #F1F5F9; background: #FAF5FF; text-align: center;">
+                                        <button type="button" class="ee-btn-add-embed" onclick="addSecondaryEmbed(this, 'leave')">
+                                            <i class="fa-solid fa-plus"></i> Add Another Embed Message
                                         </button>
                                     </div>
                                 </div>
@@ -8364,37 +8352,7 @@ We hope to see you back soon!
                                             <input type="text" id="invitetracker-color-hex" value="#a855f7" class="ee-hex-input" placeholder="#HEX" oninput="document.getElementById('invitetracker-embed-color-picker').value = this.value; document.getElementById('invitetracker-color-swatch').style.background = this.value; updateInviteTrackerLivePreview();">
                                         </div>
                                     </div>
-
-                                    <!-- Author Information -->
-                                    <div class="ee-section">
-                                        <h4 class="ee-title">Author Information</h4>
-                                        <p class="ee-desc">Information that is displayed at the top of the embed.</p>
-                                        <div class="ee-grid-2">
-                                            <div class="ee-input-group">
-                                                <label class="ee-label">Author Name</label>
-                                                <div class="ee-input-wrap">
-                                                    <i class="fa-regular fa-user ee-input-icon"></i>
-                                                    <input type="text" class="ee-input" id="invitetracker-author-name" placeholder="Enter author name..." oninput="updateInviteTrackerLivePreview();">
-                                                </div>
-                                            </div>
-                                            <div class="ee-input-group">
-                                                <label class="ee-label">Author URL</label>
-                                                <div class="ee-input-wrap">
-                                                    <i class="fa-solid fa-link ee-input-icon"></i>
-                                                    <input type="text" class="ee-input" id="invitetracker-author-url" placeholder="https://example.com" oninput="updateInviteTrackerLivePreview();">
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="ee-input-group" style="margin-top: 12px;">
-                                            <label class="ee-label">Author Icon URL</label>
-                                            <div class="ee-input-wrap">
-                                                <i class="fa-regular fa-image ee-input-icon"></i>
-                                                <input type="text" class="ee-input" id="invitetracker-author-icon" placeholder="https://example.com/image.png" oninput="updateInviteTrackerLivePreview();">
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <!-- Embed Content -->
+<!-- Embed Content -->
                                     <div class="ee-section">
                                         <h4 class="ee-title">Embed Content</h4>
                                         <p class="ee-desc">Edit the main content of the embed. You can use <a href="https://support.discord.com/hc/en-us/articles/210298617-Markdown-Text-101-Chat-Formatting-Bold-Italic-Underline" target="_blank" class="ee-link">Markdown</a> to add extra styles and formatting.</p>
@@ -8477,6 +8435,12 @@ We hope to see you back soon!
                                         <div id="invitetracker-fields-container" style="display:flex; flex-direction:column; gap:8px; margin-bottom: 12px;"></div>
                                         <button type="button" class="ee-btn-add-field" onclick="addEmbedField('invitetracker')">
                                             <i class="fa-solid fa-plus"></i> Add Field
+                                        </button>
+                                    </div>
+                                    <!-- Add Another Embed Option -->
+                                    <div class="ee-add-embed-wrap" style="padding: 16px 20px; border-top: 1.5px solid #F1F5F9; background: #FAF5FF; text-align: center;">
+                                        <button type="button" class="ee-btn-add-embed" onclick="addSecondaryEmbed(this, 'invitetracker')">
+                                            <i class="fa-solid fa-plus"></i> Add Another Embed Message
                                         </button>
                                     </div>
                                 </div>
@@ -8616,11 +8580,10 @@ We hope to see you back soon!
                                 <div style="font-weight: 700; color: #0F172A; font-size: 0.92rem; margin-bottom: 4px;">Verification level</div>
                                 <div style="font-size: 0.8rem; color: #64748B;">High-performance instant one-click Discord interaction button.</div>
                             </div>
-                            <div style="display: flex; align-items: center; gap: 8px;">
-                                <select class="form-control" id="verif-level" disabled style="min-width: 240px; background: #F8FAFC !important; border: 1.5px solid #CBD5E1 !important; color: #0F172A !important; font-weight: 700; cursor: not-allowed;">
-                                    <option value="Button" selected>Button (One-Click) [DEFAULT]</option>
+                                                        <div style="display: flex; align-items: center; gap: 8px;">
+                                <select class="form-control" id="verif-level" disabled style="min-width: 200px; background: #F8FAFC !important; border: 1.5px solid #CBD5E1 !important; color: #0F172A !important; font-weight: 700; padding: 9px 14px; border-radius: 8px; appearance: none; -webkit-appearance: none; -moz-appearance: none; cursor: default;">
+                                    <option value="Button" selected>Button (One-Click)</option>
                                 </select>
-                                <span style="font-size: 0.72rem; color: #10B981; font-weight: 800; background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.2); padding: 4px 8px; border-radius: 6px;">BUILT-IN</span>
                             </div>
                         </div>
 
@@ -8979,37 +8942,7 @@ To gain full access to server channels, voice rooms, and media, please verify yo
                                             <input type="text" id="eb-color-hex" value="#a855f7" class="ee-hex-input" placeholder="#HEX" oninput="document.getElementById('eb-color-picker').value = this.value; document.getElementById('eb-color-swatch').style.background = this.value; updateEmbedBuilderPreview();">
                                         </div>
                                     </div>
-
-                                    <!-- Author Information -->
-                                    <div class="ee-section">
-                                        <h4 class="ee-title">Author Information</h4>
-                                        <p class="ee-desc">Information that is displayed at the top of the embed.</p>
-                                        <div class="ee-grid-2">
-                                            <div class="ee-input-group">
-                                                <label class="ee-label">Author Name</label>
-                                                <div class="ee-input-wrap">
-                                                    <i class="fa-regular fa-user ee-input-icon"></i>
-                                                    <input type="text" class="ee-input" id="eb-author-name" placeholder="Enter author name..." oninput="updateEmbedBuilderPreview();">
-                                                </div>
-                                            </div>
-                                            <div class="ee-input-group">
-                                                <label class="ee-label">Author URL</label>
-                                                <div class="ee-input-wrap">
-                                                    <i class="fa-solid fa-link ee-input-icon"></i>
-                                                    <input type="text" class="ee-input" id="eb-author-url" placeholder="https://example.com" oninput="updateEmbedBuilderPreview();">
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="ee-input-group" style="margin-top: 12px;">
-                                            <label class="ee-label">Author Icon URL</label>
-                                            <div class="ee-input-wrap">
-                                                <i class="fa-regular fa-image ee-input-icon"></i>
-                                                <input type="text" class="ee-input" id="eb-author-icon" placeholder="https://example.com/image.png" oninput="updateEmbedBuilderPreview();">
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <!-- Embed Content -->
+<!-- Embed Content -->
                                     <div class="ee-section">
                                         <h4 class="ee-title">Embed Content</h4>
                                         <p class="ee-desc">Edit the main content of the embed. You can use <a href="https://support.discord.com/hc/en-us/articles/210298617-Markdown-Text-101-Chat-Formatting-Bold-Italic-Underline" target="_blank" class="ee-link">Markdown</a> to add extra styles and formatting.</p>
@@ -9092,6 +9025,12 @@ To gain full access to server channels, voice rooms, and media, please verify yo
                                         <div id="eb-fields-container" style="display:flex; flex-direction:column; gap:8px; margin-bottom: 12px;"></div>
                                         <button type="button" class="ee-btn-add-field" onclick="addEmbedField('eb')">
                                             <i class="fa-solid fa-plus"></i> Add Field
+                                        </button>
+                                    </div>
+                                    <!-- Add Another Embed Option -->
+                                    <div class="ee-add-embed-wrap" style="padding: 16px 20px; border-top: 1.5px solid #F1F5F9; background: #FAF5FF; text-align: center;">
+                                        <button type="button" class="ee-btn-add-embed" onclick="addSecondaryEmbed(this, 'eb')">
+                                            <i class="fa-solid fa-plus"></i> Add Another Embed Message
                                         </button>
                                     </div>
                                 </div>
@@ -9323,21 +9262,23 @@ To gain full access to server channels, voice rooms, and media, please verify yo
                         </a>
                     </div>
 
-                    <!-- 2-Column Reports Layout -->
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; align-items: start;">
-                        
-                        <!-- Left Column: Report Controls & Schedule Settings -->
-                        <div class="glass-card" style="background: #FFFFFF !important; border: 1.5px solid #E2E8F0 !important; border-radius: 14px; padding: 25px; box-shadow: 0 4px 20px rgba(53, 43, 58, 0.04);">
-                            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 20px; border-bottom: 1.5px solid #F1F5F9; padding-bottom: 15px;">
+                    <!-- 1. FULL WIDTH / WIDE: Report Configuration Top Card -->
+                    <div class="glass-card" style="background: #FFFFFF !important; border: 1.5px solid #E2E8F0 !important; border-radius: 14px; padding: 25px; box-shadow: 0 4px 20px rgba(53, 43, 58, 0.04); margin-bottom: 24px;">
+                        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; border-bottom: 1.5px solid #F1F5F9; padding-bottom: 15px;">
+                            <div style="display: flex; align-items: center; gap: 10px;">
                                 <i class="fa-solid fa-file-contract" style="color: #E11D48; font-size: 1.25rem;"></i>
                                 <h3 style="font-size: 1.15rem; font-weight: 800; color: #0F172A !important; margin: 0;">Report Configuration</h3>
                             </div>
+                            <span style="font-size: 0.75rem; background: #FFF1F5; color: #BE123C; border: 1px solid #FECDD3; font-weight: 800; padding: 3px 10px; border-radius: 9999px;">GLOBAL SCHEDULER</span>
+                        </div>
 
+                        <!-- 3-Column Settings Grid for Wide Top Card -->
+                        <div style="display: grid; grid-template-columns: 1fr 1.2fr 1fr; gap: 20px; align-items: center; margin-bottom: 20px;">
                             <!-- Automatic Reports Toggle -->
-                            <div style="display: flex; justify-content: space-between; align-items: center; padding: 15px 0; border-bottom: 1.5px solid #F1F5F9;">
+                            <div style="background: #F8FAFC; border: 1.5px solid #E2E8F0; border-radius: 10px; padding: 14px 16px; display: flex; justify-content: space-between; align-items: center;">
                                 <div>
                                     <div style="font-weight: 800; color: #0F172A; font-size: 0.92rem; margin-bottom: 2px;">Automatic Schedule</div>
-                                    <div style="font-size: 0.8rem; color: #64748B;">Broadcast growth telemetry summaries to your designated channel.</div>
+                                    <div style="font-size: 0.76rem; color: #64748B;">Broadcast summaries on schedule.</div>
                                 </div>
                                 <label class="switch">
                                     <input type="checkbox" id="reports-enable-checkbox" onchange="if(typeof saveReportsSettings==='function') saveReportsSettings();">
@@ -9346,277 +9287,252 @@ To gain full access to server channels, voice rooms, and media, please verify yo
                             </div>
 
                             <!-- Report Channel Dropdown -->
-                            <div style="padding: 18px 0; border-bottom: 1.5px solid #F1F5F9;">
-                                <div style="font-weight: 800; color: #0F172A; font-size: 0.92rem; margin-bottom: 4px;">Destination Channel</div>
-                                <div style="font-size: 0.8rem; color: #64748B; margin-bottom: 10px;">Discord channel where the bot posts the rich embed report.</div>
-                                <select class="form-control" style="width: 100%; background: #F8FAFC !important; border: 1.5px solid #CBD5E1 !important; color: #0F172A !important; font-weight: 700; border-radius: 8px; padding: 10px 14px;" id="reports-channel-select" class="form-control guild-channels-dropdown">
-                                    <option value=""># Select a channel</option>
-                                    <option value="general">#general</option>
-                                    <option value="announcements">#announcements</option>
+                            <div style="background: #F8FAFC; border: 1.5px solid #E2E8F0; border-radius: 10px; padding: 12px 16px;">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                                    <span style="font-size: 0.8rem; font-weight: 800; color: #0F172A;">Destination Channel</span>
+                                    <span style="font-size: 0.72rem; color: #94A3B8;">Target channel</span>
+                                </div>
+                                <select id="reports-destination-channel" class="guild-channels-dropdown" style="width: 100%; background: #FFFFFF !important; border: 1.5px solid #CBD5E1 !important; color: #0F172A !important; font-weight: 700; border-radius: 8px; padding: 8px 12px; font-size: 0.85rem;" onchange="if(typeof saveReportsSettings==='function') saveReportsSettings();">
+                                    <option value="">Select Channel</option>
                                 </select>
                             </div>
 
-                            <!-- Frequency Selection Buttons -->
-                            <div style="padding: 18px 0; border-bottom: 1.5px solid #F1F5F9;">
-                                <div style="font-weight: 800; color: #0F172A; font-size: 0.92rem; margin-bottom: 4px;">Broadcast Frequency</div>
-                                <div style="font-size: 0.8rem; color: #64748B; margin-bottom: 12px;">Choose interval. Weekly reports deliver rapid growth velocity metrics.</div>
-                                <div class="report-freq-pill-container" style="display: inline-flex; gap: 4px; background: #F1F5F9; border: 1.5px solid #CBD5E1; padding: 4px; border-radius: 10px; width: 100%;">
-                                    <button id="report-freq-weekly" class="btn-freq active" style="flex: 1; background: #E11D48; color: #FFFFFF; border: none; padding: 9px 16px; border-radius: 7px; font-weight: 800; font-size: 0.82rem; cursor: pointer; box-shadow: 0 2px 8px rgba(225,29,72,0.25); transition: all 0.15s ease;" onclick="selectReportFrequency('weekly')">Weekly <i class="fas fa-bolt" style="color: #EAB308; font-size: 0.72rem; margin-left: 3px;"></i></button>
-                                    <button id="report-freq-monthly" class="btn-freq" style="flex: 1; background: transparent; color: #0F172A; border: none; padding: 9px 16px; border-radius: 7px; font-weight: 700; font-size: 0.82rem; cursor: pointer; transition: all 0.15s ease;" onclick="selectReportFrequency('monthly')">Monthly</button>
+                            <!-- Broadcast Frequency -->
+                            <div style="background: #F8FAFC; border: 1.5px solid #E2E8F0; border-radius: 10px; padding: 12px 16px;">
+                                <div style="font-size: 0.8rem; font-weight: 800; color: #0F172A; margin-bottom: 6px;">Broadcast Frequency</div>
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                                    <button type="button" id="rf-btn-weekly" class="rf-btn active" style="padding: 8px; font-size: 0.82rem; font-weight: 800; border-radius: 6px; border: 1.5px solid #E11D48; background: #E11D48; color: #FFF; cursor: pointer; transition: all 0.15s ease;" onclick="selectReportFrequency('weekly')">Weekly ⚡</button>
+                                    <button type="button" id="rf-btn-monthly" class="rf-btn" style="padding: 8px; font-size: 0.82rem; font-weight: 800; border-radius: 6px; border: 1.5px solid #CBD5E1; background: #FFF; color: #334155; cursor: pointer; transition: all 0.15s ease;" onclick="selectReportFrequency('monthly')">Monthly</button>
                                 </div>
-                            </div>
-
-                            <!-- Embed Customization Section (Harmonized Veyra 7-Section Architecture) -->
-                            <div style="padding: 10px 0 18px 0; border-bottom: 1.5px solid #F1F5F9;">
-                                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
-                                    <div style="font-weight: 800; color: #0F172A; font-size: 0.95rem;">
-                                        <i class="fas fa-palette" style="color: #E11D48; margin-right: 6px;"></i> Embed Customization
-                                    </div>
-                                    <span style="font-size: 0.72rem; background: #EFF6FF; color: #2563EB; border: 1px solid #BFDBFE; font-weight: 700; padding: 2px 8px; border-radius: 6px;">LIVE SYNC</span>
-                                </div>
-
-                                <div class="veyra-embed-editor" id="report-embed-editor">
-                                    <!-- Actions -->
-                                    <div class="ee-section">
-                                        <h4 class="ee-title">Actions</h4>
-                                        <p class="ee-desc">Reset this embed to its default values.</p>
-                                        <button type="button" class="ee-btn-reset" onclick="resetEmbedToDefaults('report')">
-                                            <i class="fa-solid fa-rotate-left"></i> Reset
-                                        </button>
-                                    </div>
-
-                                    <!-- Embed Color -->
-                                    <div class="ee-section">
-                                        <h4 class="ee-title">Embed Color</h4>
-                                        <p class="ee-desc">The accent color of this embed.</p>
-                                        <div class="ee-color-row">
-                                            <span class="ee-color-swatch" id="report-color-swatch" style="background: #E11D48;" onclick="document.getElementById('report-embed-color-picker').click();"></span>
-                                            <label class="ee-btn-color" for="report-embed-color-picker">
-                                                <i class="fa-solid fa-palette"></i> Change Color
-                                                <input type="color" id="report-embed-color-picker" value="#E11D48" style="position: absolute; opacity: 0; width: 0; height: 0; pointer-events: none;" oninput="document.getElementById('report-embed-color-input').value = this.value; document.getElementById('report-color-swatch').style.background = this.value; updateReportsLivePreview();">
-                                            </label>
-                                            <input type="text" id="report-embed-color-input" value="#E11D48" class="ee-hex-input" placeholder="#HEX" oninput="document.getElementById('report-embed-color-picker').value = this.value; document.getElementById('report-color-swatch').style.background = this.value; updateReportsLivePreview();">
-                                        </div>
-                                    </div>
-
-                                    <!-- Author Information -->
-                                    <div class="ee-section">
-                                        <h4 class="ee-title">Author Information</h4>
-                                        <p class="ee-desc">Information that is displayed at the top of the embed.</p>
-                                        <div class="ee-grid-2">
-                                            <div class="ee-input-group">
-                                                <label class="ee-label">Author Name</label>
-                                                <div class="ee-input-wrap">
-                                                    <i class="fa-regular fa-user ee-input-icon"></i>
-                                                    <input type="text" class="ee-input" id="report-author-name" placeholder="Enter author name..." oninput="updateReportsLivePreview();">
-                                                </div>
-                                            </div>
-                                            <div class="ee-input-group">
-                                                <label class="ee-label">Author URL</label>
-                                                <div class="ee-input-wrap">
-                                                    <i class="fa-solid fa-link ee-input-icon"></i>
-                                                    <input type="text" class="ee-input" id="report-author-url" placeholder="https://example.com" oninput="updateReportsLivePreview();">
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="ee-input-group" style="margin-top: 12px;">
-                                            <label class="ee-label">Author Icon URL</label>
-                                            <div class="ee-input-wrap">
-                                                <i class="fa-regular fa-image ee-input-icon"></i>
-                                                <input type="text" class="ee-input" id="report-author-icon" placeholder="https://example.com/image.png" oninput="updateReportsLivePreview();">
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <!-- Embed Content -->
-                                    <div class="ee-section">
-                                        <h4 class="ee-title">Embed Content</h4>
-                                        <p class="ee-desc">Edit the main content of the embed. You can use <a href="https://support.discord.com/hc/en-us/articles/210298617-Markdown-Text-101-Chat-Formatting-Bold-Italic-Underline" target="_blank" class="ee-link">Markdown</a> to add extra styles and formatting.</p>
-                                        <div class="ee-grid-2">
-                                            <div class="ee-input-group">
-                                                <label class="ee-label">Title</label>
-                                                <div class="ee-input-wrap">
-                                                    <span class="ee-text-icon">T</span>
-                                                    <input type="text" class="ee-input" id="report-embed-title-input" placeholder="Title" value="📊 VEYRA WEEKLY Server Growth Report" oninput="updateReportsLivePreview();">
-                                                </div>
-                                            </div>
-                                            <div class="ee-input-group">
-                                                <label class="ee-label">Title URL</label>
-                                                <div class="ee-input-wrap">
-                                                    <i class="fa-solid fa-link ee-input-icon"></i>
-                                                    <input type="text" class="ee-input" id="report-title-url" placeholder="https://example.com" oninput="updateReportsLivePreview();">
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="ee-input-group" style="margin-top: 12px;">
-                                            <label class="ee-label">Description</label>
-                                            <div class="ee-textarea-wrap">
-                                                <textarea class="ee-textarea" id="report-embed-desc" placeholder="Enter embed description..." oninput="updateCharCounter(this, 'report-char-counter'); updateReportsLivePreview();"></textarea>
-                                                <button type="button" class="ee-emoji-btn" onclick="openServerEmojiPicker('report-embed-desc')" title="Insert Emoji">
-                                                    <i class="fa-regular fa-face-smile"></i>
-                                                </button>
-                                                <span class="ee-char-counter" id="report-char-counter">0/4096</span>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <!-- Media Content -->
-                                    <div class="ee-section">
-                                        <h4 class="ee-title">Media Content</h4>
-                                        <p class="ee-desc">Set up the embed’s thumbnail and main image.</p>
-                                        <div class="ee-grid-2">
-                                            <div class="ee-input-group">
-                                                <label class="ee-label">Image URL</label>
-                                                <div class="ee-input-wrap">
-                                                    <i class="fa-regular fa-image ee-input-icon"></i>
-                                                    <input type="text" class="ee-input" id="report-banner-url-input" placeholder="https://example.com/image.png" oninput="updateReportsLivePreview();">
-                                                </div>
-                                            </div>
-                                            <div class="ee-input-group">
-                                                <label class="ee-label">Thumbnail URL</label>
-                                                <div class="ee-input-wrap">
-                                                    <i class="fa-regular fa-image ee-input-icon"></i>
-                                                    <input type="text" class="ee-input" id="report-thumbnail-url-input" placeholder="https://example.com/thumbnail.png" oninput="updateReportsLivePreview();">
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <!-- Footer Content -->
-                                    <div class="ee-section">
-                                        <h4 class="ee-title">Footer Content</h4>
-                                        <p class="ee-desc">Appears at the bottom of the embed.</p>
-                                        <div class="ee-grid-2">
-                                            <div class="ee-input-group">
-                                                <label class="ee-label">Footer Text</label>
-                                                <div class="ee-input-wrap">
-                                                    <span class="ee-text-icon">T</span>
-                                                    <input type="text" class="ee-input" id="report-footer-text-input" placeholder="Footer text..." oninput="updateReportsLivePreview();">
-                                                </div>
-                                            </div>
-                                            <div class="ee-input-group">
-                                                <label class="ee-label">Footer Icon URL</label>
-                                                <div class="ee-input-wrap">
-                                                    <i class="fa-regular fa-image ee-input-icon"></i>
-                                                    <input type="text" class="ee-input" id="report-footer-icon" placeholder="https://example.com/icon.png" oninput="updateReportsLivePreview();">
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <!-- Fields -->
-                                    <div class="ee-section" style="border-bottom: none;">
-                                        <h4 class="ee-title">Fields</h4>
-                                        <p class="ee-desc">Add up to 25 fields to this embed.</p>
-                                        <div id="report-fields-container" style="display:flex; flex-direction:column; gap:8px; margin-bottom: 12px;"></div>
-                                        <button type="button" class="ee-btn-add-field" onclick="addEmbedField('report')">
-                                            <i class="fa-solid fa-plus"></i> Add Field
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Actions Row -->
-                            <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 20px;">
-                                <button onclick="saveReportsSettings()" style="width: 100%; font-weight: 800; background: #0F172A; color: #FFFFFF; border: none; border-radius: 8px; font-size: 0.9rem; padding: 12px 20px; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.background='#1E293B'" onmouseout="this.style.background='#0F172A'">
-                                    <i class="fas fa-floppy-disk" style="margin-right: 6px;"></i> Save Reports Configuration
-                                </button>
-                                <button onclick="sendTestReport()" style="width: 100%; font-weight: 800; background: #E11D48; color: #FFFFFF; border: none; border-radius: 8px; font-size: 0.9rem; padding: 12px 20px; cursor: pointer; box-shadow: 0 2px 8px rgba(225,29,72,0.25); transition: all 0.2s;" onmouseover="this.style.background='#BE185D'" onmouseout="this.style.background='#E11D48'">
-                                    <i class="fas fa-paper-plane" style="margin-right: 6px;"></i> Post Live Report to Discord
-                                </button>
                             </div>
                         </div>
 
-                        <!-- Right Column: Live Visualizer (Pixel-Perfect New Veyra UI Embed) -->
+                        <!-- Actions Row Inside Top Wide Card -->
+                        <div style="display: flex; gap: 14px; padding-top: 15px; border-top: 1.5px solid #F1F5F9;">
+                            <button onclick="sendTestReport()" style="flex: 1.2; font-weight: 800; background: #E11D48; color: #FFF; border: none; padding: 12px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: opacity 0.15s ease; font-size: 0.88rem;">
+                                <i class="fa-solid fa-paper-plane"></i> Post Live Report to Discord
+                            </button>
+                            <button onclick="saveReportsSettings()" style="flex: 1; font-weight: 800; background: #F1F5F9; color: #0F172A; border: 1.5px solid #CBD5E1; padding: 12px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: background 0.15s ease; font-size: 0.88rem;">
+                                <i class="fa-solid fa-floppy-disk"></i> Save Configuration
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 2. SIDE BY SIDE ("BAJU BAJU MEIN"): Embed Edit (Left) & Preview (Right) -->
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; align-items: start;">
+                        
+                        <!-- Left Column: Embed Customization Editor -->
                         <div class="glass-card" style="background: #FFFFFF !important; border: 1.5px solid #E2E8F0 !important; border-radius: 14px; padding: 25px; box-shadow: 0 4px 20px rgba(53, 43, 58, 0.04);">
-                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-                                <div style="display: flex; align-items: center; gap: 8px;">
-                                    <i class="fa-solid fa-chart-column" style="color: #059669; font-size: 1.2rem;"></i>
-                                    <h3 style="font-size: 1.15rem; font-weight: 800; color: #0F172A !important; margin: 0;">Live Embed Visualizer</h3>
+                            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; border-bottom: 1.5px solid #F1F5F9; padding-bottom: 14px;">
+                                <div style="display: flex; align-items: center; gap: 10px;">
+                                    <i class="fas fa-palette" style="color: #E11D48; font-size: 1.15rem;"></i>
+                                    <h3 style="font-size: 1.1rem; font-weight: 800; color: #0F172A !important; margin: 0;">Embed Message Editor</h3>
                                 </div>
-                                <span style="font-family: var(--font-mono); font-size: 0.72rem; color: #059669; background: #ECFDF5; border: 1px solid #A7F3D0; padding: 2px 8px; border-radius: 6px; font-weight: 800;"><i class="fas fa-circle" style="font-size: 0.5rem; margin-right: 4px;"></i> LIVE TELEMETRY</span>
+                                <span style="font-size: 0.72rem; background: #EFF6FF; color: #2563EB; border: 1px solid #BFDBFE; font-weight: 800; padding: 2px 8px; border-radius: 6px;">LIVE SYNC</span>
                             </div>
 
-                            <!-- Native Discord Message Wrapper -->
-                            <div style="background: #313338; border-radius: 10px; padding: 18px; color: #DBDEE1; font-family: 'gg sans', 'Noto Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif; box-shadow: inset 0 2px 6px rgba(0,0,0,0.25);">
-                                <!-- Message Header -->
-                                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
-                                    <div style="width: 40px; height: 40px; border-radius: 50%; overflow: hidden; background: #1E1F22; flex-shrink: 0; display: flex; align-items: center; justify-content: center;">
-                                        <img src="/assets/veyra-logo.png" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.onerror=null; this.src='https://cdn.discordapp.com/embed/avatars/0.png';">
-                                    </div>
-                                    <div style="display: flex; align-items: baseline; gap: 6px; flex-wrap: wrap;">
-                                        <span style="font-weight: 700; color: #FFFFFF; font-size: 1rem;">VEYRA</span>
-                                        <span style="background: #5865F2; color: #FFFFFF; font-size: 0.62rem; font-weight: 800; padding: 1px 4px; border-radius: 3px; letter-spacing: 0.04em;">APP</span>
-                                        <span style="font-size: 0.75rem; color: #94A3B8;" id="report-preview-header-time">Today at 11:06 AM</span>
+                            <div class="veyra-embed-editor" id="report-embed-editor">
+                                <!-- Actions -->
+                                <div class="ee-section">
+                                    <h4 class="ee-title">Actions</h4>
+                                    <p class="ee-desc">Reset this embed to its default values.</p>
+                                    <button type="button" class="ee-btn-reset" onclick="resetEmbedToDefaults('report')">
+                                        <i class="fa-solid fa-rotate-left"></i> Reset
+                                    </button>
+                                </div>
+
+                                <!-- Embed Color -->
+                                <div class="ee-section">
+                                    <h4 class="ee-title">Embed Color</h4>
+                                    <p class="ee-desc">The accent color of this embed.</p>
+                                    <div class="ee-color-row">
+                                        <span class="ee-color-swatch" id="report-color-swatch" style="background: #E11D48;" onclick="document.getElementById('report-embed-color-picker').click();"></span>
+                                        <label class="ee-btn-color" for="report-embed-color-picker">
+                                            <i class="fa-solid fa-palette"></i> Change Color
+                                            <input type="color" id="report-embed-color-picker" value="#E11D48" style="position: absolute; opacity: 0; width: 0; height: 0; pointer-events: none;" oninput="document.getElementById('report-embed-color-input').value = this.value; document.getElementById('report-color-swatch').style.background = this.value; updateReportsLivePreview();">
+                                        </label>
+                                        <input type="text" id="report-embed-color-input" value="#E11D48" class="ee-hex-input" placeholder="#HEX" oninput="document.getElementById('report-embed-color-picker').value = this.value; document.getElementById('report-color-swatch').style.background = this.value; updateReportsLivePreview();">
                                     </div>
                                 </div>
 
-                                <!-- Discord Embed Body -->
-                                <div id="report-preview-embed-card" style="margin-left: 50px; background: #2B2D31; border-left: 4px solid #E11D48; border-radius: 4px 8px 8px 4px; padding: 14px 16px; position: relative;">
+                                <!-- Embed Content -->
+                                <div class="ee-section">
+                                    <h4 class="ee-title">Embed Content</h4>
+                                    <p class="ee-desc">Edit the main content of the embed. You can use <a href="https://support.discord.com/hc/en-us/articles/210298617-Markdown-Text-101-Chat-Formatting-Bold-Italic-Underline" target="_blank" class="ee-link">Markdown</a> to add extra styles and formatting.</p>
+                                    <div class="ee-grid-2">
+                                        <div class="ee-input-group">
+                                            <label class="ee-label">Title</label>
+                                            <div class="ee-input-wrap">
+                                                <span class="ee-text-icon">T</span>
+                                                <input type="text" class="ee-input" id="report-embed-title-input" placeholder="Title" value="📊 VEYRA WEEKLY Server Growth Report" oninput="updateReportsLivePreview();">
+                                            </div>
+                                        </div>
+                                        <div class="ee-input-group">
+                                            <label class="ee-label">Title URL</label>
+                                            <div class="ee-input-wrap">
+                                                <i class="fa-solid fa-link ee-input-icon"></i>
+                                                <input type="text" class="ee-input" id="report-title-url" placeholder="https://example.com" oninput="updateReportsLivePreview();">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="ee-input-group" style="margin-top: 12px;">
+                                        <label class="ee-label">Description</label>
+                                        <div class="ee-textarea-wrap">
+                                            <textarea class="ee-textarea" id="report-embed-desc" placeholder="Enter embed description..." oninput="updateCharCounter(this, 'report-char-counter'); updateReportsLivePreview();"></textarea>
+                                            <button type="button" class="ee-emoji-btn" onclick="openServerEmojiPicker('report-embed-desc')" title="Insert Emoji">
+                                                <i class="fa-regular fa-face-smile"></i>
+                                            </button>
+                                            <span class="ee-char-counter" id="report-char-counter">0/4096</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Media Content -->
+                                <div class="ee-section">
+                                    <h4 class="ee-title">Media Content</h4>
+                                    <p class="ee-desc">Set up the embed’s thumbnail and main image.</p>
+                                    <div class="ee-grid-2">
+                                        <div class="ee-input-group">
+                                            <label class="ee-label">Image URL</label>
+                                            <div class="ee-input-wrap">
+                                                <i class="fa-regular fa-image ee-input-icon"></i>
+                                                <input type="text" class="ee-input" id="report-banner-url-input" placeholder="https://example.com/image.png" oninput="updateReportsLivePreview();">
+                                            </div>
+                                        </div>
+                                        <div class="ee-input-group">
+                                            <label class="ee-label">Thumbnail URL</label>
+                                            <div class="ee-input-wrap">
+                                                <i class="fa-regular fa-image ee-input-icon"></i>
+                                                <input type="text" class="ee-input" id="report-thumbnail-url-input" placeholder="https://example.com/thumbnail.png" oninput="updateReportsLivePreview();">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Footer Content -->
+                                <div class="ee-section">
+                                    <h4 class="ee-title">Footer Content</h4>
+                                    <p class="ee-desc">Appears at the bottom of the embed.</p>
+                                    <div class="ee-grid-2">
+                                        <div class="ee-input-group">
+                                            <label class="ee-label">Footer Text</label>
+                                            <div class="ee-input-wrap">
+                                                <span class="ee-text-icon">T</span>
+                                                <input type="text" class="ee-input" id="report-footer-text-input" placeholder="Footer text..." oninput="updateReportsLivePreview();">
+                                            </div>
+                                        </div>
+                                        <div class="ee-input-group">
+                                            <label class="ee-label">Footer Icon URL</label>
+                                            <div class="ee-input-wrap">
+                                                <i class="fa-regular fa-image ee-input-icon"></i>
+                                                <input type="text" class="ee-input" id="report-footer-icon" placeholder="https://example.com/icon.png" oninput="updateReportsLivePreview();">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Fields -->
+                                <div class="ee-section" style="border-bottom: none;">
+                                    <h4 class="ee-title">Fields</h4>
+                                    <p class="ee-desc">Add up to 25 fields to this embed.</p>
+                                    <div id="report-fields-container" style="display:flex; flex-direction:column; gap:8px; margin-bottom: 12px;"></div>
+                                    <button type="button" class="ee-btn-add-field" onclick="addEmbedField('report')">
+                                        <i class="fa-solid fa-plus"></i> Add Field
+                                    </button>
+                                </div>
+
+                                <!-- Add Another Embed Option -->
+                                <div class="ee-add-embed-wrap" style="padding: 16px 20px; border-top: 1.5px solid #F1F5F9; background: #FAF5FF; text-align: center;">
+                                    <button type="button" class="ee-btn-add-embed" onclick="addSecondaryEmbed(this, 'report')">
+                                        <i class="fa-solid fa-plus"></i> Add Another Embed Message
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Right Column: Live Embed Visualizer Preview -->
+                        <div class="glass-card" style="background: #FFFFFF !important; border: 1.5px solid #E2E8F0 !important; border-radius: 14px; padding: 25px; box-shadow: 0 4px 20px rgba(53, 43, 58, 0.04); position: sticky; top: 20px;">
+                            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; border-bottom: 1.5px solid #F1F5F9; padding-bottom: 15px;">
+                                <div style="display: flex; align-items: center; gap: 10px;">
+                                    <i class="fa-solid fa-chart-simple" style="color: #10B981; font-size: 1.25rem;"></i>
+                                    <h3 style="font-size: 1.15rem; font-weight: 800; color: #0F172A !important; margin: 0;">Live Embed Visualizer</h3>
+                                </div>
+                                <span style="font-size: 0.72rem; font-weight: 800; background: #ECFDF5; color: #059669; padding: 3px 9px; border-radius: 9999px; border: 1px solid #A7F3D0; display: flex; align-items: center; gap: 5px;">
+                                    <span style="width: 6px; height: 6px; border-radius: 50%; background: #10B981; display: inline-block;"></span> LIVE TELEMETRY
+                                </span>
+                            </div>
+
+                            <!-- Discord Message Wrapper Container -->
+                            <div style="background: #313338; border-radius: 10px; padding: 18px; font-family: 'Inter', sans-serif;">
+                                <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 10px;">
+                                    <img src="assets/bypass_logs_avatar.webp" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover; flex-shrink: 0;" alt="Veyra Bot">
+                                    <div>
+                                        <div style="display: flex; align-items: center; gap: 6px;">
+                                            <span style="color: #FFFFFF; font-weight: 700; font-size: 0.95rem;">VEYRA</span>
+                                            <span style="background: #5865F2; color: #FFF; font-size: 0.65rem; font-weight: 800; padding: 1px 4px; border-radius: 3px;">APP</span>
+                                            <span style="color: #949BA4; font-size: 0.75rem;" id="report-preview-timestamp">Today at 12:00 PM</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- The Rich Embed Body -->
+                                <div id="report-live-embed-card" style="background: #2B2D31; border-left: 4px solid #E11D48; border-radius: 4px; padding: 16px; margin-left: 10px; display: flex; flex-direction: column; gap: 12px;">
                                     
-                                    <!-- Title & Thumbnail -->
-                                    <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; margin-bottom: 12px;">
-                                        <div style="font-size: 1rem; font-weight: 700; color: #FFFFFF; line-height: 1.3;" id="report-preview-embed-title">
-                                            📊 VEYRA WEEKLY Server Growth Report
+                                    <!-- Header Row: Title & Optional Thumbnail -->
+                                    <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 15px;">
+                                        <div style="flex: 1;">
+                                            <div id="report-preview-title" style="color: #FFFFFF; font-weight: 800; font-size: 1rem; line-height: 1.35; margin-bottom: 6px;">📊 VEYRA WEEKLY Server Growth Report</div>
+                                            <div id="report-preview-desc" style="color: #DBDEE1; font-size: 0.85rem; line-height: 1.45; white-space: pre-wrap;"></div>
                                         </div>
-                                        <div id="report-preview-avatar-box" style="width: 48px; height: 48px; border-radius: 8px; overflow: hidden; background: #1E1F22; flex-shrink: 0;">
-                                            <img src="https://cdn.discordapp.com/embed/avatars/1.png" style="width: 100%; height: 100%; object-fit: cover;" id="report-preview-guild-icon">
+                                        <img id="report-preview-thumb" src="" style="width: 65px; height: 65px; border-radius: 6px; object-fit: cover; flex-shrink: 0; display: none;" alt="Thumbnail">
+                                    </div>
+
+                                    <!-- Telemetry Section 1: Membership Stats -->
+                                    <div style="background: rgba(0,0,0,0.15); border-radius: 6px; padding: 10px 12px;">
+                                        <div style="color: #F2F3F5; font-weight: 700; font-size: 0.82rem; margin-bottom: 6px;">📈 Membership Stats</div>
+                                        <div style="font-size: 0.78rem; color: #DBDEE1; line-height: 1.6; font-family: var(--font-mono);">
+                                            • <b>Joins:</b> <span id="report-prev-joins">0</span><br>
+                                            • <b>Leaves:</b> <span id="report-prev-leaves">0</span><br>
+                                            • <b>Net Growth:</b> <span id="report-prev-net">+0</span><br>
+                                            • <b>Retention Rate:</b> <span id="report-prev-retention">0%</span>
                                         </div>
                                     </div>
 
-                                    <!-- Membership Stats Field -->
-                                    <div style="margin-bottom: 12px;">
-                                        <div style="font-weight: 700; color: #FFFFFF; font-size: 0.88rem; margin-bottom: 6px; display: flex; align-items: center; gap: 6px;">
-                                            📈 Membership Stats
-                                        </div>
-                                        <div style="font-size: 0.84rem; line-height: 1.6; color: #DBDEE1;">
-                                            <div>&bull; <strong>Joins:</strong> <span style="background: #1E1F22; border-radius: 3px; padding: 1px 5px; font-family: monospace; color: #F1F5F9; font-weight: 700;" id="report-preview-joins">0</span></div>
-                                            <div>&bull; <strong>Leaves:</strong> <span style="background: #1E1F22; border-radius: 3px; padding: 1px 5px; font-family: monospace; color: #F1F5F9; font-weight: 700;" id="report-preview-leaves">0</span></div>
-                                            <div>&bull; <strong>Net Growth:</strong> <span style="background: #1E1F22; border-radius: 3px; padding: 1px 5px; font-family: monospace; color: #F1F5F9; font-weight: 700;" id="report-preview-net">+0</span></div>
-                                            <div>&bull; <strong>Retention Rate:</strong> <span style="background: #1E1F22; border-radius: 3px; padding: 1px 5px; font-family: monospace; color: #F1F5F9; font-weight: 700;" id="report-preview-retention">0%</span></div>
+                                    <!-- Telemetry Section 2: Top Inviters -->
+                                    <div style="background: rgba(0,0,0,0.15); border-radius: 6px; padding: 10px 12px;">
+                                        <div style="color: #F2F3F5; font-weight: 700; font-size: 0.82rem; margin-bottom: 6px;">🏆 Top Inviters</div>
+                                        <div style="font-size: 0.78rem; color: #DBDEE1; line-height: 1.5;" id="report-prev-inviters">
+                                            1. <span style="color:#5865F2;">@arun.cpp</span> — 1 invites
                                         </div>
                                     </div>
 
-                                    <!-- Top Inviters Field -->
-                                    <div style="margin-bottom: 12px;">
-                                        <div style="font-weight: 700; color: #FFFFFF; font-size: 0.88rem; margin-bottom: 4px; display: flex; align-items: center; gap: 6px;">
-                                            🏆 Top Inviters
-                                        </div>
-                                        <div id="report-preview-inviters" style="font-size: 0.84rem; color: #DBDEE1; line-height: 1.5;">
-                                            <strong>1.</strong> @arun.cpp &mdash; <span style="background: #1E1F22; border-radius: 3px; padding: 1px 5px; font-family: monospace; color: #F1F5F9; font-weight: 700;">1</span> invites
-                                        </div>
+                                    <!-- Telemetry Section 3: ASCII Growth Chart -->
+                                    <div style="background: rgba(0,0,0,0.25); border-radius: 6px; padding: 10px 12px;">
+                                        <div style="color: #F2F3F5; font-weight: 700; font-size: 0.82rem; margin-bottom: 6px;">📊 Growth Chart (ASCII Visualizer)</div>
+                                        <pre style="margin: 0; font-family: monospace; font-size: 0.75rem; color: #00FFCC; line-height: 1.35; white-space: pre;" id="report-prev-chart">Joins: [▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓] 0
+Leaves: [▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓] 0
+Net:   [▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓] +0</pre>
                                     </div>
 
-                                    <!-- Growth Chart (ASCII Visualizer) Field -->
-                                    <div style="margin-bottom: 14px;">
-                                        <div style="font-weight: 700; color: #FFFFFF; font-size: 0.88rem; margin-bottom: 6px; display: flex; align-items: center; gap: 6px;">
-                                            📊 Growth Chart (ASCII Visualizer)
-                                        </div>
-                                        <pre id="report-preview-ascii" style="margin: 0; background: #1E1F22; border-radius: 6px; padding: 10px 12px; font-family: 'Consolas', 'Courier New', monospace; font-size: 0.8rem; color: #DBDEE1; line-height: 1.5; overflow-x: auto;">Joins:  [░░░░░░░░░░░░░░] 0
-Leaves: [░░░░░░░░░░░░░░] 0
-Net:    [░░░░░░░░░░░░░░] +0</pre>
+                                    <!-- Dynamic Fields Preview Container -->
+                                    <div id="report-preview-fields-zone" style="display: flex; flex-direction: column; gap: 8px;"></div>
+
+                                    <!-- Main Banner / Image -->
+                                    <div id="report-preview-banner-wrap" style="display: block; margin-top: 4px;">
+                                        <img id="report-preview-banner" src="assets/bypass_logs_banner.webp" style="width: 100%; max-height: 240px; border-radius: 6px; object-fit: cover;" alt="Report Banner">
                                     </div>
 
-                                    <!-- Banner / Image Visualizer -->
-                                    <div id="report-preview-banner-box" style="display:none; margin: 12px 0 10px 0; border-radius: 6px; overflow: hidden; max-height: 220px; background: #1E1F22;">
-                                        <img id="report-preview-banner-img" src="" style="width: 100%; height: auto; max-height: 220px; object-fit: cover; display: block;" onerror="this.parentElement.style.display='none';">
+                                    <!-- Footer Note -->
+                                    <div style="display: flex; align-items: center; gap: 8px; margin-top: 4px; padding-top: 6px; border-top: 1px solid rgba(255,255,255,0.06);">
+                                        <img id="report-preview-footer-icon" src="assets/bypass_logs_avatar.webp" style="width: 18px; height: 18px; border-radius: 50%;" alt="Footer Icon">
+                                        <span id="report-preview-footer-text" style="color: #949BA4; font-size: 0.74rem;">VEYRA</span>
                                     </div>
-
-                                    <!-- Footer -->
-                                    <div style="display: flex; align-items: center; gap: 8px; font-size: 0.72rem; color: #94A3B8; border-top: 1px solid rgba(255,255,255,0.06); padding-top: 8px; margin-top: 6px;">
-                                        <div id="report-preview-footer-icon" style="width: 14px; height: 14px; border-radius: 50%; overflow: hidden; background: #E11D48; display: flex; align-items: center; justify-content: center; font-size: 0.55rem; color: #fff; font-weight: 900;">V</div>
-                                        <span id="report-preview-footer-full">VEYRA Advanced Analytics &bull; Scheduled: <span id="report-preview-freq-text">Weekly</span> &bull; <span id="report-preview-footer-time">Live Sync</span></span>
-                                    </div>
-
                                 </div>
                             </div>
                         </div>
 
                     </div>
-                </div>
-
-                <!-- [TAB 5d: LEVELS & XP] -->
-                <div class="tab-pane" id="tab-levels" style="display:none; width: 100%; padding: 20px;">
+                </div><div class="tab-pane" id="tab-levels" style="display:none; width: 100%; padding: 20px;">
                     <!-- Premium Feature Banner Card -->
                     <div id="levels-premium-banner" class="glass-card" style="display: none; background: linear-gradient(135deg, rgba(234,179,8,0.03), rgba(0,0,0,0.3)); border: 1.5px solid rgba(234, 179, 8, 0.18); border-radius: 16px; padding: 35px; text-align: center; max-width: 800px; margin: 0 auto 30px auto; position: relative;">
                         <!-- Lock badge top right -->
@@ -9699,37 +9615,7 @@ Net:    [░░░░░░░░░░░░░░] +0</pre>
                                             <input type="text" id="levels-color-hex" value="#a855f7" class="ee-hex-input" placeholder="#HEX" oninput="document.getElementById('levels-embed-color-picker').value = this.value; document.getElementById('levels-color-swatch').style.background = this.value;">
                                         </div>
                                     </div>
-
-                                    <!-- Author Information -->
-                                    <div class="ee-section">
-                                        <h4 class="ee-title">Author Information</h4>
-                                        <p class="ee-desc">Information that is displayed at the top of the embed.</p>
-                                        <div class="ee-grid-2">
-                                            <div class="ee-input-group">
-                                                <label class="ee-label">Author Name</label>
-                                                <div class="ee-input-wrap">
-                                                    <i class="fa-regular fa-user ee-input-icon"></i>
-                                                    <input type="text" class="ee-input" id="levels-author-name" placeholder="Enter author name...">
-                                                </div>
-                                            </div>
-                                            <div class="ee-input-group">
-                                                <label class="ee-label">Author URL</label>
-                                                <div class="ee-input-wrap">
-                                                    <i class="fa-solid fa-link ee-input-icon"></i>
-                                                    <input type="text" class="ee-input" id="levels-author-url" placeholder="https://example.com">
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="ee-input-group" style="margin-top: 12px;">
-                                            <label class="ee-label">Author Icon URL</label>
-                                            <div class="ee-input-wrap">
-                                                <i class="fa-regular fa-image ee-input-icon"></i>
-                                                <input type="text" class="ee-input" id="levels-author-icon" placeholder="https://example.com/image.png">
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <!-- Embed Content -->
+<!-- Embed Content -->
                                     <div class="ee-section">
                                         <h4 class="ee-title">Embed Content</h4>
                                         <p class="ee-desc">Edit the main content of the embed. You can use <a href="https://support.discord.com/hc/en-us/articles/210298617-Markdown-Text-101-Chat-Formatting-Bold-Italic-Underline" target="_blank" class="ee-link">Markdown</a> to add extra styles and formatting.</p>
@@ -9812,6 +9698,12 @@ Net:    [░░░░░░░░░░░░░░] +0</pre>
                                         <div id="levels-fields-container" style="display:flex; flex-direction:column; gap:8px; margin-bottom: 12px;"></div>
                                         <button type="button" class="ee-btn-add-field" onclick="addEmbedField('levels')">
                                             <i class="fa-solid fa-plus"></i> Add Field
+                                        </button>
+                                    </div>
+                                    <!-- Add Another Embed Option -->
+                                    <div class="ee-add-embed-wrap" style="padding: 16px 20px; border-top: 1.5px solid #F1F5F9; background: #FAF5FF; text-align: center;">
+                                        <button type="button" class="ee-btn-add-embed" onclick="addSecondaryEmbed(this, 'levels')">
+                                            <i class="fa-solid fa-plus"></i> Add Another Embed Message
                                         </button>
                                     </div>
                                 </div>
@@ -14204,7 +14096,7 @@ Our support team can assist you with:
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
     <script src="js/dashboard.js?v=v89_harmonized_embed_editor"></script>
-    <script src="js/moderation.js?v=v55_realtime_botui"></script>
+    <script src="js/moderation.js?v=v92_clean_verification_gate"></script>
     <!-- smokey fluid cursor removed -->
 
 
@@ -14690,6 +14582,27 @@ window.addEventListener('scroll', () => {
         </div>
     </div>
 </div>
+
+
+    <!-- Custom Veyra Confirmation Dialog Modal (Replaces Native Browser Alerts) -->
+    <div id="veyra-custom-confirm-modal" style="display:none; position:fixed; inset:0; background:rgba(15, 23, 42, 0.55); backdrop-filter:blur(6px); z-index:999999; align-items:center; justify-content:center; padding:20px;">
+        <div class="veyra-confirm-card" style="width:100%; max-width:440px; background:#FFFFFF; border:1.5px solid #EDE4E7; border-radius:16px; padding:24px; box-shadow:0 25px 60px rgba(53, 43, 58, 0.2);">
+            <div style="display:flex; align-items:center; gap:12px; margin-bottom:14px;">
+                <div style="width:40px; height:40px; border-radius:50%; background:#FFF1F5; border:1px solid #FECDD3; display:flex; align-items:center; justify-content:center; color:#E11D48; font-size:1.1rem; flex-shrink:0;">
+                    <i class="fa-solid fa-triangle-exclamation"></i>
+                </div>
+                <div>
+                    <h3 id="veyra-confirm-title" style="font-size:1.05rem; font-weight:800; color:#0F172A; margin:0;">Confirm Action</h3>
+                    <p style="font-size:0.75rem; color:#64748B; margin:2px 0 0 0;">Veyra Security & Protection</p>
+                </div>
+            </div>
+            <p id="veyra-confirm-message" style="color:#334155; font-size:0.88rem; line-height:1.5; margin:0 0 20px 0; font-weight:600;">Are you sure you want to proceed?</p>
+            <div style="display:flex; gap:10px; justify-content:flex-end;">
+                <button type="button" id="veyra-confirm-btn-cancel" style="background:#F1F5F9; border:1.5px solid #CBD5E1; color:#334155; padding:9px 18px; border-radius:8px; font-weight:700; font-size:0.84rem; cursor:pointer; transition:all 0.15s ease;">Cancel</button>
+                <button type="button" id="veyra-confirm-btn-ok" style="background:#E11D48; border:none; color:#FFFFFF; padding:9px 20px; border-radius:8px; font-weight:800; font-size:0.84rem; cursor:pointer; transition:all 0.15s ease; box-shadow:0 2px 8px rgba(225, 29, 72, 0.25);">Confirm</button>
+            </div>
+        </div>
+    </div>
 
 </body>
 </html>

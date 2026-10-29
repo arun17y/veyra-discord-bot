@@ -4161,3 +4161,147 @@ input[type="number"]::-webkit-inner-spin-button {
 .ee-field-del-btn:hover {
     background: rgba(239, 68, 68, 0.1);
 }
+
+
+
+/* --- ZERO-OVERLAP FLEX INPUTS FOR EMBED EDITORS --- */
+.ee-input-wrap {
+    position: relative !important;
+    display: flex !important;
+    align-items: center !important;
+    background: #F8FAFC !important;
+    border: 1.5px solid #CBD5E1 !important;
+    border-radius: 8px !important;
+    padding-left: 12px !important;
+    padding-right: 12px !important;
+    box-sizing: border-box !important;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease !important;
+}
+.ee-input-wrap:focus-within {
+    border-color: #E11D48 !important;
+    box-shadow: 0 0 0 2px rgba(225, 29, 72, 0.15) !important;
+    background: #FFFFFF !important;
+}
+.ee-input-icon, .ee-text-icon {
+    position: static !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 20px !important;
+    height: 20px !important;
+    color: #64748B !important;
+    font-size: 0.88rem !important;
+    flex-shrink: 0 !important;
+    user-select: none !important;
+    pointer-events: none !important;
+    margin-right: 10px !important;
+}
+.ee-text-icon {
+    font-weight: 800 !important;
+    font-family: monospace !important;
+    font-size: 0.95rem !important;
+}
+.ee-input {
+    flex: 1 1 auto !important;
+    width: 100% !important;
+    background: transparent !important;
+    border: none !important;
+    outline: none !important;
+    color: #0F172A !important;
+    font-size: 0.86rem !important;
+    padding: 10px 4px !important;
+    font-family: inherit !important;
+    font-weight: 600 !important;
+    box-sizing: border-box !important;
+    box-shadow: none !important;
+}
+.ee-input::placeholder {
+    color: #94A3B8 !important;
+    font-weight: 500 !important;
+}
+
+/* Add Another Embed Button */
+.ee-btn-add-embed {
+    width: 100%;
+    background: #FFFFFF;
+    border: 2px dashed #CBD5E1;
+    border-radius: 10px;
+    padding: 13px 20px;
+    font-size: 0.88rem;
+    font-weight: 800;
+    color: #E11D48 !important;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: all 0.2s ease;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+}
+.ee-btn-add-embed:hover {
+    border-color: #E11D48;
+    background: #FFF1F5;
+    color: #BE123C !important;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(225, 29, 72, 0.12);
+}
+
+/* Dedicated Members List Card Box & Custom Dark Scrollbar */
+.mod-members-card-box {
+    background: #FFFFFF !important;
+    border: 1.5px solid #E2E8F0 !important;
+    border-radius: 14px !important;
+    padding: 18px !important;
+    box-shadow: 0 4px 20px rgba(53, 43, 58, 0.04) !important;
+    max-height: 580px !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+}
+
+/* Black / Slate Visible Scrollbar */
+.mod-members-card-box::-webkit-scrollbar,
+.custom-dark-scrollbar::-webkit-scrollbar {
+    width: 8px !important;
+}
+.mod-members-card-box::-webkit-scrollbar-track,
+.custom-dark-scrollbar::-webkit-scrollbar-track {
+    background: #F1F5F9 !important;
+    border-radius: 8px !important;
+}
+.mod-members-card-box::-webkit-scrollbar-thumb,
+.custom-dark-scrollbar::-webkit-scrollbar-thumb {
+    background: #0F172A !important;
+    border-radius: 8px !important;
+    border: 1.5px solid #F1F5F9 !important;
+}
+.mod-members-card-box::-webkit-scrollbar-thumb:hover,
+.custom-dark-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: #1E293B !important;
+}
+
+/* Veyra Custom Confirmation Dialog Modal */
+#veyra-custom-confirm-modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.55);
+    backdrop-filter: blur(6px);
+    z-index: 999999;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+.veyra-confirm-card {
+    width: 100%;
+    max-width: 440px;
+    background: #FFFFFF;
+    border: 1.5px solid #EDE4E7;
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: 0 25px 60px rgba(53, 43, 58, 0.2);
+    animation: veyraPopIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+@keyframes veyraPopIn {
+    from { opacity: 0; transform: scale(0.95) translateY(10px); }
+    to { opacity: 1; transform: scale(1) translateY(0); }
+}

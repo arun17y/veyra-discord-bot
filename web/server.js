@@ -4483,13 +4483,20 @@ async function logAuditEntry(guildId, user, action, details) {
 
             const isSecurityAction = /antinuke|antiraid|antispam|panic|beast|lockdown|whitelist|blacklist|quarantine|security|bypass|shield/i.test(action || '');
             let targetChannel = isSecurityAction ? row.security_logs : row.moderation_logs;
-            if (!targetChannel || targetChannel === 'none' || !/^\d{17,20}$/.test(targetChannel)) {
-                targetChannel = isSecurityAction ? row.moderation_logs : row.security_logs;
+            // Resolve channel name to Snowflake ID if needed
+            let finalChannelId = null;
+            if (/^\d{17,20}$/.test(targetChannel)) {
+                finalChannelId = targetChannel;
+            } else if (targetChannel && targetChannel !== 'none') {
+                try {
+                    const rawName = targetChannel.replace(/^#/, '').toLowerCase().trim();
+                    const channels = await discordRequest('GET', `/guilds/${guildId}/channels`);
+                    const match = channels.find(c => c.name.toLowerCase() === rawName || c.name.toLowerCase().includes(rawName));
+                    if (match) finalChannelId = match.id;
+                } catch(e) {}
             }
-
-            if (!targetChannel || targetChannel === 'none' || !/^\d{17,20}$/.test(targetChannel)) {
-                return;
-            }
+            if (!finalChannelId) return;
+            targetChannel = finalChannelId;
 
             let color = 0x5865F2; // Blurple
             let emoji = '🛡️';

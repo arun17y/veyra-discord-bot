@@ -12691,3 +12691,181 @@ window.addEmbedField = function(prefix) {
     }
     if (typeof showToast === 'function') showToast("Field Added", `Added Field #${fieldCount}.`, "info");
 };
+
+
+
+// --- GLOBAL CUSTOM VEYRA CONFIRMATION MODAL (Replaces Native Popups) ---
+window.showVeyraConfirm = function({ title, message, confirmText, cancelText, isDanger, onConfirm }) {
+    const modal = document.getElementById('veyra-custom-confirm-modal');
+    if (!modal) {
+        // Fallback
+        if (confirm(message || "Are you sure?")) {
+            if (typeof onConfirm === 'function') onConfirm();
+        }
+        return;
+    }
+    
+    document.getElementById('veyra-confirm-title').textContent = title || "Confirm Action";
+    document.getElementById('veyra-confirm-message').textContent = message || "Are you sure you want to proceed?";
+    
+    const okBtn = document.getElementById('veyra-confirm-btn-ok');
+    const cancelBtn = document.getElementById('veyra-confirm-btn-cancel');
+    
+    okBtn.textContent = confirmText || "Confirm";
+    cancelBtn.textContent = cancelText || "Cancel";
+    
+    if (isDanger !== false) {
+        okBtn.style.background = "#E11D48";
+    } else {
+        okBtn.style.background = "#2563EB";
+    }
+    
+    const cleanup = () => {
+        modal.style.display = "none";
+        okBtn.onclick = null;
+        cancelBtn.onclick = null;
+    };
+    
+    okBtn.onclick = () => {
+        cleanup();
+        if (typeof onConfirm === 'function') onConfirm();
+    };
+    
+    cancelBtn.onclick = cleanup;
+    modal.onclick = (e) => { if (e.target === modal) cleanup(); };
+    
+    modal.style.display = "flex";
+};
+
+// Hook window.removeModerationOverride to use showVeyraConfirm
+window.removeModerationOverride = function(userId) {
+    const guildId = window.selectedGuildId || getSelectedGuildId();
+    if (!guildId || !userId) return;
+    
+    window.showVeyraConfirm({
+        title: "Remove Moderation Override",
+        message: `Are you sure you want to remove moderation permissions for user ID: ${userId}?`,
+        confirmText: "Remove Override",
+        isDanger: true,
+        onConfirm: async () => {
+            try {
+                const res = await fetch(`/api/settings/moderation-overrides/${guildId}/${userId}`, {
+                    method: 'DELETE'
+                });
+                const data = await res.json();
+                if (data.success) {
+                    if (typeof showToast === 'function') showToast("Permission Removed", "User moderation override deleted.", "success");
+                    loadModerationOverrides();
+                } else {
+                    if (typeof showToast === 'function') showToast("Error", data.error || "Failed to remove override", "error");
+                }
+            } catch (err) {
+                if (typeof showToast === 'function') showToast("Network Error", err.message, "error");
+            }
+        }
+    });
+};
+
+// --- REAL-TIME AUDIT LOGS STREAM ---
+let _auditLogsInterval = null;
+let _auditLogsCache = [];
+let _auditCurrentFilter = 'all';
+
+window.loadRealtimeAuditLogsStream = async function() {
+    const guildId = window.selectedGuildId || getSelectedGuildId();
+    if (!guildId) return;
+    
+    const container = document.getElementById('live-audit-logs-container');
+    if (!container) return;
+    
+    try {
+        const res = await fetch(`/api/audit-logs/${guildId}?limit=50`);
+        const data = await res.json();
+        
+        if (data && Array.isArray(data.logs)) {
+            _auditLogsCache = data.logs;
+            renderAuditLogsStream();
+        }
+    } catch(e) {
+        console.warn("[Audit Stream Error]", e);
+    }
+};
+
+window.renderAuditLogsStream = function() {
+    const container = document.getElementById('live-audit-logs-container');
+    if (!container) return;
+    
+    let logs = _auditLogsCache || [];
+    if (_auditCurrentFilter !== 'all') {
+        logs = logs.filter(l => {
+            const act = (l.action || '').toLowerCase();
+            if (_auditCurrentFilter === 'moderation') return /ban|kick|timeout|warn|mute|unban/.test(act);
+            if (_auditCurrentFilter === 'security') return /beast|security|raid|attack|score/.test(act);
+            if (_auditCurrentFilter === 'antinuke') return /nuke|anti_|channel_|role_|webhook/.test(act);
+            return true;
+        });
+    }
+    
+    if (logs.length === 0) {
+        container.innerHTML = `<div style="text-align:center; color:#94A3B8; padding:30px; font-size:0.85rem;">No recent audit logs matching '${_auditCurrentFilter}'. Telemetry is active.</div>`;
+        return;
+    }
+    
+    container.innerHTML = logs.map(l => {
+        let badgeColor = "#2563EB";
+        let badgeBg = "#EFF6FF";
+        const act = (l.action || '').toLowerCase();
+        if (/ban|nuke|beast|raid/.test(act)) {
+            badgeColor = "#DC2626"; badgeBg = "#FEE2E2";
+        } else if (/kick|timeout|warn/.test(act)) {
+            badgeColor = "#EA580C"; badgeBg = "#FFEDD5";
+        } else if (/create|save|enable/.test(act)) {
+            badgeColor = "#16A34A"; badgeBg = "#DCFCE7";
+        }
+        
+        return `
+            <div style="background:#F8FAFC; border:1px solid #E2E8F0; border-radius:10px; padding:12px 16px; display:flex; justify-content:space-between; align-items:center; gap:12px;">
+                <div style="display:flex; align-items:center; gap:10px; min-width:0;">
+                    <div style="width:34px; height:34px; border-radius:50%; background:#E2E8F0; display:flex; align-items:center; justify-content:center; color:#475569; font-weight:800; font-size:0.8rem; flex-shrink:0;">
+                        <i class="fa-solid fa-shield"></i>
+                    </div>
+                    <div style="min-width:0;">
+                        <div style="display:flex; align-items:center; gap:8px;">
+                            <span style="font-weight:800; color:#0F172A; font-size:0.88rem; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${l.user || 'System'}</span>
+                            <span style="background:${badgeBg}; color:${badgeColor}; font-weight:800; font-size:0.7rem; padding:2px 7px; border-radius:4px; text-transform:uppercase;">${l.action || 'Event'}</span>
+                        </div>
+                        <div style="color:#64748B; font-size:0.76rem; margin-top:2px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${l.details || 'Executed via Veyra Protection Engine'}</div>
+                    </div>
+                </div>
+                <div style="color:#94A3B8; font-size:0.74rem; font-family:var(--font-mono); font-weight:600; flex-shrink:0;">
+                    ${l.timestamp ? new Date(l.timestamp).toLocaleTimeString([], { hour:'2-digit', minute:'2-digit', second:'2-digit' }) : 'Live'}
+                </div>
+            </div>
+        `;
+    }).join('');
+};
+
+window.filterAuditStream = function(filter) {
+    _auditCurrentFilter = filter;
+    document.querySelectorAll('#live-audit-logs-stream-card .rf-btn').forEach(b => {
+        b.classList.remove('active');
+        b.style.background = '#FFF';
+        b.style.color = '#334155';
+        b.style.borderColor = '#CBD5E1';
+    });
+    if (event && event.target) {
+        event.target.classList.add('active');
+        event.target.style.background = '#E11D48';
+        event.target.style.color = '#FFF';
+        event.target.style.borderColor = '#E11D48';
+    }
+    renderAuditLogsStream();
+};
+
+// Start 3-second live audit log poller when on logs tab
+setInterval(() => {
+    const logsTab = document.getElementById('tab-logs');
+    if (logsTab && logsTab.style.display !== 'none') {
+        loadRealtimeAuditLogsStream();
+    }
+}, 3000);
