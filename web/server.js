@@ -5035,15 +5035,30 @@ app.get(['/transcripts/v2/:id', '/transcript/:id'], (req, res) => {
     });
 });
 
-app.get(['/manage', '/dashboard'], (req, res) => res.sendFile(path.join(__dirname, 'public/index.html')));
-app.get('/admin', (req, res) => res.sendFile(path.join(__dirname, 'public/admin.html')));
+app.get('/robots.txt', (req, res) => {
+    res.type('text/plain');
+    res.sendFile(path.join(__dirname, 'public/robots.txt'));
+});
+app.get('/sitemap.xml', (req, res) => {
+    res.type('application/xml');
+    res.sendFile(path.join(__dirname, 'public/sitemap.xml'));
+});
+
+app.get(['/manage', '/dashboard'], (req, res) => {
+    res.setHeader('X-Robots-Tag', 'noindex, nofollow, noarchive');
+    res.sendFile(path.join(__dirname, 'public/index.html'));
+});
+app.get('/admin', (req, res) => {
+    res.setHeader('X-Robots-Tag', 'noindex, nofollow, noarchive');
+    res.sendFile(path.join(__dirname, 'public/admin.html'));
+});
 app.get('/tickets', (req, res) => res.sendFile(path.join(__dirname, 'public/ticket.html')));
 app.get('/ticket', (req, res) => res.sendFile(path.join(__dirname, 'public/ticket.html')));
 app.get('/about', (req, res) => res.sendFile(path.join(__dirname, 'public/about.html')));
 app.get('/commands', (req, res) => res.sendFile(path.join(__dirname, 'public/commands.html')));
 app.get('/premium', (req, res) => res.sendFile(path.join(__dirname, 'public/premium.html')));
 app.get('/pricing', (req, res) => res.sendFile(path.join(__dirname, 'public/premium.html')));
-app.get(['/docs', '/faq', '/terms', '/privacy', '/refund', '/support'], (req, res) => res.sendFile(path.join(__dirname, 'public/about.html')));
+app.get(['/docs', '/faq', '/features', '/terms', '/privacy', '/refund', '/support'], (req, res) => res.sendFile(path.join(__dirname, 'public/about.html')));
 
 // Catch-all route handler for client-side navigation (moved to proper position after API routes)
 

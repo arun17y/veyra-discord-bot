@@ -7,8 +7,7 @@ psycopg2-binary>=2.9.9
 asyncpg>=0.29.0
 aiohttp>=3.9.0
 Pillow>=10.0.0
-yt-dlp[default] @ https://github.com/yt-dlp/yt-dlp/archive/master.tar.gz
+yt-dlp>=2024.10.0
 curl_cffi>=0.7.0
 gTTS>=2.4.0
 davey
-

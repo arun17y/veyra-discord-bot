@@ -1,0 +1,23 @@
+node_modules
+.git
+.github
+.next
+dashboard
+eagle-ultimate
+music bot 1
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+ENV/
+.env*
+*.log
+.vercel
+brain
+.system_generated
+tmp/
+*.zip
+*.tar.gz

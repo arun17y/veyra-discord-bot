@@ -6,6 +6,8 @@ from transcript_engine import generate_full_html_transcript
 from typing import Union, Optional
 # bot.py - Complete Anti-Nuke Discord Bot Core (VEYRA Ultimate)
 from interactive_ui import (
+    TempVoiceInterfaceView, build_tempvoice_interface_embed,
+    TempVoiceNameModal, TempVoiceLimitModal,
     HelpView, StatsTeamView, build_main_help_embed, PingView,
     build_ping_health_embed, build_ping_code_embed, build_uptime_embed,
     AvatarView, build_avatar_embed, BannerView, build_banner_embed, MediaDownloadView,
@@ -4379,6 +4381,7 @@ From raids and nukes to spam and unwanted users, I'll protect your community wit
     if not auto_send_reports_task.is_running():
         auto_send_reports_task.start()
 
+    bot.add_view(TempVoiceInterfaceView())
     bot.add_view(UnifiedVerificationButtonView())
     bot.add_view(TicketWelcomeView())
     bot.add_view(ClosedTicketActionsView())
@@ -11323,7 +11326,7 @@ async def on_interaction(interaction: discord.Interaction):
                         await interaction.response.send_message(f"❌ Failed to toggle role: {bErr}", ephemeral=True)
             elif custom_id.startswith('giveaway_enter_') or custom_id == 'giveaway_enter':
                 await handle_giveaway_entry_interaction(interaction, custom_id)
-            elif custom_id.startswith('vm_'):
+            elif custom_id.startswith('vm_') or custom_id.startswith('tv_'):
                 await handle_voicemaster_interaction(interaction, custom_id)
     except Exception as e:
         print(f"Error handling ticket interaction event: {e}")
@@ -12472,56 +12475,144 @@ async def handle_voicemaster_interaction(interaction: discord.Interaction, custo
         channel = interaction.channel
         guild = interaction.guild
         if not channel or not isinstance(channel, discord.VoiceChannel):
-            return await interaction.response.send_message("❌ You can only use VoiceMaster controls inside your temp voice channel.", ephemeral=True)
+            return await interaction.response.send_message("❌ You can only use TempVoice controls inside your temporary voice channel.", ephemeral=True)
 
         owner_id = temp_voice_owners.get(channel.id)
         is_owner = (owner_id == user.id) or user.guild_permissions.administrator
 
-        if custom_id == 'vm_lock':
+        # --- TempVoice 15 Interactive Handlers ---
+        if custom_id in ('tv_name', 'vm_rename'):
             if not is_owner:
-                return await interaction.response.send_message("❌ Only the room owner can lock this channel.", ephemeral=True)
-            await channel.set_permissions(guild.default_role, connect=False)
-            await interaction.response.send_message("🔒 Voice room **locked**! New members cannot connect.", ephemeral=True)
+                return await interaction.response.send_message("❌ Only the room owner can rename this channel.", ephemeral=True)
+            from interactive_ui import TempVoiceNameModal
+            return await interaction.response.send_modal(TempVoiceNameModal(channel))
 
-        elif custom_id == 'vm_unlock':
+        elif custom_id in ('tv_limit', 'vm_limit'):
             if not is_owner:
-                return await interaction.response.send_message("❌ Only the room owner can unlock this channel.", ephemeral=True)
-            await channel.set_permissions(guild.default_role, connect=None)
-            await interaction.response.send_message("🔓 Voice room **unlocked**! Anyone can connect.", ephemeral=True)
+                return await interaction.response.send_message("❌ Only the room owner can adjust user limit.", ephemeral=True)
+            from interactive_ui import TempVoiceLimitModal
+            return await interaction.response.send_modal(TempVoiceLimitModal(channel))
 
-        elif custom_id == 'vm_ghost':
+        elif custom_id in ('tv_privacy', 'vm_lock', 'vm_unlock'):
             if not is_owner:
-                return await interaction.response.send_message("❌ Only the room owner can ghost this channel.", ephemeral=True)
-            await channel.set_permissions(guild.default_role, view_channel=False)
-            await interaction.response.send_message("👻 Voice room is now **hidden** from others.", ephemeral=True)
+                return await interaction.response.send_message("❌ Only the room owner can toggle channel privacy.", ephemeral=True)
+            current_perms = channel.overwrites_for(guild.default_role)
+            is_locked = current_perms.connect is False
+            if is_locked:
+                current_perms.connect = None
+                await channel.set_permissions(guild.default_role, overwrite=current_perms)
+                await interaction.response.send_message("🔓 Voice room **unlocked**! Anyone can connect.", ephemeral=True)
+            else:
+                current_perms.connect = False
+                await channel.set_permissions(guild.default_role, overwrite=current_perms)
+                await interaction.response.send_message("🔒 Voice room **locked**! New members cannot connect.", ephemeral=True)
 
-        elif custom_id == 'vm_unghost':
+        elif custom_id == 'tv_waiting_room':
             if not is_owner:
-                return await interaction.response.send_message("❌ Only the room owner can unghost this channel.", ephemeral=True)
-            await channel.set_permissions(guild.default_role, view_channel=None)
-            await interaction.response.send_message("👁️ Voice room is now **visible** to everyone.", ephemeral=True)
+                return await interaction.response.send_message("❌ Only the room owner can toggle waiting room.", ephemeral=True)
+            current_perms = channel.overwrites_for(guild.default_role)
+            is_muted = current_perms.speak is False
+            current_perms.speak = None if is_muted else False
+            await channel.set_permissions(guild.default_role, overwrite=current_perms)
+            status_text = "disabled (members can speak freely)" if is_muted else "enabled (members must be granted permission to speak)"
+            await interaction.response.send_message(f"🕒 Waiting room mode **{status_text}**.", ephemeral=True)
 
-        elif custom_id == 'vm_claim':
+        elif custom_id == 'tv_chat':
+            await interaction.response.send_message(f"💬 You can chat directly inside **#{channel.name}** voice chat panel.", ephemeral=True)
+
+        elif custom_id in ('tv_trust', 'vm_permit'):
+            if not is_owner:
+                return await interaction.response.send_message("❌ Only the room owner can trust members.", ephemeral=True)
+            other_members = [m for m in channel.members if m.id != user.id]
+            if other_members:
+                for m in other_members:
+                    await channel.set_permissions(m, connect=True, speak=True, view_channel=True)
+                await interaction.response.send_message(f"👤 Trusted `{len(other_members)}` member(s) in this room.", ephemeral=True)
+            else:
+                await interaction.response.send_message("👤 Use `/voice trust @member` or have members join to trust them.", ephemeral=True)
+
+        elif custom_id == 'tv_untrust':
+            if not is_owner:
+                return await interaction.response.send_message("❌ Only the room owner can untrust members.", ephemeral=True)
+            other_members = [m for m in channel.members if m.id != user.id]
+            for m in other_members:
+                await channel.set_permissions(m, overwrite=None)
+            await interaction.response.send_message("🚫 Untrusted members permissions have been reset.", ephemeral=True)
+
+        elif custom_id == 'tv_invite':
+            invite = await channel.create_invite(max_age=3600, max_uses=10, reason=f"TempVoice invite by {user}")
+            await interaction.response.send_message(f"📨 Share this invite to let friends join your voice room:\n{invite.url}", ephemeral=True)
+
+        elif custom_id in ('tv_kick', 'vm_kick'):
+            if not is_owner:
+                return await interaction.response.send_message("❌ Only the room owner can kick members.", ephemeral=True)
+            kicked = []
+            for m in channel.members:
+                if m.id != user.id and not m.guild_permissions.administrator:
+                    await m.move_to(None)
+                    kicked.append(m.display_name)
+            if kicked:
+                await interaction.response.send_message(f"👢 Disconnected `{len(kicked)}` member(s) from this room.", ephemeral=True)
+            else:
+                await interaction.response.send_message("ℹ️ No other kickable members in this room.", ephemeral=True)
+
+        elif custom_id == 'tv_region':
+            if not is_owner:
+                return await interaction.response.send_message("❌ Only the room owner can change region.", ephemeral=True)
+            await channel.edit(rtc_region=None)
+            await interaction.response.send_message("🌐 Voice RTC region set to **Automatic** (Lowest Latency).", ephemeral=True)
+
+        elif custom_id in ('tv_block', 'vm_ban'):
+            if not is_owner:
+                return await interaction.response.send_message("❌ Only the room owner can block members.", ephemeral=True)
+            other_members = [m for m in channel.members if m.id != user.id and not m.guild_permissions.administrator]
+            if other_members:
+                for m in other_members:
+                    await channel.set_permissions(m, connect=False, view_channel=False)
+                    await m.move_to(None)
+                await interaction.response.send_message(f"🚷 Blocked and disconnected `{len(other_members)}` member(s).", ephemeral=True)
+            else:
+                await interaction.response.send_message("🚷 Use `/voice block @member` to ban a specific user from this room.", ephemeral=True)
+
+        elif custom_id == 'tv_unblock':
+            if not is_owner:
+                return await interaction.response.send_message("❌ Only the room owner can unblock members.", ephemeral=True)
+            for target, ow in list(channel.overwrites.items()):
+                if isinstance(target, discord.Member) and target.id != user.id:
+                    await channel.set_permissions(target, overwrite=None)
+            await interaction.response.send_message("🔓 All blocked members have been unblocked.", ephemeral=True)
+
+        elif custom_id in ('tv_claim', 'vm_claim'):
             current_owner_present = any(m.id == owner_id for m in channel.members)
-            if current_owner_present and not user.guild_permissions.administrator:
+            if current_owner_present and not user.guild_permissions.administrator and owner_id != user.id:
                 return await interaction.response.send_message("❌ The current room owner is still active in this channel.", ephemeral=True)
             temp_voice_owners[channel.id] = user.id
-            await interaction.response.send_message(f"👑 You have successfully claimed ownership of **{channel.name}**!", ephemeral=True)
+            await interaction.response.send_message(f"👑 You have claimed ownership of **{channel.name}**!", ephemeral=True)
 
-        elif custom_id == 'vm_delete':
+        elif custom_id in ('tv_transfer', 'vm_transfer'):
+            if not is_owner:
+                return await interaction.response.send_message("❌ Only the room owner can transfer ownership.", ephemeral=True)
+            other_members = [m for m in channel.members if m.id != user.id]
+            if other_members:
+                new_owner = other_members[0]
+                temp_voice_owners[channel.id] = new_owner.id
+                await interaction.response.send_message(f"✈️ Ownership of this room transferred to {new_owner.mention}!", ephemeral=True)
+            else:
+                await interaction.response.send_message("❌ No other members in the channel to transfer ownership to.", ephemeral=True)
+
+        elif custom_id in ('tv_delete', 'vm_delete'):
             if not is_owner:
                 return await interaction.response.send_message("❌ Only the room owner or an admin can delete this channel.", ephemeral=True)
-            await interaction.response.send_message("🗑️ Deleting voice room...", ephemeral=True)
+            await interaction.response.send_message("🗑️ Deleting temporary voice room...", ephemeral=True)
             temp_voice_owners.pop(channel.id, None)
-            await channel.delete(reason=f"Deleted by VoiceMaster owner {user}")
+            await channel.delete(reason=f"Deleted by TempVoice owner {user}")
 
         else:
-            await interaction.response.send_message("⚙️ Control action recognized.", ephemeral=True)
+            await interaction.response.send_message("⚙️ TempVoice control action recognized.", ephemeral=True)
     except Exception as e:
-        print(f"VoiceMaster interaction error: {e}")
+        print(f"TempVoice interaction error: {e}")
         if not interaction.response.is_done():
             await interaction.response.send_message(f"❌ Error: {e}", ephemeral=True)
-
 
 # =========================================================================
 # KITT BOT VOICE CHANNEL ANNOUNCEMENT SYSTEM (AUTO TTS ON JOIN/LEAVE)
@@ -12635,24 +12726,9 @@ async def on_voice_state_update(member: discord.Member, before: discord.VoiceSta
                 temp_voice_owners[new_chan.id] = member.id
                 await member.move_to(new_chan)
 
-                # Send interactive VoiceMaster panel
-                embed = discord.Embed(
-                    title="🎙️ VoiceMaster Room Controls",
-                    description=f"Welcome to your private lounge, {member.mention}!\nUse the buttons below to manage your room permissions.",
-                    color=discord.Color.from_rgb(217, 108, 145)
-                )
-                embed.add_field(name="👑 Room Owner", value=member.mention, inline=True)
-                embed.add_field(name="👥 User Limit", value=str(limit) if limit > 0 else "Unlimited", inline=True)
-                embed.set_footer(text="VEYRA VoiceMaster • Channels auto-delete when empty")
-
-                view = discord.ui.View(timeout=None)
-                view.add_item(discord.ui.Button(label="Lock", emoji="🔒", custom_id="vm_lock", style=discord.ButtonStyle.secondary))
-                view.add_item(discord.ui.Button(label="Unlock", emoji="🔓", custom_id="vm_unlock", style=discord.ButtonStyle.secondary))
-                view.add_item(discord.ui.Button(label="Ghost", emoji="👻", custom_id="vm_ghost", style=discord.ButtonStyle.secondary))
-                view.add_item(discord.ui.Button(label="Unhide", emoji="👁️", custom_id="vm_unghost", style=discord.ButtonStyle.secondary))
-                view.add_item(discord.ui.Button(label="Claim", emoji="👑", custom_id="vm_claim", style=discord.ButtonStyle.primary))
-                view.add_item(discord.ui.Button(label="Delete", emoji="🗑️", custom_id="vm_delete", style=discord.ButtonStyle.danger))
-
+                # Send exact 1:1 TempVoice Interface panel
+                embed = build_tempvoice_interface_embed()
+                view = TempVoiceInterfaceView()
                 await new_chan.send(embed=embed, view=view)
     except Exception as e:
         print(f"Error in on_voice_state_update: {e}")

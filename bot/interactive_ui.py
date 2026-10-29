@@ -944,3 +944,137 @@ class VeyraControlCenterView(View):
     def __init__(self, bot_client=None):
         super().__init__(timeout=300)
         self.bot = bot_client
+
+
+# =========================================================================
+# TEMPVOICE INTERFACE (EXACT 1:1 REPLICA MATCHING SCREENSHOT)
+# =========================================================================
+
+class TempVoiceNameModal(discord.ui.Modal):
+    def __init__(self, channel: discord.VoiceChannel):
+        super().__init__(title="Rename TempVoice Channel")
+        self.channel = channel
+        self.name_input = discord.ui.TextInput(
+            label="Channel Name",
+            placeholder="Enter new channel name...",
+            default=channel.name,
+            max_length=100
+        )
+        self.add_item(self.name_input)
+
+    async def on_submit(self, interaction: discord.Interaction):
+        new_name = self.name_input.value.strip()
+        if new_name:
+            await self.channel.edit(name=new_name)
+            await interaction.response.send_message(f"📛 Renamed temporary voice channel to **{new_name}**.", ephemeral=True)
+        else:
+            await interaction.response.send_message("❌ Channel name cannot be empty.", ephemeral=True)
+
+
+class TempVoiceLimitModal(discord.ui.Modal):
+    def __init__(self, channel: discord.VoiceChannel):
+        super().__init__(title="Set User Limit")
+        self.channel = channel
+        self.limit_input = discord.ui.TextInput(
+            label="User Limit (0 = Unlimited)",
+            placeholder="0 to 99",
+            default=str(channel.user_limit or 0),
+            max_length=2
+        )
+        self.add_item(self.limit_input)
+
+    async def on_submit(self, interaction: discord.Interaction):
+        try:
+            val = int(self.limit_input.value.strip())
+            if 0 <= val <= 99:
+                await self.channel.edit(user_limit=val)
+                limit_text = f"**{val} members**" if val > 0 else "**Unlimited**"
+                await interaction.response.send_message(f"👥 Updated room user limit to {limit_text}.", ephemeral=True)
+            else:
+                await interaction.response.send_message("❌ Limit must be between 0 and 99.", ephemeral=True)
+        except ValueError:
+            await interaction.response.send_message("❌ Please enter a valid number (0 - 99).", ephemeral=True)
+
+
+class TempVoiceInterfaceView(View):
+    def __init__(self):
+        super().__init__(timeout=None)
+
+    # Row 0
+    @discord.ui.button(emoji="📛", style=discord.ButtonStyle.secondary, custom_id="tv_name", row=0)
+    async def btn_name(self, interaction: discord.Interaction, button: discord.ui.Button):
+        pass
+
+    @discord.ui.button(emoji="👥", style=discord.ButtonStyle.secondary, custom_id="tv_limit", row=0)
+    async def btn_limit(self, interaction: discord.Interaction, button: discord.ui.Button):
+        pass
+
+    @discord.ui.button(emoji="🔒", style=discord.ButtonStyle.secondary, custom_id="tv_privacy", row=0)
+    async def btn_privacy(self, interaction: discord.Interaction, button: discord.ui.Button):
+        pass
+
+    @discord.ui.button(emoji="🕒", style=discord.ButtonStyle.secondary, custom_id="tv_waiting_room", row=0)
+    async def btn_waiting(self, interaction: discord.Interaction, button: discord.ui.Button):
+        pass
+
+    @discord.ui.button(emoji="💬", style=discord.ButtonStyle.secondary, custom_id="tv_chat", row=0)
+    async def btn_chat(self, interaction: discord.Interaction, button: discord.ui.Button):
+        pass
+
+    # Row 1
+    @discord.ui.button(emoji="👤", style=discord.ButtonStyle.secondary, custom_id="tv_trust", row=1)
+    async def btn_trust(self, interaction: discord.Interaction, button: discord.ui.Button):
+        pass
+
+    @discord.ui.button(emoji="🚫", style=discord.ButtonStyle.secondary, custom_id="tv_untrust", row=1)
+    async def btn_untrust(self, interaction: discord.Interaction, button: discord.ui.Button):
+        pass
+
+    @discord.ui.button(emoji="📨", style=discord.ButtonStyle.secondary, custom_id="tv_invite", row=1)
+    async def btn_invite(self, interaction: discord.Interaction, button: discord.ui.Button):
+        pass
+
+    @discord.ui.button(emoji="👢", style=discord.ButtonStyle.secondary, custom_id="tv_kick", row=1)
+    async def btn_kick(self, interaction: discord.Interaction, button: discord.ui.Button):
+        pass
+
+    @discord.ui.button(emoji="🌐", style=discord.ButtonStyle.secondary, custom_id="tv_region", row=1)
+    async def btn_region(self, interaction: discord.Interaction, button: discord.ui.Button):
+        pass
+
+    # Row 2
+    @discord.ui.button(emoji="🚷", style=discord.ButtonStyle.secondary, custom_id="tv_block", row=2)
+    async def btn_block(self, interaction: discord.Interaction, button: discord.ui.Button):
+        pass
+
+    @discord.ui.button(emoji="🔓", style=discord.ButtonStyle.secondary, custom_id="tv_unblock", row=2)
+    async def btn_unblock(self, interaction: discord.Interaction, button: discord.ui.Button):
+        pass
+
+    @discord.ui.button(emoji="👑", style=discord.ButtonStyle.secondary, custom_id="tv_claim", row=2)
+    async def btn_claim(self, interaction: discord.Interaction, button: discord.ui.Button):
+        pass
+
+    @discord.ui.button(emoji="✈️", style=discord.ButtonStyle.secondary, custom_id="tv_transfer", row=2)
+    async def btn_transfer(self, interaction: discord.Interaction, button: discord.ui.Button):
+        pass
+
+    @discord.ui.button(emoji="🗑️", style=discord.ButtonStyle.danger, custom_id="tv_delete", row=2)
+    async def btn_delete(self, interaction: discord.Interaction, button: discord.ui.Button):
+        pass
+
+
+def build_tempvoice_interface_embed() -> discord.Embed:
+    embed = discord.Embed(
+        title="TempVoice Interface",
+        description=(
+            "This **interface** can be used to manage temporary voice channels.\n"
+            "More options are available with **/voice** commands.\n\n"
+            "**NAME** • **LIMIT** • **PRIVACY** • **WAITING ROOM** • **CHAT**\n"
+            "**TRUST** • **UNTRUST** • **INVITE** • **KICK** • **REGION**\n"
+            "**BLOCK** • **UNBLOCK** • **CLAIM** • **TRANSFER** • **DELETE**\n\n"
+            "Press the buttons below to use the interface"
+        ),
+        color=discord.Color.from_rgb(225, 29, 72)
+    )
+    return embed
