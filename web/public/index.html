@@ -119,7 +119,7 @@
         })();
     </script>
     <link rel="stylesheet" href="css/themes.css?v=v13_dashboard_realtime_manage_fix">
-    <link rel="stylesheet" href="css/dashboard.css?v=v90_realtime_sticky_and_layout">
+    <link rel="stylesheet" href="css/dashboard.css?v=v91_bento_billing_and_layout_tighten">
     <style>
         /* =============================================
            VEYRA BRAND PALETTE OVERRIDE — A to Z
@@ -13832,7 +13832,7 @@ Our support team can assist you with:
 
                 
                 <!-- [TAB: PLANS & PAYMENTS (BILLING)] -->
-                <div class="tab-pane" id="tab-billing" style="display:none; width: 100%; max-width: 1200px; padding: 24px; box-sizing: border-box;">
+                <div class="tab-pane" id="tab-billing" style="display:none; width: 100%; max-width: 1260px; margin-left: 0; margin-right: auto; padding: 4px 0 30px 0; box-sizing: border-box;">
                     
                     <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 24px; flex-wrap: wrap; gap: 16px;">
                         <div>
@@ -13849,25 +13849,27 @@ Our support team can assist you with:
                         </div>
                     </div>
 
-                    <!-- 1. ACTIVE PLAN STATUS CARD -->
-                    <div id="billing-active-plan-card" style="background: #FFFFFF; border: 1.5px solid #E2E8F0; border-radius: 16px; padding: 24px 28px; margin-bottom: 32px; box-shadow: 0 4px 18px rgba(15,23,42,0.04); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px;">
-                        <div style="display: flex; align-items: center; gap: 18px;">
-                            <div id="billing-plan-icon-box" style="width: 52px; height: 52px; border-radius: 12px; background: rgba(217,108,145,0.12); display: flex; align-items: center; justify-content: center; color: #D96C91; font-size: 1.5rem; flex-shrink: 0;">
+                    <!-- 1. ACTIVE PLAN STATUS CARD (UI/UX Pro Max Bento Layout) -->
+                    <div id="billing-active-plan-card" style="background: #FFFFFF; border: 1.5px solid #E2E8F0; border-radius: 14px; padding: 18px 22px; margin-bottom: 22px; box-shadow: 0 4px 16px rgba(15,23,42,0.03); display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); gap: 16px; align-items: center;">
+                        <div style="display: flex; align-items: center; gap: 14px; min-width: 0;">
+                            <div id="billing-plan-icon-box" style="width: 46px; height: 46px; border-radius: 10px; background: rgba(217,108,145,0.12); display: flex; align-items: center; justify-content: center; color: #D96C91; font-size: 1.35rem; flex-shrink: 0;">
                                 <i class="fas fa-shield-halved"></i>
                             </div>
-                            <div>
-                                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 4px;">
-                                    <h3 id="billing-active-plan-name" style="margin: 0; font-size: 1.3rem; font-weight: 800; color: #0F172A; font-family: var(--font-display);">Free Plan</h3>
-                                    <span id="billing-active-plan-pill" style="background: #F1F5F9; color: #475569; border: 1px solid #CBD5E1; padding: 3px 10px; border-radius: 20px; font-size: 0.72rem; font-weight: 800; text-transform: uppercase;">ACTIVE</span>
+                            <div style="min-width: 0;">
+                                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 3px; flex-wrap: wrap;">
+                                    <h3 id="billing-active-plan-name" style="margin: 0; font-size: 1.2rem; font-weight: 800; color: #0F172A; font-family: var(--font-display);">Free Plan</h3>
+                                    <span id="billing-active-plan-pill" style="background: #F1F5F9; color: #475569; border: 1px solid #CBD5E1; padding: 2px 8px; border-radius: 20px; font-size: 0.7rem; font-weight: 800; text-transform: uppercase;">ACTIVE</span>
                                 </div>
-                                <p id="billing-active-plan-desc" style="margin: 0; font-size: 0.86rem; color: #64748B;">Standard community tools and baseline Anti-Spam protection.</p>
+                                <p id="billing-active-plan-desc" style="margin: 0; font-size: 0.84rem; color: #64748B; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Standard community tools and baseline Anti-Spam protection.</p>
                             </div>
                         </div>
 
-                        <div id="billing-plan-expiry-box" style="text-align: right;">
-                            <div style="font-size: 0.74rem; color: #64748B; font-weight: 700; text-transform: uppercase; margin-bottom: 2px;">Billing Cycle</div>
-                            <div id="billing-plan-cycle" style="font-size: 0.95rem; font-weight: 800; color: #0F172A;">Permanent / Free</div>
-                            <div id="billing-plan-expiry" style="font-size: 0.75rem; color: #10B981; font-weight: 600; margin-top: 2px;">No renewal required</div>
+                        <div style="display: flex; align-items: center; justify-content: flex-end; gap: 18px; border-left: 1px solid #F1F5F9; padding-left: 16px;">
+                            <div id="billing-plan-expiry-box" style="text-align: right;">
+                                <div style="font-size: 0.7rem; color: #64748B; font-weight: 700; text-transform: uppercase; margin-bottom: 2px;">Billing Cycle</div>
+                                <div id="billing-plan-cycle" style="font-size: 0.9rem; font-weight: 800; color: #0F172A;">Permanent / Free</div>
+                                <div id="billing-plan-expiry" style="font-size: 0.74rem; color: #10B981; font-weight: 600; margin-top: 2px;">No renewal required</div>
+                            </div>
                         </div>
                     </div>
 
@@ -13877,10 +13879,10 @@ Our support team can assist you with:
                         <p style="font-size: 0.86rem; color: #64748B; margin: 0 0 20px 0;">Select a plan to immediately unlock premium features via verified Razorpay checkout.</p>
                     </div>
 
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 24px; margin-bottom: 40px; align-items: stretch;">
+                    <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; margin-bottom: 32px; align-items: stretch;">
                         
                         <!-- Plan 1: Free (₹0) -->
-                        <div style="background: #FFFFFF; border: 1.5px solid #E2E8F0; border-radius: 16px; padding: 32px 26px; box-shadow: 0 4px 18px rgba(15,23,42,0.03); display: flex; flex-direction: column; justify-content: space-between;">
+                        <div style="background: #FFFFFF; border: 1.5px solid #E2E8F0; border-radius: 16px; padding: 22px 20px; box-shadow: 0 4px 18px rgba(15,23,42,0.03); display: flex; flex-direction: column; justify-content: space-between;">
                             <div>
                                 <div style="display: inline-block; background: #F1F5F9; border: 1px solid #CBD5E1; color: #475569; font-family: var(--font-mono); font-size: 0.72rem; font-weight: 800; padding: 4px 10px; border-radius: 6px; margin-bottom: 16px;">
                                     <i class="fas fa-shield" style="margin-right: 4px;"></i> FREE
@@ -13903,7 +13905,7 @@ Our support team can assist you with:
                         </div>
 
                         <!-- Plan 2: Pro (₹199/mo) — Highlighted -->
-                        <div style="background: #FFFFFF; border: 2px solid #D96C91; border-radius: 16px; padding: 32px 26px; box-shadow: 0 8px 30px rgba(217, 108, 145, 0.15); position: relative; display: flex; flex-direction: column; justify-content: space-between;">
+                        <div style="background: #FFFFFF; border: 2px solid #D96C91; border-radius: 16px; padding: 22px 20px; box-shadow: 0 8px 30px rgba(217, 108, 145, 0.15); position: relative; display: flex; flex-direction: column; justify-content: space-between;">
                             <div style="position: absolute; top: -13px; left: 50%; transform: translateX(-50%); background: #D96C91; color: #fff; font-size: 0.72rem; font-weight: 800; padding: 4px 14px; border-radius: 20px; font-family: var(--font-mono); letter-spacing: 0.06em; box-shadow: 0 4px 12px rgba(217, 108, 145, 0.4);">
                                 🔥 MOST POPULAR
                             </div>
@@ -13932,7 +13934,7 @@ Our support team can assist you with:
                         </div>
 
                         <!-- Plan 3: Enterprise (₹299/mo) -->
-                        <div style="background: #FFFFFF; border: 1.5px solid #E2E8F0; border-radius: 16px; padding: 32px 26px; box-shadow: 0 4px 18px rgba(15,23,42,0.03); display: flex; flex-direction: column; justify-content: space-between;">
+                        <div style="background: #FFFFFF; border: 1.5px solid #E2E8F0; border-radius: 16px; padding: 22px 20px; box-shadow: 0 4px 18px rgba(15,23,42,0.03); display: flex; flex-direction: column; justify-content: space-between;">
                             <div>
                                 <div style="display: inline-block; background: #FAF5FF; border: 1px solid #F3E8FF; color: #7E22CE; font-family: var(--font-mono); font-size: 0.72rem; font-weight: 800; padding: 4px 10px; border-radius: 6px; margin-bottom: 16px;">
                                     <i class="fas fa-crown" style="margin-right: 4px;"></i> PREMIUM
@@ -14128,7 +14130,7 @@ Our support team can assist you with:
     <!-- JS Execution libraries -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
-    <script src="js/dashboard.js?v=v90_realtime_sticky_and_layout"></script>
+    <script src="js/dashboard.js?v=v91_bento_billing_and_layout_tighten"></script>
     <script src="js/moderation.js?v=v92_clean_verification_gate"></script>
     <!-- smokey fluid cursor removed -->
 

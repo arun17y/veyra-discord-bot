@@ -408,7 +408,7 @@ input:checked + .slider:before {
     background: var(--bg-primary) !important;
     overflow-y: visible !important;
     overflow-x: hidden !important;
-    padding: 24px 32px 80px 32px !important;
+    padding: 18px 24px 60px 24px !important;
     box-sizing: border-box !important;
 }
 
