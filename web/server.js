@@ -2210,20 +2210,93 @@ app.get('/api/settings/reports/:guild_id', (req, res) => {
     });
 });
 
-// Dispatch Live Server Growth Report to Discord
-app.post('/api/reports/send-test/:guild_id', (req, res) => {
+// Dispatch Live Server Growth Report to Discord (Real-time live posting)
+app.post('/api/reports/send-test/:guild_id', async (req, res) => {
     const guildId = req.params.guild_id;
-    const { channel, frequency } = req.body;
+    const { channel, frequency, embed } = req.body;
     const nowStr = new Date().toISOString();
-    
-    db.run(
-        `INSERT INTO audit_logs (timestamp, user, action, guild_id, details) VALUES (?, ?, ?, ?, ?)`,
-        [nowStr, '@dashboard', 'Server Report Triggered', guildId, `Manual test report dispatched to #${channel || 'general'}`],
-        function(err) {
-            if (err) return res.status(500).json({ error: err.message });
-            res.json({ success: true, message: `Report dispatched to #${channel || 'general'}` });
+
+    let targetChannelId = channel;
+    let chName = channel || 'general';
+
+    // If channel is not an ID, resolve from guild channels
+    if (!targetChannelId || !/^\d{17,21}$/.test(String(targetChannelId).trim())) {
+        try {
+            const chRes = await discordRequest('GET', `/guilds/${guildId}/channels`);
+            if (chRes.status === 200 && Array.isArray(chRes.body)) {
+                const cleanName = String(channel || '').toLowerCase().replace('#', '').trim();
+                const matched = chRes.body.find(c => c.type === 0 && (
+                    c.id === channel ||
+                    c.name.toLowerCase() === cleanName ||
+                    c.name.toLowerCase().includes(cleanName)
+                ));
+                if (matched) {
+                    targetChannelId = matched.id;
+                    chName = matched.name;
+                } else {
+                    const fallback = chRes.body.find(c => c.type === 0);
+                    if (fallback) {
+                        targetChannelId = fallback.id;
+                        chName = fallback.name;
+                    }
+                }
+            }
+        } catch (e) {
+            console.warn('[Reports] Channel resolve warning:', e.message);
         }
-    );
+    }
+
+    if (!targetChannelId || !/^\d{17,21}$/.test(String(targetChannelId).trim())) {
+        return res.status(400).json({ error: "Please select a valid destination Discord channel." });
+    }
+
+    // Build the Discord embed
+    const title = (embed && embed.title) || `📊 VEYRA ${(frequency || 'weekly').toUpperCase()} Server Growth Report`;
+    const desc = (embed && embed.description) || `📈 **Server Growth & Telemetry Summary**\nAutomatic status telemetry dispatched from Veyra Security Dashboard.`;
+    const rawColor = (embed && embed.color) ? embed.color.replace('#', '') : 'E11D48';
+    const colorInt = parseInt(rawColor, 16) || 0xE11D48;
+
+    const discordEmbed = {
+        title: title,
+        description: desc,
+        color: colorInt,
+        fields: (embed && Array.isArray(embed.fields) && embed.fields.length > 0) ? embed.fields : [
+            { name: "📊 Membership Stats", value: "• Joins: 0\n• Leaves: 0\n• Net Growth: +0\n• Retention Rate: 0%", inline: false },
+            { name: "🏆 Top Inviters", value: "No recent recorded invites", inline: false },
+            { name: "📈 Telemetry", value: "All server defense monitors active and operating normally.", inline: false }
+        ],
+        footer: {
+            text: (embed && embed.footer) ? embed.footer : `VEYRA Advanced Telemetry • ${(frequency || 'weekly').toUpperCase()}`
+        },
+        timestamp: new Date().toISOString()
+    };
+
+    if (embed && embed.thumbnail && embed.thumbnail.startsWith('http')) {
+        discordEmbed.thumbnail = { url: embed.thumbnail };
+    }
+    if (embed && embed.image && embed.image.startsWith('http')) {
+        discordEmbed.image = { url: embed.image };
+    }
+
+    try {
+        const postRes = await discordRequest('POST', `/channels/${targetChannelId}/messages`, {
+            embeds: [discordEmbed]
+        });
+
+        if (postRes.status === 200 || postRes.status === 201) {
+            db.run(
+                `INSERT INTO audit_logs (timestamp, "user", action, guild_id, details) VALUES (?, ?, ?, ?, ?)`,
+                [nowStr, '@dashboard', 'Server Report Dispatched', guildId, `Live report posted to #${chName}`],
+                () => {}
+            );
+            return res.json({ success: true, message: `Report successfully dispatched to #${chName}!` });
+        } else {
+            const errMsg = postRes.body?.message || `Discord API returned HTTP ${postRes.status}`;
+            return res.status(postRes.status || 500).json({ error: errMsg });
+        }
+    } catch (err) {
+        return res.status(500).json({ error: "Failed to dispatch report to Discord: " + err.message });
+    }
 });
 
 app.post('/api/settings/reports/:guild_id', (req, res) => {

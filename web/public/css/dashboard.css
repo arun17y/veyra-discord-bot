@@ -342,9 +342,9 @@ input:checked + .slider:before {
 }
 
 .sidebar {
-    width: 310px !important;
-    min-width: 310px !important;
-    max-width: 310px !important;
+    width: 255px !important;
+    min-width: 255px !important;
+    max-width: 255px !important;
     flex-shrink: 0 !important;
     position: sticky !important;
     top: 0 !important;
@@ -408,7 +408,7 @@ input:checked + .slider:before {
     background: var(--bg-primary) !important;
     overflow-y: visible !important;
     overflow-x: hidden !important;
-    padding: 18px 24px 60px 24px !important;
+    padding: 14px 18px 60px 18px !important;
     box-sizing: border-box !important;
 }
 
@@ -2417,6 +2417,7 @@ input:checked + .slider:before {
     width: 100% !important;
     margin-left: 0 !important;
     margin-right: auto !important;
+    padding: 0 !important;
     box-sizing: border-box !important;
 }
 
@@ -2489,7 +2490,7 @@ input:checked + .slider:before {
     }
     
     #workspace-content {
-        padding: 20px !important;
+        padding: 14px 18px 60px 18px !important;
         min-width: 0 !important;
         min-height: 0 !important;
         width: 100% !important;
@@ -3474,9 +3475,9 @@ input:checked + .slider:before,
 
 /* 3. DESKTOP & RESPONSIVE COMPACT ICON-ONLY SIDEBAR SYSTEM */
 .sidebar {
-    width: 310px !important;
-    min-width: 310px !important;
-    max-width: 310px !important;
+    width: 255px !important;
+    min-width: 255px !important;
+    max-width: 255px !important;
     flex-shrink: 0 !important;
     position: sticky !important;
     top: 76px !important;
@@ -4433,4 +4434,96 @@ input[type="number"]::-webkit-inner-spin-button {
     color: #FFFFFF !important;
     font-weight: 600 !important;
     text-shadow: none !important;
+}
+
+
+/* ==========================================================================
+   PERFECT SINGLE-BOX INPUTS: STRIP ALL INNER BORDERS INSIDE EMBED EDITORS
+   ========================================================================== */
+#screen-dashboard .ee-input-wrap,
+#screen-dashboard .ee-textarea-wrap {
+    position: relative !important;
+    display: flex !important;
+    align-items: center !important;
+    background: #F8FAFC !important;
+    border: 1.5px solid #CBD5E1 !important;
+    border-radius: 8px !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease !important;
+}
+
+#screen-dashboard .ee-input-wrap:focus-within,
+#screen-dashboard .ee-textarea-wrap:focus-within {
+    border-color: #E11D48 !important;
+    box-shadow: 0 0 0 2.5px rgba(225, 29, 72, 0.15) !important;
+    background: #FFFFFF !important;
+}
+
+#screen-dashboard .ee-input-wrap input,
+#screen-dashboard .ee-input-wrap input[type="text"],
+#screen-dashboard .ee-input-wrap input.ee-input,
+#screen-dashboard .ee-input,
+#screen-dashboard .ee-textarea-wrap textarea,
+#screen-dashboard .ee-textarea-wrap textarea.ee-textarea,
+#screen-dashboard .ee-textarea {
+    flex: 1 1 auto !important;
+    width: 100% !important;
+    background: transparent !important;
+    border: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+    color: #0F172A !important;
+    font-size: 0.86rem !important;
+    font-weight: 600 !important;
+    padding: 9px 12px !important;
+    box-sizing: border-box !important;
+}
+
+#screen-dashboard .ee-input-wrap input:focus,
+#screen-dashboard .ee-input-wrap input[type="text"]:focus,
+#screen-dashboard .ee-input-wrap input.ee-input:focus,
+#screen-dashboard .ee-input:focus,
+#screen-dashboard .ee-textarea-wrap textarea:focus,
+#screen-dashboard .ee-textarea-wrap textarea.ee-textarea:focus,
+#screen-dashboard .ee-textarea:focus {
+    border: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+    background: transparent !important;
+}
+
+#screen-dashboard .ee-textarea-wrap {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    padding: 2px !important;
+}
+
+#screen-dashboard .ee-textarea-wrap textarea {
+    min-height: 80px !important;
+    resize: vertical !important;
+}
+
+#screen-dashboard .ee-text-icon,
+#screen-dashboard .ee-input-icon {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding-left: 12px !important;
+    padding-right: 2px !important;
+    color: #64748B !important;
+    font-size: 0.88rem !important;
+    flex-shrink: 0 !important;
+    pointer-events: none !important;
+}
+
+/* Secondary Embed Box Styles */
+.ee-secondary-embed-card {
+    background: #FFFFFF !important;
+    border: 1.5px solid #E2E8F0 !important;
+    border-radius: 12px !important;
+    padding: 20px !important;
+    margin-top: 16px !important;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.03) !important;
 }

@@ -7915,7 +7915,8 @@ if (typeof document !== 'undefined') {
 }
 
 window.updateReportsLivePreview = function() {
-    attachReportsInputListeners();
+    if (typeof attachReportsInputListeners === 'function') attachReportsInputListeners();
+    
     // 1. Accent Color
     const colorInput = document.getElementById('report-embed-color-input');
     const colorPicker = document.getElementById('report-embed-color-picker');
@@ -7923,12 +7924,8 @@ window.updateReportsLivePreview = function() {
     if (!color.startsWith('#') && /^[0-9A-Fa-f]{3,8}$/.test(color)) {
         color = '#' + color;
     }
-    
-    // Sync picker and input
-    if (colorPicker && colorInput) {
-        if (/^#[0-9A-Fa-f]{6}$/i.test(color)) {
-            colorPicker.value = color;
-        }
+    if (colorPicker && colorInput && /^#[0-9A-Fa-f]{6}$/i.test(color)) {
+        colorPicker.value = color;
     }
     
     const embedCard = document.getElementById('report-preview-embed-card');
@@ -7936,84 +7933,100 @@ window.updateReportsLivePreview = function() {
         embedCard.style.borderLeft = `4px solid ${color}`;
     }
     
-    const footerIcon = document.getElementById('report-preview-footer-icon');
-    if (footerIcon) {
-        footerIcon.style.background = color;
-    }
-
-    // 2. Frequency
-    const weeklyBtn = document.getElementById('report-freq-weekly');
-    const isWeekly = weeklyBtn && weeklyBtn.classList.contains('active');
-    const freqName = isWeekly ? 'Weekly' : 'Monthly';
-    
-    const freqTextEl = document.getElementById('report-preview-freq-text');
-    if (freqTextEl) freqTextEl.innerText = freqName;
+    // 2. Frequency Name
+    const monthlyBtn = document.getElementById('report-freq-monthly') || document.getElementById('rf-btn-monthly');
+    const isMonthly = monthlyBtn && monthlyBtn.classList.contains('active');
+    const freqName = isMonthly ? 'MONTHLY' : 'WEEKLY';
 
     // 3. Embed Title
     const titleInput = document.getElementById('report-embed-title-input');
-    const titleEl = document.getElementById('report-preview-embed-title');
+    const titleEl = document.getElementById('report-preview-title') || document.getElementById('report-preview-embed-title');
     if (titleEl) {
         let userTitle = titleInput ? titleInput.value.trim() : '';
-        if (userTitle) {
-            titleEl.innerText = userTitle;
-        } else {
-            titleEl.innerText = isWeekly ? '📊 VEYRA WEEKLY Server Growth Report' : '📊 VEYRA MONTHLY Server Growth Report';
-        }
+        titleEl.innerText = userTitle || `📊 VEYRA ${freqName} Server Growth Report`;
+    }
+
+    // 3b. Description
+    const descInput = document.getElementById('report-embed-desc');
+    const descEl = document.getElementById('report-preview-desc');
+    if (descEl && descInput) {
+        descEl.innerText = descInput.value || '';
+        descEl.style.display = descInput.value ? 'block' : 'none';
     }
 
     // 4. Thumbnail URL
     const thumbInput = document.getElementById('report-thumbnail-url-input');
-    const thumbImg = document.getElementById('report-preview-guild-icon');
-    const avatarBox = document.getElementById('report-preview-avatar-box');
-    if (thumbImg && avatarBox) {
+    const thumbImg = document.getElementById('report-preview-thumb') || document.getElementById('report-preview-guild-icon');
+    if (thumbImg) {
         const customThumb = thumbInput ? thumbInput.value.trim() : '';
         if (customThumb) {
             thumbImg.src = customThumb;
-            avatarBox.style.display = 'block';
+            thumbImg.style.display = 'block';
         } else {
-            // Revert to active guild icon
             const targetGuild = activeGuildId || localStorage.getItem('selected_guild_id');
             const activeGuild = (window.allGuildsCache || []).find(g => g.id === targetGuild);
             if (activeGuild && activeGuild.icon) {
                 thumbImg.src = `https://cdn.discordapp.com/icons/${activeGuild.id}/${activeGuild.icon}.png?size=96`;
+                thumbImg.style.display = 'block';
             } else {
-                thumbImg.src = 'https://cdn.discordapp.com/embed/avatars/1.png';
+                thumbImg.style.display = 'none';
             }
-            avatarBox.style.display = 'block';
         }
     }
 
     // 5. Banner / Large Image URL
     const bannerInput = document.getElementById('report-banner-url-input');
-    const bannerBox = document.getElementById('report-preview-banner-box');
-    const bannerImg = document.getElementById('report-preview-banner-img');
-    if (bannerBox && bannerImg) {
+    const bannerImg = document.getElementById('report-preview-banner') || document.getElementById('report-preview-banner-img');
+    const bannerBox = document.getElementById('report-preview-banner-wrap') || document.getElementById('report-preview-banner-box');
+    if (bannerImg) {
         const bannerUrl = bannerInput ? bannerInput.value.trim() : '';
         if (bannerUrl) {
             bannerImg.src = bannerUrl;
-            bannerBox.style.display = 'block';
+            if (bannerBox) bannerBox.style.display = 'block';
+            bannerImg.style.display = 'block';
         } else {
-            bannerBox.style.display = 'none';
-            bannerImg.src = '';
+            if (bannerBox) bannerBox.style.display = 'none';
+            bannerImg.style.display = 'none';
         }
     }
 
     // 6. Custom Footer Note
     const footerInput = document.getElementById('report-footer-text-input');
-    const footerFull = document.getElementById('report-preview-footer-full');
-    if (footerFull) {
+    const footerTextEl = document.getElementById('report-preview-footer-text') || document.getElementById('report-preview-footer-full');
+    if (footerTextEl) {
         const customFooter = footerInput ? footerInput.value.trim() : '';
-        if (customFooter) {
-            footerFull.innerText = customFooter;
+        footerTextEl.innerText = customFooter || `VEYRA Advanced Analytics • ${freqName} Live Sync`;
+    }
+
+    // 7. Dynamic Custom Fields Rendering in Preview
+    const fieldsZone = document.getElementById('report-preview-fields-zone');
+    const fieldsContainer = document.getElementById('report-fields-container');
+    if (fieldsZone && fieldsContainer) {
+        const fieldRows = fieldsContainer.querySelectorAll('.ee-field-row');
+        if (fieldRows.length > 0) {
+            fieldsZone.style.display = 'flex';
+            let html = '';
+            fieldRows.forEach(row => {
+                const name = row.querySelector('.ee-field-name-input')?.value || 'Field Name';
+                const val = row.querySelector('.ee-field-val-input')?.value || 'Field Value';
+                const inline = row.querySelector('.ee-field-inline-input')?.checked;
+                html += `
+                    <div style="${inline ? 'display:inline-block; width:48%; vertical-align:top; margin-bottom:8px;' : 'display:block; margin-bottom:8px;'}">
+                        <div style="color:#F2F3F5; font-weight:700; font-size:0.86rem; margin-bottom:2px;">${name}</div>
+                        <div style="color:#DBDEE1; font-size:0.82rem; white-space:pre-wrap;">${val}</div>
+                    </div>
+                `;
+            });
+            fieldsZone.innerHTML = html;
         } else {
-            footerFull.innerHTML = `VEYRA Advanced Analytics &bull; Scheduled: <span id="report-preview-freq-text">${freqName}</span> &bull; <span id="report-preview-footer-time">Live Sync</span>`;
+            fieldsZone.innerHTML = '';
         }
     }
 };
 
 window.selectReportFrequency = function(frequency, showToastFlag = true) {
-    const monthlyBtn = document.getElementById('report-freq-monthly');
-    const weeklyBtn = document.getElementById('report-freq-weekly');
+    const monthlyBtn = document.getElementById('report-freq-monthly') || document.getElementById('rf-btn-monthly');
+    const weeklyBtn = document.getElementById('report-freq-weekly') || document.getElementById('rf-btn-weekly');
     if (!monthlyBtn || !weeklyBtn) return;
 
     const isWeekly = String(frequency).toLowerCase() === 'weekly';
@@ -8022,28 +8035,32 @@ window.selectReportFrequency = function(frequency, showToastFlag = true) {
         monthlyBtn.classList.add('active');
         monthlyBtn.style.background = '#E11D48';
         monthlyBtn.style.color = '#FFFFFF';
+        monthlyBtn.style.border = '1.5px solid #E11D48';
         monthlyBtn.style.fontWeight = '800';
         monthlyBtn.style.boxShadow = '0 2px 8px rgba(225, 29, 72, 0.25)';
 
         weeklyBtn.classList.remove('active');
-        weeklyBtn.style.background = 'transparent';
-        weeklyBtn.style.color = '#0F172A';
+        weeklyBtn.style.background = '#FFFFFF';
+        weeklyBtn.style.color = '#334155';
+        weeklyBtn.style.border = '1.5px solid #CBD5E1';
         weeklyBtn.style.fontWeight = '700';
         weeklyBtn.style.boxShadow = 'none';
-        if (showToastFlag) showToast('Reports Settings', 'Monthly schedule selected.');
+        if (showToastFlag && typeof showToast === 'function') showToast('Reports Schedule', 'Monthly broadcast frequency selected.');
     } else {
         weeklyBtn.classList.add('active');
         weeklyBtn.style.background = '#E11D48';
         weeklyBtn.style.color = '#FFFFFF';
+        weeklyBtn.style.border = '1.5px solid #E11D48';
         weeklyBtn.style.fontWeight = '800';
         weeklyBtn.style.boxShadow = '0 2px 8px rgba(225, 29, 72, 0.25)';
 
         monthlyBtn.classList.remove('active');
-        monthlyBtn.style.background = 'transparent';
-        monthlyBtn.style.color = '#0F172A';
+        monthlyBtn.style.background = '#FFFFFF';
+        monthlyBtn.style.color = '#334155';
+        monthlyBtn.style.border = '1.5px solid #CBD5E1';
         monthlyBtn.style.fontWeight = '700';
         monthlyBtn.style.boxShadow = 'none';
-        if (showToastFlag) showToast('Reports Settings', 'Weekly schedule selected.');
+        if (showToastFlag && typeof showToast === 'function') showToast('Reports Schedule', 'Weekly broadcast frequency selected.');
     }
     
     // Immediately update live preview
@@ -8234,7 +8251,7 @@ window.loadReportsSettings = function(guildId) {
     if (!targetGuild) return;
 
     // Instantly populate reports-channel-select from cached channels
-    const chSelect = document.getElementById('reports-channel-select');
+    const chSelect = document.getElementById('reports-channel-select') || document.getElementById('reports-destination-channel');
     if (chSelect && window.guildChannels && window.guildChannels.length > 0) {
         const curVal = chSelect.value;
         chSelect.innerHTML = '<option value="">Select Channel</option>';
@@ -8391,26 +8408,68 @@ window.saveReportsSettings = function() {
 
 window.sendTestReport = function() {
     const targetGuild = activeGuildId || localStorage.getItem('selected_guild_id');
-    if (!targetGuild) return;
-    const channel = document.getElementById('reports-channel-select')?.value || 'general';
-    const weeklyBtn = document.getElementById('report-freq-weekly');
-    const frequency = (weeklyBtn && weeklyBtn.classList.contains('active')) ? 'weekly' : 'monthly';
+    if (!targetGuild) {
+        if (typeof showToast === 'function') showToast("Select Server", "Please select a server first.", "warning");
+        return;
+    }
+    const channelSelect = document.getElementById('reports-channel-select') || document.getElementById('reports-destination-channel');
+    const channel = channelSelect ? channelSelect.value : '';
+    if (!channel) {
+        if (typeof showToast === 'function') showToast("Channel Required", "Please select a destination channel from the dropdown.", "warning");
+        return;
+    }
+    const monthlyBtn = document.getElementById('report-freq-monthly') || document.getElementById('rf-btn-monthly');
+    const frequency = (monthlyBtn && monthlyBtn.classList.contains('active')) ? 'monthly' : 'weekly';
 
-    showToast("Broadcasting Report", "Dispatching live growth telemetry report to Discord...", "info");
+    const title = document.getElementById('report-embed-title-input')?.value || '';
+    const desc = document.getElementById('report-embed-desc')?.value || '';
+    const color = document.getElementById('report-embed-color-input')?.value || '#E11D48';
+    const thumbnail = document.getElementById('report-thumbnail-url-input')?.value || '';
+    const banner = document.getElementById('report-banner-url-input')?.value || '';
+    const footer = document.getElementById('report-footer-text-input')?.value || '';
+
+    // Collect custom fields
+    const customFields = [];
+    const fieldsContainer = document.getElementById('report-fields-container');
+    if (fieldsContainer) {
+        fieldsContainer.querySelectorAll('.ee-field-row').forEach(row => {
+            const name = row.querySelector('.ee-field-name-input')?.value;
+            const value = row.querySelector('.ee-field-val-input')?.value;
+            const inline = !!row.querySelector('.ee-field-inline-input')?.checked;
+            if (name && value) customFields.push({ name, value, inline });
+        });
+    }
+
+    if (typeof showToast === 'function') showToast("Broadcasting Report", "Dispatching live growth telemetry report to Discord...", "info");
+    
     fetch(`/api/reports/send-test/${targetGuild}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ channel, frequency })
+        body: JSON.stringify({
+            channel,
+            frequency,
+            embed: {
+                title,
+                description: desc,
+                color,
+                thumbnail,
+                image: banner,
+                footer,
+                fields: customFields.length > 0 ? customFields : undefined
+            }
+        })
     })
     .then(res => res.json())
     .then(data => {
         if (data.success) {
-            showToast("Report Dispatched", `Live report successfully posted to #${channel}!`);
+            if (typeof showToast === 'function') showToast("Report Dispatched", data.message || "Live report successfully posted to Discord!");
         } else {
-            showToast("Report Error", data.error || "Unable to send report. Ensure channel exists and bot has permissions.", "error");
+            if (typeof showToast === 'function') showToast("Report Error", data.error || "Unable to send report. Ensure channel exists and bot has permissions.", "error");
         }
     })
-    .catch(() => showToast("Network Error", "Failed to communicate with bot service.", "error"));
+    .catch(err => {
+        if (typeof showToast === 'function') showToast("Network Error", "Failed to communicate with bot service: " + err.message, "error");
+    });
 };
 
 window.loadSavedPreset = function(type) {
@@ -13106,3 +13165,48 @@ setInterval(() => {
         loadRealtimeAuditLogsStream();
     }
 }, 3000);
+
+
+window.addSecondaryEmbed = function(btn, prefix) {
+    if (typeof showToast === 'function') showToast("Embed Added", "Secondary embed message block added.", "info");
+    const container = (btn && btn.closest('.veyra-embed-editor')) || document.getElementById(`${prefix}-embed-editor`) || document.getElementById('report-embed-editor');
+    if (!container) return;
+    const secId = `sec-embed-${Date.now()}`;
+    const secDiv = document.createElement('div');
+    secDiv.id = secId;
+    secDiv.className = 'ee-secondary-embed-card';
+    secDiv.innerHTML = `
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; border-bottom:1px solid #E2E8F0; padding-bottom:8px;">
+            <strong style="color:#0F172A; font-size:0.9rem;"><i class="fas fa-layer-group" style="color:#E11D48; margin-right:6px;"></i> Additional Embed Message</strong>
+            <button type="button" onclick="this.closest('.ee-secondary-embed-card').remove(); if(typeof updateReportsLivePreview === 'function') updateReportsLivePreview();" style="background:transparent; border:none; color:#EF4444; cursor:pointer; font-size:0.85rem;" title="Delete this embed"><i class="fas fa-trash"></i> Remove</button>
+        </div>
+        <div class="ee-grid-2" style="margin-bottom:10px;">
+            <div class="ee-input-group">
+                <label class="ee-label">Title</label>
+                <div class="ee-input-wrap">
+                    <span class="ee-text-icon">T</span>
+                    <input type="text" class="ee-input sec-embed-title" placeholder="Secondary embed title..." oninput="if(typeof updateReportsLivePreview==='function') updateReportsLivePreview();">
+                </div>
+            </div>
+            <div class="ee-input-group">
+                <label class="ee-label">Color</label>
+                <div class="ee-input-wrap">
+                    <input type="color" class="sec-embed-color-picker" value="#3B82F6" style="width:34px; height:34px; border:none; background:transparent; cursor:pointer;" oninput="this.nextElementSibling.value=this.value; if(typeof updateReportsLivePreview==='function') updateReportsLivePreview();">
+                    <input type="text" class="ee-input sec-embed-color-hex" value="#3B82F6" placeholder="#HEX" oninput="this.previousElementSibling.value=this.value; if(typeof updateReportsLivePreview==='function') updateReportsLivePreview();">
+                </div>
+            </div>
+        </div>
+        <div class="ee-input-group" style="margin-bottom:10px;">
+            <label class="ee-label">Description</label>
+            <div class="ee-textarea-wrap">
+                <textarea class="ee-textarea sec-embed-desc" placeholder="Secondary embed description..." oninput="if(typeof updateReportsLivePreview==='function') updateReportsLivePreview();"></textarea>
+            </div>
+        </div>
+    `;
+    if (btn && btn.parentElement) {
+        btn.parentElement.before(secDiv);
+    } else {
+        container.appendChild(secDiv);
+    }
+    if (typeof updateReportsLivePreview === 'function') updateReportsLivePreview();
+};
