@@ -7638,14 +7638,148 @@ function loadSubscriptionHistory() {
         });
 }
 
+function attachReportsInputListeners() {
+    const inputIds = [
+        'report-embed-title-input',
+        'report-embed-color-picker',
+        'report-embed-color-input',
+        'report-thumbnail-url-input',
+        'report-banner-url-input',
+        'report-footer-text-input'
+    ];
+    inputIds.forEach(id => {
+        const el = document.getElementById(id);
+        if (el && !el._reportsListenerAttached) {
+            el._reportsListenerAttached = true;
+            ['input', 'change', 'keyup', 'paste'].forEach(evt => {
+                el.addEventListener(evt, () => {
+                    if (id === 'report-embed-color-picker') {
+                        const txt = document.getElementById('report-embed-color-input');
+                        if (txt) txt.value = el.value;
+                    } else if (id === 'report-embed-color-input') {
+                        const pkr = document.getElementById('report-embed-color-picker');
+                        if (pkr && /^#[0-9A-Fa-f]{6}$/i.test(el.value)) pkr.value = el.value;
+                    }
+                    if (typeof window.updateReportsLivePreview === 'function') {
+                        window.updateReportsLivePreview();
+                    }
+                });
+            });
+        }
+    });
+}
+
+if (typeof document !== 'undefined') {
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', attachReportsInputListeners);
+    } else {
+        setTimeout(attachReportsInputListeners, 50);
+    }
+}
+
+window.updateReportsLivePreview = function() {
+    attachReportsInputListeners();
+    // 1. Accent Color
+    const colorInput = document.getElementById('report-embed-color-input');
+    const colorPicker = document.getElementById('report-embed-color-picker');
+    let color = (colorInput && colorInput.value) ? colorInput.value.trim() : '#E11D48';
+    if (!color.startsWith('#') && /^[0-9A-Fa-f]{3,8}$/.test(color)) {
+        color = '#' + color;
+    }
+    
+    // Sync picker and input
+    if (colorPicker && colorInput) {
+        if (/^#[0-9A-Fa-f]{6}$/i.test(color)) {
+            colorPicker.value = color;
+        }
+    }
+    
+    const embedCard = document.getElementById('report-preview-embed-card');
+    if (embedCard) {
+        embedCard.style.borderLeft = `4px solid ${color}`;
+    }
+    
+    const footerIcon = document.getElementById('report-preview-footer-icon');
+    if (footerIcon) {
+        footerIcon.style.background = color;
+    }
+
+    // 2. Frequency
+    const weeklyBtn = document.getElementById('report-freq-weekly');
+    const isWeekly = weeklyBtn && weeklyBtn.classList.contains('active');
+    const freqName = isWeekly ? 'Weekly' : 'Monthly';
+    
+    const freqTextEl = document.getElementById('report-preview-freq-text');
+    if (freqTextEl) freqTextEl.innerText = freqName;
+
+    // 3. Embed Title
+    const titleInput = document.getElementById('report-embed-title-input');
+    const titleEl = document.getElementById('report-preview-embed-title');
+    if (titleEl) {
+        let userTitle = titleInput ? titleInput.value.trim() : '';
+        if (userTitle) {
+            titleEl.innerText = userTitle;
+        } else {
+            titleEl.innerText = isWeekly ? '📊 VEYRA WEEKLY Server Growth Report' : '📊 VEYRA MONTHLY Server Growth Report';
+        }
+    }
+
+    // 4. Thumbnail URL
+    const thumbInput = document.getElementById('report-thumbnail-url-input');
+    const thumbImg = document.getElementById('report-preview-guild-icon');
+    const avatarBox = document.getElementById('report-preview-avatar-box');
+    if (thumbImg && avatarBox) {
+        const customThumb = thumbInput ? thumbInput.value.trim() : '';
+        if (customThumb) {
+            thumbImg.src = customThumb;
+            avatarBox.style.display = 'block';
+        } else {
+            // Revert to active guild icon
+            const targetGuild = activeGuildId || localStorage.getItem('selected_guild_id');
+            const activeGuild = (window.allGuildsCache || []).find(g => g.id === targetGuild);
+            if (activeGuild && activeGuild.icon) {
+                thumbImg.src = `https://cdn.discordapp.com/icons/${activeGuild.id}/${activeGuild.icon}.png?size=96`;
+            } else {
+                thumbImg.src = 'https://cdn.discordapp.com/embed/avatars/1.png';
+            }
+            avatarBox.style.display = 'block';
+        }
+    }
+
+    // 5. Banner / Large Image URL
+    const bannerInput = document.getElementById('report-banner-url-input');
+    const bannerBox = document.getElementById('report-preview-banner-box');
+    const bannerImg = document.getElementById('report-preview-banner-img');
+    if (bannerBox && bannerImg) {
+        const bannerUrl = bannerInput ? bannerInput.value.trim() : '';
+        if (bannerUrl) {
+            bannerImg.src = bannerUrl;
+            bannerBox.style.display = 'block';
+        } else {
+            bannerBox.style.display = 'none';
+            bannerImg.src = '';
+        }
+    }
+
+    // 6. Custom Footer Note
+    const footerInput = document.getElementById('report-footer-text-input');
+    const footerFull = document.getElementById('report-preview-footer-full');
+    if (footerFull) {
+        const customFooter = footerInput ? footerInput.value.trim() : '';
+        if (customFooter) {
+            footerFull.innerText = customFooter;
+        } else {
+            footerFull.innerHTML = `VEYRA Advanced Analytics &bull; Scheduled: <span id="report-preview-freq-text">${freqName}</span> &bull; <span id="report-preview-footer-time">Live Sync</span>`;
+        }
+    }
+};
+
 window.selectReportFrequency = function(frequency, showToastFlag = true) {
     const monthlyBtn = document.getElementById('report-freq-monthly');
     const weeklyBtn = document.getElementById('report-freq-weekly');
     if (!monthlyBtn || !weeklyBtn) return;
 
     const isWeekly = String(frequency).toLowerCase() === 'weekly';
-    const titleEl = document.getElementById('report-preview-embed-title');
-    const freqTextEl = document.getElementById('report-preview-freq-text');
 
     if (!isWeekly) {
         monthlyBtn.classList.add('active');
@@ -7659,9 +7793,6 @@ window.selectReportFrequency = function(frequency, showToastFlag = true) {
         weeklyBtn.style.color = '#0F172A';
         weeklyBtn.style.fontWeight = '700';
         weeklyBtn.style.boxShadow = 'none';
-
-        if (titleEl) titleEl.innerText = '📊 VEYRA MONTHLY Server Growth Report';
-        if (freqTextEl) freqTextEl.innerText = 'Monthly';
         if (showToastFlag) showToast('Reports Settings', 'Monthly schedule selected.');
     } else {
         weeklyBtn.classList.add('active');
@@ -7675,10 +7806,12 @@ window.selectReportFrequency = function(frequency, showToastFlag = true) {
         monthlyBtn.style.color = '#0F172A';
         monthlyBtn.style.fontWeight = '700';
         monthlyBtn.style.boxShadow = 'none';
-
-        if (titleEl) titleEl.innerText = '📊 VEYRA WEEKLY Server Growth Report';
-        if (freqTextEl) freqTextEl.innerText = 'Weekly';
         if (showToastFlag) showToast('Reports Settings', 'Weekly schedule selected.');
+    }
+    
+    // Immediately update live preview
+    if (typeof updateReportsLivePreview === 'function') {
+        updateReportsLivePreview();
     }
 };
 
@@ -7888,11 +8021,36 @@ window.loadReportsSettings = function(guildId) {
             const channelSelect = document.getElementById('reports-channel-select');
             if (channelSelect && data.channel) channelSelect.value = data.channel;
 
+            if (data.embed_title !== undefined) {
+                const titleInp = document.getElementById('report-embed-title-input');
+                if (titleInp) titleInp.value = data.embed_title;
+            }
+            if (data.color) {
+                const colInp = document.getElementById('report-embed-color-input');
+                const colPick = document.getElementById('report-embed-color-picker');
+                if (colInp) colInp.value = data.color;
+                if (colPick && /^#[0-9A-Fa-f]{6}$/i.test(data.color)) colPick.value = data.color;
+            }
+            if (data.thumbnail_url !== undefined) {
+                const thumbInp = document.getElementById('report-thumbnail-url-input');
+                if (thumbInp) thumbInp.value = data.thumbnail_url;
+            }
+            if (data.banner_url !== undefined) {
+                const bannerInp = document.getElementById('report-banner-url-input');
+                if (bannerInp) bannerInp.value = data.banner_url;
+            }
+            if (data.footer_text !== undefined) {
+                const footInp = document.getElementById('report-footer-text-input');
+                if (footInp) footInp.value = data.footer_text;
+            }
+
             selectReportFrequency(data.frequency || 'weekly', false);
+            if (typeof updateReportsLivePreview === 'function') updateReportsLivePreview();
             renderReportLivePreview(targetGuild);
         })
         .catch(err => {
             console.error("Error loading reports settings:", err);
+            if (typeof updateReportsLivePreview === 'function') updateReportsLivePreview();
             renderReportLivePreview(targetGuild);
         });
 };
@@ -7963,16 +8121,31 @@ window.saveReportsSettings = function() {
     const channel = document.getElementById('reports-channel-select')?.value || 'general';
     const weeklyBtn = document.getElementById('report-freq-weekly');
     const frequency = (weeklyBtn && weeklyBtn.classList.contains('active')) ? 'weekly' : 'monthly';
+    const embed_title = document.getElementById('report-embed-title-input')?.value || '';
+    const color = document.getElementById('report-embed-color-input')?.value || '#E11D48';
+    const thumbnail_url = document.getElementById('report-thumbnail-url-input')?.value || '';
+    const banner_url = document.getElementById('report-banner-url-input')?.value || '';
+    const footer_text = document.getElementById('report-footer-text-input')?.value || '';
 
     fetch(`/api/settings/reports/${targetGuild}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ enabled, channel, frequency })
+        body: JSON.stringify({
+            enabled,
+            channel,
+            frequency,
+            embed_title,
+            color,
+            thumbnail_url,
+            banner_url,
+            footer_text
+        })
     })
     .then(res => res.json())
     .then(data => {
         if (data.success) {
             showToast("Reports Settings Saved", "Server Reports configurations successfully saved!");
+            if (typeof updateReportsLivePreview === 'function') updateReportsLivePreview();
             renderReportLivePreview(targetGuild);
         }
     })

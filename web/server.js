@@ -567,9 +567,19 @@ db.serialize(() => {
             guild_id TEXT PRIMARY KEY,
             enabled INTEGER DEFAULT 0,
             channel TEXT,
-            frequency TEXT DEFAULT 'monthly'
+            frequency TEXT DEFAULT 'monthly',
+            embed_title TEXT,
+            color TEXT DEFAULT '#E11D48',
+            thumbnail_url TEXT,
+            banner_url TEXT,
+            footer_text TEXT
         )
     `);
+    db.run(`ALTER TABLE reports_settings ADD COLUMN embed_title TEXT`, () => {});
+    db.run(`ALTER TABLE reports_settings ADD COLUMN color TEXT DEFAULT '#E11D48'`, () => {});
+    db.run(`ALTER TABLE reports_settings ADD COLUMN thumbnail_url TEXT`, () => {});
+    db.run(`ALTER TABLE reports_settings ADD COLUMN banner_url TEXT`, () => {});
+    db.run(`ALTER TABLE reports_settings ADD COLUMN footer_text TEXT`, () => {});
     db.run(`
         CREATE TABLE IF NOT EXISTS autoroles (
             guild_id TEXT PRIMARY KEY,
@@ -2207,9 +2217,22 @@ app.post('/api/reports/send-test/:guild_id', (req, res) => {
 
 app.post('/api/settings/reports/:guild_id', (req, res) => {
     const guildId = req.params.guild_id;
-    const { enabled, channel, frequency } = req.body;
-    db.run("INSERT OR REPLACE INTO reports_settings (guild_id, enabled, channel, frequency) VALUES (?, ?, ?, ?)",
-        [guildId, enabled ? 1 : 0, channel || 'general', frequency || 'monthly'],
+    const { enabled, channel, frequency, embed_title, color, thumbnail_url, banner_url, footer_text } = req.body;
+    db.run(
+        `INSERT OR REPLACE INTO reports_settings 
+         (guild_id, enabled, channel, frequency, embed_title, color, thumbnail_url, banner_url, footer_text) 
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [
+            guildId,
+            enabled ? 1 : 0,
+            channel || 'general',
+            frequency || 'monthly',
+            embed_title || '',
+            color || '#E11D48',
+            thumbnail_url || '',
+            banner_url || '',
+            footer_text || ''
+        ],
         function(err) {
             if (err) return res.status(500).json({ error: err.message });
             res.json({ success: true });
