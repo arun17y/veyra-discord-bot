@@ -96,7 +96,7 @@ try:
 
     PROXY_BASE = os.getenv("DISCORD_PROXY_URL", "https://veyra-bot.vercel.app/api/discord-proxy")
 
-    if os.getenv("RENDER") or os.getenv("USE_DISCORD_PROXY") == "1":
+    if os.getenv("USE_DISCORD_PROXY") == "1":
         discord.http.Route.BASE = f"{PROXY_BASE}/v10"
         print(f"🛡️ Active Discord API Reverse Proxy: {discord.http.Route.BASE}")
 
@@ -486,6 +486,125 @@ def check_guild_plan(guild_id):
         print(f"Error checking guild plan: {e}")
     return 'Free'
 
+ADMIN_BYPASS_USERS = {1256986886631854080, 1538041381132697610}
+
+PRO_COMMANDS_SET = {
+    "beastmode-toggle", "beastmode-status", "antiraid-enable", "antiraid-disable", "antiraid-config",
+    "antibot-toggle", "antibot-punish", "emergency-lockdown", "emergency-unlock", "antiguillotine-mode",
+    "stickyrole-enable", "stickyrole-disable", "ticket-setup", "ticket-close", "ticket-add", "ticket-remove",
+    "level-rewards-add", "level-rewards-remove", "level-xp-rate", "level-rewards-clear", "level-config",
+    "level-xp-add", "level-xp-remove", "level-leaderboard", "level-rank", "level-rewards-list",
+    "role-all", "role-bots", "role-cancel", "slowmode-all", "purge-webhooks", "purge-mentions", "infractions-clear",
+    "quarantine-user", "quarantine-status", "quarantine-role-set", "dangerous-permissions",
+    "lockdown-category", "lockdown-voice", "lockdown-server", "unlockdown-server", "emergency-reset"
+}
+
+def is_pro_command(full_name: str, frontend_name: str) -> bool:
+    if frontend_name in PRO_COMMANDS_SET:
+        return True
+    
+    normalized = full_name.lower().strip().replace(" ", "-").replace("_", "-")
+    if normalized in PRO_COMMANDS_SET:
+        return True
+        
+    parts = full_name.lower().strip().split()
+    root_cmd = parts[0] if parts else ""
+    
+    if root_cmd in ("ticket", "stickyrole", "beastmode", "antiraid", "antibot"):
+        return True
+        
+    if root_cmd == "setup":
+        if len(parts) > 1 and parts[1] in ("wizard", "quicksetup", "config", "panel", "panels", "category", "tickettype", "staff", "limits", "logs", "close_setting", "automation"):
+            return True
+            
+    if root_cmd in ("level", "leveling"):
+        return True
+        
+    if root_cmd in ("emergency-lockdown", "emergency-unlock", "lockdown-server", "lockdown-category", "lockdown-voice", "emergency-reset"):
+        return True
+        
+    if root_cmd in ("role-all", "role-bots", "role-cancel", "massban", "masskick", "strip-roles"):
+        return True
+        
+    if root_cmd in ("purge-webhooks", "purge-mentions", "infractions-clear", "slowmode-all"):
+        return True
+        
+    return False
+
+class UpgradeToProView(discord.ui.View):
+    def __init__(self, guild_id: int):
+        super().__init__(timeout=None)
+        self.add_item(discord.ui.Button(
+            label="Upgrade to Pro Plan",
+            style=discord.ButtonStyle.link,
+            url="https://veyra-bot.vercel.app/premium",
+            emoji="👑"
+        ))
+        self.add_item(discord.ui.Button(
+            label="Open Server Dashboard",
+            style=discord.ButtonStyle.link,
+            url=f"https://veyra-bot.vercel.app/manage?guild_id={guild_id}",
+            emoji="⚡"
+        ))
+        self.add_item(discord.ui.Button(
+            label="Support Server",
+            style=discord.ButtonStyle.link,
+            url="https://discord.gg/veyra",
+            emoji="💬"
+        ))
+
+def build_pro_upgrade_embed(cmd_name: str, guild_name: str, bot_avatar_url: str = None) -> discord.Embed:
+    clean_cmd = cmd_name.lstrip("/")
+    embed = discord.Embed(
+        title="👑 Upgrade to Veyra Pro Plan",
+        description=(
+            f"The command **`/{clean_cmd}`** is an **Enterprise / Pro Plan** feature.\n\n"
+            f"Your server **{guild_name}** is currently on the **Free Plan**.\n"
+            f"Upgrade your server subscription to activate this command along with our full zero-trust defense suite, automated ticketing, and sticky roles."
+        ),
+        color=discord.Color.from_rgb(225, 29, 72)
+    )
+    embed.add_field(
+        name="⚡ Features Unlocked with Pro",
+        value=(
+            "• **BeastMode Zero-Trust Anti-Nuke** (Instant auto-ban on rogue admins)\n"
+            "• **Anti-Raid & Bot Join Defense** (Aggressive join-flood protection)\n"
+            "• **Automated Ticket System & HTML Transcripts** (1-Click ticket panels)\n"
+            "• **Sticky Roles Engine** (Automatically re-assigns roles upon member re-join)\n"
+            "• **Leveling Engine & XP Multipliers** (Role rewards, rank cards, leaderboard)\n"
+            "• **Mass Role Actions & Emergency Server Lockdowns**"
+        ),
+        inline=False
+    )
+    embed.add_field(
+        name="🚀 Instant 1-Click Activation",
+        value="Upgrades activate instantly across your Discord server and Web Dashboard upon checkout.\nVisit [veyra-bot.vercel.app/premium](https://veyra-bot.vercel.app/premium) to upgrade.",
+        inline=False
+    )
+    if bot_avatar_url:
+        embed.set_footer(text="Veyra Security Engine • Tier Control Matrix", icon_url=bot_avatar_url)
+    else:
+        embed.set_footer(text="Veyra Security Engine • Tier Control Matrix")
+    embed.timestamp = datetime.now(timezone.utc)
+    return embed
+
+_guild_plan_cache = {}
+_guild_plan_cache_time = {}
+
+def get_cached_guild_plan(guild_id) -> str:
+    gid_str = str(guild_id)
+    import time as _t
+    now = _t.time()
+    cached = _guild_plan_cache.get(gid_str)
+    last_time = _guild_plan_cache_time.get(gid_str, 0)
+    if cached is not None and (now - last_time < 30):
+        return cached
+    plan = check_guild_plan(guild_id)
+    _guild_plan_cache[gid_str] = plan
+    _guild_plan_cache_time[gid_str] = now
+    return plan
+
+
 def has_subscription_level(required_level):
     async def predicate(interaction: discord.Interaction) -> bool:
         guild_id = interaction.guild_id
@@ -506,14 +625,18 @@ def has_subscription_level(required_level):
             is_allowed = (plan == 'Premium')
             
         if not is_allowed:
-            embed = discord.Embed(
-                title="👑 Premium Feature Required",
-                description=f"You need to purchase a **{required_level}** plan to use this command.\n\nUse `/plan` to upgrade your subscription.",
-                color=discord.Color.from_rgb(239, 68, 68)
-            )
-            embed.set_footer(text="VEYRA Tier Control Matrix")
-            embed.timestamp = datetime.now(timezone.utc)
-            await interaction.response.send_message(embed=embed, ephemeral=True)
+            try:
+                cmd_name = interaction.command.name if interaction.command else "premium"
+                avatar_url = bot.user.display_avatar.url if bot.user else None
+                guild_name = interaction.guild.name if interaction.guild else "Server"
+                embed = build_pro_upgrade_embed(cmd_name, guild_name, avatar_url)
+                view = UpgradeToProView(interaction.guild_id or 0)
+                if not interaction.response.is_done():
+                    await interaction.response.send_message(embed=embed, view=view, ephemeral=True)
+                else:
+                    await interaction.followup.send(embed=embed, view=view, ephemeral=True)
+            except Exception as ex:
+                print(f"Error in has_subscription_level: {ex}")
             return False
         return True
     return app_commands.check(predicate)
@@ -1735,6 +1858,7 @@ def is_feature_enabled(guild_id, feature_name):
         print(f"Error checking feature status for {feature_name}: {e}")
         return True
 
+
 _disabled_commands_cache = {}
 _disabled_commands_cache_time = {}
 
@@ -1751,6 +1875,10 @@ async def check_disabled_commands(interaction: discord.Interaction):
             
             # Match against frontend names
             frontend_name = CMD_MAP.get(full_name, full_name.replace(" ", "-"))
+            
+            # Admin & Developer users bypass all command disables and plan restrictions
+            if interaction.user.id in ADMIN_BYPASS_USERS:
+                return True
             
             # Fast in-memory check to prevent blocking the 3-second interaction window
             guild_id_str = str(interaction.guild.id)
@@ -1775,6 +1903,7 @@ async def check_disabled_commands(interaction: discord.Interaction):
                 except Exception:
                     disabled = _disabled_commands_cache.get(guild_id_str, [])
             
+            # 1. Check if disabled by server admin
             if frontend_name in disabled:
                 try:
                     if not interaction.response.is_done():
@@ -1782,9 +1911,69 @@ async def check_disabled_commands(interaction: discord.Interaction):
                 except Exception:
                     pass
                 return False
+                
+            # 2. Check if command requires Pro/Premium plan
+            if is_pro_command(full_name, frontend_name):
+                plan = get_cached_guild_plan(interaction.guild.id)
+                lower_plan = (plan or 'Free').lower()
+                is_paid = any(t in lower_plan for t in ('pro', 'premium', 'enterprise', 'lifetime', 'vip'))
+                if not is_paid:
+                    try:
+                        avatar_url = bot.user.display_avatar.url if bot.user else None
+                        embed = build_pro_upgrade_embed(full_name, interaction.guild.name, avatar_url)
+                        view = UpgradeToProView(interaction.guild.id)
+                        if not interaction.response.is_done():
+                            await interaction.response.send_message(embed=embed, view=view, ephemeral=True)
+                        else:
+                            await interaction.followup.send(embed=embed, view=view, ephemeral=True)
+                    except Exception as ex:
+                        print(f"Error sending pro upgrade notice: {ex}")
+                    return False
     return True
 
 bot.tree.interaction_check = check_disabled_commands
+
+@bot.check
+async def global_prefix_plan_check(ctx):
+    if not ctx.guild:
+        return True
+    if ctx.author.id in ADMIN_BYPASS_USERS:
+        return True
+        
+    cmd_name = ctx.command.qualified_name if ctx.command else (ctx.invoked_with or "")
+    frontend_name = CMD_MAP.get(cmd_name, cmd_name.replace(" ", "-"))
+    
+    guild_id_str = str(ctx.guild.id)
+    disabled = _disabled_commands_cache.get(guild_id_str)
+    if disabled is None:
+        try:
+            conn = get_db()
+            cursor = conn.cursor()
+            cursor.execute("SELECT disabled_commands FROM guild_settings WHERE guild_id = ?", (guild_id_str,))
+            row = cursor.fetchone()
+            conn.close()
+            disabled = json.loads(row[0]) if (row and row[0]) else []
+            _disabled_commands_cache[guild_id_str] = disabled
+        except Exception:
+            disabled = []
+            
+    if frontend_name in disabled:
+        await ctx.send("❌ This command has been disabled by the server administrator.")
+        return False
+        
+    if is_pro_command(cmd_name, frontend_name):
+        plan = get_cached_guild_plan(ctx.guild.id)
+        lower_plan = (plan or 'Free').lower()
+        is_paid = any(t in lower_plan for t in ('pro', 'premium', 'enterprise', 'lifetime', 'vip'))
+        if not is_paid:
+            avatar_url = bot.user.display_avatar.url if bot.user else None
+            embed = build_pro_upgrade_embed(cmd_name, ctx.guild.name, avatar_url)
+            view = UpgradeToProView(ctx.guild.id)
+            await ctx.send(embed=embed, view=view)
+            return False
+            
+    return True
+
 
 # Event 7: Anti Mention / Message Spam (Rate-Limited)
 @bot.event
