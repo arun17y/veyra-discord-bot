@@ -283,15 +283,17 @@ db.serialize(() => {
         });
     });
     db.run(`
-        db.run("ALTER TABLE sticky_messages ADD COLUMN channel_name TEXT", () => {});
         CREATE TABLE IF NOT EXISTS sticky_messages (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             guild_id TEXT,
             channel TEXT,
+            channel_name TEXT,
             message TEXT,
             last_message_id TEXT
         )
-    `);
+    `, () => {
+        db.run("ALTER TABLE sticky_messages ADD COLUMN channel_name TEXT", () => {});
+    });
     db.run(`
         CREATE TABLE IF NOT EXISTS published_listings (
             guild_id TEXT PRIMARY KEY,
