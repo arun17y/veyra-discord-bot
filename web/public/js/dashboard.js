@@ -120,11 +120,18 @@ function loadSecuritySettings(guildId) {
 window.loadSecuritySettings = loadSecuritySettings;
 
 // --- SECURITY GENERAL HEALTH CHECK (Security.gg Replica) ---
-window.loadSecurityGeneralHealth = function(guildId) {
-    const targetGuild = guildId || activeGuildId || window.activeGuildId || localStorage.getItem('selected_guild_id');
+window.loadSecurityGeneralHealth = function(guildId, isManual = false) {
+    const targetGuild = guildId || activeGuildId || window.activeGuildId || localStorage.getItem('selected_guild_id') || sessionStorage.getItem('activeGuildId');
     if (!targetGuild) return;
     
-    fetch(`/api/guild/security-health/${targetGuild}`)
+    const recheckBtn = document.getElementById('sec-health-recheck-btn');
+    const recheckIcon = document.getElementById('sec-health-recheck-icon');
+    if (isManual) {
+        if (recheckIcon) recheckIcon.classList.add('fa-spin');
+        if (recheckBtn) recheckBtn.disabled = true;
+    }
+    
+    fetch(`/api/guild/security-health/${targetGuild}?t=${Date.now()}`)
         .then(res => res.json())
         .then(data => {
             const adminCard = document.getElementById('sec-health-admin-card');
@@ -160,20 +167,38 @@ window.loadSecurityGeneralHealth = function(guildId) {
                     roleCard.className = 'audit-card ok';
                     roleCard.style.borderLeftColor = '#10b981';
                     roleTitle.innerText = 'LOOKING FINE';
-                    roleDesc.innerText = 'Security has the highest role hierarchy. All member actions can be moderated effectively.';
+                    roleDesc.innerText = 'Security has role hierarchy dominance. All member actions can be moderated effectively.';
                     roleIcon.style.color = '#10b981';
                     roleIcon.innerHTML = '<i class="fas fa-check-circle"></i>';
                 } else {
                     roleCard.className = 'audit-card threat';
                     roleCard.style.borderLeftColor = '#ef4444';
                     roleTitle.innerText = 'THINGS TO DO';
-                    roleDesc.innerText = "Security doesn't have the highest role which means it cannot punish some of your users even if they bypass limits.";
+                    let extraRoleText = '';
+                    if (Array.isArray(data.higher_roles) && data.higher_roles.length > 0) {
+                        extraRoleText = ` Veyra is currently below @${data.higher_roles.join(', @')}. Move Veyra higher in Discord Server Settings > Roles.`;
+                    }
+                    roleDesc.innerText = "Security doesn't have the highest role which means it cannot punish some of your users even if they bypass limits." + extraRoleText;
                     roleIcon.style.color = '#ef4444';
                     roleIcon.innerHTML = '<i class="fas fa-times-circle"></i>';
                 }
             }
+            
+            if (isManual) {
+                if (recheckIcon) recheckIcon.classList.remove('fa-spin');
+                if (recheckBtn) recheckBtn.disabled = false;
+                if (typeof showToast === 'function') {
+                    showToast("Security Health Checked", "Live diagnostic evaluated against Discord API in real time.", "success");
+                }
+            }
         })
-        .catch(err => console.error("Error loading security health:", err));
+        .catch(err => {
+            console.error("Error loading security health:", err);
+            if (isManual) {
+                if (recheckIcon) recheckIcon.classList.remove('fa-spin');
+                if (recheckBtn) recheckBtn.disabled = false;
+            }
+        });
 };
 
 // --- VERIFICATION GATE ENGINE & EMBED CUSTOMIZER ---
@@ -233,11 +258,108 @@ function loadVerificationSettings(guildId) {
             if (document.getElementById('verif-button-style')) {
                 document.getElementById('verif-button-style').value = (v.button_color || 'green').toLowerCase();
             }
+            if (document.getElementById('verif-button-emoji')) {
+                const em = v.button_emoji !== undefined ? v.button_emoji : '✅';
+                document.getElementById('verif-button-emoji').value = em;
+                const disp = document.getElementById('verif-btn-emoji-display');
+                if (disp) {
+                    if (!em) {
+                        disp.innerHTML = '<span style="color:#64748B; font-size:0.85rem;">None</span>';
+                    } else if (em.startsWith('<') && em.includes(':')) {
+                        const parts = em.split(':');
+                        const id = parts[parts.length - 1].replace('>', '');
+                        disp.innerHTML = `<img src="https://cdn.discordapp.com/emojis/${id}.png" style="width:24px;height:24px;object-fit:contain;">`;
+                    } else {
+                        disp.innerHTML = em;
+                    }
+                }
+            }
             
             updateVerificationPreview();
         })
         .catch(err => console.error("Error loading verification settings:", err));
 }
+
+
+// --- DISCORD MARKDOWN FORMATTER FOR LIVE PREVIEWS ---
+window.formatDiscordMarkdown = function(text) {
+    if (!text) return '';
+    let safe = text
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+    // Bold: **text**
+    safe = safe.replace(/\*\*(.*?)\*\*/g, '<strong style="color:#FFFFFF !important; font-weight:700;">$1</strong>');
+    // Italic: *text*
+    safe = safe.replace(/\*(.*?)\*/g, '<em style="color:#DBDEE1 !important;">$1</em>');
+    // Underline: __text__
+    safe = safe.replace(/__(.*?)__/g, '<u style="color:#DBDEE1 !important;">$1</u>');
+    // Inline code: `code`
+    safe = safe.replace(/`([^`]+)`/g, '<code style="background:rgba(0,0,0,0.3); padding:2px 4px; border-radius:3px; font-family:monospace; color:#E3E5E8 !important;">$1</code>');
+    // Line breaks
+    safe = safe.replace(/\n/g, '<br>');
+    return safe;
+};
+
+window.openServerEmojiPickerForButton = function(targetInputId) {
+    const btn = window.event ? (window.event.currentTarget || window.event.target) : null;
+    if (typeof openServerEmojiPicker === 'function') {
+        openServerEmojiPicker(targetInputId, null, null, null, btn);
+    }
+};
+
+window.removeVerificationButtonEmoji = function() {
+    const hiddenInp = document.getElementById('verif-button-emoji');
+    const displayEl = document.getElementById('verif-btn-emoji-display');
+    if (hiddenInp) hiddenInp.value = '';
+    if (displayEl) displayEl.innerHTML = '<span style="color:#64748B; font-size:0.85rem;">None</span>';
+    if (typeof updateVerificationPreview === 'function') updateVerificationPreview();
+};
+
+window.insertEmojiIntoActiveTarget = function(emoji) {
+    if (!window.activeEmojiTarget) {
+        if (typeof closeServerEmojiPicker === 'function') closeServerEmojiPicker();
+        return;
+    }
+    
+    const { targetInputId, embedIdx, fieldKey, fieldIdx } = window.activeEmojiTarget;
+    
+    if (targetInputId === 'verif-button-emoji') {
+        const hiddenInp = document.getElementById('verif-button-emoji');
+        const displayEl = document.getElementById('verif-btn-emoji-display');
+        if (hiddenInp) hiddenInp.value = emoji;
+        if (displayEl) {
+            if (emoji.startsWith('<') && emoji.includes(':')) {
+                const parts = emoji.split(':');
+                const id = parts[parts.length - 1].replace('>', '');
+                displayEl.innerHTML = `<img src="https://cdn.discordapp.com/emojis/${id}.png" style="width:24px;height:24px;object-fit:contain;">`;
+            } else {
+                displayEl.innerHTML = emoji;
+            }
+        }
+        if (typeof updateVerificationPreview === 'function') updateVerificationPreview();
+        if (typeof closeServerEmojiPicker === 'function') closeServerEmojiPicker();
+        return;
+    }
+
+    if (targetInputId) {
+        const inp = document.getElementById(targetInputId);
+        if (inp) {
+            const start = inp.selectionStart || inp.value.length;
+            const end = inp.selectionEnd || inp.value.length;
+            inp.value = inp.value.substring(0, start) + emoji + inp.value.substring(end);
+            inp.dispatchEvent(new Event('input', { bubbles: true }));
+            inp.focus();
+            try {
+                inp.setSelectionRange(start + emoji.length, start + emoji.length);
+            } catch(e) {}
+        }
+    } else if (embedIdx !== null && typeof window.updateEmbedFieldFromEmoji === 'function') {
+        window.updateEmbedFieldFromEmoji(embedIdx, fieldKey, fieldIdx, emoji);
+    }
+    
+    if (typeof closeServerEmojiPicker === 'function') closeServerEmojiPicker();
+};
 
 window.updateVerificationPreview = function() {
     const title = document.getElementById('verif-embed-title')?.value || '🛡️ Member Verification Required';
@@ -248,18 +370,35 @@ window.updateVerificationPreview = function() {
     const footer = document.getElementById('verif-embed-footer')?.value || 'VEYRA Security Protocol • Automated Gatekeeper';
     const btnLabel = document.getElementById('verif-button-text')?.value || 'Verify Access';
     const btnStyle = (document.getElementById('verif-button-style')?.value || 'green').toLowerCase();
+    const btnEmoji = document.getElementById('verif-button-emoji')?.value || '';
     
     const pCard = document.getElementById('verif-preview-card');
-    if (pCard) pCard.style.borderLeftColor = color;
+    if (pCard) {
+        pCard.style.setProperty('border-left-color', color, 'important');
+        pCard.style.setProperty('background', '#2B2D31', 'important');
+    }
     
     const pTitle = document.getElementById('verif-preview-title');
-    if (pTitle) pTitle.innerText = title;
+    if (pTitle) {
+        pTitle.innerText = title;
+        pTitle.style.setProperty('color', '#FFFFFF', 'important');
+    }
     
     const pDesc = document.getElementById('verif-preview-desc');
-    if (pDesc) pDesc.innerText = desc;
+    if (pDesc) {
+        if (typeof formatDiscordMarkdown === 'function') {
+            pDesc.innerHTML = formatDiscordMarkdown(desc);
+        } else {
+            pDesc.innerText = desc;
+        }
+        pDesc.style.setProperty('color', '#DBDEE1', 'important');
+    }
     
     const pFooter = document.getElementById('verif-preview-footer');
-    if (pFooter) pFooter.innerText = footer;
+    if (pFooter) {
+        pFooter.innerText = footer;
+        pFooter.style.setProperty('color', '#949BA4', 'important');
+    }
     
     const pThumb = document.getElementById('verif-preview-thumb');
     if (pThumb) {
@@ -282,14 +421,35 @@ window.updateVerificationPreview = function() {
     }
     
     const pBtnLabel = document.getElementById('verif-preview-btn-label');
-    if (pBtnLabel) pBtnLabel.innerText = btnLabel;
+    if (pBtnLabel) {
+        pBtnLabel.innerText = btnLabel;
+        pBtnLabel.style.setProperty('color', '#FFFFFF', 'important');
+    }
+    
+    const pBtnEmoji = document.getElementById('verif-preview-btn-emoji');
+    if (pBtnEmoji) {
+        if (btnEmoji) {
+            pBtnEmoji.style.display = 'inline-flex';
+            if (btnEmoji.startsWith('<') && btnEmoji.includes(':')) {
+                const parts = btnEmoji.split(':');
+                const id = parts[parts.length - 1].replace('>', '');
+                pBtnEmoji.innerHTML = `<img src="https://cdn.discordapp.com/emojis/${id}.png" style="width:18px;height:18px;object-fit:contain;vertical-align:middle;margin-right:2px;">`;
+            } else {
+                pBtnEmoji.innerHTML = btnEmoji;
+            }
+        } else {
+            pBtnEmoji.style.display = 'none';
+            pBtnEmoji.innerHTML = '';
+        }
+    }
     
     const pBtn = document.getElementById('verif-preview-btn');
     if (pBtn) {
-        if (btnStyle === 'blurple') pBtn.style.background = '#5865F2';
-        else if (btnStyle === 'grey' || btnStyle === 'gray') pBtn.style.background = '#4E5058';
-        else if (btnStyle === 'red') pBtn.style.background = '#DA373C';
-        else pBtn.style.background = '#248046'; // default green
+        pBtn.style.setProperty('color', '#FFFFFF', 'important');
+        if (btnStyle === 'blurple') pBtn.style.setProperty('background', '#5865F2', 'important');
+        else if (btnStyle === 'grey' || btnStyle === 'gray') pBtn.style.setProperty('background', '#4E5058', 'important');
+        else if (btnStyle === 'red') pBtn.style.setProperty('background', '#DA373C', 'important');
+        else pBtn.style.setProperty('background', '#248046', 'important'); // default green
     }
 };
 
@@ -314,7 +474,8 @@ function saveVerificationSettings() {
         embed_image: document.getElementById('verif-embed-banner')?.value || '',
         embed_footer: document.getElementById('verif-embed-footer')?.value || 'VEYRA Security Protocol • Automated Gatekeeper',
         button_text: document.getElementById('verif-button-text')?.value || 'Verify Access',
-        button_color: document.getElementById('verif-button-style')?.value || 'green'
+        button_color: document.getElementById('verif-button-style')?.value || 'green',
+        button_emoji: document.getElementById('verif-button-emoji')?.value !== undefined ? document.getElementById('verif-button-emoji').value : '✅'
     };
     
     fetch(`/api/settings/verification/${targetGuild}`, {
@@ -527,7 +688,9 @@ function switchSecTab(tabName) {
     }
     
     // Load respective settings dynamically
-    if (tabName === 'antinuke') {
+    if (tabName === 'general') {
+        loadSecurityGeneralHealth(activeGuildId);
+    } else if (tabName === 'antinuke') {
         loadSecuritySettings(activeGuildId);
     } else if (tabName === 'beastmode') {
         loadBeastModeSettings(activeGuildId);
@@ -1791,6 +1954,10 @@ function switchTab(tabId) {
         if (typeof loadAutorolesSettings === 'function') loadAutorolesSettings(activeGuildId);
     } else if (tabId === 'publish') {
         if (typeof loadServerListing === 'function') loadServerListing(activeGuildId);
+    } else if (tabId === 'security') {
+        setTimeout(() => { if (typeof loadSecurityGeneralHealth === 'function') loadSecurityGeneralHealth(activeGuildId); }, 50);
+    } else if (tabId === 'verification') {
+        setTimeout(() => { if (typeof updateVerificationPreview === 'function') updateVerificationPreview(); }, 50);
     } else if (tabId === 'stickymessages') {
         if (typeof loadStickyMessagesSettings === 'function') loadStickyMessagesSettings(activeGuildId);
     } else if (tabId === 'levels') {
@@ -7267,63 +7434,96 @@ window.loadServerListing = function(guildId) {
 };
 
 window.loadStickyMessagesSettings = function(guildId) {
-    const targetGuild = guildId || activeGuildId;
+    const targetGuild = guildId || activeGuildId || window.activeGuildId || localStorage.getItem('selected_guild_id') || sessionStorage.getItem('activeGuildId');
     if (!targetGuild) return;
+    const tbody = document.getElementById('sticky-messages-table-body');
+    if (!tbody) return;
 
-    fetch(`/api/settings/stickymessages/${targetGuild}`)
+    fetch(`/api/settings/stickymessages/${targetGuild}?t=${Date.now()}`)
         .then(res => res.json())
         .then(data => {
-            const tbody = document.getElementById('sticky-messages-table-body');
-            if (tbody) {
-                if (!data || data.length === 0) {
-                    tbody.innerHTML = `<tr><td colspan="4" style="text-align: center; color: var(--text-secondary); padding: 30px 0;">No sticky messages configured on this server.</td></tr>`;
-                    return;
-                }
-                tbody.innerHTML = data.map(sm => `
-                    <tr style="border-bottom: 1px solid rgba(255,255,255,0.03);">
-                        <td style="padding: 12px; font-weight: 600; color: #00aff4;"># ${escapeHtml(sm.channel)}</td>
-                        <td style="padding: 12px;">${escapeHtml(sm.message)}</td>
-                        <td style="padding: 12px; color: #10b981;">Never</td>
-                        <td style="padding: 12px; text-align: right;">
-                            <button onclick="deleteStickyMessage('${sm.id}')" style="background: #ef4444; border: none; color: #fff; padding: 4px 8px; border-radius: 4px; cursor: pointer;"><i class="fas fa-trash"></i></button>
-                        </td>
-                    </tr>
-                `).join('');
+            if (!data || data.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="4" style="text-align: center; color: #64748B; padding: 36px 0; font-size: 0.88rem;">No sticky messages configured on this server. Click <strong>+ Create new sticky message</strong> above to get started.</td></tr>`;
+                return;
             }
+            tbody.innerHTML = data.map(sm => {
+                const chDisplayName = sm.channel_name || (sm.channel && sm.channel.startsWith('#') ? sm.channel.slice(1) : sm.channel);
+                const safeMsg = escapeHtml(sm.message || '');
+                const previewMsg = safeMsg.length > 70 ? safeMsg.slice(0, 70) + '...' : safeMsg;
+                return `
+                <tr style="border-bottom: 1.5px solid #E2E8F0; background: #FFFFFF;">
+                    <td style="padding: 14px 16px; font-weight: 700; color: #0284C7; font-family: var(--font-mono); font-size: 0.88rem;">
+                        <i class="fas fa-hashtag" style="font-size: 0.78rem; margin-right: 4px; color: #64748B;"></i>${escapeHtml(chDisplayName)}
+                    </td>
+                    <td style="padding: 14px 16px; color: #0F172A; font-weight: 500; font-size: 0.86rem; max-width: 380px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                        ${previewMsg}
+                    </td>
+                    <td style="padding: 14px 16px;">
+                        <span style="background: rgba(16, 185, 129, 0.12); color: #059669; font-weight: 800; padding: 3px 8px; border-radius: 4px; font-size: 0.72rem; letter-spacing: 0.05em; font-family: var(--font-mono);">
+                            <i class="fas fa-circle" style="font-size: 0.45rem; vertical-align: middle; margin-right: 4px;"></i>ACTIVE (Never)
+                        </span>
+                    </td>
+                    <td style="padding: 14px 16px; text-align: right; white-space: nowrap;">
+                        <button type="button" onclick="resendStickyMessage('${sm.id}')" style="background: #F1F5F9; border: 1.5px solid #CBD5E1; color: #0F172A; padding: 6px 12px; border-radius: 6px; font-size: 0.8rem; font-weight: 700; cursor: pointer; margin-right: 6px; transition: all 0.15s;" title="Test & Resend Sticky Message live to Discord">
+                            <i class="fas fa-paper-plane" style="color: #0284C7; margin-right: 4px;"></i> Resend
+                        </button>
+                        <button type="button" onclick="deleteStickyMessage('${sm.id}')" style="background: #FEF2F2; border: 1.5px solid #FCA5A5; color: #DC2626; padding: 6px 12px; border-radius: 6px; font-size: 0.8rem; font-weight: 700; cursor: pointer; transition: all 0.15s;" title="Delete Sticky Message">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                </tr>
+                `;
+            }).join('');
         })
-        .catch(err => console.error("Error loading sticky messages:", err));
+        .catch(err => {
+            console.error("Error loading sticky messages:", err);
+            tbody.innerHTML = `<tr><td colspan="4" style="text-align: center; color: #EF4444; padding: 20px 0;">Error loading sticky messages from server.</td></tr>`;
+        });
 };
 
-function openStickyMessageModal() {
+window.openStickyMessageModal = function() {
     const modal = document.getElementById('sticky-message-modal');
     if (!modal) return;
     
-    // Populate channels if available from active Guild
     const select = document.getElementById('modal-sticky-channel-select');
-    if (select && window.lastFetchedChannels && window.lastFetchedChannels.length > 0) {
-        select.innerHTML = window.lastFetchedChannels
-            .filter(c => c.type === 0 || c.type === 'text')
-            .map(c => `<option value="${c.name}"># ${c.name}</option>`)
-            .join('');
+    if (select) {
+        select.innerHTML = '<option value="">Loading server channels...</option>';
+        fetch(`/api/guild/channels/${activeGuildId}`)
+            .then(res => res.json())
+            .then(channels => {
+                if (Array.isArray(channels) && channels.length > 0) {
+                    select.innerHTML = channels
+                        .filter(c => c.type === 0 || c.type === 'text')
+                        .map(c => `<option value="${c.id}" data-name="${escapeHtml(c.name)}"># ${escapeHtml(c.name)}</option>`)
+                        .join('');
+                } else {
+                    select.innerHTML = '<option value="general"># general</option>';
+                }
+            })
+            .catch(() => {
+                select.innerHTML = '<option value="general"># general</option>';
+            });
     }
     
     modal.style.display = 'flex';
-}
+};
 
-function closeStickyMessageModal() {
+window.closeStickyMessageModal = function() {
     const modal = document.getElementById('sticky-message-modal');
     if (modal) modal.style.display = 'none';
-}
+};
 
-function submitStickyMessageModal() {
+window.submitStickyMessageModal = function() {
     const channelSelect = document.getElementById('modal-sticky-channel-select');
     const messageInput = document.getElementById('modal-sticky-message-text');
     
     const channel = channelSelect ? channelSelect.value.trim() : 'general';
+    const selectedOption = channelSelect ? channelSelect.options[channelSelect.selectedIndex] : null;
+    const channel_name = selectedOption ? (selectedOption.getAttribute('data-name') || selectedOption.text.replace('#', '').trim()) : 'general';
     const message = messageInput ? messageInput.value.trim() : '';
     
     if (!message) {
-        showToast("Missing Message", "Please enter text for your sticky message.", "warning");
+        if (typeof showToast === 'function') showToast("Missing Message", "Please enter text for your sticky message.", "warning");
         return;
     }
     
@@ -7332,36 +7532,73 @@ function submitStickyMessageModal() {
     fetch(`/api/settings/stickymessages/${activeGuildId}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ channel, message })
+        body: JSON.stringify({ channel, channel_name, message })
     })
     .then(res => res.json())
     .then(data => {
         if (data.success) {
-            showToast("Sticky Created", `Sticky message added to #${channel} channel.`);
+            if (typeof showToast === 'function') showToast("Sticky Active", `Sticky message posted live and activated for #${channel_name}!`, "success");
             loadStickyMessagesSettings(activeGuildId);
+        } else {
+            if (typeof showToast === 'function') showToast("Error", data.error || "Failed to create sticky message.", "error");
         }
     })
-    .catch(err => console.error("Error creating sticky message:", err));
-}
+    .catch(err => {
+        console.error("Error creating sticky message:", err);
+        if (typeof showToast === 'function') showToast("Network Error", "Could not reach server to create sticky message.", "error");
+    });
+};
 
-function createNewStickyMessagePrompt() {
+window.createNewStickyMessagePrompt = function() {
     openStickyMessageModal();
-}
+};
 
-function deleteStickyMessage(id) {
-    if (!confirm("Are you sure you want to delete this sticky message?")) return;
-    fetch(`/api/settings/stickymessages/${activeGuildId}/${id}`, {
-        method: 'DELETE'
-    })
-    .then(res => res.json())
-    .then(data => {
-        if (data.success) {
-            showToast("Deleted", "Sticky message successfully removed.");
-            loadStickyMessagesSettings(activeGuildId);
-        }
-    })
-    .catch(err => console.error("Error deleting sticky message:", err));
-}
+window.deleteStickyMessage = function(id) {
+    if (typeof showVeyraConfirm === 'function') {
+        showVeyraConfirm({
+            title: "Delete Sticky Message?",
+            message: "This will remove the persistent sticky message from this channel and delete the live Discord message.",
+            confirmText: "Delete Sticky",
+            confirmStyle: "danger",
+            onConfirm: () => {
+                fetch(`/api/settings/stickymessages/${activeGuildId}/${id}`, { method: 'DELETE' })
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.success) {
+                            if (typeof showToast === 'function') showToast("Deleted", "Sticky message removed completely.", "success");
+                            loadStickyMessagesSettings(activeGuildId);
+                        }
+                    })
+                    .catch(err => console.error("Error deleting sticky message:", err));
+            }
+        });
+    } else {
+        if (!confirm("Are you sure you want to delete this sticky message?")) return;
+        fetch(`/api/settings/stickymessages/${activeGuildId}/${id}`, { method: 'DELETE' })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    if (typeof showToast === 'function') showToast("Deleted", "Sticky message removed completely.", "success");
+                    loadStickyMessagesSettings(activeGuildId);
+                }
+            })
+            .catch(err => console.error("Error deleting sticky message:", err));
+    }
+};
+
+window.resendStickyMessage = function(id) {
+    fetch(`/api/settings/stickymessages/resend/${activeGuildId}/${id}`, { method: 'POST' })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                if (typeof showToast === 'function') showToast("Sticky Resent", "Sticky message refreshed and posted live to Discord!", "success");
+                loadStickyMessagesSettings(activeGuildId);
+            } else {
+                if (typeof showToast === 'function') showToast("Notice", data.error || "Failed to resend sticky message.", "warning");
+            }
+        })
+        .catch(err => console.error("Error resending sticky message:", err));
+};
 
 
 

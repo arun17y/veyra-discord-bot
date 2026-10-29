@@ -342,7 +342,9 @@ input:checked + .slider:before {
 }
 
 .sidebar {
-    width: 260px !important;
+    width: 310px !important;
+    min-width: 310px !important;
+    max-width: 310px !important;
     flex-shrink: 0 !important;
     position: sticky !important;
     top: 0 !important;
@@ -406,7 +408,7 @@ input:checked + .slider:before {
     background: var(--bg-primary) !important;
     overflow-y: visible !important;
     overflow-x: hidden !important;
-    padding: 30px 40px 100px 40px !important;
+    padding: 24px 32px 80px 32px !important;
     box-sizing: border-box !important;
 }
 
@@ -2411,9 +2413,15 @@ input:checked + .slider:before {
 
 /* Override all tab pane maximum width limits to expand workspace full-screen */
 .tab-pane {
-    max-width: 100% !important;
+    max-width: 1260px !important;
     width: 100% !important;
-    margin: 0 !important;
+    margin-left: 0 !important;
+    margin-right: auto !important;
+    box-sizing: border-box !important;
+}
+
+#tab-tickets {
+    max-width: 100% !important;
 }
 
 /* MOBILE & TABLET LAYOUT RESPONSIVE DESIGN */
@@ -3466,9 +3474,9 @@ input:checked + .slider:before,
 
 /* 3. DESKTOP & RESPONSIVE COMPACT ICON-ONLY SIDEBAR SYSTEM */
 .sidebar {
-    width: 260px !important;
-    min-width: 260px !important;
-    max-width: 260px !important;
+    width: 310px !important;
+    min-width: 310px !important;
+    max-width: 310px !important;
     flex-shrink: 0 !important;
     position: sticky !important;
     top: 76px !important;
@@ -4304,4 +4312,125 @@ input[type="number"]::-webkit-inner-spin-button {
 @keyframes veyraPopIn {
     from { opacity: 0; transform: scale(0.95) translateY(10px); }
     to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+/* ==========================================================================
+   DISCORD EMBED & MESSAGE LIVE PREVIEWS — EXACT DISCORD UI & TEXT COLOR PROTECTION
+   ========================================================================== */
+#screen-dashboard .discord-preview-box,
+#screen-dashboard [id*="-preview-card"],
+#screen-dashboard #verif-preview-card,
+#screen-dashboard #reports-preview-card,
+#screen-dashboard #designer-embed-preview-card,
+#screen-dashboard .live-embed-visualizer {
+    background: #2B2D31 !important;
+    color: #DBDEE1 !important;
+}
+
+/* Discord preview container wrapper */
+.discord-live-message-wrap {
+    background: #313338 !important;
+    border-radius: 10px !important;
+    padding: 18px 20px !important;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.25) !important;
+}
+
+/* Bot Name */
+#screen-dashboard .discord-author-name,
+#screen-dashboard .discord-live-message-wrap .discord-bot-name,
+#screen-dashboard [id*="preview"] .discord-bot-name,
+#screen-dashboard #verif-live-preview-box .discord-bot-name {
+    color: #F2F3F5 !important;
+    font-weight: 700 !important;
+    font-size: 0.95rem !important;
+}
+
+/* Bot Badge */
+#screen-dashboard .discord-bot-badge {
+    background: #5865F2 !important;
+    color: #FFFFFF !important;
+    font-size: 0.65rem !important;
+    font-weight: 800 !important;
+    padding: 1px 4px !important;
+    border-radius: 3px !important;
+    text-transform: uppercase !important;
+}
+
+/* Timestamp */
+#screen-dashboard .discord-timestamp {
+    color: #949BA4 !important;
+    font-size: 0.72rem !important;
+    font-weight: 400 !important;
+}
+
+/* Embed Title */
+#screen-dashboard #verif-preview-title,
+#screen-dashboard [id*="-preview-title"],
+#screen-dashboard .discord-embed-title,
+#screen-dashboard #verif-preview-card h4,
+#screen-dashboard #verif-preview-card h3,
+#screen-dashboard #verif-preview-card h2,
+#screen-dashboard #reports-preview-card h4 {
+    color: #FFFFFF !important;
+    font-size: 1rem !important;
+    font-weight: 700 !important;
+    line-height: 1.35 !important;
+    margin: 0 0 8px 0 !important;
+    text-shadow: none !important;
+}
+
+/* Embed Description */
+#screen-dashboard #verif-preview-desc,
+#screen-dashboard [id*="-preview-desc"],
+#screen-dashboard .discord-embed-desc,
+#screen-dashboard #verif-preview-card p,
+#screen-dashboard #verif-preview-card div {
+    color: #DBDEE1 !important;
+    font-size: 0.88rem !important;
+    line-height: 1.5 !important;
+    font-weight: 400 !important;
+    text-shadow: none !important;
+}
+
+#screen-dashboard #verif-preview-desc strong,
+#screen-dashboard [id*="-preview-desc"] strong {
+    color: #FFFFFF !important;
+    font-weight: 700 !important;
+}
+
+/* Embed Footer */
+#screen-dashboard #verif-preview-footer,
+#screen-dashboard [id*="-preview-footer"],
+#screen-dashboard .discord-embed-footer,
+#screen-dashboard #verif-preview-card .embed-footer {
+    color: #949BA4 !important;
+    font-size: 0.72rem !important;
+    font-weight: 500 !important;
+    text-shadow: none !important;
+}
+
+/* Discord Button */
+#screen-dashboard #verif-preview-btn,
+#screen-dashboard [id*="-preview-btn"],
+#screen-dashboard .discord-preview-button {
+    border: none !important;
+    border-radius: 4px !important;
+    padding: 8px 18px !important;
+    font-weight: 600 !important;
+    font-size: 0.88rem !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    cursor: default !important;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.2) !important;
+    transition: background 0.15s ease !important;
+}
+
+#screen-dashboard #verif-preview-btn span,
+#screen-dashboard #verif-preview-btn #verif-preview-btn-label,
+#screen-dashboard #verif-preview-btn #verif-preview-btn-emoji,
+#screen-dashboard [id*="-preview-btn"] span {
+    color: #FFFFFF !important;
+    font-weight: 600 !important;
+    text-shadow: none !important;
 }

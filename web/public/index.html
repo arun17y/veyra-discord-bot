@@ -119,7 +119,7 @@
         })();
     </script>
     <link rel="stylesheet" href="css/themes.css?v=v13_dashboard_realtime_manage_fix">
-    <link rel="stylesheet" href="css/dashboard.css?v=v89_harmonized_embed_editor">
+    <link rel="stylesheet" href="css/dashboard.css?v=v90_realtime_sticky_and_layout">
     <style>
         /* =============================================
            VEYRA BRAND PALETTE OVERRIDE — A to Z
@@ -6092,7 +6092,7 @@ Support: </pre>
                 </div>
 
                 <!-- [TAB 3: SECURITY] -->
-                <div class="tab-pane" id="tab-security" style="display:none; width: 100%; max-width: 1000px; margin: 0 auto; padding: 20px; box-sizing: border-box;">
+                <div class="tab-pane" id="tab-security" style="display:none; width: 100%; max-width: 1260px; margin-left: 0; margin-right: auto; padding: 20px 10px; box-sizing: border-box;">
                     
                     <!-- Managing Header -->
                     <div style="text-align: center; margin-bottom: 25px; font-family: var(--font-display); font-size: 1.25rem; color: rgba(255,255,255,0.7); font-weight: 500;">
@@ -6114,11 +6114,19 @@ Support: </pre>
                     <!-- 1. SUB-PANE: GENERAL -->
                     <div class="sec-sub-pane" id="sec-pane-general" style="display:none;">
                         <h2 style="font-size: 2.2rem; font-weight: 800; color: #0F172A; text-align: center; margin: 0 0 10px 0; font-family: var(--font-display); letter-spacing:0.02em;">GENERAL</h2>
-                        <p style="font-size:0.85rem; color:var(--text-secondary); text-align:center; max-width:650px; margin:0 auto 30px auto; line-height:1.6;">
+                        <p style="font-size:0.85rem; color:var(--text-secondary); text-align:center; max-width:650px; margin:0 auto 16px auto; line-height:1.6;">
                             Monitor current security status checks and verify guild configuration health.
                         </p>
                         
-                        <div id="security-general-health-container" class="audit-checklist" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top:20px;">
+                        <!-- Real-Time Security.gg Recheck Button -->
+                        <div style="display: flex; justify-content: center; gap: 12px; margin-bottom: 24px;">
+                            <button type="button" id="sec-health-recheck-btn" onclick="loadSecurityGeneralHealth(activeGuildId, true)" class="btn-primary" style="background: #FFFFFF; color: #0F172A; border: 1.5px solid #E2E8F0; padding: 9px 20px; border-radius: 8px; font-weight: 700; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 8px; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.04); transition: all 0.2s ease;">
+                                <i id="sec-health-recheck-icon" class="fas fa-arrows-rotate" style="color: #E11D48;"></i>
+                                <span>Re-check Security Health</span>
+                            </button>
+                        </div>
+                        
+                        <div id="security-general-health-container" class="audit-checklist" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top:10px;">
                             <div class="audit-card ok" id="sec-health-admin-card" style="border-left: 4px solid #10b981; background: rgba(16,185,129,0.02); padding: 18px 20px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; border: 1px solid rgba(0,0,0,0.05); border-left-width: 4px;">
                                 <div class="audit-card-content">
                                     <strong id="sec-health-admin-title" style="color: #0F172A; font-size:0.88rem; display:block; margin-bottom:6px; text-transform:uppercase; letter-spacing: 0.05em; font-family: var(--font-display);">LOOKING FINE</strong>
@@ -7613,13 +7621,9 @@ Support: </pre>
                                 </tr>
                             </thead>
                             <tbody id="sticky-messages-table-body">
-                                <tr style="border-bottom: 1px solid rgba(255,255,255,0.03);">
-                                    <td style="padding: 12px; font-weight: 600; color: #00aff4;"># rules-info</td>
-                                    <td style="padding: 12px;">⚡ Read rules before opening a ticket!</td>
-                                    <td style="padding: 12px; color: #10b981;">Never</td>
-                                    <td style="padding: 12px; text-align: right;">
-                                        <button onclick="showToast('Edit Sticky', 'Editing sticky message for #rules-info')" style="background: rgba(255,255,255,0.06); border: none; color: #fff; padding: 4px 8px; border-radius: 4px; margin-right: 4px; cursor: pointer;"><i class="fas fa-pen"></i></button>
-                                        <button onclick="this.closest('tr').remove(); showToast('Deleted', 'Sticky message removed')" style="background: #ef4444; border: none; color: #fff; padding: 4px 8px; border-radius: 4px; cursor: pointer;"><i class="fas fa-trash"></i></button>
+                                <tr>
+                                    <td colspan="4" style="text-align: center; color: var(--text-secondary); padding: 36px 0; font-size: 0.88rem;">
+                                        <i class="fas fa-circle-notch fa-spin" style="margin-right: 8px; color: #00aff4;"></i> Loading server sticky messages...
                                     </td>
                                 </tr>
                             </tbody>
@@ -8666,7 +8670,7 @@ We hope to see you back soon!
                                 <div>
                                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
                                         <label style="font-size: 0.85rem; font-weight: 700; color: #0F172A; margin: 0;">Embed Title</label>
-                                        <button type="button" onclick="openServerEmojiPicker('verif-embed-title')" style="background: #F1F5F9; border: 1px solid #CBD5E1; border-radius: 6px; padding: 3px 8px; font-size: 0.8rem; cursor: pointer; color: #0F172A; font-weight: 600;">
+                                        <button type="button" onclick="openServerEmojiPicker('verif-embed-title')" style="background: #F1F5F9; border: 1.5px solid #CBD5E1; border-radius: 6px; padding: 3px 10px; font-size: 0.8rem; cursor: pointer; color: #0F172A; font-weight: 700;">
                                             😀 Emojis
                                         </button>
                                     </div>
@@ -8677,7 +8681,7 @@ We hope to see you back soon!
                                 <div>
                                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
                                         <label style="font-size: 0.85rem; font-weight: 700; color: #0F172A; margin: 0;">Embed Description / Instructions</label>
-                                        <button type="button" onclick="openServerEmojiPicker('verif-embed-desc')" style="background: #F1F5F9; border: 1px solid #CBD5E1; border-radius: 6px; padding: 3px 8px; font-size: 0.8rem; cursor: pointer; color: #0F172A; font-weight: 600;">
+                                        <button type="button" onclick="openServerEmojiPicker('verif-embed-desc')" style="background: #F1F5F9; border: 1.5px solid #CBD5E1; border-radius: 6px; padding: 3px 10px; font-size: 0.8rem; cursor: pointer; color: #0F172A; font-weight: 700;">
                                             😀 Emojis
                                         </button>
                                     </div>
@@ -8688,18 +8692,29 @@ To gain full access to server channels, voice rooms, and media, please verify yo
 ✅ **Instant Access:** You will immediately be granted the member role.</textarea>
                                 </div>
 
-                                <!-- Accent Color & Button Style -->
+                                <!-- Embed Accent Color (UPPAR KARDE - directly below description) -->
+                                <div>
+                                    <label style="font-size: 0.85rem; font-weight: 700; color: #0F172A; display: block; margin-bottom: 6px;">Embed Accent Color</label>
+                                    <div style="display: flex; gap: 10px; align-items: center; max-width: 320px;">
+                                        <input type="color" id="verif-embed-color-picker" value="#E11D48" style="width: 40px; height: 40px; border-radius: 8px; border: 1.5px solid #CBD5E1; padding: 2px; cursor: pointer;" oninput="document.getElementById('verif-embed-color').value = this.value; updateVerificationPreview();">
+                                        <input type="text" id="verif-embed-color" value="#E11D48" class="form-control" style="flex: 1; background: #FFFFFF !important; border: 1.5px solid #CBD5E1 !important; color: #0F172A !important; font-family: var(--font-mono); font-weight: 600; height: 40px;" oninput="document.getElementById('verif-embed-color-picker').value = this.value; updateVerificationPreview();">
+                                    </div>
+                                </div>
+
+                                <!-- Button Name & Button Color Side by Side -->
                                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
                                     <div>
-                                        <label style="font-size: 0.85rem; font-weight: 700; color: #0F172A; display: block; margin-bottom: 6px;">Accent Color</label>
-                                        <div style="display: flex; gap: 8px; align-items: center;">
-                                            <input type="color" id="verif-embed-color-picker" value="#E11D48" style="width: 38px; height: 38px; border-radius: 8px; border: 1.5px solid #CBD5E1; padding: 2px; cursor: pointer;" oninput="document.getElementById('verif-embed-color').value = this.value; updateVerificationPreview();">
-                                            <input type="text" id="verif-embed-color" value="#E11D48" class="form-control" style="flex: 1; background: #FFFFFF !important; border: 1.5px solid #CBD5E1 !important; color: #0F172A !important; font-family: var(--font-mono); font-weight: 600;" oninput="document.getElementById('verif-embed-color-picker').value = this.value; updateVerificationPreview();">
+                                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                                            <label style="font-size: 0.85rem; font-weight: 700; color: #0F172A; margin: 0;">Button Label (Name)</label>
+                                            <button type="button" onclick="openServerEmojiPicker('verif-button-text')" style="background: #F1F5F9; border: 1.5px solid #CBD5E1; border-radius: 6px; padding: 3px 10px; font-size: 0.8rem; cursor: pointer; color: #0F172A; font-weight: 700;">
+                                                😀 Emojis
+                                            </button>
                                         </div>
+                                        <input type="text" id="verif-button-text" value="Verify Access" class="form-control" style="background: #FFFFFF !important; border: 1.5px solid #CBD5E1 !important; color: #0F172A !important; font-weight: 600; height: 42px;" oninput="updateVerificationPreview()">
                                     </div>
                                     <div>
-                                        <label style="font-size: 0.85rem; font-weight: 700; color: #0F172A; display: block; margin-bottom: 6px;">Button Style</label>
-                                        <select class="form-control" id="verif-button-style" style="background: #FFFFFF !important; border: 1.5px solid #CBD5E1 !important; color: #0F172A !important; font-weight: 600;" onchange="updateVerificationPreview()">
+                                        <label style="font-size: 0.85rem; font-weight: 700; color: #0F172A; display: block; margin-bottom: 6px;">Button Color</label>
+                                        <select class="form-control" id="verif-button-style" style="background: #FFFFFF !important; border: 1.5px solid #CBD5E1 !important; color: #0F172A !important; font-weight: 600; height: 42px;" onchange="updateVerificationPreview()">
                                             <option value="green" selected>Green (Success)</option>
                                             <option value="blurple">Blurple (Primary)</option>
                                             <option value="grey">Grey (Secondary)</option>
@@ -8708,28 +8723,45 @@ To gain full access to server channels, voice rooms, and media, please verify yo
                                     </div>
                                 </div>
 
-                                <!-- Button Label -->
-                                <div>
-                                    <label style="font-size: 0.85rem; font-weight: 700; color: #0F172A; display: block; margin-bottom: 6px;">Button Label</label>
-                                    <input type="text" id="verif-button-text" value="Verify Access" class="form-control" style="background: #FFFFFF !important; border: 1.5px solid #CBD5E1 !important; color: #0F172A !important; font-weight: 600;" oninput="updateVerificationPreview()">
+                                <!-- Dedicated Button Icon Emoji (Prefix on the Discord Button) -->
+                                <div style="background: #F8FAFC; border: 1.5px solid #E2E8F0; border-radius: 10px; padding: 10px 14px; display: flex; align-items: center; justify-content: space-between;">
+                                    <div style="display: flex; align-items: center; gap: 12px;">
+                                        <div id="verif-btn-emoji-box" style="width: 34px; height: 34px; border-radius: 8px; background: #0F172A; display: flex; align-items: center; justify-content: center; font-size: 1.25rem; flex-shrink: 0; box-shadow: 0 2px 6px rgba(0,0,0,0.15);">
+                                            <span id="verif-btn-emoji-display">✅</span>
+                                        </div>
+                                        <input type="hidden" id="verif-button-emoji" value="✅">
+                                        <div>
+                                            <div style="font-size: 0.82rem; font-weight: 700; color: #0F172A;">Button Icon Emoji</div>
+                                            <div style="font-size: 0.72rem; color: #64748B;">Prefix icon rendered on the Discord button</div>
+                                        </div>
+                                    </div>
+                                    <div style="display: flex; align-items: center; gap: 10px; font-size: 0.82rem; font-weight: 700;">
+                                        <button type="button" onclick="openServerEmojiPickerForButton('verif-button-emoji')" style="background: #FFFFFF; border: 1.5px solid #CBD5E1; border-radius: 6px; padding: 4px 12px; color: #E11D48; cursor: pointer; font-weight: 700; font-size: 0.8rem;">Change Emoji</button>
+                                        <button type="button" onclick="removeVerificationButtonEmoji()" style="background: #FFFFFF; border: 1.5px solid #CBD5E1; border-radius: 6px; padding: 4px 12px; color: #EF4444; cursor: pointer; font-weight: 700; font-size: 0.8rem;">Remove</button>
+                                    </div>
                                 </div>
 
                                 <!-- Thumbnail & Banner URLs -->
                                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
                                     <div>
                                         <label style="font-size: 0.85rem; font-weight: 700; color: #0F172A; display: block; margin-bottom: 6px;">Thumbnail URL (Optional)</label>
-                                        <input type="url" id="verif-embed-thumb" placeholder="https://..." class="form-control" style="background: #FFFFFF !important; border: 1.5px solid #CBD5E1 !important; color: #0F172A !important; font-size: 0.82rem;" oninput="updateVerificationPreview()">
+                                        <input type="url" id="verif-embed-thumb" placeholder="https://..." class="form-control" style="background: #FFFFFF !important; border: 1.5px solid #CBD5E1 !important; color: #0F172A !important; font-size: 0.82rem; height: 40px;" oninput="updateVerificationPreview()">
                                     </div>
                                     <div>
                                         <label style="font-size: 0.85rem; font-weight: 700; color: #0F172A; display: block; margin-bottom: 6px;">Banner Image URL (Optional)</label>
-                                        <input type="url" id="verif-embed-banner" placeholder="https://..." class="form-control" style="background: #FFFFFF !important; border: 1.5px solid #CBD5E1 !important; color: #0F172A !important; font-size: 0.82rem;" oninput="updateVerificationPreview()">
+                                        <input type="url" id="verif-embed-banner" placeholder="https://..." class="form-control" style="background: #FFFFFF !important; border: 1.5px solid #CBD5E1 !important; color: #0F172A !important; font-size: 0.82rem; height: 40px;" oninput="updateVerificationPreview()">
                                     </div>
                                 </div>
 
-                                <!-- Footer Text -->
+                                <!-- Footer Text with Emoji Button -->
                                 <div>
-                                    <label style="font-size: 0.85rem; font-weight: 700; color: #0F172A; display: block; margin-bottom: 6px;">Footer Text</label>
-                                    <input type="text" id="verif-embed-footer" value="VEYRA Security Protocol • Automated Gatekeeper" class="form-control" style="background: #FFFFFF !important; border: 1.5px solid #CBD5E1 !important; color: #0F172A !important; font-size: 0.85rem;" oninput="updateVerificationPreview()">
+                                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                                        <label style="font-size: 0.85rem; font-weight: 700; color: #0F172A; margin: 0;">Footer Text</label>
+                                        <button type="button" onclick="openServerEmojiPicker('verif-embed-footer')" style="background: #F1F5F9; border: 1.5px solid #CBD5E1; border-radius: 6px; padding: 3px 10px; font-size: 0.8rem; cursor: pointer; color: #0F172A; font-weight: 700;">
+                                            😀 Emojis
+                                        </button>
+                                    </div>
+                                    <input type="text" id="verif-embed-footer" value="VEYRA Security Protocol • Automated Gatekeeper" class="form-control" style="background: #FFFFFF !important; border: 1.5px solid #CBD5E1 !important; color: #0F172A !important; font-size: 0.85rem; height: 40px;" oninput="updateVerificationPreview()">
                                 </div>
                             </div>
 
@@ -8739,27 +8771,27 @@ To gain full access to server channels, voice rooms, and media, please verify yo
                                     <i class="fab fa-discord" style="color: #5865F2; margin-right: 4px;"></i> Live Discord Preview
                                 </label>
                                 
-                                <div style="background: #313338; border-radius: 10px; padding: 18px 20px; color: #DBDEE1; font-family: 'gg sans', 'Noto Sans', Helvetica, Arial, sans-serif; box-shadow: 0 4px 16px rgba(0,0,0,0.25);">
+                                <div id="verif-live-preview-box" class="discord-live-message-wrap" style="background: #313338 !important; border-radius: 10px; padding: 18px 20px; color: #DBDEE1 !important; font-family: 'gg sans', 'Noto Sans', Helvetica, Arial, sans-serif; box-shadow: 0 4px 16px rgba(0,0,0,0.25);">
                                     <!-- Bot Message Header -->
                                     <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
                                         <img src="assets/bypass_logs_avatar.webp" onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png'" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">
                                         <div>
                                             <div style="display: flex; align-items: center; gap: 6px;">
-                                                <span style="font-weight: 700; color: #F2F3F5; font-size: 0.95rem;">VEYRA</span>
-                                                <span style="background: #5865F2; color: #FFFFFF; font-size: 0.65rem; font-weight: 800; padding: 1px 4px; border-radius: 3px; text-transform: uppercase;">BOT</span>
-                                                <span style="color: #949BA4; font-size: 0.72rem; margin-left: 4px;">Today at 1:00 PM</span>
+                                                <span class="discord-bot-name" style="font-weight: 700; color: #F2F3F5 !important; font-size: 0.95rem;">VEYRA</span>
+                                                <span class="discord-bot-badge" style="background: #5865F2 !important; color: #FFFFFF !important; font-size: 0.65rem; font-weight: 800; padding: 1px 4px; border-radius: 3px; text-transform: uppercase;">BOT</span>
+                                                <span class="discord-timestamp" style="color: #949BA4 !important; font-size: 0.72rem; margin-left: 4px;">Today at 1:00 PM</span>
                                             </div>
                                         </div>
                                     </div>
 
                                     <!-- Embed Card -->
-                                    <div id="verif-preview-card" style="background: #2B2D31; border-left: 4px solid #E11D48; border-radius: 4px 6px 6px 4px; padding: 14px 16px; margin-bottom: 12px; display: flex; flex-direction: column; gap: 10px;">
+                                    <div id="verif-preview-card" style="background: #2B2D31 !important; border-left: 4px solid #E11D48; border-radius: 4px 6px 6px 4px; padding: 14px 16px; margin-bottom: 12px; display: flex; flex-direction: column; gap: 10px;">
                                         <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 12px;">
                                             <div style="flex: 1;">
                                                 <!-- Title -->
-                                                <h4 id="verif-preview-title" style="color: #FFFFFF; font-size: 1rem; font-weight: 700; margin: 0 0 8px 0; line-height: 1.35;">🛡️ Member Verification Required</h4>
+                                                <h4 id="verif-preview-title" style="color: #FFFFFF !important; font-size: 1rem; font-weight: 700; margin: 0 0 8px 0; line-height: 1.35;">🛡️ Member Verification Required</h4>
                                                 <!-- Description -->
-                                                <div id="verif-preview-desc" style="color: #DBDEE1; font-size: 0.85rem; line-height: 1.5; white-space: pre-wrap;">Welcome to the server!
+                                                <div id="verif-preview-desc" style="color: #DBDEE1 !important; font-size: 0.85rem; line-height: 1.5; white-space: pre-wrap;">Welcome to the server!
 
 To gain full access to server channels, voice rooms, and media, please verify your Discord account using the button below.
 
@@ -8775,14 +8807,15 @@ To gain full access to server channels, voice rooms, and media, please verify yo
                                         <!-- Footer -->
                                         <div style="display: flex; align-items: center; gap: 6px; margin-top: 4px; border-top: 1px solid rgba(255,255,255,0.06); padding-top: 8px;">
                                             <img src="assets/bypass_logs_avatar.webp" style="width: 16px; height: 16px; border-radius: 50%;">
-                                            <span id="verif-preview-footer" style="color: #949BA4; font-size: 0.72rem;">VEYRA Security Protocol • Automated Gatekeeper</span>
+                                            <span id="verif-preview-footer" style="color: #949BA4 !important; font-size: 0.72rem;">VEYRA Security Protocol • Automated Gatekeeper</span>
                                         </div>
                                     </div>
 
                                     <!-- Interactive Discord Button Preview -->
                                     <div style="margin-top: 10px;">
-                                        <button type="button" id="verif-preview-btn" style="background: #248046; color: #FFFFFF; border: none; border-radius: 4px; padding: 8px 18px; font-weight: 600; font-size: 0.88rem; display: inline-flex; align-items: center; gap: 8px; cursor: default; box-shadow: 0 2px 6px rgba(0,0,0,0.2);">
-                                            <span>✅</span> <span id="verif-preview-btn-label">Verify Access</span>
+                                        <button type="button" id="verif-preview-btn" style="background: #248046; color: #FFFFFF !important; border: none; border-radius: 4px; padding: 8px 18px; font-weight: 600; font-size: 0.88rem; display: inline-flex; align-items: center; gap: 8px; cursor: default; box-shadow: 0 2px 6px rgba(0,0,0,0.2);">
+                                            <span id="verif-preview-btn-emoji" style="color: #FFFFFF !important;">✅</span>
+                                            <span id="verif-preview-btn-label" style="color: #FFFFFF !important;">Verify Access</span>
                                         </button>
                                     </div>
                                 </div>
@@ -14095,7 +14128,7 @@ Our support team can assist you with:
     <!-- JS Execution libraries -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
-    <script src="js/dashboard.js?v=v89_harmonized_embed_editor"></script>
+    <script src="js/dashboard.js?v=v90_realtime_sticky_and_layout"></script>
     <script src="js/moderation.js?v=v92_clean_verification_gate"></script>
     <!-- smokey fluid cursor removed -->
 
@@ -14529,9 +14562,14 @@ window.addEventListener('scroll', () => {
             </div>
 
             <div>
-                <label style="display: block; font-size: 0.8rem; font-weight: 700; color: #475569; text-transform: uppercase; margin-bottom: 6px; letter-spacing: 0.04em;">
-                    Sticky Message Content <span style="color: #EF4444;">*</span>
-                </label>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                    <label style="display: block; font-size: 0.8rem; font-weight: 700; color: #475569; text-transform: uppercase; margin: 0; letter-spacing: 0.04em;">
+                        Sticky Message Content <span style="color: #EF4444;">*</span>
+                    </label>
+                    <button type="button" onclick="openServerEmojiPicker('modal-sticky-message-text')" style="background: #F1F5F9; border: 1.5px solid #CBD5E1; border-radius: 6px; padding: 2px 8px; font-size: 0.78rem; cursor: pointer; color: #0F172A; font-weight: 700;">
+                        😀 Emojis
+                    </button>
+                </div>
                 <textarea id="modal-sticky-message-text" rows="4" placeholder="Enter persistent sticky message text or rules reminder..." style="width: 100%; background: #F8FAFC; border: 1.5px solid #CBD5E1; border-radius: 8px; padding: 10px 14px; font-size: 0.88rem; color: #0F172A; line-height: 1.5; resize: vertical; box-sizing: border-box; font-family: inherit;">⚡ **Important Server Reminder**: Please verify your account and follow our server rules before opening a support ticket!</textarea>
                 <p style="margin: 4px 0 0; font-size: 0.74rem; color: #94A3B8;">Supports standard Discord Markdown (*italics*, **bold**, `code`, [links](https://...)).</p>
             </div>

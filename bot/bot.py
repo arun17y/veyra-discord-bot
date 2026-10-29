@@ -2152,7 +2152,7 @@ async def on_message(message):
         stickies = cursor.fetchall()
         
         for sticky_id, sticky_msg, last_msg_id in stickies:
-            if message.author.id == bot.user.id and (sticky_msg in message.content or "📌" in message.content):
+            if message.author.id == bot.user.id:
                 continue
                 
             if last_msg_id:

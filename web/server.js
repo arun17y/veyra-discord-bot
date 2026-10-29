@@ -283,6 +283,7 @@ db.serialize(() => {
         });
     });
     db.run(`
+        db.run("ALTER TABLE sticky_messages ADD COLUMN channel_name TEXT", () => {});
         CREATE TABLE IF NOT EXISTS sticky_messages (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             guild_id TEXT,
@@ -483,6 +484,8 @@ db.serialize(() => {
         )
     `);
     db.run(`
+            db.run("ALTER TABLE verification_settings ADD COLUMN button_emoji TEXT DEFAULT '✅'", (err) => {});
+    // verification table
         CREATE TABLE IF NOT EXISTS verification_settings (
             guild_id TEXT PRIMARY KEY,
             enabled INTEGER DEFAULT 0,
@@ -1778,13 +1781,19 @@ app.get('/api/guild/security-health/:guild_id', async (req, res) => {
             if (r.position > highestOtherPos) highestOtherPos = r.position;
         }
         
-        const isHighest = botTopPos >= highestOtherPos;
+        const higherRoles = otherRoles
+            .filter(r => r.position > botTopPos && !r.managed)
+            .sort((a, b) => b.position - a.position)
+            .map(r => r.name);
+        
+        const isHighest = (botTopPos >= highestOtherPos) || (higherRoles.length === 0);
         res.json({
             success: true,
             has_admin: hasAdmin,
             is_highest_role: isHighest,
             bot_top_position: botTopPos,
-            highest_other_position: highestOtherPos
+            highest_other_position: highestOtherPos,
+            higher_roles: higherRoles.slice(0, 3)
         });
     } catch (e) {
         res.json({ success: true, has_admin: true, is_highest_role: false });
@@ -2284,13 +2293,46 @@ app.post('/api/settings/stickymessages/:guild_id', async (req, res) => {
         }
     }
 
-    db.run("INSERT INTO sticky_messages (guild_id, channel, message, last_message_id) VALUES (?, ?, ?, ?)",
-        [guildId, targetChannelId || channel || 'general', message || '', sentMessageId],
+    const chName = req.body.channel_name || channel || 'general';
+    db.run("INSERT INTO sticky_messages (guild_id, channel, channel_name, message, last_message_id) VALUES (?, ?, ?, ?, ?)",
+        [guildId, targetChannelId || channel || 'general', chName, message || '', sentMessageId],
         function(err) {
             if (err) return res.status(500).json({ error: err.message });
             res.json({ success: true, id: this.lastID, message_id: sentMessageId });
         }
     );
+});
+
+
+// Resend sticky message live to Discord
+app.post('/api/settings/stickymessages/resend/:guild_id/:id', (req, res) => {
+    const guildId = req.params.guild_id;
+    const id = req.params.id;
+    db.get("SELECT * FROM sticky_messages WHERE guild_id = ? AND id = ?", [guildId, id], async (err, row) => {
+        if (err || !row) return res.status(404).json({ error: "Sticky message not found." });
+        
+        const targetChannelId = row.channel;
+        if (targetChannelId && row.last_message_id) {
+            try {
+                await discordRequest('DELETE', `/channels/${targetChannelId}/messages/${row.last_message_id}`);
+            } catch (_) {}
+        }
+        
+        let sentMessageId = '';
+        try {
+            const postRes = await discordRequest('POST', `/channels/${targetChannelId}/messages`, {
+                content: `📌 **Sticky Message:**\n${row.message}`
+            });
+            if (postRes.status === 200 || postRes.status === 201) {
+                sentMessageId = postRes.body?.id || '';
+                db.run("UPDATE sticky_messages SET last_message_id = ? WHERE id = ?", [sentMessageId, id]);
+            }
+        } catch (e) {
+            return res.status(500).json({ error: "Failed to post to Discord: " + e.message });
+        }
+        
+        res.json({ success: true, message_id: sentMessageId });
+    });
 });
 
 app.delete('/api/settings/stickymessages/:guild_id/:id', (req, res) => {
@@ -2682,7 +2724,15 @@ app.post('/api/verification/deploy-panel/:guild_id', async (req, res) => {
                             style: btnStyle,
                             label: v.button_text || 'Verify Access',
                             custom_id: 'veyra_verify_now',
-                            emoji: { name: '✅' }
+                            ...(v.button_emoji ? (
+                                v.button_emoji.includes(':') ? {
+                                    emoji: {
+                                        id: v.button_emoji.replace(/[<>]/g, '').split(':').pop(),
+                                        name: v.button_emoji.replace(/[<>]/g, '').split(':').slice(-2, -1)[0],
+                                        animated: v.button_emoji.startsWith('<a:')
+                                    }
+                                } : { emoji: { name: v.button_emoji } }
+                            ) : {})
                         }
                     ]
                 }
