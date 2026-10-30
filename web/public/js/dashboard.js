@@ -282,6 +282,13 @@ function loadVerificationSettings(guildId) {
 
 
 // --- DISCORD MARKDOWN FORMATTER FOR LIVE PREVIEWS ---
+function formatDiscordMarkdown(text) {
+    if (typeof window.formatDiscordMarkdown === 'function') {
+        return window.formatDiscordMarkdown(text);
+    }
+    return text || '';
+}
+
 window.formatDiscordMarkdown = function(text) {
     if (!text) return '';
     let safe = String(text)
@@ -6628,8 +6635,20 @@ function renderAnalyticsGraph(points) {
         pathJoins.removeAttribute('stroke-dasharray');
     }
 
-    updateGraphTooltipByIndex(points.length - 1, maxVal);
+    // Tooltip hidden until hover
+hideGraphTooltip();
     setupAnalyticsChartScrubbing();
+}
+
+function hideGraphTooltip() {
+    const guideLine = document.getElementById('analytics-guide-line');
+    const dotJoins = document.getElementById('analytics-dot-joins');
+    const dotLeaves = document.getElementById('analytics-dot-leaves');
+    const tooltipBox = document.getElementById('analytics-tooltip-box');
+    if (guideLine) guideLine.style.display = 'none';
+    if (dotJoins) dotJoins.style.display = 'none';
+    if (dotLeaves) dotLeaves.style.display = 'none';
+    if (tooltipBox) tooltipBox.style.display = 'none';
 }
 
 function updateGraphTooltipByIndex(index, maxValCalculated) {
@@ -6665,10 +6684,12 @@ function updateGraphTooltipByIndex(index, maxValCalculated) {
         guideLine.setAttribute('x2', cx);
         guideLine.setAttribute('y1', 0);
         guideLine.setAttribute('y2', height);
+        guideLine.style.display = 'block';
     }
     if (dotJoins) {
         dotJoins.setAttribute('cx', cx);
         dotJoins.setAttribute('cy', cyJoins);
+        dotJoins.style.display = 'block';
     }
 
     const hasLeavesInSeries = points.some(p => (p.leaves || 0) > 0);
@@ -6693,6 +6714,7 @@ function updateGraphTooltipByIndex(index, maxValCalculated) {
         const pct = totalPts > 0 ? (idx / totalPts) * 100 : 50;
         const clampedPct = Math.max(8, Math.min(76, pct - 10));
         tooltipBox.style.left = `${clampedPct}%`;
+        tooltipBox.style.display = 'block';
     }
 }
 
@@ -6715,10 +6737,7 @@ function setupAnalyticsChartScrubbing() {
     });
 
     container.addEventListener('mouseleave', () => {
-        const points = window.activeAnalyticsPoints;
-        if (points && points.length > 0) {
-            updateGraphTooltipByIndex(points.length - 1);
-        }
+        hideGraphTooltip();
     });
 }
 
@@ -6772,6 +6791,9 @@ document.addEventListener('DOMContentLoaded', () => {
         graphContainer.addEventListener('mousemove', handleGraphHover);
         graphContainer.addEventListener('touchmove', handleGraphHover);
         graphContainer.addEventListener('click', handleGraphHover);
+        graphContainer.addEventListener('mouseleave', () => {
+            if (typeof hideGraphTooltip === 'function') hideGraphTooltip();
+        });
     }
 });
 

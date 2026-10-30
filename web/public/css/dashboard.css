@@ -352,9 +352,9 @@ input:checked + .slider:before {
 }
 
 .sidebar {
-    width: 255px !important;
-    min-width: 255px !important;
-    max-width: 255px !important;
+    width: 280px !important;
+    min-width: 280px !important;
+    max-width: 280px !important;
     flex-shrink: 0 !important;
     position: sticky !important;
     top: 0 !important;
@@ -362,12 +362,13 @@ input:checked + .slider:before {
     display: flex !important;
     flex-direction: column !important;
     justify-content: space-between !important;
-    background: var(--surface) !important;
-    border-right: 1px solid var(--border-color) !important;
+    background: #FFFFFF !important;
+    border-right: 1px solid #E2E8F0 !important;
     box-sizing: border-box !important;
     padding: 0 !important;
     overflow: visible !important;
     z-index: 40 !important;
+    box-shadow: 2px 0 12px rgba(15, 23, 42, 0.02) !important;
 }
 
 .sidebar-pinned-top {
@@ -4585,4 +4586,276 @@ div[style*="overflow-x: auto"]::-webkit-scrollbar-thumb {
 div[style*="overflow-y: auto"]::-webkit-scrollbar-thumb:hover,
 div[style*="overflow-x: auto"]::-webkit-scrollbar-thumb:hover {
     background: #BE123C !important;
+}
+
+
+/* ==========================================================================
+   PROFESSIONAL SIDEBAR REDESIGN — UNIFORM SIZES, NO LEFT RED LINE, WIDER 280PX
+   ========================================================================== */
+.sidebar {
+    width: 280px !important;
+    min-width: 280px !important;
+    max-width: 280px !important;
+}
+
+.sidebar-menu {
+    list-style: none !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 4px !important;
+    padding: 0 10px !important;
+    margin: 0 !important;
+    box-sizing: border-box !important;
+}
+
+.sidebar-item {
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    box-sizing: border-box !important;
+    display: block !important;
+}
+
+/* ALL SIDEBAR BUTTONS EXACT SAME SIZE (42px height, 14px px, 10px radius) */
+.sidebar-item a,
+#screen-dashboard .sidebar-item a,
+aside.sidebar .sidebar-item a {
+    display: flex !important;
+    align-items: center !important;
+    width: 100% !important;
+    height: 42px !important;
+    min-height: 42px !important;
+    max-height: 42px !important;
+    padding: 0 14px !important;
+    border-radius: 10px !important;
+    border: none !important;
+    border-left: none !important; /* STRICTLY REMOVE RED LINE */
+    outline: none !important;
+    text-decoration: none !important;
+    background: transparent !important;
+    color: #475569 !important;
+    font-size: 0.88rem !important;
+    font-weight: 500 !important;
+    gap: 12px !important;
+    box-sizing: border-box !important;
+    box-shadow: none !important;
+    transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    user-select: none !important;
+}
+
+/* SIDEBAR ICON ALIGNMENT */
+.sidebar-item a i,
+#screen-dashboard .sidebar-item a i,
+aside.sidebar .sidebar-item a i {
+    width: 20px !important;
+    min-width: 20px !important;
+    max-width: 20px !important;
+    font-size: 0.95rem !important;
+    text-align: center !important;
+    color: #64748B !important;
+    flex-shrink: 0 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    transition: color 0.18s ease !important;
+}
+
+/* SIDEBAR LABEL AND BADGE WRAPPER */
+.sidebar-item a > span,
+#screen-dashboard .sidebar-item a > span,
+aside.sidebar .sidebar-item a > span {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    flex: 1 1 auto !important;
+    min-width: 0 !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    font-size: 0.88rem !important;
+    font-weight: 500 !important;
+    color: inherit !important;
+    line-height: 1.2 !important;
+}
+
+/* SIDEBAR BADGES (PREMIUM, PRO, NEW) - PINNED TO RIGHT, COMPACT & CLEAN */
+.sidebar-item .nav-badge-prem,
+.sidebar-item .nav-badge-pro,
+.sidebar-item .nav-badge-new,
+.sidebar-item .sidebar-badge {
+    margin-left: auto !important;
+    padding: 2.5px 7px !important;
+    font-size: 0.62rem !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.04em !important;
+    border-radius: 6px !important;
+    text-transform: uppercase !important;
+    line-height: 1.1 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    white-space: nowrap !important;
+    flex-shrink: 0 !important;
+}
+
+.sidebar-item .nav-badge-prem {
+    background: #D97706 !important;
+    color: #FFFFFF !important;
+    box-shadow: 0 1px 3px rgba(217, 119, 6, 0.25) !important;
+}
+
+.sidebar-item .nav-badge-pro {
+    background: #E11D48 !important;
+    color: #FFFFFF !important;
+    box-shadow: 0 1px 3px rgba(225, 29, 72, 0.25) !important;
+}
+
+.sidebar-item .nav-badge-new {
+    background: #10B981 !important;
+    color: #FFFFFF !important;
+}
+
+/* HOVER STATE */
+.sidebar-item a:hover,
+#screen-dashboard .sidebar-item a:hover {
+    background: #FFF1F2 !important;
+    color: #E11D48 !important;
+    border-left: none !important;
+}
+
+.sidebar-item a:hover i,
+#screen-dashboard .sidebar-item a:hover i {
+    color: #E11D48 !important;
+}
+
+/* ACTIVE STATE: SOFT ROSE PILL, CRISP CRIMSON TEXT, NO RED LINE! */
+.sidebar-item.active a,
+#screen-dashboard .sidebar-item.active a,
+aside.sidebar .sidebar-item.active a {
+    background: #FFE4E6 !important;
+    color: #BE123C !important;
+    font-weight: 600 !important;
+    border: none !important;
+    border-left: none !important; /* NO RED VERTICAL LINE! */
+    box-shadow: 0 1px 3px rgba(225, 29, 72, 0.08) !important;
+}
+
+.sidebar-item.active a i,
+#screen-dashboard .sidebar-item.active a i,
+aside.sidebar .sidebar-item.active a i {
+    color: #E11D48 !important;
+}
+
+.sidebar-item.active a > span,
+#screen-dashboard .sidebar-item.active a > span {
+    color: #BE123C !important;
+    font-weight: 600 !important;
+}
+
+/* SECTION TITLES IN SIDEBAR */
+.sidebar-title {
+    font-size: 0.72rem !important;
+    font-weight: 700 !important;
+    color: #94A3B8 !important;
+    letter-spacing: 0.08em !important;
+    text-transform: uppercase !important;
+    padding: 16px 14px 6px 14px !important;
+    margin: 0 !important;
+}
+
+
+/* ==========================================================================
+   FIX DOUBLE-BOXES: EMBED BUILDER, FORM CONTROLS & NESTED INPUT WRAPPERS
+   ========================================================================== */
+/* The outer wrapper has the single elegant border */
+#screen-dashboard .ee-input-wrap,
+#screen-dashboard .ee-textarea-wrap {
+    position: relative !important;
+    display: flex !important;
+    align-items: center !important;
+    background: #F8FAFC !important;
+    border: 1.5px solid #CBD5E1 !important;
+    border-radius: 8px !important;
+    padding: 0 !important;
+    box-shadow: none !important;
+    overflow: hidden !important;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease !important;
+}
+
+#screen-dashboard .ee-input-wrap:focus-within,
+#screen-dashboard .ee-textarea-wrap:focus-within {
+    border-color: #E11D48 !important;
+    box-shadow: 0 0 0 2.5px rgba(225, 29, 72, 0.15) !important;
+    background: #FFFFFF !important;
+}
+
+/* The inner inputs and textareas have NO borders, NO background, NO nested box */
+#screen-dashboard .ee-input-wrap input,
+#screen-dashboard .ee-input-wrap input[type="text"],
+#screen-dashboard .ee-input-wrap input.ee-input,
+#screen-dashboard input.ee-input,
+#screen-dashboard input.ee-field-name-input,
+#screen-dashboard input.ee-field-val-input,
+#screen-dashboard .ee-textarea-wrap textarea,
+#screen-dashboard .ee-textarea-wrap textarea.ee-textarea,
+#screen-dashboard textarea.ee-textarea {
+    flex: 1 1 auto !important;
+    width: 100% !important;
+    background: transparent !important;
+    border: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+    color: #0F172A !important;
+    font-size: 0.86rem !important;
+    font-weight: 600 !important;
+    padding: 9px 12px !important;
+    height: auto !important;
+    min-height: unset !important;
+    box-sizing: border-box !important;
+}
+
+#screen-dashboard .ee-input-wrap input:focus,
+#screen-dashboard .ee-input-wrap input[type="text"]:focus,
+#screen-dashboard .ee-textarea-wrap textarea:focus {
+    border: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+    background: transparent !important;
+}
+
+/* Icon / T prefix styling inside input-wrap */
+.ee-text-icon {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 32px !important;
+    height: 100% !important;
+    padding: 0 10px !important;
+    font-size: 0.85rem !important;
+    font-weight: 700 !important;
+    color: #64748B !important;
+    background: #F1F5F9 !important;
+    border-right: 1px solid #CBD5E1 !important;
+    flex-shrink: 0 !important;
+    user-select: none !important;
+}
+
+.ee-input-icon {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 32px !important;
+    padding: 0 10px !important;
+    font-size: 0.85rem !important;
+    color: #64748B !important;
+    background: #F1F5F9 !important;
+    border-right: 1px solid #CBD5E1 !important;
+    flex-shrink: 0 !important;
+    align-self: stretch !important;
+}
+
+/* AUDIT LOG TABLE BREATHING ROOM */
+#overview-audit-logs-body td:last-child {
+    padding-right: 20px !important;
 }
