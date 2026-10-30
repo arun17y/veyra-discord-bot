@@ -284,19 +284,43 @@ function loadVerificationSettings(guildId) {
 // --- DISCORD MARKDOWN FORMATTER FOR LIVE PREVIEWS ---
 window.formatDiscordMarkdown = function(text) {
     if (!text) return '';
-    let safe = text
+    let safe = String(text)
         .replace(/&/g, '&amp;')
         .replace(/</g, '&lt;')
         .replace(/>/g, '&gt;');
-    // Bold: **text**
+
+    // 1. Full Discord emojis: <:name:id> or <a:name:id> (both raw and escaped)
+    safe = safe.replace(/&lt;(a)?:?([a-zA-Z0-9_\-]+):([0-9]+)&gt;/g, (match, isAnim, name, id) => {
+        const ext = isAnim ? 'gif' : 'png';
+        return `<img src="https://cdn.discordapp.com/emojis/${id}.${ext}" alt="${name}" title="${name}" class="discord-emoji-img" style="width: 1.4em; height: 1.4em; vertical-align: -0.22em; display: inline-block; object-fit: contain;">`;
+    }).replace(/<(a)?:?([a-zA-Z0-9_\-]+):([0-9]+)>/g, (match, isAnim, name, id) => {
+        const ext = isAnim ? 'gif' : 'png';
+        return `<img src="https://cdn.discordapp.com/emojis/${id}.${ext}" alt="${name}" title="${name}" class="discord-emoji-img" style="width: 1.4em; height: 1.4em; vertical-align: -0.22em; display: inline-block; object-fit: contain;">`;
+    });
+
+    // 2. Custom name resolution :name: from guild emojis
+    safe = safe.replace(/(?<!<)(?<!<a):([a-zA-Z0-9_\-]{2,36}):(?!\d+>)/g, (match, rawName) => {
+        const lower = rawName.toLowerCase();
+        const norm = lower.replace(/[-_]/g, '');
+        if (Array.isArray(window.guildEmojis)) {
+            const found = window.guildEmojis.find(e => e.name && (e.name.toLowerCase() === lower || e.name.toLowerCase().replace(/[-_]/g, '') === norm));
+            if (found) {
+                const ext = found.animated ? 'gif' : 'png';
+                return `<img src="https://cdn.discordapp.com/emojis/${found.id}.${ext}" alt="${found.name}" title="${found.name}" class="discord-emoji-img" style="width: 1.4em; height: 1.4em; vertical-align: -0.22em; display: inline-block; object-fit: contain;">`;
+            }
+        }
+        return match;
+    });
+
+    // 3. Bold: **text**
     safe = safe.replace(/\*\*(.*?)\*\*/g, '<strong style="color:#FFFFFF !important; font-weight:700;">$1</strong>');
-    // Italic: *text*
+    // 4. Italic: *text*
     safe = safe.replace(/\*(.*?)\*/g, '<em style="color:#DBDEE1 !important;">$1</em>');
-    // Underline: __text__
+    // 5. Underline: __text__
     safe = safe.replace(/__(.*?)__/g, '<u style="color:#DBDEE1 !important;">$1</u>');
-    // Inline code: `code`
+    // 6. Inline code: `code`
     safe = safe.replace(/`([^`]+)`/g, '<code style="background:rgba(0,0,0,0.3); padding:2px 4px; border-radius:3px; font-family:monospace; color:#E3E5E8 !important;">$1</code>');
-    // Line breaks
+    // 7. Line breaks
     safe = safe.replace(/\n/g, '<br>');
     return safe;
 };
@@ -5141,11 +5165,11 @@ function parseDiscordEmojis(text) {
     parsed = parsed
         .replace(/&lt;(a)?:?([a-zA-Z0-9_\-]+):([0-9]+)&gt;/g, (match, isAnim, name, id) => {
             const ext = isAnim ? 'gif' : 'png';
-            return `<img src="https://cdn.discordapp.com/emojis/${id}.${ext}" alt="${name}" title="${name}" class="discord-emoji-img" style="width: 1.35em; height: 1.35em; vertical-align: -0.2em; display: inline-block; object-fit: contain;">`;
+            return `<img src="https://cdn.discordapp.com/emojis/${id}.${ext}" alt="${name}" title="${name}" class="discord-emoji-img" style="width: 1.4em; height: 1.4em; vertical-align: -0.2em; display: inline-block; object-fit: contain;">`;
         })
         .replace(/<(a)?:?([a-zA-Z0-9_\-]+):([0-9]+)>/g, (match, isAnim, name, id) => {
             const ext = isAnim ? 'gif' : 'png';
-            return `<img src="https://cdn.discordapp.com/emojis/${id}.${ext}" alt="${name}" title="${name}" class="discord-emoji-img" style="width: 1.35em; height: 1.35em; vertical-align: -0.2em; display: inline-block; object-fit: contain;">`;
+            return `<img src="https://cdn.discordapp.com/emojis/${id}.${ext}" alt="${name}" title="${name}" class="discord-emoji-img" style="width: 1.4em; height: 1.4em; vertical-align: -0.2em; display: inline-block; object-fit: contain;">`;
         });
 
     // 2. Custom name resolution :name: or :1551561322158760006webp:
@@ -5158,7 +5182,7 @@ function parseDiscordEmojis(text) {
             const found = window.guildEmojis.find(e => e.name && (e.name.toLowerCase() === lower || e.name.toLowerCase().replace(/[-_]/g, '') === norm));
             if (found) {
                 const ext = found.animated ? 'gif' : 'png';
-                return `<img src="https://cdn.discordapp.com/emojis/${found.id}.${ext}" alt="${found.name}" title="${found.name}" class="discord-emoji-img" style="width: 1.35em; height: 1.35em; vertical-align: -0.2em; display: inline-block; object-fit: contain;">`;
+                return `<img src="https://cdn.discordapp.com/emojis/${found.id}.${ext}" alt="${found.name}" title="${found.name}" class="discord-emoji-img" style="width: 1.4em; height: 1.4em; vertical-align: -0.2em; display: inline-block; object-fit: contain;">`;
             }
         }
 
@@ -5174,7 +5198,7 @@ function parseDiscordEmojis(text) {
         const numMatch = rawName.match(/^(\d{15,22})(?:webp|png|gif)?$/i);
         if (numMatch) {
             const numId = numMatch[1];
-            return `<img src="https://cdn.discordapp.com/emojis/${numId}.png" alt="${numId}" title="${numId}" class="discord-emoji-img" style="width: 1.35em; height: 1.35em; vertical-align: -0.2em; display: inline-block; object-fit: contain;" onerror="this.style.display='none'">`;
+            return `<img src="https://cdn.discordapp.com/emojis/${numId}.png" alt="${numId}" title="${numId}" class="discord-emoji-img" style="width: 1.4em; height: 1.4em; vertical-align: -0.2em; display: inline-block; object-fit: contain;" onerror="this.style.display='none'">`;
         }
 
         return match;
@@ -6562,7 +6586,7 @@ function renderAnalyticsGraph(points) {
 
     // 4. Construct SVG curve paths
     const width = 1000;
-    const height = 185;
+    const height = 275;
     const totalPts = points.length - 1;
     
     const getX = (index) => totalPts > 0 ? (index / totalPts) * width : 0;
@@ -6618,7 +6642,7 @@ function updateGraphTooltipByIndex(index, maxValCalculated) {
     
     const maxVal = maxValCalculated || window.currentAnalyticsMaxVal || 10;
     const width = 1000;
-    const height = 185;
+    const height = 275;
     
     const getX = (i) => totalPts > 0 ? (i / totalPts) * width : 0;
     const getY = (val) => height - ((val || 0) / maxVal) * height;
@@ -7938,20 +7962,30 @@ window.updateReportsLivePreview = function() {
     const isMonthly = monthlyBtn && monthlyBtn.classList.contains('active');
     const freqName = isMonthly ? 'MONTHLY' : 'WEEKLY';
 
-    // 3. Embed Title
+    // 3. Embed Title (with live Discord emoji support)
     const titleInput = document.getElementById('report-embed-title-input');
     const titleEl = document.getElementById('report-preview-title') || document.getElementById('report-preview-embed-title');
     if (titleEl) {
         let userTitle = titleInput ? titleInput.value.trim() : '';
-        titleEl.innerText = userTitle || `📊 VEYRA ${freqName} Server Growth Report`;
+        const titleStr = userTitle || `📊 VEYRA ${freqName} Server Growth Report`;
+        if (typeof formatDiscordMarkdown === 'function') {
+            titleEl.innerHTML = formatDiscordMarkdown(titleStr);
+        } else {
+            titleEl.innerText = titleStr;
+        }
     }
 
-    // 3b. Description
+    // 3b. Description (with live Discord emoji & markdown parsing)
     const descInput = document.getElementById('report-embed-desc');
     const descEl = document.getElementById('report-preview-desc');
     if (descEl && descInput) {
-        descEl.innerText = descInput.value || '';
-        descEl.style.display = descInput.value ? 'block' : 'none';
+        const val = descInput.value || '';
+        if (typeof formatDiscordMarkdown === 'function') {
+            descEl.innerHTML = formatDiscordMarkdown(val);
+        } else {
+            descEl.innerText = val;
+        }
+        descEl.style.display = val ? 'block' : 'none';
     }
 
     // 4. Thumbnail URL
@@ -8010,10 +8044,12 @@ window.updateReportsLivePreview = function() {
                 const name = row.querySelector('.ee-field-name-input')?.value || 'Field Name';
                 const val = row.querySelector('.ee-field-val-input')?.value || 'Field Value';
                 const inline = row.querySelector('.ee-field-inline-input')?.checked;
+                const formattedName = typeof formatDiscordMarkdown === 'function' ? formatDiscordMarkdown(name) : name;
+                const formattedVal = typeof formatDiscordMarkdown === 'function' ? formatDiscordMarkdown(val) : val;
                 html += `
                     <div style="${inline ? 'display:inline-block; width:48%; vertical-align:top; margin-bottom:8px;' : 'display:block; margin-bottom:8px;'}">
-                        <div style="color:#F2F3F5; font-weight:700; font-size:0.86rem; margin-bottom:2px;">${name}</div>
-                        <div style="color:#DBDEE1; font-size:0.82rem; white-space:pre-wrap;">${val}</div>
+                        <div style="color:#F2F3F5; font-weight:700; font-size:0.86rem; margin-bottom:2px;">${formattedName}</div>
+                        <div style="color:#DBDEE1; font-size:0.82rem; white-space:pre-wrap;">${formattedVal}</div>
                     </div>
                 `;
             });
